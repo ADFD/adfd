@@ -80,11 +80,8 @@ class AdfdParser(bbcode.Parser):
     @staticmethod
     def _render_quote(name, value, options, parent, context):
         author = (options['quote'] if (options and 'quote' in options) else '')
-        if author:
-            cite = "<footer><cite>%s</cite></footer>" % (author)
-        else:
-            cite = ""
-        return ('<blockquote>%s%s</blockquote>' % (value, cite))
+        cite = "<footer><cite>%s</cite></footer>" % (author) if author else ''
+        return '<blockquote>%s%s</blockquote>' % (value, cite)
 
     def _add_url_formatter(self):
         self.add_formatter(
