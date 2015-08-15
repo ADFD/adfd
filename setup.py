@@ -16,9 +16,9 @@ setup(
     include_package_data=True,
     zip_safe=False,
     platforms='Unix',
-    install_requires=requirements,
+    # install_requires=requirements,  # todo use real packages when stable
     entry_points=dict(console_scripts=[
-        'adfd=adfd/cli:main',
+        'adfd=adfd.cli:main',
     ]),
     classifiers=[
         'Development Status :: 4 - Beta',

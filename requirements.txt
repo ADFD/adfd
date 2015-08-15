@@ -1,4 +1,6 @@
-ipython[all]
 plumbum
 pyphen
+jinja2
+typogrify
+ws4py
 Nikola[extras]

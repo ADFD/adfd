@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import print_function
 import bbcode
 from plumbum import LocalPath
 
@@ -12,7 +14,7 @@ def custom_render():
     # Installing advanced formatters.
     for color in ('red', 'blue', 'green', 'yellow', 'black', 'white'):
         parser.add_formatter(color, render_color)
-    print parser.format(text, somevar='somevalue')
+    print(parser.format(text, somevar='somevalue'))
 
 
 def simple_formatters():
@@ -26,9 +28,7 @@ def parsing():
     parser = bbcode.Parser()
     html = parser.format(text)
     outFilePath.write(html.encode('utf-8'))
-    print html
-
-
+    print(html)
 
 
 if __name__ == '__main__':
@@ -37,14 +37,4 @@ if __name__ == '__main__':
     outFilePath = HERE / 'bbcode-playground.html'
 
     text = testFilePath.read().decode('utf-8')
-    print text; print '#' * 80
-    text = normalize_whitespace(text)
-    text = normalize_lines(text)
-    print text; print '#' * 80
-
-    # p = re.compile('[\s\n]')
-    # text.replace(, 'LINE\n')
-    # print text; print '#' * 80
-
-    # text = text.replace('\n\n', '[br][br]')
-    # print text; print '#' * 80
+    custom_render()
