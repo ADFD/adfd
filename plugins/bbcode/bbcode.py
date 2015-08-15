@@ -31,7 +31,7 @@ import os
 import re
 
 try:
-    from adfd_nikola.bbcode import bbcode
+    import bbcode
 except ImportError:
     bbcode = None  # NOQA
 
