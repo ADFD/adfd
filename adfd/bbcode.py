@@ -164,7 +164,7 @@ class Parser (object):
         self.add_simple_formatter('i', '<em>%(value)s</em>')
         self.add_simple_formatter('u', '<u>%(value)s</u>')
         self.add_simple_formatter('s', '<strike>%(value)s</strike>')
-        self.add_simple_formatter('hr', '<hr />', standalone=True)
+        self.add_simple_formatter('hr', '<hr>', standalone=True)
         self.add_simple_formatter('sub', '<sub>%(value)s</sub>')
         self.add_simple_formatter('sup', '<sup>%(value)s</sup>')
 
