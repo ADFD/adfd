@@ -4,7 +4,7 @@ import time
 
 from nikola import filters
 
-import structure
+from adfd import structure
 from LICENSE import LICENSE_LINK as LICENSE
 
 BLOG_AUTHOR = "ADFD"  # (translatable)

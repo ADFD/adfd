@@ -31,7 +31,7 @@ import os
 import re
 
 try:
-    import bbcode
+    from adfd import bbcode
 except ImportError:
     bbcode = None  # NOQA
 
