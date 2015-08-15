@@ -72,7 +72,6 @@ class AdfdParser(bbcode.Parser):
         return '<%s%s>%s</%s>' % (tag, css, value, tag)
 
     def _add_header_formatters(self):
-        # self.add_simple_formatter('h1', '<h1>%(value)s</h1>')
         for i in range(1, 6):
             self.add_simple_formatter(
                 'h%d' % (i), '<h%d>%%(value)s</h%d>' % (i+1, i+1))
