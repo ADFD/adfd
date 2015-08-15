@@ -3,6 +3,7 @@ import logging
 import re
 import plumbum
 
+
 log = logging.getLogger(__name__)
 
 
@@ -24,6 +25,7 @@ class Article(object):
     def slug(self):
         try:
             return self.metadataDict['slug']
+
         except KeyError:
             title = self.metadataDict['title']
             result = []
