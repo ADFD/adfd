@@ -78,75 +78,9 @@ def url_refers_to_this(url, topicId, postIds):
 #         return LocalPath(contentPath) / fileName
 
 
-BBCODE_SANITY = [
-    ('\[quote="(.*?)"\](.*?)\[\/quote\]', '[quote]\g<2>\n\n<!-CITE-> \g<1>[/quote]'),
-]
-
-MARKDOWN = [
-    ('\[img\]\[(.*?)\]\((.*?)\)\[\/img\]', '![\g<1>](\g<2>)'),
-]
-
-HTML_TEXT = [
-    ('\[img\]<a href="(.*?)">(.*?)</a>\[/img]',
-     '<a href="\g<1>"><img src="\g<2>" /></a>'),
-]
-
-RESTRUCTURED_TEXT = [
-    # see https://github.com/jgm/pandoc/issues/678
-    # ('\|image(\d.*?)\|', '|image\g<1>|_'),
-    ('<!-CITE->', '\n    --'), # citation swallowed by html
-]
-
-PANDOC_IS_CRAZY = [
-    ('^\| (.*)', '\g<1>'),  # splatters | randomly at line starts !?
-]
-
 def replace(text, replacements, flags=re.DOTALL):
     for pattern, replacement in replacements:
         log.debug("'%s' -> '%s'\n%s", pattern, replacement, text)
         text = re.compile(pattern, flags=flags).sub(replacement, text)
         log.debug("applied\n%s\n%s", text, '#' * 120)
     return text
-
-
-# Todo make this fetch from Article
-class Postman(object):
-    def __init__(self, post):
-        if isinstance(post, int):
-            # fixme fetch from file(s)
-            post = fetch_post(post)
-        self.p = post
-
-    @property
-    def saneBbCodeContent(self):
-        return replace(self.p.preprocessedText, BBCODE_SANITY)
-
-    @property
-    def htmlText(self):
-        return bbcode.render_html(self.saneBbCodeContent)
-
-    @property
-    def rstText(self):
-        html = self.htmlText
-        rst = self._transform_to(html, 'rst')
-        rst = replace(rst, RESTRUCTURED_TEXT)
-        rst = replace(
-            rst, PANDOC_IS_CRAZY, flags=re.MULTILINE)
-        return rst
-
-    @property
-    def markdownText(self):
-        out = self._transform_to(self.htmlText, 'markdown')
-        # out = out.replace('\\', '')  # todo necessary?
-        return replace(out, MARKDOWN)
-
-    def _transform_to(self, htmlSource, fmt):
-        """markdown, rst, ..."""
-        tmpPath = '/tmp/postman_%.20f.html' % time.time()
-        htmlSource = replace(htmlSource, HTML_TEXT)
-        with open(tmpPath, 'w') as f:
-            f.write(htmlSource.encode(ENC.OUT))
-        cmd = ['pandoc', tmpPath, '-f', 'html', '-t', fmt]
-        out = unicode(subprocess.check_output(cmd).decode(ENC.OUT))
-        os.remove(tmpPath)
-        return out
