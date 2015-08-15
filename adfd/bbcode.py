@@ -77,31 +77,26 @@ class TagOptions (object):
 
 
 class Parser (object):
-
     TOKEN_TAG_START = 1
     TOKEN_TAG_END = 2
     TOKEN_NEWLINE = 3
     TOKEN_DATA = 4
-
     REPLACE_ESCAPE = (
         ('&', '&amp;'),
         ('<', '&lt;'),
         ('>', '&gt;'),
         ('"', '&quot;'),
-        ("'", '&#39;'),
-    )
-
+        ("'", '&#39;'))
     REPLACE_COSMETIC = (
         ('---', '&mdash;'),
         ('--', '&ndash;'),
         ('...', '&#8230;'),
         ('(c)', '&copy;'),
         ('(reg)', '&reg;'),
-        ('(tm)', '&trade;'),
-    )
+        ('(tm)', '&trade;'))
 
     def __init__(
-            self, newline='<br />', normalize_newlines=True,
+            self, newline='<br>', normalize_newlines=True,
             install_defaults=True, escape_html=True, replace_links=True,
             replace_cosmetic=True, tag_opener='[', tag_closer=']',
             linker=None, linker_takes_context=False, drop_unrecognized=False):
