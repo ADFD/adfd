@@ -13,17 +13,12 @@ class ENC(object):
 
 
 class Article(object):
-    HERE = plumbum.LocalPath(__file__).up()
-    ARTICLES_PATH = HERE / 'sources' / 'articles'
+    ARTICLES_PATH = plumbum.LocalPath(__file__).up(2) / 'sources' / 'static'
     PUNCT = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 
     def __init__(self, relPath):
-        self.path = self.ARTICLES_PATH / relPath
-
-    # fixme know completely oboslete?
-    def url_refers_to_this(self, url):
-        # fixme ambivalent - use relPath without extension instead od slug
-        return self.slug in url
+        self.contentPath = self.ARTICLES_PATH / (relPath + '.bb')
+        self.metadataPath = self.ARTICLES_PATH / (relPath + '.meta')
 
     @property
     def slug(self):
@@ -38,11 +33,11 @@ class Article(object):
                     result.append(word)
             return unicode(u'-'.join(result))
 
-    # fixme fetch from extra meta file instead now
     @property
     def metadataDict(self):
+        metadata = self.metadataPath.read().decode(ENC.OUT)
         metadataDict = {}
-        for line in self.content.split('\n'):
+        for line in metadata.split('\n'):
             if not line.strip():
                 break
 
@@ -52,13 +47,11 @@ class Article(object):
 
     @property
     def content(self):
-        text = self.path.read().decode(ENC.OUT)
+        text = self.contentPath.read().decode(ENC.OUT)
         return text
 
-    @property
-    def target(self):
-        return str(self.fileName).split('.')[-1]
 
-    @property
-    def fileName(self):
-        return self.path.basename
+if __name__ == '__main__':
+    a = Article('kitchen-sink')
+    print a.content
+    print a.metadataDict
