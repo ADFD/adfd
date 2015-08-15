@@ -1,0 +1,23 @@
+[b]Warum gibt es das ADFD?[/b]
+Wir haben das ADFD ins Leben gerufen, weil wir oder unsere Angehörigen unter schweren Nebenwirkungen und Absetzproblemen durch SSRI oder andere "moderne Antidepressiva" gelitten haben und bei Ärzten und Therapeuten auf Unverständnis gestoßen sind.
+
+Viele Ärzte im deutschsprachigen Raum wissen noch nicht, dass moderne Antidepressiva weitaus problematischere Medikamente sind, als angenommen wird. Im englischsprachigen Raum wird das Thema schon seit längerem diskutiert und erste Maßnahmen wurden bereits ergriffen (z.B. Neuüberprüfung des Risiko/Nutzen-Verhältnisses, Verbot für Minderjährige und zusätzliche Warnungen auf der Packung und auf dem Beipackzettel). 
+Wir wollen dazu beitragen, dass auch im deutschsprachigen Raum die Patienten nicht mehr ratlos sind, wenn das Antidepressivum schwere Nebenwirkungen oder Absetzsymptome verursacht. Zu diesem Zweck stellen wir bisher nur auf englisch erhältliche Informationen auf deutsch zur Verfügung und zur Diskussion. Ein Einstieg in die Thematik kann folgender Artikel bieten: [url=http://www.adfd.org/forum/viewtopic.php?t=963]Was sind moderne Antidepressiva?[/url].
+
+[b]Was haben wir bisher erreicht?[/b]
+Wir sind seit Juli 2003 online. Seitdem hat sich auch in Deutschland wenigstens etwas bewegt. Eines der SSRI - Paroxetin (Markennamen: Seroxat, Deroxat, Tagonis, Paxil) - hat mittlerweile europaweit die öffentliche Aufmerksamkeit erregt und ist neu überprüft worden. In Deutschland resultierte daraus bisher, dass [url=http://www.adfd.org/forum/viewtopic.php?p=5118#5118]Paroxetin bei Minderjährigen jetzt explizit kontraindiziert[/url] ist (bislang wurden SSRI - obwohl nicht genehmigt - doch häufig an Minderjährige verschrieben). Darüber hinaus gibt es einen [url=http://www.adfd.org/forum/viewtopic.php?p=5040#5040]Frage/Antwort Katalog (FAQ) des BfArM zu Paroxetin[/url]. Die Problematik trifft aber mehr oder weniger ausgeprägt auf alle SSRI und wahrscheinlich auch auf andere moderne Antidepressiva zu, deshalb sollten die Untersuchungen ausgeweitet werden und entsprechende Warnungen an die Ärzte gehen. Gerade die Absetzproblematik wird immer noch zu oft als Rückfall oder andere Krankheit fehldiagnostiziert. Weitergehende Informationen sind in der [url=http://www.adfd.org/forum/viewtopic.php?t=963]Übersicht über Antidepressiva[/url] und in der Kategorie [url=http://www.adfd.org/forum/viewforum.php?f=6]Information[/url] unseres Diskussionsforums zu finden.
+
+[b]Über das Diskussionsforum[/b]
+Das Diskussionsforum wurde eingerichtet, um Menschen zu helfen, die unter Nebenwirkungen oder Absetzsymptomen durch moderne Antidepressiva leiden und diese absetzen wollen. Wir bestreiten nicht, dass moderne Antidepressiva auch einigen Menschen helfen können - aufgrund unserer eigenen Erfahrungen, der überwältigenden Anzahl von Menschen die ähnliche Probleme haben, und der aktuellen Forschungsergebnisse sind wir allerdings der Meinung, dass die heute gängige millionenfache Verschreibung von SSRI und anderen Antidepressiva nicht zu rechtfertigen ist. Das ADFD ist zwar nicht prinzipiell gegen die Verabreichung von Medikamenten bei psychischen Problemen - Patienten sollten aber die Gelegenheit haben, eine informierte Entscheidung zu treffen. Die bisherige Informationslandschaft im deutschsprachigen Raum ist diesbezüglich sehr einseitig und wir sehen uns als notwendiges Gegengewicht zu der - unserer Ansicht nach - zu positiven Berichterstattung über moderne Antidepressiva. Bevor Du am Austausch im Forum teilnimmst, lies bitte auch unsere [url=http://www.adfd.org/austausch/rules]Forenregeln[/url]. Genaueres über die Aufgabe dieses Forum findest Du [url=http://www.adfd.org/austausch/viewtopic.php?f=12&t=1811]hier[/url].
+
+[b]Dankeschön[/b]
+Unser Dank geht an die engagierten Menschen in Großbritannien und den USA, die uns ermutigt haben, das ADFD ins Leben zu rufen und Menschen im deutschsprachigen Raum die Möglichkeit zu geben, sich zu informieren und auszutauschen.
+Wir möchten auch den Teilnehmern danken, die hier mit ihren Beiträgen vielen Menschen helfen, sich gegenseitig Mut machen und uns und andere Betroffene mit wertvollen Informationen versorgen. Ein besonderer Dank geht an unsere Moderatoren.
+
+[b]Unabhängigkeit ist für uns sehr wichtig!
+Wir finanzieren das ADFD vollständig selbst und verfolgen keine wirtschaftlichen Interessen.
+Wir erhalten keine Spenden, Förder- oder Sponsorengelder.
+Wir sind nicht gebunden an andere Organisationen, Glaubensgemeinschaften oder sonstige Gruppierungen.[/b]
+
+Breisach, den 21.12.2004
+Linda und Oliver

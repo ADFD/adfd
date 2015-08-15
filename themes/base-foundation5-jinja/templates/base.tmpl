@@ -1,0 +1,28 @@
+{#  -*- coding: utf-8 -*- #}
+{% import 'base_helper.tmpl' as base with context %}
+{% import 'base_header.tmpl' as header with context %}
+{% import 'base_footer.tmpl' as footer with context %}
+{% import 'annotation_helper.tmpl' as annotations with context %}
+{{ set_locale(lang) }}
+{{ base.html_headstart() }}
+{% block extra_head %}
+{% endblock %}
+{{ template_hooks['extra_head']() }}
+</head>
+<body>
+    <a href="#content" class="show-for-sr show-on-focus">{{ messages("Skip to main content") }}</a>
+    <!--[if lt IE 9]>
+    <div class="row" data-alert>
+        <div class="large-12 columns text-center alert-box warning round">
+        Dieser Browser ist <strong>veraltet</strong>. Es wird Zeit einen <a href="http://browsehappy.com/">aktuellen zu installieren</a>.</p><a href="#" class="close">&times;
+        </div>
+    </div>
+    <![endif]-->
+     {{ header.html_header() }}
+    {% block content %}{% endblock %}
+     {{ footer.html_footer() }}
+    {{ body_end }}
+    {{ template_hooks['body_end']() }}
+    {{ base.late_load_js() }}
+</body>
+</html>

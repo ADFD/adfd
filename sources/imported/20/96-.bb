@@ -1,0 +1,1 @@
+Ja, ich esse jetzt bewuster. Also mehr Obst, Salat, usw.  Meine Freundin und ich kochen jetzt auch nichts mehr aus diesen "Maggi-Fertig-Tüten", wegen des Glutamins (ich glaub so heißt das!?). Weniger Chips, ohne schaff ich nicht ;-)) Aber nicht mehr als eine Tüte in der Woche. Aber auch vorher habe ich verhältnismäßig ordentlich gegessen (also nicht übermäßig viel und bewußt).

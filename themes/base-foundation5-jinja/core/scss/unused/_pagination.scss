@@ -1,0 +1,24 @@
+$include-pagination-classes: $include-html-classes;
+
+$pagination-height: rem-calc(24);
+$pagination-margin: rem-calc(-5);
+
+$pagination-li-float: $default-float;
+$pagination-li-height: rem-calc(24);
+$pagination-li-font-color: $jet;
+$pagination-li-font-size: rem-calc(14);
+$pagination-li-margin: rem-calc(5);
+
+$pagination-link-pad: rem-calc(1 10 1);
+$pagination-link-font-color: $aluminum;
+$pagination-link-active-bg: scale-color($white, $lightness: -10%);
+
+$pagination-link-unavailable-cursor: default;
+$pagination-link-unavailable-font-color: $aluminum;
+$pagination-link-unavailable-bg-active: transparent;
+
+$pagination-link-current-background: $primary-color;
+$pagination-link-current-font-color: $white;
+$pagination-link-current-font-weight: $font-weight-bold;
+$pagination-link-current-cursor: default;
+$pagination-link-current-active-bg: $primary-color;

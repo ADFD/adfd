@@ -1,0 +1,1 @@
+Sehr hilfreich. Und auch für mich neue Informationen, darüber dass das Gehirn gegen die Neuroleptika regelt in dem es neue Zellen bildet.

@@ -1,0 +1,139 @@
+{#  -*- coding: utf-8 -*- #}
+{% import 'base_helper.tmpl' as base with context %}
+
+{#<div class="fixed"><nav class="top-bar" data-topbar="">#}
+{#    <ul class="title-area">#}
+{#      <li class="name">#}
+{#        <a href="{{ url_for('index') }}" title="Antidepressiva Forum Deutschland">#}
+{#            <img src="{{ url_for('static', filename='img/logo78x81.png') }}"/>#}
+{#        </a>#}
+{##}
+{#      </li>#}
+{#      <li class="toggle-topbar menu-icon"><h1>ADFD</h1></li>#}
+{#      <li class="toggle-topbar menu-icon"><a href="#"><span>menu</span></a></li>#}
+{#    </ul>#}
+{##}
+{#  <section class="top-bar-section">#}
+{#      <!-- Right Nav Section -->#}
+{#      <ul class="right">#}
+{#        <li class="divider"></li>#}
+{#        <li class="has-dropdown not-click">#}
+{#          <a href="#">Main Item 1</a>#}
+{#          <ul class="dropdown"><li class="title back js-generated"><h5><a href="javascript:void(0)">Back</a></h5></li><li class="parent-link hide-for-large-up"><a class="parent-link js-generated" href="#">Main Item 1</a></li>#}
+{#            <li><label>Section Name</label></li>#}
+{#            <li class="has-dropdown not-click">#}
+{#              <a href="#" class="">Has Dropdown, Level 1</a>#}
+{#              <ul class="dropdown"><li class="title back js-generated"><h5><a href="javascript:void(0)">Back</a></h5></li><li class="parent-link hide-for-large-up"><a class="parent-link js-generated" href="#">Has Dropdown, Level 1</a></li>#}
+{#                <li><a href="#">Dropdown Options</a></li>#}
+{#                <li><a href="#">Dropdown Options</a></li>#}
+{#                <li><a href="#">Level 2</a></li>#}
+{#                <li><a href="#">Subdropdown Option</a></li>#}
+{#                <li><a href="#">Subdropdown Option</a></li>#}
+{#                <li><a href="#">Subdropdown Option</a></li>#}
+{#              </ul>#}
+{#            </li>#}
+{#            <li><a href="#">Dropdown Option</a></li>#}
+{#            <li><a href="#">Dropdown Option</a></li>#}
+{#            <li class="divider"></li>#}
+{#            <li><label>Section Name</label></li>#}
+{#            <li><a href="#">Dropdown Option</a></li>#}
+{#            <li><a href="#">Dropdown Option</a></li>#}
+{#            <li><a href="#">Dropdown Option</a></li>#}
+{#            <li class="divider"></li>#}
+{#            <li><a href="#">See all →</a></li>#}
+{#          </ul>#}
+{#        </li>#}
+{#        <li class="divider"></li>#}
+{#        <li class="has-dropdown not-click">#}
+{#          <a href="#">Main Item 2</a>#}
+{#          <ul class="dropdown"><li class="title back js-generated"><h5><a href="javascript:void(0)">Back</a></h5></li><li class="parent-link hide-for-large-up"><a class="parent-link js-generated" href="#">Main Item 2</a></li>#}
+{#            <li><a href="#">Dropdown Option</a></li>#}
+{#            <li><a href="#">Dropdown Option</a></li>#}
+{#            <li><a href="#">Dropdown Option</a></li>#}
+{#            <li class="divider"></li>#}
+{#            <li><a href="#">See all →</a></li>#}
+{#          </ul>#}
+{#        </li>#}
+{#      </ul>#}
+{#    </section>#}
+{#</nav></div>#}
+
+
+{% macro html_header() %}
+    <header id="header" role="banner">
+        <div class="fixed">
+            <nav class="top-bar" data-topbar role="navigation">
+                {{ html_site_title() }}
+                {{ html_translation_header() }}
+                {{ html_navigation_links() }}
+                {% if search_form %}
+                    <div class="searchform" role="search">
+                        {{ search_form }}
+                    </div>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+    {{ template_hooks['page_header']() }}
+{% endmacro %}
+
+{% macro html_site_title() %}
+    <ul class="title-area">
+        <li id="brand" class="name">
+            {% if logo_url %}
+                <a href="{{ abs_link(_link("root", None, lang)) }}" title="{{ blog_title }}" rel="home">
+                <img id="logo" src="{{ logo_url }}" alt="{{ blog_title }}">
+            {% endif %}
+            {% if show_blog_title %}
+                <span id="blog-title">{{ blog_title }}</span>
+            {% endif %}
+            </a>
+        </li>
+{#      <li class="toggle-topbar menu-icon"><h1>ADFD</h1></li>#}
+{#      <li class="toggle-topbar menu-icon"><a href="#"><span>menu</span></a></li>#}
+    </ul>
+{% endmacro %}
+
+{% macro html_navigation_links() %}
+    <section id="menu" class="top-bar-section" role="navigation">
+    <ul class="left">
+        <li><a href="/">Left Nav Button</a></li>
+    </ul>
+
+    <ul class="right">
+        <li class="active">
+            {% for url, text in navigation_links[lang] %}
+                {% if isinstance(url, tuple) %}
+                    <li class="has-dropdown"> {{ text }}
+                    <a href="#">Right Button Dropdown</a>
+                    <ul class="dropdown">
+                    {% for suburl, text in url %}
+                        {% if rel_link(permalink, suburl) == "#" %}
+                            <li class="active"><a href="{{ permalink }}">{{ text }} <span class="show-for-sr">{{ messages("(active)", lang) }}</span></a></li>
+                        {% else %}
+                            <li><a href="{{ suburl }}">{{ text }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    {% if rel_link(permalink, url) == "#" %}
+                        <li class="active"><a href="{{ permalink }}">{{ text }} <span class="show-for-sr">{{ messages("(active)", lang) }}</span></a></li>
+                    {% else %}
+                        <li><a href="{{ url }}">{{ text }}</a></li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            {{ template_hooks['menu']() }}
+            {{ template_hooks['menu_alt']() }}
+    </ul>
+    </section>
+{% endmacro %}
+
+{% macro html_translation_header() %}
+    {% if translations|length > 1 %}
+        <div id="toptranslations">
+            <h2>{{ messages("Languages:") }}</h2>
+            {{ base.html_translations() }}
+        </div>
+    {% endif %}
+{% endmacro %}

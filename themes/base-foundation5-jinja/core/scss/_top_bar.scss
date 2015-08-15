@@ -1,0 +1,69 @@
+$include-html-top-bar-classes: $include-html-classes;
+
+$topbar-bg-color: $bg-color-super-dark;
+$topbar-bg: $topbar-bg-color;
+
+$topbar-height: rem-calc(45);
+$topbar-margin-bottom: 0;
+
+$topbar-title-weight: $font-weight-normal;
+$topbar-title-font-size: rem-calc(17);
+
+$topbar-link-color: $fg-color-very-light;
+$topbar-link-color-hover: $fg-color-very-light;
+$topbar-link-color-active: $fg-color-very-light;
+$topbar-link-color-active-hover: $fg-color-very-light;
+$topbar-link-weight: $font-weight-bold;
+$topbar-link-font-size: rem-calc(13);
+$topbar-link-hover-lightness: -10%; //Darken by 10%
+$topbar-link-bg: $topbar-bg;
+$topbar-link-bg-hover: $jet;
+$topbar-link-bg-color-hover: $charcoal;
+$topbar-link-bg-active: $primary-color;
+$topbar-link-bg-active-hover: scale-color($primary-color, $lightness: -14%);
+$topbar-link-font-family: $elements-font-family;
+$topbar-link-text-transform: none;
+$topbar-link-padding: ($topbar-height / 3);
+$topbar-back-link-size: rem-calc(18);
+$topbar-link-dropdown-padding: rem-calc(20);
+$topbar-button-font-size: .75rem;
+$topbar-button-top: 7px;
+
+$topbar-dropdown-bg: $oil;
+$topbar-dropdown-link-color: $fg-color-very-light;
+$topbar-dropdown-link-color-hover: $topbar-link-color-hover;
+$topbar-dropdown-link-bg: $oil;
+$topbar-dropdown-link-bg-hover: $jet;
+$topbar-dropdown-link-weight: $font-weight-normal;
+$topbar-dropdown-toggle-size: 5px;
+$topbar-dropdown-toggle-color: $fg-color-very-light;
+$topbar-dropdown-toggle-alpha: .4;
+
+$topbar-dropdown-label-color: $monsoon;
+$topbar-dropdown-label-text-transform: uppercase;
+$topbar-dropdown-label-font-weight: $font-weight-bold;
+$topbar-dropdown-label-font-size: rem-calc(10);
+$topbar-dropdown-label-bg: $oil;
+
+$topbar-menu-link-transform: uppercase;
+$topbar-menu-link-font-size: rem-calc(13);
+$topbar-menu-link-weight: $font-weight-bold;
+$topbar-menu-link-color: $fg-color-very-light;
+$topbar-menu-icon-color: $fg-color-very-light;
+$topbar-menu-link-color-toggled: $jumbo;
+$topbar-menu-icon-color-toggled: $jumbo;
+$topbar-menu-icon-position: $opposite-direction; //Change to $default-float for a left menu icon
+
+$topbar-transition-speed: 300ms;
+//Using rem-calc for the below breakpoint causes issues with top bar
+$topbar-breakpoint: #{lower-bound($medium-range)}; //Change to 9999px for always mobile layout
+$topbar-media-query: "#{$screen} and (min-width:#{lower-bound($topbar-breakpoint)})";
+
+$topbar-input-height: rem-calc(28);
+
+$topbar-divider-border-bottom: solid 1px scale-color($topbar-bg-color, $lightness: 13%);
+$topbar-divider-border-top: solid 1px scale-color($topbar-bg-color, $lightness: -50%);
+
+$topbar-sticky-class: ".sticky";
+$topbar-arrows: true; //Set false to remove the triangle icon from the menu item
+$topbar-dropdown-arrows: true; //Set false to remove the \00bb >> text from dropdown subnavigation li//

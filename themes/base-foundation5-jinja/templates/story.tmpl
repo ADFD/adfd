@@ -1,0 +1,36 @@
+{#  -*- coding: utf-8 -*- #}
+{% extends 'post.tmpl' %}
+{% import 'post_helper.tmpl' as helper with context %}
+{% import 'post_header.tmpl' as pheader with context %}
+{% import 'comments_helper.tmpl' as comments with context %}
+
+{% block content %}
+<div class="storypage" itemscope="itemscope" itemtype="http://schema.org/Article">
+    <div class="row">
+        <header class="large-12 text-center columns">
+            {{ pheader.html_title() }}
+            {{ pheader.html_translations(post) }}
+        </header>
+    </div>
+    <div class="row" itemprop="articleBody text">
+        <aside class="large-4 columns">
+            <ul>
+                <li>Hier kommt mal die Seitennavi</li>
+                <li>Mit links</li>
+                <li>Zu den Kapiteln</li>
+                <li>oder sowas</li>
+            </ul>
+        </aside>
+        <article id="article" class="large-8 columns">
+            {{ post.text() }}
+        </article>
+    </div>
+    {% if site_has_comments and enable_comments and not post.meta('nocomments') %}
+        <section class="comments">
+        <h2>{{ messages("Comments") }}</h2>
+        {{ comments.comment_form(post.permalink(absolute=True), post.title(), post.base_path) }}
+        </section>
+    {% endif %}
+    {{ helper.mathjax_script(post) }}
+</div>
+{% endblock %}

@@ -1,0 +1,4 @@
+ipython[all]
+plumbum
+pyphen
+Nikola[extras]

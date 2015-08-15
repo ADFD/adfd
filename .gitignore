@@ -1,0 +1,10 @@
+*.py[cod]
+
+.cache/*
+.idea/*
+.vagrant/*
+.sass-cache/*
+/.doit.db
+
+adfd/lab/*.html
+output/*

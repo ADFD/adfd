@@ -1,0 +1,4 @@
+Hallo Drops,
+ich sehe gerade in deiner Signatur, dass du deinen AD Entzug durch die Einnahme von Tav* unterbrochen hast. Bei mir wurden die Symptome wieder viel schlimmer und auch anders (Muskelzuckungen, Schmerzen, stromartiges Gefühl... kamen z.B. hinzu) nachdem mein Entzug durch die OP (mit div. Medikamenten u.a. Benzos) unterbrochen wurde. Ich zähle die Monate, in denen ich auf Null bin daher auch wieder von vorne los. Ist das nicht richtig? Sonst wäre ich jetzt auch schon 18 Monate auf Null. Gerade war ich auch wieder so hoffnungslos aber, wenn ich hier lese, dass bei einigen Menschen der Entzug Jahre gedauert hat, will ich doch wieder weiter hoffen.
+ :group: Ich schicke ganz viel Kraft
+Lieber Gruß von Tanja
