@@ -11,6 +11,7 @@ class AdfdParser(bbcode.Parser):
         self._add_list_formatter()
         self._add_quote_formatter()
         self._add_url_formatter()
+        self._add_header_formatters()
 
     def _add_simple_formatters(self):
         self.add_simple_formatter('br', '<br>', standalone=True)
@@ -24,7 +25,6 @@ class AdfdParser(bbcode.Parser):
         self.add_simple_formatter('i', '<em>%(value)s</em>')
         self.add_simple_formatter('s', '<strike>%(value)s</strike>')
         self.add_simple_formatter('u', '<u>%(value)s</u>')
-        self.add_simple_formatter("note", "")
         self.add_simple_formatter('sub', '<sub>%(value)s</sub>')
         self.add_simple_formatter('sup', '<sup>%(value)s</sup>')
 
@@ -70,6 +70,12 @@ class AdfdParser(bbcode.Parser):
         css = (' style="list-style-type:%s;"' % css_opts[list_type] if
                list_type in css_opts else '')
         return '<%s%s>%s</%s>' % (tag, css, value, tag)
+
+    def _add_header_formatters(self):
+        # self.add_simple_formatter('h1', '<h1>%(value)s</h1>')
+        for i in range(1, 6):
+            self.add_simple_formatter(
+                'h%d' % (i), '<h%d>%%(value)s</h%d>' % (i+1, i+1))
 
     def _add_quote_formatter(self):
         self.add_formatter(
