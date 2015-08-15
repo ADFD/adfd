@@ -1,21 +1,3 @@
-asad
+[quote="Autor"]ich sage wichtige Dinge[/quote]
 
- adad
-
-
- aasasdasdasdas
-
-
-
- asdas
-
-
-
-
-  asasdasdasdasdasd
-
-
-
-
-
-    asdasdasasdasdasda
+[quote]ich sage ANONYM wichtige Dinge[/quote]

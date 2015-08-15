@@ -45,6 +45,31 @@ _domain_re = re.compile(
     r'(?:com|net|org|edu|biz|gov|mil|info|io|name|me|tv|us|uk|mobi))')
 
 
+def _replace(data, replacements):
+    """
+    Given a list of 2-tuples (find, repl) this function performs all
+    replacements on the input and returns the result.
+    """
+    for find, repl in replacements:
+        data = data.replace(find, repl)
+    return data
+
+REPLACE_ESCAPE = (
+    ('&', '&amp;'),
+    ('<', '&lt;'),
+    ('>', '&gt;'),
+    ('"', '&quot;'),
+    ("'", '&#39;'))
+
+REPLACE_COSMETIC = (
+    ('---', '&mdash;'),
+    ('--', '&ndash;'),
+    ('...', '&#8230;'),
+    ('(c)', '&copy;'),
+    ('(reg)', '&reg;'),
+    ('(tm)', '&trade;'))
+
+
 class TagOptions (object):
     tag_name = None
     """name of the tag - all lowercase"""
@@ -81,23 +106,10 @@ class Parser (object):
     TOKEN_TAG_END = 2
     TOKEN_NEWLINE = 3
     TOKEN_DATA = 4
-    REPLACE_ESCAPE = (
-        ('&', '&amp;'),
-        ('<', '&lt;'),
-        ('>', '&gt;'),
-        ('"', '&quot;'),
-        ("'", '&#39;'))
-    REPLACE_COSMETIC = (
-        ('---', '&mdash;'),
-        ('--', '&ndash;'),
-        ('...', '&#8230;'),
-        ('(c)', '&copy;'),
-        ('(reg)', '&reg;'),
-        ('(tm)', '&trade;'))
 
     def __init__(
             self, newline='<br>', normalize_newlines=True,
-            install_defaults=True, escape_html=True, replace_links=True,
+            install_defaults=False, escape_html=True, replace_links=True,
             replace_cosmetic=True, tag_opener='[', tag_closer=']',
             linker=None, linker_takes_context=False, drop_unrecognized=False):
         self.tag_opener = tag_opener
@@ -214,7 +226,7 @@ class Parser (object):
         def _render_url(name, value, options, parent, context):
             if options and 'url' in options:
                 # Option values are not escaped for HTML output.
-                href = self._replace(options['url'], self.REPLACE_ESCAPE)
+                href = _replace(options['url'], REPLACE_ESCAPE)
             else:
                 href = value
             # Completely ignore javascript: and data: "links".
@@ -229,15 +241,6 @@ class Parser (object):
 
         self.add_formatter(
             'url', _render_url, replace_links=False, replace_cosmetic=False)
-
-    def _replace(self, data, replacements):
-        """
-        Given a list of 2-tuples (find, repl) this function performs all
-        replacements on the input and returns the result.
-        """
-        for find, repl in replacements:
-            data = data.replace(find, repl)
-        return data
 
     def _newline_tokenize(self, data):
         """
@@ -534,9 +537,9 @@ class Parser (object):
                 # token itself won't match as a URL.
                 pos = start
         if self.escape_html and escape_html:
-            data = self._replace(data, self.REPLACE_ESCAPE)
+            data = _replace(data, REPLACE_ESCAPE)
         if self.replace_cosmetic and replace_cosmetic:
-            data = self._replace(data, self.REPLACE_COSMETIC)
+            data = _replace(data, REPLACE_COSMETIC)
         # Now put the replaced links back in the text.
         for token, replacement in url_matches.items():
             data = data.replace(token, replacement)
