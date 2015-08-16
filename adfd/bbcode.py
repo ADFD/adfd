@@ -108,8 +108,8 @@ class Parser (object):
     TOKEN_DATA = 4
 
     def __init__(
-            self, newline='\n', normalize_newlines=True,
-            install_defaults=False, escape_html=True, replace_links=True,
+            self, newline='<br>\n', normalize_newlines=True,
+            escape_html=True, replace_links=True,
             replace_cosmetic=True, tag_opener='[', tag_closer=']',
             linker=None, linker_takes_context=False, drop_unrecognized=False):
         self.tag_opener = tag_opener
@@ -123,8 +123,6 @@ class Parser (object):
         self.replace_links = replace_links
         self.linker = linker
         self.linker_takes_context = linker_takes_context
-        if install_defaults:
-            self.install_default_formatters()
 
     def add_formatter(self, tag_name, render_func, **kwargs):
         """ Install render function for specified tag name.
@@ -165,82 +163,6 @@ class Parser (object):
             fmt.update({'value': value})
             return format_string % fmt
         self.add_formatter(tag_name, _render, **kwargs)
-
-    def install_default_formatters(self):
-        """
-        Installs default formatters for the following tags:
-
-            b, i, u, s, list (and \*), quote, code, center, color, url
-        """
-        self.add_simple_formatter('b', '<strong>%(value)s</strong>')
-        self.add_simple_formatter('i', '<em>%(value)s</em>')
-        self.add_simple_formatter('u', '<u>%(value)s</u>')
-        self.add_simple_formatter('s', '<strike>%(value)s</strike>')
-        self.add_simple_formatter('hr', '<hr>', standalone=True)
-        self.add_simple_formatter('sub', '<sub>%(value)s</sub>')
-        self.add_simple_formatter('sup', '<sup>%(value)s</sup>')
-
-        def _render_list(name, value, options, parent, context):
-            list_type = (
-                options['list'] if (options and 'list' in options) else '*')
-            css_opts = {
-                '1': 'decimal', '01': 'decimal-leading-zero',
-                'a': 'lower-alpha', 'A': 'upper-alpha',
-                'i': 'lower-roman', 'I': 'upper-roman'}
-            tag = 'ol' if list_type in css_opts else 'ul'
-            css = (' style="list-style-type:%s;"' % css_opts[list_type] if
-                   list_type in css_opts else '')
-            return '<%s%s>%s</%s>' % (tag, css, value, tag)
-        self.add_formatter(
-            'list', _render_list, transform_newlines=False,
-            strip=True, swallow_trailing_newline=True)
-        # Make sure transform_newlines = False for [*], so [code]
-        # tags can be embedded without transformation.
-        self.add_simple_formatter(
-            '*', '<li>%(value)s</li>', newline_closes=True,
-            transform_newlines=False, same_tag_closes=True, strip=True)
-        self.add_simple_formatter(
-            'quote', '<blockquote>%(value)s</blockquote>', strip=True,
-            swallow_trailing_newline=True)
-        self.add_simple_formatter(
-            'code', '<code>%(value)s</code>', render_embedded=False,
-            transform_newlines=False, swallow_trailing_newline=True)
-        self.add_simple_formatter(
-            'center', '<div style="text-align:center;">%(value)s</div>')
-
-        def _render_color(name, value, options, parent, context):
-            if 'color' in options:
-                color = options['color'].strip()
-            elif options:
-                color = list(options.keys())[0].strip()
-            else:
-                return value
-            match = re.match(r'^([a-z]+)|^(#[a-f0-9]{3,6})', color, re.I)
-            color = match.group() if match else 'inherit'
-            return '<span style="color:%(color)s;">%(value)s</span>' % {
-                'color': color,
-                'value': value,
-            }
-        self.add_formatter('color', _render_color)
-
-        def _render_url(name, value, options, parent, context):
-            if options and 'url' in options:
-                # Option values are not escaped for HTML output.
-                href = _replace(options['url'], REPLACE_ESCAPE)
-            else:
-                href = value
-            # Completely ignore javascript: and data: "links".
-            if (re.sub(r'[^a-z0-9+]', '', href.lower().split(':', 1)[0]) in
-                    ('javascript', 'data', 'vbscript')):
-                return ''
-
-            # Only add http:// if it looks like it starts with a domain name.
-            if '://' not in href and _domain_re.match(href):
-                href = 'http://' + href
-            return '<a href="%s">%s</a>' % (href.replace('"', '%22'), value)
-
-        self.add_formatter(
-            'url', _render_url, replace_links=False, replace_cosmetic=False)
 
     def _newline_tokenize(self, data):
         """
@@ -609,14 +531,17 @@ class Parser (object):
             idx += 1
         return ''.join(formatted)
 
-    def format(self, data, **context):
-        """Format input text using any installed renderers.
+    def fix_whitespace(self, tokens):
+        fixedTokens = []
+        whiteSpaceToken = (3, None, None, '\n')
+        lastToken = None
+        for token in tokens:
+            if lastToken == whiteSpaceToken and token == whiteSpaceToken:
+                continue
 
-        Any context keyword arguments given here will be passed along to
-        the render functions as a context dictionary.
-        """
-        tokens = self.tokenize(data)
-        return self._format_tokens(tokens, None, **context)
+            fixedTokens.append(token)
+            lastToken = token
+        return fixedTokens
 
     def strip(self, data, strip_newlines=False):
         """Strip out any tags from the input text.
@@ -630,22 +555,3 @@ class Parser (object):
             elif token_type == self.TOKEN_NEWLINE and not strip_newlines:
                 text.append(token_text)
         return ''.join(text)
-
-g_parser = None
-
-
-def render_html(input_text, **context):
-    """
-    A module-level convenience method that creates a default bbcode parser,
-    and renders the input string as HTML.
-    """
-    global g_parser
-    if g_parser is None:
-        g_parser = Parser()
-    return g_parser.format(input_text, **context)
-
-if __name__ == '__main__':
-    import sys
-    sys.stdout.write(render_html(sys.stdin.read()))
-    sys.stdout.write('\n')
-    sys.stdout.flush()

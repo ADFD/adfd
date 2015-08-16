@@ -13,8 +13,18 @@ class AdfdParser(bbcode.Parser):
         self._add_url_formatter()
         self._add_header_formatters()
 
+    def format(self, data, **context):
+        """Format input text using any installed renderers.
+
+        Any context keyword arguments given here will be passed along to
+        the render functions as a context dictionary.
+        """
+        tokens = self.tokenize(data)
+        tokens = self.fix_whitespace(tokens)
+        return self._format_tokens(tokens, None, **context)
+
     def _add_simple_formatters(self):
-        self.add_simple_formatter('br', '<br>', standalone=True)
+        self.add_simple_formatter('br', '<br>\n', standalone=True)
         self.add_simple_formatter('b', '<strong>%(value)s</strong>')
         self.add_simple_formatter(
             'center', '<div style="text-align:center;">%(value)s</div>')

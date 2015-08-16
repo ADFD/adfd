@@ -4,17 +4,13 @@ from plumbum import LocalPath
 from adfd.adfd_parser import AdfdParser
 
 
-def parse(text):
-    parser = AdfdParser()
-    html = parser.format(text)
-    outFilePath.write(html.encode('utf-8'))
-    print(html)
-
-
 if __name__ == '__main__':
     HERE = LocalPath(__file__).up()
     pluginFolder = HERE.up(2) / 'plugins' / 'bbcode'
     testFilePath = HERE / 'bbcode-playground.bb'
     outFilePath = HERE / 'bbcode-playground.html'
     text = testFilePath.read().decode('utf-8')
-    parse(text)
+    parser = AdfdParser()
+    html = parser.format(text)
+    outFilePath.write(html.encode('utf-8'))
+    print(html)
