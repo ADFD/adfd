@@ -3,4 +3,5 @@ pyphen
 jinja2
 typogrify
 ws4py
+watchdog
 Nikola[extras]
