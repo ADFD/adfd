@@ -84,6 +84,7 @@ class AdfdParser(bbcode.Parser):
     # noinspection PyUnusedLocal
     @staticmethod
     def _render_quote(name, value, options, parent, context):
+        """see http://html5doctor.com/blockquote-q-cite/"""
         author = (options['quote'] if (options and 'quote' in options) else '')
         cite = "<footer><cite>%s</cite></footer>" % (author) if author else ''
         return '<blockquote>%s%s</blockquote>' % (value, cite)
