@@ -54,6 +54,8 @@ FILES_FOLDERS = {
     'static': '',
     'themes/base-foundation5-jinja/core/css': 'assets/css',
     'themes/base-foundation5-jinja/core/js': 'assets/js',
+    'themes/base-foundation5-jinja/core/bower_components/'
+    'foundation-icon-fonts': 'assets/fonts/foundation-icon-fonts',
     'themes/base-foundation5-jinja/core/bower_components':
         'assets/bower_components',
 }
@@ -205,14 +207,14 @@ USE_BUNDLES = False
 # Put in global_context things you want available on all your templates.
 # It can be anything, data, functions, modules, etc.
 GLOBAL_CONTEXT = {
-    # 'sansSerifFont': 'Ubuntu:bold',
-    # 'serifFont': 'Vollkorn',
+    'sansSerifFont': 'Ubuntu:bold',
+    'serifFont': 'Vollkorn',
 
     # 'sansSerifFont': 'Open+Sans',
     # 'serifFont': 'Crimson+Text',
 
-    'sansSerifFont': 'Pontano+Sans',
-    'serifFont': 'Bree+Serif',
+    # 'sansSerifFont': 'Pontano+Sans',
+    # 'serifFont': 'Bree+Serif',
 
     # 'sansSerifFont': 'Allerta',
     # 'serifFont': 'Bevan',
