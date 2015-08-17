@@ -4,6 +4,8 @@ from adfd import bbcode
 
 
 class AdfdParser(bbcode.Parser):
+    HEADER_TAGS = ['h%s' % (i) for i in range(1,6)]
+
     def __init__(self, *args, **kwargs):
         super(AdfdParser, self).__init__(*args, **kwargs)
         self.add_default_formatters()
@@ -15,23 +17,37 @@ class AdfdParser(bbcode.Parser):
         Any context keyword arguments given here will be passed along to
         the render functions as a context dictionary.
         """
-        # data = self.add_paragraph_tags(self.tokenize(data))
+        data = self.add_sections(self.tokenize(data))
         tokens = self.fix_whitespace(self.tokenize(data))
         return self._format_tokens(tokens, None, **context)
 
-    def add_paragraph_tags(self, tokens):
+    def add_sections(self, tokens):
         """wrap all orphan data in <p> tags"""
         mutatedText = []
-        lastToken = [None]
-        for token in tokens:
-            if (token[0] == self.TOKEN_DATA and
-                    lastToken[0] == self.TOKEN_NEWLINE):
-                print lastToken, token
-                mutatedText.append("[p]%s[/p]" % (token[3]))
+        hasNoSections = True
+        idx = 0
+        while idx < len(tokens):
+            tokenType, tag, options, text = tokens[idx]
+            if tag in self.HEADER_TAGS:
+                if '/' in text:
+                    mutatedText.append(text)
+                    mutatedText.append("\n[section]")
+                else:
+                    if hasNoSections:
+                        hasNoSections = False
+                    else:
+                        mutatedText.append("[/section]\n")
+                    mutatedText.append(text)
             else:
-                mutatedText.append(token[3])
-            lastToken = token
-        return "".join(mutatedText)
+                mutatedText.append(text)
+            idx += 1
+        text = "".join(mutatedText)
+        if hasNoSections:
+            text = "[section]\n%s[/section]\n" % (text)
+        else:
+            text += "[/section]\n"  # clode last section
+        print text
+        return text
 
     def fix_whitespace(self, tokens):
         """normalize text to only contain single or no empty lines"""
@@ -62,6 +78,7 @@ class AdfdParser(bbcode.Parser):
         self._add_simple_custom_formatters()
         self._add_bbvideo_formatter()
         self._add_header_formatters()
+        self._add_section_formatter()
 
     def _add_simple_custom_formatters(self):
         self.add_simple_formatter('p', '<p>%(value)s</p>')
@@ -154,9 +171,10 @@ class AdfdParser(bbcode.Parser):
         return '<%s%s>%s</%s>\n' % (tag, css, value, tag)
 
     def _add_header_formatters(self):
-        for i in range(1, 6):
+        for tag in self.HEADER_TAGS:
+            demotedTag = tag[0] + str(int(tag[1]) + 1)
             self.add_simple_formatter(
-                'h%d' % (i), '<h%d>%%(value)s</h%d>\n' % (i+1, i+1))
+                tag, '<%s>%%(value)s</%s>\n' % (demotedTag, demotedTag))
 
     def _add_quote_formatter(self):
         self.add_formatter(
@@ -170,6 +188,16 @@ class AdfdParser(bbcode.Parser):
         author = (options['quote'] if (options and 'quote' in options) else '')
         cite = "<footer><cite>%s</cite></footer>" % (author) if author else ''
         return '<blockquote>%s%s</blockquote>' % (value, cite)
+
+    def _add_section_formatter(self):
+        self.add_formatter(
+            'section', self._render_section, transform_newlines=False,
+            strip=True, swallow_trailing_newline=True)
+
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def _render_section(name, value, options, parent, context):
+        return '<section>%s</section>' % (value)
 
     def _add_url_formatter(self):
         self.add_formatter(

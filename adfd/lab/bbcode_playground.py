@@ -24,17 +24,17 @@ def token_lab():
     text = kitchenSinkPath.read().decode('utf-8')
     parser = AdfdParser()
     tokens = parser.tokenize(text)
-    text = parser.add_paragraph_tags(tokens)
+    text = parser.add_sections(tokens)
     print(text)
 
 
 def write_html():
     text = kitchenSinkPath.read().decode('utf-8')
     parser = AdfdParser()
-    tokens = parser.tokenize(text)
-    tokens = parser.fix_whitespace(tokens)
-    for token in tokens:
-        print(token)
+    # tokens = parser.tokenize(text)
+    # tokens = parser.fix_whitespace(tokens)
+    # for token in tokens:
+    #     print(token)
     html = parser.format(text)
     print(html)
     (HERE / 'out.html').write(html.encode('utf-8'))
