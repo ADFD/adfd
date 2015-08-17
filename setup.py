@@ -5,7 +5,7 @@ with open("requirements.txt") as f:
     requirements = [l.strip() for l in f.readlines() if not l.startswith('#')]
 
 setup(
-    name='ADFD Website',
+    name='ADFD Website Generator',
     description='Content and tools to build the ADFD website',
     version='0.1',
     license='BSD for tools and CC for content',
