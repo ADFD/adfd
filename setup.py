@@ -16,7 +16,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     platforms='Unix',
-    # install_requires=requirements,  # todo use real packages when stable
+    install_requires=requirements,
     entry_points=dict(console_scripts=[
         'adfd=adfd.cli:main',
     ]),
