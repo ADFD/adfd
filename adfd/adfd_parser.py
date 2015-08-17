@@ -7,6 +7,7 @@ class AdfdParser(bbcode.Parser):
     def __init__(self, *args, **kwargs):
         super(AdfdParser, self).__init__(*args, **kwargs)
         self._add_simple_formatters()
+        self._add_img_formatter()
         self._add_color_formatter()
         self._add_list_formatter()
         self._add_quote_formatter()
@@ -27,11 +28,11 @@ class AdfdParser(bbcode.Parser):
         self.add_simple_formatter('br', '<br>\n', standalone=True)
         self.add_simple_formatter('b', '<strong>%(value)s</strong>')
         self.add_simple_formatter(
-            'center', '<div style="text-align:center;">%(value)s</div>')
+            'center', '<div style="text-align:center;">%(value)s</div>\n')
         self.add_simple_formatter(
-            'code', '<code>%(value)s</code>', render_embedded=False,
+            'code', '<code>%(value)s</code>\n', render_embedded=False,
             transform_newlines=False, swallow_trailing_newline=True)
-        self.add_simple_formatter('hr', '<hr>', standalone=True)
+        self.add_simple_formatter('hr', '<hr>\n', standalone=True)
         self.add_simple_formatter('i', '<em>%(value)s</em>')
         self.add_simple_formatter('s', '<strike>%(value)s</strike>')
         self.add_simple_formatter('u', '<u>%(value)s</u>')
@@ -57,6 +58,20 @@ class AdfdParser(bbcode.Parser):
             'color': color,
             'value': value}
 
+    def _add_img_formatter(self):
+        self.add_formatter(
+            'img', self._render_img, replace_links=False,
+            replace_cosmetic=False)
+
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def _render_img(name, value, options, parent, context):
+        href = value
+        # Only add http:// if it looks like it starts with a domain name.
+        if '://' not in href and bbcode._domain_re.match(href):
+            href = 'http://' + href
+        return '<img src="%s">' % (href.replace('"', '%22'))
+
     def _add_list_formatter(self):
         self.add_formatter(
             'list', self._render_list, transform_newlines=False,
@@ -79,12 +94,12 @@ class AdfdParser(bbcode.Parser):
         tag = 'ol' if list_type in css_opts else 'ul'
         css = (' style="list-style-type:%s;"' % css_opts[list_type] if
                list_type in css_opts else '')
-        return '<%s%s>%s</%s>' % (tag, css, value, tag)
+        return '<%s%s>%s</%s>\n' % (tag, css, value, tag)
 
     def _add_header_formatters(self):
         for i in range(1, 6):
             self.add_simple_formatter(
-                'h%d' % (i), '<h%d>%%(value)s</h%d>' % (i+1, i+1))
+                'h%d' % (i), '<h%d>%%(value)s</h%d>\n' % (i+1, i+1))
 
     def _add_quote_formatter(self):
         self.add_formatter(

@@ -533,11 +533,15 @@ class Parser (object):
 
     def fix_whitespace(self, tokens):
         fixedTokens = []
-        whiteSpaceToken = (3, None, None, '\n')
-        lastToken = None
+        lastToken = [None]
         for token in tokens:
-            if lastToken == whiteSpaceToken and token == whiteSpaceToken:
-                continue
+            if token[0] == self.TOKEN_NEWLINE:
+                if self.is_block_display_token(lastToken[1]):
+                    continue
+
+            if (lastToken[0] == self.TOKEN_NEWLINE and
+                    token[0] == self.TOKEN_NEWLINE):
+                    continue
 
             fixedTokens.append(token)
             lastToken = token
@@ -555,3 +559,6 @@ class Parser (object):
             elif token_type == self.TOKEN_NEWLINE and not strip_newlines:
                 text.append(token_text)
         return ''.join(text)
+
+    def is_block_display_token(self, tag):
+        return tag in ['h1', 'h2', 'h3', 'h4', 'h5']

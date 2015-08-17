@@ -6,11 +6,12 @@ from adfd.adfd_parser import AdfdParser
 
 if __name__ == '__main__':
     HERE = LocalPath(__file__).up()
-    pluginFolder = HERE.up(2) / 'plugins' / 'bbcode'
-    testFilePath = HERE / 'bbcode-playground.bb'
-    outFilePath = HERE / 'bbcode-playground.html'
-    text = testFilePath.read().decode('utf-8')
+    kitchenSinkPath = HERE.up(2) / 'sources' / 'static' / 'kitchen-sink.bb'
+    pgPath = HERE / 'bbcode-playground.bb'
+    usedPath = kitchenSinkPath
+
+    text = usedPath.read().decode('utf-8')
     parser = AdfdParser()
     html = parser.format(text)
-    outFilePath.write(html.encode('utf-8'))
     print(html)
+    (HERE / 'out.html').write(html.encode('utf-8'))
