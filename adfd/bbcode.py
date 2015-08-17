@@ -32,7 +32,7 @@ import re
 # from http://daringfireball.net/2010/07/improved_regex_for_matching_urls
 # Only support one level of parentheses - was failing on some URLs.
 # See http://www.regular-expressions.info/catastrophic.html
-_url_re = re.compile(
+_urlRegex = re.compile(
     r'(?im)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)'
     r'(?:[^\s()<>]+|\([^\s()<>]+\))'
     r'+(?:\([^\s()<>]+\)|[^\s`!()\[\]{};:\'".,<>?]))')
@@ -40,7 +40,7 @@ _url_re = re.compile(
 # For the URL tag, try to be smart about when to append a missing http://.
 # If the given link looks like a domain, add a http:// in front of it,
 # otherwise leave it alone (since it may be a relative path, a filename, etc).
-_domain_re = re.compile(
+_domainRegex = re.compile(
     r'(?im)(?:www\d{0,3}[.]|[a-z0-9.\-]+[.]'
     r'(?:com|net|org|edu|biz|gov|mil|info|io|name|me|tv|us|uk|mobi))')
 
@@ -156,6 +156,7 @@ class Parser (object):
         Takes the tag options dictionary, puts a value key in it
         and uses it as a format dictionary to the given format string.
         """
+        # noinspection PyUnusedLocal
         def _render(name, value, options, parent, context):
             fmt = {}
             if options:
@@ -320,7 +321,7 @@ class Parser (object):
         """
         if self.normalize_newlines:
             data = data.replace('\r\n', '\n').replace('\r', '\n')
-        pos = start = end = 0
+        pos = 0
         tokens = []
         while pos < len(data):
             start = data.find(self.tag_opener, pos)
@@ -445,7 +446,7 @@ class Parser (object):
             # any escaping or cosmetic replacement.
             pos = 0
             while True:
-                match = _url_re.search(data, pos)
+                match = _urlRegex.search(data, pos)
                 if not match:
                     break
                 # Replace any link with a token that we can substitute back
@@ -530,22 +531,6 @@ class Parser (object):
                                     cosmetic, **context))
             idx += 1
         return ''.join(formatted)
-
-    def fix_whitespace(self, tokens):
-        fixedTokens = []
-        lastToken = [None]
-        for token in tokens:
-            if token[0] == self.TOKEN_NEWLINE:
-                if self.is_block_display_token(lastToken[1]):
-                    continue
-
-            if (lastToken[0] == self.TOKEN_NEWLINE and
-                    token[0] == self.TOKEN_NEWLINE):
-                    continue
-
-            fixedTokens.append(token)
-            lastToken = token
-        return fixedTokens
 
     def strip(self, data, strip_newlines=False):
         """Strip out any tags from the input text.

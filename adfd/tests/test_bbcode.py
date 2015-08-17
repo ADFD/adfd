@@ -195,7 +195,7 @@ class ParserTests(unittest.TestCase):
 
     def test_urls(self):
         for line in self.URL_TESTS.splitlines():
-            num = len(bbcode._url_re.findall(line))
+            num = len(bbcode._urlRegex.findall(line))
             self.assertEqual(num, 1,
                              'Found %d links in "%s"' % (num, line.strip()))
 

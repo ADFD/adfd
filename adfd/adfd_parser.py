@@ -6,13 +6,8 @@ from adfd import bbcode
 class AdfdParser(bbcode.Parser):
     def __init__(self, *args, **kwargs):
         super(AdfdParser, self).__init__(*args, **kwargs)
-        self._add_simple_formatters()
-        self._add_img_formatter()
-        self._add_color_formatter()
-        self._add_list_formatter()
-        self._add_quote_formatter()
-        self._add_url_formatter()
-        self._add_header_formatters()
+        self.add_default_formatters()
+        self.add_custom_formatters()
 
     def format(self, data, **context):
         """Format input text using any installed renderers.
@@ -20,24 +15,86 @@ class AdfdParser(bbcode.Parser):
         Any context keyword arguments given here will be passed along to
         the render functions as a context dictionary.
         """
-        tokens = self.tokenize(data)
-        tokens = self.fix_whitespace(tokens)
+        # data = self.add_paragraph_tags(self.tokenize(data))
+        tokens = self.fix_whitespace(self.tokenize(data))
         return self._format_tokens(tokens, None, **context)
 
-    def _add_simple_formatters(self):
+    def add_paragraph_tags(self, tokens):
+        """wrap all orphan data in <p> tags"""
+        mutatedText = []
+        lastToken = [None]
+        for token in tokens:
+            if (token[0] == self.TOKEN_DATA and
+                    lastToken[0] == self.TOKEN_NEWLINE):
+                print lastToken, token
+                mutatedText.append("[p]%s[/p]" % (token[3]))
+            else:
+                mutatedText.append(token[3])
+            lastToken = token
+        return "".join(mutatedText)
+
+    def fix_whitespace(self, tokens):
+        """normalize text to only contain single or no empty lines"""
+        fixedTokens = []
+        lastToken = [None]
+        for token in tokens:
+            if token[0] == self.TOKEN_NEWLINE:
+                if self.is_block_display_token(lastToken[1]):
+                    continue
+
+            if (lastToken[0] == self.TOKEN_NEWLINE and
+                    token[0] == self.TOKEN_NEWLINE):
+                    continue
+
+            fixedTokens.append(token)
+            lastToken = token
+        return fixedTokens
+
+    def add_default_formatters(self):
+        self._add_simple_default_formatters()
+        self._add_img_formatter()
+        self._add_color_formatter()
+        self._add_list_formatter()
+        self._add_quote_formatter()
+        self._add_url_formatter()
+
+    def add_custom_formatters(self):
+        self._add_simple_custom_formatters()
+        self._add_bbvideo_formatter()
+        self._add_header_formatters()
+
+    def _add_simple_custom_formatters(self):
+        self.add_simple_formatter('p', '<p>%(value)s</p>')
         self.add_simple_formatter('br', '<br>\n', standalone=True)
-        self.add_simple_formatter('b', '<strong>%(value)s</strong>')
+        self.add_simple_formatter('hr', '<hr>\n', standalone=True)
+        # todo use foundation way for centering
         self.add_simple_formatter(
             'center', '<div style="text-align:center;">%(value)s</div>\n')
+
+    def _add_simple_default_formatters(self):
+        self.add_simple_formatter('b', '<strong>%(value)s</strong>')
         self.add_simple_formatter(
             'code', '<code>%(value)s</code>\n', render_embedded=False,
             transform_newlines=False, swallow_trailing_newline=True)
-        self.add_simple_formatter('hr', '<hr>\n', standalone=True)
         self.add_simple_formatter('i', '<em>%(value)s</em>')
         self.add_simple_formatter('s', '<strike>%(value)s</strike>')
         self.add_simple_formatter('u', '<u>%(value)s</u>')
         self.add_simple_formatter('sub', '<sub>%(value)s</sub>')
         self.add_simple_formatter('sup', '<sup>%(value)s</sup>')
+
+    def _add_bbvideo_formatter(self):
+        self.add_formatter('BBvideo', self._render_bbvideo,
+                           replace_links=False, replace_cosmetic=False)
+
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def _render_bbvideo(name, value, options, parent, context):
+        width, height = options['bbvideo'].strip().split(',')
+        dataMap = {'width': width, 'height': height, 'url': value}
+        return (
+            '<a href="%(url)s" class="bbvideo" '
+            'data-bbvideo="%(width)s,%(height)s" '
+            'target="_blank">%(url)s</a>' % (dataMap))
 
     def _add_color_formatter(self):
         self.add_formatter('color', self._render_color)
@@ -68,7 +125,7 @@ class AdfdParser(bbcode.Parser):
     def _render_img(name, value, options, parent, context):
         href = value
         # Only add http:// if it looks like it starts with a domain name.
-        if '://' not in href and bbcode._domain_re.match(href):
+        if '://' not in href and bbcode._domainRegex.match(href):
             href = 'http://' + href
         return '<img src="%s">' % (href.replace('"', '%22'))
 
@@ -85,15 +142,15 @@ class AdfdParser(bbcode.Parser):
     # noinspection PyUnusedLocal
     @staticmethod
     def _render_list(name, value, options, parent, context):
-        list_type = (
+        listType = (
             options['list'] if (options and 'list' in options) else '*')
-        css_opts = {
+        cssOpts = {
             '1': 'decimal', '01': 'decimal-leading-zero',
             'a': 'lower-alpha', 'A': 'upper-alpha',
             'i': 'lower-roman', 'I': 'upper-roman'}
-        tag = 'ol' if list_type in css_opts else 'ul'
-        css = (' style="list-style-type:%s;"' % css_opts[list_type] if
-               list_type in css_opts else '')
+        tag = 'ol' if listType in cssOpts else 'ul'
+        css = (' style="list-style-type:%s;"' % cssOpts[listType] if
+               listType in cssOpts else '')
         return '<%s%s>%s</%s>\n' % (tag, css, value, tag)
 
     def _add_header_formatters(self):
@@ -134,6 +191,6 @@ class AdfdParser(bbcode.Parser):
             return ''
 
         # Only add http:// if it looks like it starts with a domain name.
-        if '://' not in href and bbcode._domain_re.match(href):
+        if '://' not in href and bbcode._domainRegex.match(href):
             href = 'http://' + href
         return '<a href="%s">%s</a>' % (href.replace('"', '%22'), value)
