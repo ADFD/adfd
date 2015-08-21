@@ -15,8 +15,10 @@ Fließtext mit Ümläuten
 [/list]
 
 [list=1]
-[*] Geordnete
-[*] Liste
+[*] Geordnete Liste
+[*] Eintrag mit Leerzeichen dahinter
+
+[*] Eintrag
 [/list]
 
 [img]http://adfd.org/content/move.png[/img]

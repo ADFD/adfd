@@ -1,10 +1,95 @@
 # -*- coding: utf-8 -*-
+import logging
 import re
+
 from adfd import bbcode
 
 
+log = logging.getLogger(__name__)
+
+
+class AdfdPrimer(object):
+    """Very stupid and rigid preprocessor/sanity checker for articles"""
+    MIN_HEADER_LEN = len("[hx]A[/hx]")
+    HEADER_START_PAT = r'\[h(\d)'
+    HEADER_END_PAT = r'/h(\d)\]'
+    QUOTE_START ='[quote]'
+    QUOTE_END = '[/quote]'
+
+    def __init__(self, text):
+        self.text = text
+
+    def add_paragraphs(self):
+        newTokens = []
+        for line in self.strippedLines:
+            if token and not self.is_header_line(token):
+                token = u"[p]%s[/p]\n" % (token)
+            newTokens.append(token)
+        return newTokens
+
+    @classmethod
+    def is_header_line(cls, line, strict=True):
+        if len(line) < cls.MIN_HEADER_LEN:
+            return False
+        try:
+            startMatcher = re.match(cls.HEADER_START_PAT, line[:3])
+            endMatcher = re.match(cls.HEADER_END_PAT, line[-4:])
+            matches = [m for m in [startMatcher, endMatcher] if m]
+            if not matches:
+                return False
+
+            if len(matches) == 1:
+                raise BadHeader(line)
+
+            startLevel = startMatcher.group(1)
+            endLevel = endMatcher.group(1)
+            if startLevel != endLevel:
+                raise BadHeader(line)
+
+            return True
+
+        except BadHeader:
+            if strict:
+                raise
+
+        except Exception as e:
+            log.error("%s exception while processing '%s'" % (type(e), line))
+            raise
+
+    @property
+    def preprocessedText(self):
+        lines = self.format_quotes(self.strippedLines)
+
+    @classmethod
+    def is_quotation_marker(cls, text):
+        return text in [cls.QUOTE_START, cls.QUOTE_END]
+
+    @property
+    def strippedLines(self):
+        """list of lines stripped of surrounding whitespace"""
+        return [t.strip() for t in self.text.split('\n')]
+
+    @classmethod
+    def format_quotes(cls, lines):
+        qa = cls.QUOTE_START
+        qe = cls.QUOTE_END
+        mutatedLines = []
+        for line in lines:
+            if line.startswith(qa):
+                line = line[len(qa):]
+                mutatedLines.append(qa)
+            mutatedLines.append(line.replace(qa, '').replace(qe, ''))
+            if line.endswith(qe):
+                mutatedLines.append(qe)
+        return mutatedLines
+
+
+class BadHeader(Exception):
+    pass
+
+
 class AdfdParser(bbcode.Parser):
-    HEADER_TAGS = ['h%s' % (i) for i in range(1,6)]
+    HEADER_TAGS = ['h%s' % (i) for i in range(1, 6)]
 
     def __init__(self, *args, **kwargs):
         super(AdfdParser, self).__init__(*args, **kwargs)
@@ -17,8 +102,9 @@ class AdfdParser(bbcode.Parser):
         Any context keyword arguments given here will be passed along to
         the render functions as a context dictionary.
         """
-        data = self.add_sections(self.tokenize(data))
         tokens = self.fix_whitespace(self.tokenize(data))
+        # data = self.add_sections(self.tokenize(data))
+        _, tokens = Paragrafenreiter.wrap(0, tokens, '')
         return self._format_tokens(tokens, None, **context)
 
     def add_sections(self, tokens):
@@ -200,9 +286,8 @@ class AdfdParser(bbcode.Parser):
         return '<section>%s</section>' % (value)
 
     def _add_url_formatter(self):
-        self.add_formatter(
-            'url', self._render_url, replace_links=False,
-            replace_cosmetic=False)
+        self.add_formatter('url', self._render_url, replace_links=False,
+                           replace_cosmetic=False)
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -222,3 +307,44 @@ class AdfdParser(bbcode.Parser):
         if '://' not in href and bbcode._domainRegex.match(href):
             href = 'http://' + href
         return '<a href="%s">%s</a>' % (href.replace('"', '%22'), value)
+
+
+class Paragrafenreiter(object):
+    START = AdfdParser.TOKEN_TAG_START
+    END = AdfdParser.TOKEN_TAG_END
+    BREAK = AdfdParser.TOKEN_NEWLINE
+    DATA = AdfdParser.TOKEN_DATA
+    P_START = (START, u'p', {}, u'[p]')
+    P_END = (END, u'p', {}, u'[/p]')
+    SECTIONING_START_TAGS = ['blockquote']
+
+    @classmethod
+    def wrap(cls, idx, tokens, endTagName):
+        wrappedTokens = []
+        while idx < len(tokens):
+            curToken = tokens[idx]
+            wrappedTokens.append(curToken)
+            tType, name = curToken[:2]
+            idx += 1
+            if name in AdfdParser.HEADER_TAGS and tType == cls.START:
+                curToken = tokens[idx]
+                wrappedTokens.append(curToken)
+                idx += 1
+                curToken = tokens[idx]
+                wrappedTokens.append(curToken)
+                idx += 1
+                wrappedTokens.append(cls.P_START)
+                idx, consumedTokens = cls.wrap(idx, tokens, name)
+                wrappedTokens.append(consumedTokens)
+                wrappedTokens.append(cls.P_END)
+
+            elif name == endTagName:
+                break
+
+            else:
+                wrappedTokens.append(cls.P_START)
+                idx, consumedTokens = cls.wrap(idx, tokens, name)
+                wrappedTokens.append(consumedTokens)
+                wrappedTokens.append(cls.P_END)
+
+        return idx, wrappedTokens

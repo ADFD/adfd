@@ -1,8 +1,7 @@
 from __future__ import print_function
 
 from plumbum import LocalPath
-from adfd.adfd_parser import AdfdParser
-
+from adfd.adfd_parser import AdfdParser, Paragrafenreiter
 
 HERE = LocalPath(__file__).up()
 kitchenSinkPath = HERE.up(2) / 'sources' / 'static' / 'kitchen-sink.bb'
@@ -11,13 +10,15 @@ pgPath = HERE / 'bbcode-playground.bb'
 
 
 def special_lab():
-    text = specialPath.read().decode('utf-8')
+    # text = specialPath.read().decode('utf-8')
+    text = pgPath.read().decode('utf-8')
     parser = AdfdParser()
     tokens = parser.tokenize(text)
+    tokens = parser.fix_whitespace(tokens)
     for token in tokens:
         print(token)
-    html = parser.format(text)
-    print(html)
+    # html = parser.format(text)
+    # print(html)
 
 
 def token_lab():
@@ -41,6 +42,7 @@ def write_html():
 
 
 if __name__ == '__main__':
+    paragrafenreiter()
     # special_lab()
     # token_lab()
-    write_html()
+    # write_html()
