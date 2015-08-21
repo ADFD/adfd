@@ -1,4 +1,6 @@
+__pycache__
 *.py[cod]
+*.egg-info
 
 .cache/*
 .idea/*
@@ -8,3 +10,4 @@
 
 adfd/lab/*.html
 output/*
+
