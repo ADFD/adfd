@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 from __future__ import print_function
 
 from plumbum.path.local import LocalPath
 import pytest
 
-from adfd.adfd_parser import AdfdPrimer, BadHeader
+from adfd.adfd_parser import AdfdPrimer, BadHeader, BadQuotes
 
 
 def get_text(fName):
@@ -31,18 +32,16 @@ def get_chunks(fName):
 
 
 def header_params(fName):
-    return [(l, 'good' in l) for l in get_chunks(fName)]
+    return [(l, 'good' in l) for l in get_lines(fName)]
 
 
 class TestAdfdPrimer(object):
     @pytest.mark.parametrize("line,exp", header_params('headers1'))
     def test_headers1(self, line, exp):
-        print(line)
         assert AdfdPrimer.is_header_line(line) == exp
 
     @pytest.mark.parametrize("line,exp", header_params('headers2'))
     def test_headers2(self, line, exp):
-        print(line)
         with pytest.raises(BadHeader):
             assert AdfdPrimer.is_header_line(line) == exp
 
@@ -51,3 +50,19 @@ class TestAdfdPrimer(object):
             formattedQuotes = AdfdPrimer.format_quotes(chunk)
             assert formattedQuotes[0] == AdfdPrimer.QUOTE_START
             assert formattedQuotes[-1] == AdfdPrimer.QUOTE_END
+
+    @pytest.mark.parametrize(
+        "line", ['[quote]bla[quote]blub', 'bla[/quote]bla[/quote]']
+    )
+    def test_bad_quotes(self, line):
+        with pytest.raises(BadQuotes):
+            AdfdPrimer.format_quotes([line])
+
+    @pytest.mark.parametrize(
+        "line,exp", [
+            (u'[quote="Äuthor"]', u"Äuthor"),
+            (u'[quote]', None),
+            (u'something else', None),
+        ])
+    def test_get_author(self, line, exp):
+        assert AdfdPrimer.get_quote_author(line) == exp

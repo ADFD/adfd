@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
-from adfd import bbcode
 
-from adfd.adfd_parser import AdfdParser
 import pytest
 
+from adfd import bbcode
+from adfd.adfd_parser import AdfdParser
 
+
+# @pytest.mark.xfail(reason='not done', run=False)
 class TestParser(object):
     TESTS = (
         ('[B]hello world[/b]', '<strong>hello world</strong>'),

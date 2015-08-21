@@ -13,24 +13,34 @@ class AdfdPrimer(object):
     MIN_HEADER_LEN = len("[hx]A[/hx]")
     HEADER_START_PAT = r'\[h(\d)'
     HEADER_END_PAT = r'/h(\d)\]'
-    QUOTE_START ='[quote]'
+    QUOTE_START = '[quote]'
     QUOTE_END = '[/quote]'
 
     def __init__(self, text):
         self.text = text
 
-    def add_paragraphs(self):
+    def add_paragraphs(self, lines):
         newTokens = []
-        for line in self.strippedLines:
-            if token and not self.is_header_line(token):
-                token = u"[p]%s[/p]\n" % (token)
-            newTokens.append(token)
+        for line in lines:
+            if line and self.is_paragraph(line):
+                line = u"[p]%s[/p]" % (line)
+            newTokens.append(line)
         return newTokens
+
+    @property
+    def primedText(self):
+        quoted = self.format_quotes(self.strippedLines)
+        paragraphed = self.add_paragraphs(quoted)
+        return "\n".join(paragraphed)
+
+    def is_paragraph(self, line):
+        return not self.is_header_line(line) and not self.is_quote_marker(line)
 
     @classmethod
     def is_header_line(cls, line, strict=True):
         if len(line) < cls.MIN_HEADER_LEN:
             return False
+
         try:
             startMatcher = re.match(cls.HEADER_START_PAT, line[:3])
             endMatcher = re.match(cls.HEADER_END_PAT, line[-4:])
@@ -56,18 +66,17 @@ class AdfdPrimer(object):
             log.error("%s exception while processing '%s'" % (type(e), line))
             raise
 
-    @property
-    def preprocessedText(self):
-        lines = self.format_quotes(self.strippedLines)
-
     @classmethod
-    def is_quotation_marker(cls, text):
-        return text in [cls.QUOTE_START, cls.QUOTE_END]
+    def is_quote_marker(cls, text):
+        return cls.is_quote_start(text) or text == cls.QUOTE_END
 
     @property
     def strippedLines(self):
-        """list of lines stripped of surrounding whitespace"""
-        return [t.strip() for t in self.text.split('\n')]
+        """lines stripped of surrounding whitespace and last empty line"""
+        lines = [t.strip() for t in self.text.split('\n')]
+        if not lines[-1]:
+            lines.pop()
+        return lines
 
     @classmethod
     def format_quotes(cls, lines):
@@ -75,16 +84,41 @@ class AdfdPrimer(object):
         qe = cls.QUOTE_END
         mutatedLines = []
         for line in lines:
-            if line.startswith(qa):
-                line = line[len(qa):]
-                mutatedLines.append(qa)
+            if line.count('[quote') > 1 or line.count('/quote]') > 1:
+                raise BadQuotes("Can't cope with more than one quote per line")
+
+            if cls.is_quote_start(line):
+                author = cls.get_quote_author(line)
+                tag = u'[quote="%s"]' % (author) if author else cls.QUOTE_START
+                line = line[len(tag):]
+                mutatedLines.append(tag)
             mutatedLines.append(line.replace(qa, '').replace(qe, ''))
             if line.endswith(qe):
                 mutatedLines.append(qe)
         return mutatedLines
 
+    @classmethod
+    def is_quote_start(cls, text):
+        if text.startswith(cls.QUOTE_START):
+            return True
+
+        if cls.get_quote_author(text):
+            return True
+
+    @classmethod
+    def get_quote_author(cls, text):
+        if not text.startswith(cls.QUOTE_START[:-1]):
+            return
+
+        matcher = re.match('\[quote="(.*)"\].*', text)
+        return matcher.group(1) if matcher else None
+
 
 class BadHeader(Exception):
+    pass
+
+
+class BadQuotes(Exception):
     pass
 
 
