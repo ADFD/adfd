@@ -136,9 +136,8 @@ class AdfdParser(bbcode.Parser):
         Any context keyword arguments given here will be passed along to
         the render functions as a context dictionary.
         """
-        tokens = self.fix_whitespace(self.tokenize(data))
-        # data = self.add_sections(self.tokenize(data))
-        _, tokens = Paragrafenreiter.wrap(0, tokens, '')
+        primedText = AdfdPrimer(data).primedText
+        tokens = self.fix_whitespace(self.tokenize(primedText))
         return self._format_tokens(tokens, None, **context)
 
     def add_sections(self, tokens):
