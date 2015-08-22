@@ -19,14 +19,6 @@ def special_lab():
     print(primedText)
 
 
-def token_lab():
-    text = kitchenSinkPath.read().decode('utf-8')
-    parser = AdfdParser()
-    tokens = parser.tokenize(text)
-    text = parser.add_sections(tokens)
-    print(text)
-
-
 def write_html():
     text = kitchenSinkPath.read().decode('utf-8')
     parser = AdfdParser()
@@ -41,5 +33,4 @@ def write_html():
 
 if __name__ == '__main__':
     special_lab()
-    # token_lab()
     # write_html()
