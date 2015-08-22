@@ -16,6 +16,7 @@ Vagrant.configure(2) do |config|
       python-lxml \
       python-pygments
 
+    sudo dpkg -i /vagrant/installers/tidy5-4.9.35-64bit.deb
     sudo pip install -r /vagrant/requirements.txt
     sudo pip install /vagrant
     sudo ln -s /vagrant/output /var/www/html/adfd

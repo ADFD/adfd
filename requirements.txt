@@ -1,3 +1,4 @@
+BeautifulSoup
 pytest
 plumbum
 pyphen
