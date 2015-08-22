@@ -3,6 +3,13 @@ plumbum
 pyphen
 jinja2
 typogrify
+Nikola[extras]
+
+# doit and/or nikola somehow screwed up their dependencies
 ws4py
 watchdog
-Nikola[extras]
+mako
+
+configparser
+cloudpickle
+image
