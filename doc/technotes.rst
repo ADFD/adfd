@@ -38,6 +38,8 @@ Filters
 html tidy (tidy5)
 #################
 http://tidy.sourceforge.net/docs/quickref.html
+needs tidy5 command http://www.html-tidy.org/
+WARNING no ubuntu package yet: http://www.htacg.org/binaries/
 
 
 Hyphenation
