@@ -113,6 +113,29 @@ TESTS = (
      'href="http://github.com/dcwatson/">http://github.com/dcwatson/</a>'),
 )
 
+LINKS = [
+    'http://foo.com/blah_blah',
+    '(Something like http://foo.com/blah_blah)',
+    'http://foo.com/blah_blah_(wikipedia)',
+    'http://foo.com/more_(than)_one_(parens)',
+    '(Something like http://foo.com/blah_blah_(wikipedia))',
+    'http://foo.com/blah_(wikipedia)#cite-1',
+    'http://foo.com/blah_(wikipedia)_blah#cite-1',
+    'http://foo.com/(something)?after=parens',
+    'http://foo.com/blah_blah.',
+    'http://foo.com/blah_blah/.',
+    '<http://foo.com/blah_blah>',
+    '<http://foo.com/blah_blah/>',
+    'http://foo.com/blah_blah,',
+    'http://www.extinguishedscholar.com/wpglob/?p=364.',
+    '<tag>http://example.com</tag>',
+    'Just a www.example.com link.',
+    'http://example.com/something?with,commas,in,url, but not at end',
+    'bit.ly/foo',
+    'http://asdf.xxxx.yyyy.com/vvvvv/PublicPages/Login.aspx?ReturnUrl',
+    '=%2fvvvvv%2f(asdf@qwertybean.com/qwertybean)',
+]
+
 
 class TestParser(object):
     parser = AdfdParser()
@@ -181,32 +204,11 @@ class TestParser(object):
         assert s == ('hello <a href="www.apple.com" '
                      'target="_blank">oh hai</a> world')
 
-    def test_urls(self):
-        lines = """
-            http://foo.com/blah_blah
-            (Something like http://foo.com/blah_blah)
-            http://foo.com/blah_blah_(wikipedia)
-            http://foo.com/more_(than)_one_(parens)
-            (Something like http://foo.com/blah_blah_(wikipedia))
-            http://foo.com/blah_(wikipedia)#cite-1
-            http://foo.com/blah_(wikipedia)_blah#cite-1
-            http://foo.com/(something)?after=parens
-            http://foo.com/blah_blah.
-            http://foo.com/blah_blah/.
-            <http://foo.com/blah_blah>
-            <http://foo.com/blah_blah/>
-            http://foo.com/blah_blah,
-            http://www.extinguishedscholar.com/wpglob/?p=364.
-            <tag>http://example.com</tag>
-            Just a www.example.com link.
-            http://example.com/something?with,commas,in,url, but not at end
-            bit.ly/foo
-            http://asdf.xxxx.yyyy.com/vvvvv/PublicPages/Login.aspx?ReturnUrl
-            =%2fvvvvv%2f(asdf@qwertybean.com/qwertybean)
-        """.strip()
-        for line in lines.splitlines():
-            num = len(bbcode._urlRegex.findall(line))
-            assert num == 1, 'Found %d links in "%s"' % (num, line.strip())
+    @pytest.mark.parametrize('link', LINKS)
+    def test_url(self, link):
+        link = link.strip()
+        num = len(bbcode._urlRegex.findall(link))
+        assert num == 1, 'Found %d links in "%s"' % (num, link)
 
     def test_unicode(self):
         if sys.version_info >= (3,):
