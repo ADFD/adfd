@@ -2,6 +2,8 @@
 import logging
 import re
 
+from BeautifulSoup import BeautifulSoup
+
 from adfd import bbcode
 
 
@@ -138,35 +140,13 @@ class AdfdParser(bbcode.Parser):
         """
         primedText = AdfdPrimer(data).primedText
         tokens = self.fix_whitespace(self.tokenize(primedText))
-        return self._format_tokens(tokens, None, **context)
+        rawHtmlStr = self._format_tokens(tokens, None, **context)
+        return self.pretty_print_html(rawHtmlStr)
 
-    def add_sections(self, tokens):
-        """wrap all orphan data in <p> tags"""
-        mutatedText = []
-        hasNoSections = True
-        idx = 0
-        while idx < len(tokens):
-            tokenType, tag, options, text = tokens[idx]
-            if tag in self.HEADER_TAGS:
-                if '/' in text:
-                    mutatedText.append(text)
-                    mutatedText.append("\n[section]")
-                else:
-                    if hasNoSections:
-                        hasNoSections = False
-                    else:
-                        mutatedText.append("[/section]\n")
-                    mutatedText.append(text)
-            else:
-                mutatedText.append(text)
-            idx += 1
-        text = "".join(mutatedText)
-        if hasNoSections:
-            text = "[section]\n%s[/section]\n" % (text)
-        else:
-            text += "[/section]\n"  # clode last section
-        print text
-        return text
+    def pretty_print_html(self, rawHtmlStr):
+        # return rawHtmlStr
+        soup = BeautifulSoup(rawHtmlStr)
+        return soup.prettify()
 
     def fix_whitespace(self, tokens):
         """normalize text to only contain single or no empty lines"""
@@ -214,7 +194,8 @@ class AdfdParser(bbcode.Parser):
             transform_newlines=False, swallow_trailing_newline=True)
         self.add_simple_formatter('i', '<em>%(value)s</em>')
         self.add_simple_formatter('s', '<strike>%(value)s</strike>')
-        self.add_simple_formatter('u', '<u>%(value)s</u>')
+        self.add_simple_formatter(
+            'u', '<span style="text-decoration: underline;">%(value)s</span>')
         self.add_simple_formatter('sub', '<sub>%(value)s</sub>')
         self.add_simple_formatter('sup', '<sup>%(value)s</sup>')
 
@@ -340,44 +321,3 @@ class AdfdParser(bbcode.Parser):
         if '://' not in href and bbcode._domainRegex.match(href):
             href = 'http://' + href
         return '<a href="%s">%s</a>' % (href.replace('"', '%22'), value)
-
-
-class Paragrafenreiter(object):
-    START = AdfdParser.TOKEN_TAG_START
-    END = AdfdParser.TOKEN_TAG_END
-    BREAK = AdfdParser.TOKEN_NEWLINE
-    DATA = AdfdParser.TOKEN_DATA
-    P_START = (START, u'p', {}, u'[p]')
-    P_END = (END, u'p', {}, u'[/p]')
-    SECTIONING_START_TAGS = ['blockquote']
-
-    @classmethod
-    def wrap(cls, idx, tokens, endTagName):
-        wrappedTokens = []
-        while idx < len(tokens):
-            curToken = tokens[idx]
-            wrappedTokens.append(curToken)
-            tType, name = curToken[:2]
-            idx += 1
-            if name in AdfdParser.HEADER_TAGS and tType == cls.START:
-                curToken = tokens[idx]
-                wrappedTokens.append(curToken)
-                idx += 1
-                curToken = tokens[idx]
-                wrappedTokens.append(curToken)
-                idx += 1
-                wrappedTokens.append(cls.P_START)
-                idx, consumedTokens = cls.wrap(idx, tokens, name)
-                wrappedTokens.append(consumedTokens)
-                wrappedTokens.append(cls.P_END)
-
-            elif name == endTagName:
-                break
-
-            else:
-                wrappedTokens.append(cls.P_START)
-                idx, consumedTokens = cls.wrap(idx, tokens, name)
-                wrappedTokens.append(consumedTokens)
-                wrappedTokens.append(cls.P_END)
-
-        return idx, wrappedTokens
