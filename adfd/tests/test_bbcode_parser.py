@@ -148,7 +148,7 @@ class TestParser(object):
 
     @pytest.mark.parametrize(('src', 'expected'), BROKEN_TESTS)
     def test_broken_format(self, src, expected):
-        tokens = self.parser.fix_whitespace(self.parser.tokenize(src))
+        tokens = self.parser.tokenize(src)
         result = self.parser._format_tokens(tokens, None)
         assert result != expected
 
@@ -215,9 +215,8 @@ class TestParser(object):
             src = '[center]ƒünk¥ • §tüƒƒ[/center]'
             dst = '<div style="text-align:center;">ƒünk¥ • §tüƒƒ</div>'
         else:
-            src = unicode(u'[center]ƒünk¥ • §tüƒƒ[/center]')
-            dst = unicode(
-                u'<div style="text-align:center;">ƒünk¥ • §tüƒƒ</div>')
-        tokens = self.parser.fix_whitespace(self.parser.tokenize(src))
+            src = u'[center]ƒünk¥ • §tüƒƒ[/center]'
+            dst = u'<div style="text-align:center;">ƒünk¥ • §tüƒƒ</div>'
+        tokens = self.parser.tokenize(src)
         result = self.parser._format_tokens(tokens, None)
         assert result.strip() == dst
