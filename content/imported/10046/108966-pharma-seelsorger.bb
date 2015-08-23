@@ -1,0 +1,4 @@
+Spiegel 50/2011: Pharma-Seelsorger
+
+[quote]Ein fragwürdiges Verständnis von Transparenz gibt die Deutsche Gesellschaft für Psychiatrie, Psychotherapie und Nervenheilkunde (DGPPN) zu erkennen. In einer Selbsterklärung sollten 70 Funktionsträger, unter ihnen Mediziner angesehener Hochschulen, bereits vor einem Jahr angeben, inwiefern sie persönliche Honorare etwa für Beratungen von pharmazeutischen Firmen kassieren. Bis April hatten nur 54 von ihnen die Erklärung abgegeben - knapp die Hälfte musste Beziehungen zu Unternehmen einräumen. Inzwischen haben zwar auch die anderen geantwortet, jedoch sind ihre Interessenkonflikte anscheinend so brisant, dass die DGPPN jetzt beschlossen hat, sie auf Wunsch der Mitglieder unter Verschluss zu halten.[/quote]
+[url]http://www.spiegel.de/spiegel/print/d-82995619.html[/url]

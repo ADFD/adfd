@@ -1,0 +1,28 @@
+[b]GlaxoSmithKline[/b] (GSK), Hersteller und ehemaliger Patentinhaber solch berühmt-berüchtigter Antidepressiva wie [i]Paroxetin[/i] (SEROXAT, PAXIL) und [i]Bupropion[/i] (ELONTRIL, WELLBUTRIN), hat [url=http://www.ft.com/cms/s/0/103e87d2-11c4-11df-9d45-00144feab49a.html?ftcamp=rss&nclick_check=1]angekündigt[/url], die Entwicklung neuer Antidepressiva komplett einzustellen. GSK ist damit der erste große Pharmakonzern, der die Konsequenzen aus den stetig zunehmenden [url=http://www.adfd.org/wissen/Manipulation_bei_Antidepressiva-Studien]Problemen mit Antidepressiva-Studien[/url] zieht.
+
+Seit Jahren ist bekannt, dass in den Studien der Wirkunterschied zwischen Antidepressiva und Placebo [url=http://www.ncbi.nlm.nih.gov/pubmed/18303940]sehr gering[/url] ist und überdies mit der Zeit [url=http://jama.ama-assn.org/cgi/content/full/287/14/1840]abzunehmen scheint[/url]. Diese Befunde sind inzwischen in mehreren [url=http://www.ncbi.nlm.nih.gov/pubmed/18823760]großen Metaanalysen[/url] unabhängig voneinander [url=http://www.ncbi.nlm.nih.gov/pubmed/19246102]bestätigt[/url] worden. Projiziert man den Trend in die Zukunft, so dürfte in etwa 10 Jahren mit den heute gängigen Studienmethoden keinerlei Unterschied mehr zwischen Antidepressiva und Placebo nachweisbar sein.
+
+[list][img]http://www.elisanet.fi/antirepressivum/adfd/papakostas-trend.jpg[/img]
+[*] Trends der Antidepressiva-/Placebo-Wirkung in klinischen Studien (Papakostas & Fava 2009):
+Die Antidepressiva-Wirkung bleibt gleich, Placebo holt rasant auf.[/list]
+
+[list][img]http://www.elisanet.fi/antirepressivum/adfd/rief-trend.jpg[/img]
+[*] Trends der Antidepressiva-/Placebo-Wirkung in klinischen Studien (Rief et al. 2009):
+Die Antidepressiva-Wirkung nimmt zwar zu, die Placebo-Wirkung steigt jedoch schneller.
+Die Analyse zeigt wegen eines systematischen Fehlers und 'exotischer' Statistik eine zu große Differenz;
+die [b][color=#008040]grüne Linie[/color][/b] veranschaulicht ein realistischeres Szenario.[/list]
+
+Dieser Trend zeigt sich auch in der Anzahl der Studien, die für eine erfolgreiche Zulassung durchgeführt werden müssen: Bei [i]Duloxetin[/i] (CYMBALTA) waren von den Zulassungsstudien noch über 50% positiv ausgegangen, bei [i]Bupropion[/i] (Zulassung in Deutschland 2007) waren es genau 50%, und beim 2009 zugelassenen [i]Agomelatin[/i] (VALDOXAN) betrug die Quote nur noch 1/3 - wobei der Stand in den USA nach durchgesickerten Informationen zur Zeit 0/3 ist. Bei künftigen Antidepressiva werden immer mehr Studien durchgeführt werden müssen, um die für die Zulassung nötigen 2 Positivstudien zu erzielen. Solche Studien sind extrem teuer, so dass die Entscheidung der Firma GSK nur konsequent erscheint.
+
+Einziger Ausweg wären wirkstärkere Antidepressiva. Ein Blick auf die Entwicklungen der letzten Jahre und die Forschungspipeline zeigt aber, dass "Wundermittel" nicht in Sicht sind. Zur Zeit sind laut dem US-Studienregister [url=http://clinicaltrials.gov]clinicaltrials.gov[/url] höchstens [url=http://www.neurotransmitter.net/newdrugs.html]5 Substanzen[/url] in Prüfungsphase III eingetreten (Zulassungsantrag innerhalb von einigen Jahren möglich):
+
+[list]
+[*] [b]Agomelatin[/b] - [i]US-Zulassung nicht vor 2014 - siehe im Wiki unter [url=http://www.adfd.org/wissen/Agomelatin]Agomelatin[/url][/i]
+[*] die [i]Trazodon[/i] (THOMBRAN)-Variante [b]Vilazodon[/b] (widersprüchliche Informationen zum Stand des Zulassungsantrags)
+[*] [b]Lu-AA21004[/b] der Firma Lundbeck mit gemischter serotonerger Wirkung und etlichen misslungenen Studien - [i]weitere Resultate und die Entscheidung über Zulassungsantrag oder Entwicklungsabbruch evtl. im Jahr 2011[/i]
+[*] Eli Lilly's Noradrenalin-Wiederaufnahmehemmer ("NARI") [b]LY-2216684[/b] - [i]die antidepressive Wirkung bisheriger NARIs war bescheiden bis nicht vorhanden, vgl. [url=http://de.wikipedia.org/wiki/Reboxetin]Reboxetin[/url] und [url=http://de.wikipedia.org/wiki/Atomoxetin]Atomoxetin[/url][/i]
+[*] der [url=http://www.sepracor.com/products/sep227162.html]SNRI[/url] [b]SEP-227162[/b] von Sepracor - [i]von der Entwicklung war seit der Ankündigung von Phase III-Studien nicht mehr viel zu hören, und angesichts von mindestens 3-4 etablierten SNRI auf dem Markt ohne Wirkvorteil gegenüber den SSRI ist es fraglich, ob diese Substanz überhaupt eine Chance bekommt[/i].[/list]
+
+Die Fehlschläge der letzten Jahre schrecken Möchtegern-Antidepressivaanbieter ab, etwa die in Phase III gescheiterten "innovativen Wirkstoffe" [i]Saredutant[/i] und [i]Gepiron[/i], oder die ohne großes Aufsehen wegen Unwirksamkeit zu den Akten gelegte Entwicklung der [i]CRH-/CRF-Hemmer[/i] mit Effekt auf den Kortisol-Regelkreis. Von den [i]Triple-Reuptake-Inhibitoren[/i] ist nichts zu sehen, und deren Wirkung dürfte sich nach den ernüchternden Erfahrungen mit den SNRI in den üblichen Grenzen bewegen.
+
+[b]Stephen M. Stahl[/b], einer der weltweit führenden Industrie-Psychopharmakologen, [url=http://www.primarypsychiatry.com/aspx/articledetail.aspx?articleid=2458]verweist[/url] für die Suche nach effektiveren Antidepressiva nur noch auf hypothetische "glutamaterge" Wirkstoffe und verfrachtet den Mythos der sauberen "selektiven" Antidepressiva auf den Müllhaufen der Psychiatriegeschichte. Die Zukunft liege vielmehr in der [url=http://www.cnsspectrums.com/aspx/ArticleDetail.aspx?ArticleID=2541]Kombination vorhandener Substanzen[/url]. Da die letzten momentan noch patentgeschützten Antidepressiva innerhalb weniger Jahre als Generika verfügbar sein werden, wird die Luft dünn für die wenigen Firmen, die noch die Ressourcen für Neuentwicklungen haben - warum neue Produkte in einen übersättigten Markt mit fallenden Preisen werfen?

@@ -1,0 +1,7 @@
+Noch eine Anmerkung:
+
+[quote]Gradual tapering does not eliminate the risk of withdrawal reactions. Indeed, a significant advantage of gradual tapering compared to abrupt discontinuation did not emerge. Symptoms typically occur within a few days from drug discontinuation and last a few weeks, also with gradual tapering. However, many variations are possible, including late onset and/or longer persistence of disturbances. Bhanji et al. [59] and Fava et al. [50] documented the persistence of symptoms up to 1 year following paroxetine discontinuation. Belaise et al. [62] described 3 cases of what they defined as ‘persistent post-withdrawal disorders induced by paroxetine' [/quote]
+
+[i]Also langsames Ausschleichen würde das Risiko von Absetzproblemen nicht eliminieren und es gäbe auch keinen großen Unterschied im Hinblick auf direktes Absetzen. Entzugssymptome würden ein paar Wochen anhalten, wobei es auch Unterschiede gäbe und diese auch langanhaltend sein könnten. Es wird ein Beispiel von einem Jahr genannt und 3 Fälle von Langzeitentzugssyndromen.[/i]
+
+Ich hab jetzt noch nicht nachgelesen, was "langsames" Ausschleichen hier genau bedeutet (typischerweise wären das maximal 4 Wochen, das gilt ja schon als langsam). Und viele Beispiele hier zeigen, dass es eben nach ein paar Wochen Symptomen nicht getan ist - im Gegenteil, oft ging es Mitglieder hier nach dem Absetzen erst wochen- oder auch monatelang gut, bevor zeitverzögert den Einbruch kam.

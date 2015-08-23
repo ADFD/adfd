@@ -1,0 +1,22 @@
+*räusper*
+
+ich wurde soeben dezent darauf hingewiesen, dass es meinen Äußerungen bezüglich des hochehrenwerten, hochdekorierten, viele wichtige Posten innehabenden Prof. Dr. Ulrich Hegerl an dem nötigen Ernste mangelt. :whistle: 
+
+Hegerl und das ADFD - das geht über ein Jahrzehnt zurück und für mich symbolisiert dieser Mann mittlerweile einfach alles, was im Bereich Aufklärung über die Schwächen und Risiken von Antidepressiva in unserem Lande falsch läuft. Er ist bis heute ganz vorne mit dabei, wenn es darum geht, die Bevölkerung immer wieder zu beruhigen und darauf einzuschwören, dass eher noch zu wenige Antidepressiva verschrieben werden und dass die bösen Kritiker den armen Patienten die tolle Pharmakotherapie madig machen.
+
+Was meinem Respekt vor ihm auch nicht zuträglich war, ist die beharrliche Arroganz mit der er die Gemeinschaften von Betroffenen wie z.B. das ADFD komplett ignoriert, selbst, wenn sie [url=http://www.adfd.org/austausch/viewtopic.php?f=6&t=939&p=5163&hilit=hegerl#p5163]wiederholt versuchen, mit ihm in Kontakt zu treten[/url]. Jemand der angeblich an der Bekämpfung der Depressionen ein so großes Interesse hat, dass er so ziemlich alle renommierten und mit vielen Millionen unserer Steuergelder unterstützten Projekte angeführt hat und dies bis heute tut, sollte den Anstand haben, sich auch mit den Kollateralschäden seiner Aktivitäten zu beschäftigen. Aber dazu, sein Ding konsequent durchzuziehen und den versammelten Teilnehmern hier im ADFD mal ganz offiziell zu sagen, dass sie sich nicht so anstellen sollen und dass Antidepressiva doch gar nicht abhängig machen, hat es dann leider doch nicht gereicht - das macht er nur, wenn keiner da ist um ihm zu widersprechen - siehe: [url=http://www.adfd.org/austausch/viewtopic.php?p=5162#p5162]Absetzprobleme gibt es laut Hegerl nicht[/url]
+
+Statt lustige Bildchen zu posten, hätte ich wieder viel zu dem schreiben können, was er da nun wieder von sich gegeben hat, aber was würde das bringen? Ist doch alles schon gesagt ... Fakt ist: wenn die Presse ein Statement zu "Antidepressiva und Abhängigkeit", "Antidepressiva und Suizid", "Antidepressiva und was auch immer" braucht, dann laden sie so Figuren wie den Hegerl ein, die dann immer wieder den gleichen Kram erzählen, bzw. im Angesicht neuer Erkenntnisse immer neue hirnsträubende Verrenkungen vollführen, um wieder auf das gewünschte altbewährte Ergebnis zu kommen. Da kommt man sich vor wie Phil Connors in "Und täglich grüßt das Murmeltier" ...
+
+Seine Äußerungen ernst zu nehmen und sachlich darauf zu reagieren, viel mir schon damals sehr schwer, da sie auch damals schon so offensichtlich all das ignorierten, was seine Fachkollegen die nicht so viele Beratungsverträge haben, in den letzten Jahrzehnten über die Substanzen, die er nicht müde wird in rosigsten Farben darzustellen, herausgefunden haben. Auch davor, gegen die Regeln der Logik zu verstoßen, schreckt der Herr nicht zurück wenn er damit seine Agenda nach vorne bringen kann. Mein persönliches Highlight ist in seinem Statement zur erhöhten Suizidgefahr durch Anitdepressiva zu finden:
+
+[quote] In verschiedenen Ländern ist ein Zusammenhang zwischen der deutlichen Zunahme der Antidepressiva-Verschreibungen und Abnahme der Suizidraten gefunden worden. Derartige Zusammenhänge sind kein Beweis für eine suizidpräventive Wirkung der Antidepressiva, sie sind jedoch schwer mit der Vorstellung zu vereinbaren, dass Antidepressiva das Suizidrisiko erhöhen.[/quote]
+
+Meine Antwort darauf und seine anderen rhetorischen Höhenflüge, kann man hier nachlesen: [url=http://www.adfd.org/austausch/viewtopic.php?p=5132#p5132]Suiziddebatte - kommentiertes Statement von Prof. Hegerl[/url]
+
+Der Vollständigkeit halber hier noch die weiteren Threads aus dem Jahre 2004: [url=http://www.adfd.org/austausch/viewtopic.php?p=5161#p5161]Kompetenznetz Depression verharmlost Probleme mit SSRI[/url], [url=http://www.adfd.org/austausch/viewtopic.php?f=6&t=939&p=5163&hilit=hegerl#p5163]Kontaktversuche mit Schlüsselfiguren zum Thema SSRI[/url] (Wir kommen also nun ins elfte Jahr der kompletten Funkstille, der Nicht-Konversation mit Herrn Prof. Dr. Hegerl). 
+
+Ich gelobige trotzdem aufrichtigst, in Zukunft zu versuchen, wieder mehr Sachlichkeit in meiner Reaktion auf Äußerungen so wichtiger  Meinungsführer wie Herrn Prof. Dr. Hegerl walten zu lassen.
+
+untertänigst
+o.

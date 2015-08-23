@@ -1,0 +1,9 @@
+[quote="Deutsches Ärzteblatt - [url]http://www.aerzteblatt.de/v4/news/news.asp?id=20805[/url]"][b]Depression: Fraglicher Nutzen von selektiven Serotonin-Wiederaufnahmehemmern[/b]
+
+LONDON. Selektive Serotonin-Wiederaufnahmehemmer (SSRI) haben nach Ansicht von Joanna Moncrieff und Irving Kirsch, University College London, bei der Therapie von Depression keinen klinisch bedeutsamen Vorteil (BMJ 2005; 331: 155-159). Die Autoren berufen sich in ihrem Artikel auf Daten des National Institute for Health and Clinical Excellence (NICE). Obwohl NICE kürzlich empfohlen habe, SSRI als erste Behandlungsoption einzusetzen, sind Moncrieff und Kirsch der Meinung, dass bei dieser Empfehlung Daten, die NICE vorlagen, ignoriert wurden. 
+
+So seien unter anderem die mögliche Gefahr von Suiziden in Verbindung mit der Medikation mit selektiven Serotonin-Wiederaufnahmehemmern nicht berücksichtigt worden. Ferner konnte einer neueren Metaanalyse, in der auch nicht publizierte Daten berücksichtigt wurden, lediglich eine geringe Effektstärke entnommen werden. Hier schnitten auf der maximal 52 Punkte umfassenden Hamilton-Depressionsskala SSRI lediglich 1,7 Punkte besser ab als ein Placebo. Ein Unterschied von weniger als zwei Punkten sei sehr wahrscheinlich nicht bedeutsam. 
+
+So könnten sedierende Effekte, wie sie auch bei SSRI auftreten, und nicht spezifische antidepressive Wirkungen, zu einer Verbesserung auf der Depressionsskala um zwei Punkte führen. Darüber hinaus gebe es keine überzeugenden Daten, die im Langzeitvergleich einen Vorteil von Antidepressiva hinsichtlich Depression und Suizid belegen. 
+
+Vor dem Hintergrund möglicherweise fehlender Wirksamkeit und gravierender Nebenwirkungen sollten nach Meinung von Moncrieff und Kirsch die gültigen Empfehlungen neu überdacht werden./me[/quote]

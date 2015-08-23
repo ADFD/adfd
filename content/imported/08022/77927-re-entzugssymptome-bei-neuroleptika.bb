@@ -1,0 +1,6 @@
+Hallo,
+
+wow ich habe den Beitrag von Edgar gelesen und kann nur sagen, dass ich mich hier in vielem wieder erkenne und das ist wirklich krass und auch sehr Angst einflösend, da ich vor dem Seroquel desaster ein ganz normales und ruhiges Leben geführt habe und nun einfach seit dem rauf und runterdosieren im KH alles anders ist.
+Auch diese Demenzform macht mir Angst , da ich seit dem Aufenthalt seit 2 Jahren starke kognitive Einbussen habe, die einfach nicht weichen.....
+
+Ich hoffe es wird einfach nochmal alles gut.......

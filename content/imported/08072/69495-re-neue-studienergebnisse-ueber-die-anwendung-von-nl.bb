@@ -1,0 +1,8 @@
+Hallo Edgar,
+Zitat:Dass wir bei der Antidepressiva-Einnahme als auch beim Reduzieren eines AD davon hier im Forum abraten, Tage bei der Einnahme zu überspringen, ist absolut berechtigt. Bei der Tage übersprungenen Einnahme eines ADs würde i.d.R. eine Achterbahnfahrt folgen.
+
+Beim Neuroleptika-Reduzieren, würde ich auch nicht empfehlen, Tage dazwischen auszulassen, vor allem dann nicht, wenn man die ganze Zeit jeden Tag ein NL eingenommen hat.
+
+Bei 70- 80% der Betroffenen etwa ist das richtig diese Aussage betr. der Einnahme von ADs und Neuroleptika die über die Leber verstoffwechselt werden.Weil sie eben normal schnell Metabolizer sind. Jetzt gibt es aber 8% etwa poor Metabolizer, und etwa 13% Intermediär Metabolizer die nahe an den poor Metabolizer gehen, so wie ich selbst auch.Nun das bedeutet, daß sich je nach Halbwertzeit (insgesamt 5 ) die Medikamente bei täglicher Einnahme einen höheren Wirkspiegel bilden, und zu erheblichen Nebenwirkungen führen.Bei entsprechender Genotypisierung der/des Betroffenen kann man diese Medikamente auch jeden 2 Tag oder wie das Abilify (Halbwertzeit ca.80Std jeden 3 Tag einnehmen, ohne daß es zu Absetzerscheinungen kommt.Doch das beste ist man weiß seinen Verstoffwechselstatus über 2D6 schon vorher, und kann seine Dossierung danach abstimmen.Klar ist auch, das machen nur Betroffene und Ärzte, die sich intensiv damit beschäftigen. Aber ich bin mir sicher, daß in ein paar Jahren die Genotypisierung zum Standart wird, wie sie heute schon in München in der Psychiatrie eingesetzt wird!
+
+Lg  Uli

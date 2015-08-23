@@ -1,0 +1,1 @@
+Es gibt auch die langfristigen Suizide durch SSRI.  Nämlich von denen, die davon bleibend geschädigt wurden.  Ich sehe mich langfristig auch in dieser Gruppe..

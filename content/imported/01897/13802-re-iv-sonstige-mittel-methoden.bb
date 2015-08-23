@@ -1,0 +1,3 @@
+[quote="PhilRS"][b][u][color=#990000]IV. Sonstige Mittel und Methoden[/color][/u][/b]
+Dasselbe gilt für angebliche "Ayurveda-Mittel". Hier gab es ebenfalls Giftnachweise, und die Tatsache, dass heute schon Billig-Haarshampoo mit der Aufschrift "Ayurveda" beworben wird, spricht nicht gerade für den Inhalt der so beschrifteten Packungen – eher ganz im Gegenteil.[/quote]
+Bitte empfehlen Sie an dieser Stelle den Ayurveda-Interessenten, den Status der jeweiligen Zertifizierungen zu überprüfen. Anbieter, die nach nationalen und internationalen Richtlinien zertifiziert sind, weisen dies auf ihren Websites aus. Keine Zertifizierung: hohes Risiko. Zertifizierung(en): hohe Wahrscheinlichkeit, daß die Produkte in Ordnung sind.

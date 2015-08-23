@@ -1,0 +1,3 @@
+Wie die EMEA heute mittag [url=http://www.emea.europa.eu/pdfs/human/opinion/Valdoxan_57541108en.pdf]bekannt[/url] gab, hat das CHMP gestern Agomelatin (VALDOXAN) eine positive Empfehlung gegeben. Die Studienlage ist so wie oben beschrieben. Ob die eine Langzeitstudie oder der Einfluss der von Servier bezahlten Experten den Ausschlag gaben, lässt sich nicht nachvollziehen.
+
+Der Fahrplan zur Markteinführung steht demnach halbwegs fest (siehe oben). Wann die endgültige Zulassung durch die EU-Kommission erfolgt, ist nicht definitiv zu sagen. An [url=http://www.adfd.org/wissen/Agomelatin]dieser Stelle[/url] folgt noch vor der Zulassung eine umfassende Bewertung des kommenden schwach wirksamen Antidepressivums.

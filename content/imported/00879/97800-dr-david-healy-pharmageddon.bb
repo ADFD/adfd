@@ -1,0 +1,11 @@
+Die beste Antwort auf die Frage, wie so gefährliche Entwicklungen in der Pharmakologie und speziell im Bereich Psychopharmaka möglich sind, wie wir sie über die letzten Jahrzehnte beobachten mussten, liefert das Buch [url=http://davidhealy.org/books/pharmageddon-is-the-story-of-a-tragedy/]Pharmageddon[/url] von [url=http://davidhealy.org/bio/]David Healy[/url]. Der Titel ist etwas reißerisch, ist aber auf dem üblichen für Healy hohen Niveau und sehr fundiert. Er analysiert die Fehlentwicklungen in der Medizin, der medizinischen Forschung und der gesetzlichen Regulation und dem Marketing von Medikamenten, die zum beklagenswerten Zustand im Bereich der Behandlung von seelischen Leiden geführt hat.
+
+Nur auf Englisch - sowas wird leider selten übersetzt.
+
+Auszug aus einer [url=http://www.amazon.de/review/R1S8D1SLQXEUVQ/ref=cm_cr_dp_title?ie=UTF8&ASIN=0520275764&channel=detail-glance&nodeID=52044011&store=books-intl-de]Rezension auf Amazon[/url]:
+
+[quote="Dr. Wolfgang Wodarg"]David Healy formuliert verständlich und hat seine Argumente gegen die mächtige Pharma-Lobby gut abgesichert. Er beschreibt das, „was einmal Medizin war“, als ein von Gier deformiertes Unwesen, welches mehr Leid als Nutzen stiftet. Er liefert zahlreiche Belege für ein weltweit zunehmend von egoistischen Wirtschaftsinteressen deformiertes Gesundheitswesen.
+Healy weist nach, wie unabhängige, bedarfsgerechte und nutzenorientierte Forschung und Entwicklung aus Universitäten, Kliniken und Instituten verdrängt wurden. Teure und mit oft tödlichen Nebenwirkungen einhergehende Scheininnovationen werden als „Blockbuster“ von korrupten Experten in Publikationen, Leitlinien und auf Kongressen genau so offensiv und erfolgreich als Marke etabliert wie sonst Turnschuhe oder koffeinhaltige Getränke.
+[...]
+Bei der Lektüre des hervorragend recherchierten Buches wird klar, weshalb Prävention und gute, kritische Ärzte in diesem System keine Chance haben. Weder mit kritischen Ärzten noch mit Prävention könnten die Investoren der Gesundheitswirtschaft reich werden. Darum schafft der Moloch sich Krankheiten und Kranke. Er lebt gut von ihnen, auch wenn die Lebenserwartung in den USA, dem Stammland dieser Entwicklung inzwischen deutlich abnimmt.
+[/quote]

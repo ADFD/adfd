@@ -1,0 +1,1 @@
+Klasse Schlumpf, Danke, wenn du die 10 Seiten jetzt mal eben ins Deutsche übersetzt und hier einstellst. Nein Scherz. Lieben Dank Petra

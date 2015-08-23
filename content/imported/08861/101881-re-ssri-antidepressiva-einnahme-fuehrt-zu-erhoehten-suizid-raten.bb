@@ -1,0 +1,1 @@
+Bei mir habn die Dinger auch schlechte Gedanken ausgelöst ....!mir würde auch nichts erklärt ...!

@@ -1,0 +1,1 @@
+Mir erscheint es angezeigt, dass man diesen Professoren auch mal ganz genau über die Schulter schaut, was diese Anwerbung von Drittmitteln usw. angeht.  Es reicht theoretisch schon aus, wenn sich da einer ein paar Lehrbuch sponsern lässt, um wegen Vorteilsnahme im Amt anzuklagen.

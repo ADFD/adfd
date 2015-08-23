@@ -1,0 +1,1 @@
+Ich bin etwas verwundert darüber, dass der Artikel heute auf BMJ nur noch zugänglich ist, wenn man sich anmeldet. Das war gestern nicht so. Allerdings: ich hab mir das PDF gesichert :) Also Übersetzung ist immer noch möglich :)

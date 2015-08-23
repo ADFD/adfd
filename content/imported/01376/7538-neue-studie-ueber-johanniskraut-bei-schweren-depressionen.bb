@@ -1,0 +1,10 @@
+[url=http://www.morgenwelt.de/index.php?id=155&backPID=115&tt_news=1175]Quelle[/url]
+[quote="Morgenwelt"]
+[b]Johanniskraut hilft gegen schwere Depressionen[/b]
+[i]13.02.05 12:00 - Cornelia Pfaff / WSA[/i]
+
+Ein spezieller Extrakt aus dieser Heilpflanze lindert die Beschwerden wenigstens genauso gut wie ein häufig verschriebenes Antidepressivum und bringt dabei weniger unerwünschte Nebenwirkungen mit sich.
+
+Das berichtet ein deutsches Forscherteam in der Fachzeitschrift "British Medical Journal". "Dass Johanniskraut-Extrakt effektiv bei der akuten Behandlung von Patienten mit leichten bis mittelschweren Depressionen hilft, war bereits bekannt", schreiben Meinhard Kieser von der Firma Dr. Willmar Schwabe Arzneimittel in Karlsruhe und seine Kollegen von der Berliner Charité und vom Institute for Medical Research Management and Biometrics in Nürnberg. "Diese klinische Studie zeigt, dass der Extrakt auch die Symptome mittel bis schwer depressiver Patienten mindestens genauso effektiv verbessert wie Paroxetin."
+Die Forscher verordneten mehr als 200 Männern und Frauen mit mäßigen bis schweren Depressionen entweder das Mittel aus Johanniskraut oder das Antidepressivum Paroxetin. Die Teilnehmer im Alter von 18 bis 70 Jahren nahmen das jeweilige Medikament über einen Zeitraum von sechs Wochen ein. Danach empfand etwa die Hälfte der Probanden, die Johanniskraut genommen hatten, dass sie auf dem Wege der Besserung waren.
+Unter denjenigen, die das Antidepressivum bekommen hatten, berichtete lediglich rund ein Drittel über eine Linderung der Symptome. Zudem klagten die Patienten aus der Paroxetin-Gruppe während der Behandlungszeit über deutlich mehr Nebenwirkungen als die Teilnehmer der Johanniskraut-Gruppe. Die in beiden Gruppen am häufigsten bemerkte Nebenwirkung waren Magenbeschwerden.[/quote]

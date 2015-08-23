@@ -1,0 +1,1 @@
+Diese ganze ADHS Geschichte finde ich sowieso sehr angsteinflößend. Ich mag mir gar nicht vorstellen was solche Psycho-Drogen bei so jungen Kindern verursachen. Einfach erschreckend (obwohl die eigentliche Krankheit wohl auch alles andere als einfach ist) - es läuft wahrscheinlich auf einen Pakt mit dem Teufel raus, genau wie bei Depressionen und Antidepressiva.

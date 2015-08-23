@@ -1,0 +1,2 @@
+[b]Mythos 7: Antidepreesiva machen nicht abhängig.[/b]
+Natürlich machen sie abhängig und das verwundert nicht, denn sie sind chemisch verwandt mit Amphetaminen und verhalten sich auch so. Antidepressiva sind wie Rauschmittek auf Rezept. Das schlechteste Argument, dass ich im Bezug auf den Mythos, dass Antidepressiva nicht abhängig machen würden, gehört habe, ist, dass Patienten keine höhere Dosis benötigen würden. Sollen wir daher auch glauben, dass Zigaretten nicht abhängig machen? Die Mehrzahl der Raucher konsumieren die gleiche Zigarettenanzahl über Jahre.

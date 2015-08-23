@@ -1,1 +1,0 @@
-Hallo Hoschi, hast Du irgendwas an Deiner Ernährung geändert?
