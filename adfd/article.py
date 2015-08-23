@@ -2,7 +2,7 @@
 import logging
 import re
 import plumbum
-
+from adfd.utils import ContentGrabber
 
 log = logging.getLogger(__name__)
 
@@ -12,14 +12,24 @@ class ENC(object):
 
 
 class Article(object):
-    ARTICLES_PATH = plumbum.LocalPath(__file__).up(2) / 'content' / 'static'
+    ARTICLES_PATH = plumbum.LocalPath(__file__).up(2) / 'content'
     PUNCT = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 
     def __init__(self, identifier):
         if isinstance(identifier, int):
-            identifier = "imported/%05d" % (identifier)
-        self.contentPath = self.ARTICLES_PATH / (identifier + '.bb')
-        self.metadataPath = self.ARTICLES_PATH / (identifier + '.meta')
+            self.isImported = True
+            self.identifier = "%05d" % (identifier)
+            self.rootPath = self.ARTICLES_PATH / 'imported' / self.identifier
+        else:
+            self.isImported = False
+            self.identifier = identifier
+            self.rootPath = self.ARTICLES_PATH / 'static'
+
+        # self.contentPath = self.ARTICLES_PATH / (identifier + '.bb')
+        # self.metadataPath = self.ARTICLES_PATH / (identifier + '.meta')
+
+    def __repr__(self):
+        return u'<%s %s>' % (self.__class__.__name__, self.slug)
 
     @property
     def slug(self):
@@ -33,11 +43,12 @@ class Article(object):
                 word = word.encode('translit/long')
                 if word:
                     result.append(word)
-            return unicode(u'-'.join(result))
+            return u'-'.join(result)
 
     @property
     def metadataDict(self):
-        metadata = self.metadataPath.read().decode(ENC.OUT)
+        """only using first found metadata for now ..."""
+        metadata = ContentGrabber(absPath=self.metadataPaths[0]).grab()
         metadataDict = {}
         for line in metadata.split('\n'):
             if not line.strip():
@@ -49,9 +60,25 @@ class Article(object):
 
     @property
     def content(self):
-        text = self.contentPath.read().decode(ENC.OUT)
-        return text
+        contents = []
+        for path in self.contentFilePaths:
+            contents.append(ContentGrabber(absPath=path).grab())
+        return "\n".join(contents)
 
     @property
-    def contentFiles(self):
-        return
+    def contentFilePaths(self):
+        if self.isImported:
+            return [p for p in self._postPaths if str(p).endswith('.bb')]
+
+        return [self.rootPath / (self.identifier + '.bb')]
+
+    @property
+    def metadataPaths(self):
+        if self.isImported:
+            return [p for p in self._postPaths if str(p).endswith('.meta')]
+
+        return [self.rootPath / (self.identifier + '.meta')]
+
+    @property
+    def _postPaths(self):
+        return sorted([p for p in self.rootPath.list()])

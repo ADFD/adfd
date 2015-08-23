@@ -9,5 +9,6 @@ class TestArticle(object):
 
     def test_topic_id_path(self):
         a = Article(68)
+        print a.slug
         assert a.content
         assert isinstance(a.metadataDict, dict)

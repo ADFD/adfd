@@ -1,9 +1,9 @@
 from plumbum import LocalPath
 
-from adfd.utils import ContenGrabber
+from adfd.utils import ContentGrabber
 
 
-class DataGrabber(ContenGrabber):
+class DataGrabber(ContentGrabber):
     def __init__(self, relPath='.', absPath=None):
         super(DataGrabber, self).__init__(relPath, absPath)
         if not absPath:

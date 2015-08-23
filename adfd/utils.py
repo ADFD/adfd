@@ -1,7 +1,7 @@
 from plumbum import LocalPath
 
 
-class ContenGrabber(object):
+class ContentGrabber(object):
     def __init__(self, relPath='.', absPath=None):
         if absPath:
             self.rootPath = absPath
