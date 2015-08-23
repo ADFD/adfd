@@ -4,7 +4,7 @@ from plumbum import LocalPath
 from adfd.adfd_parser import AdfdParser, Paragrafenreiter, AdfdPrimer
 
 HERE = LocalPath(__file__).up()
-kitchenSinkPath = HERE.up(2) / 'sources' / 'static' / 'kitchen-sink.bb'
+kitchenSinkPath = HERE.up(2) / 'content' / 'static' / 'kitchen-sink.bb'
 specialPath = HERE / 'special.bb'
 pgPath = HERE / 'bbcode-playground.bb'
 

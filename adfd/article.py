@@ -14,7 +14,7 @@ class ENC(object):
 
 
 class Article(object):
-    ARTICLES_PATH = plumbum.LocalPath(__file__).up(2) / 'sources' / 'static'
+    ARTICLES_PATH = plumbum.LocalPath(__file__).up(2) / 'content' / 'static'
     PUNCT = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 
     def __init__(self, relPath):
