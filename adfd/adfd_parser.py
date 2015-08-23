@@ -2,7 +2,7 @@
 import logging
 import re
 
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 from adfd import bbcode
 
@@ -17,17 +17,30 @@ class AdfdPrimer(object):
     HEADER_END_PAT = r'/h(\d)\]'
     QUOTE_START = '[quote]'
     QUOTE_END = '[/quote]'
+    PARAGRAPH_BLACKLIST = ['list']
 
     def __init__(self, text):
         self.text = text
 
     def add_paragraphs(self, lines):
-        newTokens = []
-        for line in lines:
+        paragraphedLines = []
+        idx = 0
+        while idx < len(lines):
+            line = lines[idx]
+            tag = self.get_tag_from_line(line)
+            if tag and tag in self.PARAGRAPH_BLACKLIST:
+                idx, lines = self.consume_blacklisted_lines(idx, tag, lines)
+                paragraphedLines.append(lines)
             if line and self.is_paragraph(line):
                 line = u"[p]%s[/p]" % (line)
-            newTokens.append(line)
-        return newTokens
+            paragraphedLines.append(line)
+            idx += 1
+        return paragraphedLines
+
+    def get_tag_from_line(self, line):
+        matcher = re.match(r'\[(.*)\]', line)
+        if matcher:
+            return matcher.group(1)
 
     @property
     def primedText(self):
@@ -115,6 +128,16 @@ class AdfdPrimer(object):
         matcher = re.match('\[quote="(.*)"\].*', text)
         return matcher.group(1) if matcher else None
 
+    def consume_blacklisted_lines(self, idx, endtag, lines):
+        consumedLines = []
+        while True:
+            line = lines[idx]
+            consumedLines.append(line)
+            tag = self.get_tag_from_line(line)
+            if tag and tag == endtag:
+                return consumedLines
+            idx += 1
+
 
 class BadHeader(Exception):
     pass
@@ -138,14 +161,12 @@ class AdfdParser(bbcode.Parser):
         Any context keyword arguments given here will be passed along to
         the render functions as a context dictionary.
         """
-        primedText = AdfdPrimer(data).primedText
-        tokens = self.fix_whitespace(self.tokenize(primedText))
-        rawHtmlStr = self._format_tokens(tokens, None, **context)
-        return self.pretty_print_html(rawHtmlStr)
+        # primedText = AdfdPrimer(data).primedText
+        tokens = self.fix_whitespace(self.tokenize(data))
+        return self._format_tokens(tokens, None, **context)
 
     def pretty_print_html(self, rawHtmlStr):
-        # return rawHtmlStr
-        soup = BeautifulSoup(rawHtmlStr)
+        soup = BeautifulSoup(rawHtmlStr, "lxml")
         return soup.prettify()
 
     def fix_whitespace(self, tokens):
