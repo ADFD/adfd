@@ -8,18 +8,18 @@ log = logging.getLogger(__name__)
 
 
 class ENC(object):
-    IN = 'cp1252'  # used to decode input to bytes
     OUT = 'utf-8'  # used to encode bytes
-    ALL = [IN, OUT]
 
 
 class Article(object):
     ARTICLES_PATH = plumbum.LocalPath(__file__).up(2) / 'content' / 'static'
     PUNCT = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 
-    def __init__(self, relPath):
-        self.contentPath = self.ARTICLES_PATH / (relPath + '.bb')
-        self.metadataPath = self.ARTICLES_PATH / (relPath + '.meta')
+    def __init__(self, identifier):
+        if isinstance(identifier, int):
+            identifier = "imported/%05d" % (identifier)
+        self.contentPath = self.ARTICLES_PATH / (identifier + '.bb')
+        self.metadataPath = self.ARTICLES_PATH / (identifier + '.meta')
 
     @property
     def slug(self):
@@ -52,8 +52,6 @@ class Article(object):
         text = self.contentPath.read().decode(ENC.OUT)
         return text
 
-
-if __name__ == '__main__':
-    a = Article('kitchen-sink')
-    print a.content
-    print a.metadataDict
+    @property
+    def contentFiles(self):
+        return

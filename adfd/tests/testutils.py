@@ -1,13 +1,12 @@
 from plumbum import LocalPath
 
-from adfd.adfd_parser import AdfdPrimer
+from adfd.utils import ContenGrabber
 
 
-class DataGrabber(object):
+class DataGrabber(ContenGrabber):
     def __init__(self, relPath='.', absPath=None):
-        if absPath:
-            self.rootPath = absPath
-        else:
+        super(DataGrabber, self).__init__(relPath, absPath)
+        if not absPath:
             self.rootPath = LocalPath(__file__).up() / 'data' / relPath
 
     def get_chunks(self, fName):
@@ -28,13 +27,6 @@ class DataGrabber(object):
     def get_boolean_tests(self, fName, good='good'):
         return [(l, good in l) for l in self.get_lines(fName)]
 
-    def get_lines(self, fName):
-        """get lines as list from file (without empty element at end)"""
-        return AdfdPrimer(self.get_text(fName)).strippedLines
-
-    def get_text(self, fName, ext='.bb'):
-        return self.grab(self.rootPath / (fName + ext))
-
     def get_pairs(self):
         paths = [p for p in sorted(self.rootPath.list())]
         idx = 0
@@ -46,8 +38,3 @@ class DataGrabber(object):
             contents.append((fName, src, exp))
             idx += 2
         return contents
-
-    def grab(self, path=None):
-        path = path or self.rootPath
-        return path.read('utf-8')
-
