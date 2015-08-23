@@ -50,7 +50,8 @@ TESTS = (
      '<span style="color:red;">hey now <a '
      'href="http://apple.com">link</a></span>'),
     ('[ b ] hello [u] world [/u] [ /b ]',
-     '<strong> hello <u> world </u> </strong>'),
+     '<strong> hello <span style="text-decoration: underline;"> '
+     'world </span> </strong>'),
     ('[color red]this is red[/color]',
      '<span style="color:red;">this is red</span>'),
     ('[color]nothing[/color]', 'nothing'),

@@ -1,52 +1,26 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 
-from plumbum.path.local import LocalPath
 import pytest
 
 from adfd.adfd_parser import AdfdPrimer, BadHeader, BadQuotes
-
-
-def get_text(fName):
-    return (LocalPath(__file__).up() / 'data' / (fName + '.bb')).read()
-
-
-def get_lines(fName):
-    return AdfdPrimer(get_text(fName)).strippedLines
-
-
-def get_chunks(fName):
-    """separates chunks separated by empty lines
-
-    :returns: list of list of str
-    """
-    chunks = []
-    currentChunkLines = []
-    for line in get_lines(fName):
-        if line:
-            currentChunkLines.append(line)
-        else:
-            chunks.append(currentChunkLines)
-            currentChunkLines = []
-    return chunks
-
-
-def header_params(fName):
-    return [(l, 'good' in l) for l in get_lines(fName)]
+from testutils import DataGrabber
 
 
 class TestAdfdPrimer(object):
-    @pytest.mark.parametrize("line,exp", header_params('headers1'))
+    dg = DataGrabber()
+
+    @pytest.mark.parametrize("line,exp", dg.get_boolean_tests('headers1'))
     def test_headers1(self, line, exp):
         assert AdfdPrimer.is_header_line(line) == exp
 
-    @pytest.mark.parametrize("line,exp", header_params('headers2'))
+    @pytest.mark.parametrize("line,exp", dg.get_boolean_tests('headers2'))
     def test_headers2(self, line, exp):
         with pytest.raises(BadHeader):
             assert AdfdPrimer.is_header_line(line) == exp
 
     def test_quotes(self):
-        for chunk in get_chunks('quotes'):
+        for chunk in self.dg.get_chunks('quotes'):
             formattedQuotes = AdfdPrimer.format_quotes(chunk)
             assert formattedQuotes[0] == AdfdPrimer.QUOTE_START
             assert formattedQuotes[-1] == AdfdPrimer.QUOTE_END
