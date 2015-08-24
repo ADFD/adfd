@@ -50,5 +50,4 @@ NAVIGATION_LINKS = {
 }
 
 if __name__ == '__main__':
-    Article('kitchen-sink', 'slug/prefix')
-    # generate_navigation_links()
+    generate_navigation_links()

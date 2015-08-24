@@ -2,8 +2,13 @@
 from collections import OrderedDict
 import logging
 import re
+
+# noinspection PyUnresolvedReferences
+import translitcodec  # This registers new codecs for slugification
+
 from plumbum import LocalPath
 from adfd.utils import ContentGrabber
+
 
 log = logging.getLogger(__name__)
 
@@ -21,8 +26,8 @@ class Article(object):
             self.isImported = False
             self.identifier = identifier
             self.rootPath = self.ARTICLES_PATH / 'static'
-        if slugPrefix:
-            self.persist_slug_prefix_modification(slugPrefix)
+        self.metadataDict = self.fetch_metadataDict()
+        self.persist_slug_prefix(slugPrefix)
 
     def __repr__(self):
         return u'<%s %s>' % (self.__class__.__name__, self.slug)
@@ -36,9 +41,6 @@ class Article(object):
             return self.slugify(self.metadataDict['title'])
 
     def slugify(self, title):
-        # noinspection PyUnresolvedReferences
-        import translitcodec  # This registers new codecs for slugification
-
         result = []
         for word in self.PUNCT.split(title.lower()):
             word = word.encode('translit/long')
@@ -46,17 +48,24 @@ class Article(object):
                 result.append(word)
         return u'-'.join(result)
 
-    def persist_slug_prefix_modification(self, slugPrefix):
+    def persist_slug_prefix(self, slugPrefix):
         """writes changed slug back into the file"""
-        # todo prevent writing slugs again and again
-        # todo make sure you write everything back correctly
+        dirty = False
         slug = self.slug
-        self.metadataDict['slug'] = "%s/%s" % (slugPrefix, slug)
-        for key, value in self.metadataDict.items():
-            self.metadataPaths[0].write(".. %s: %s" % (key, value))
+        if not slugPrefix:
+            dirty = True
+            slug = slug.split('/')[-1]
+            self.metadataDict['slug'] = slug
+        elif not slug.startswith(slugPrefix):
+            dirty = True
+            self.metadataDict['slug'] = "%s/%s" % (slugPrefix, slug)
+        if dirty:
+            newDict = "\n".join(
+                [".. %s: %s" % (key, value) for key, value
+                 in self.metadataDict.items()])
+            self.metadataPaths[0].write(newDict)
 
-    @property
-    def metadataDict(self):
+    def fetch_metadataDict(self):
         """only using first found metadata for now ..."""
         metadata = ContentGrabber(absPath=self.metadataPaths[0]).grab()
         metadataDict = OrderedDict()

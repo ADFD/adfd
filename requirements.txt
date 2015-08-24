@@ -1,10 +1,12 @@
+Nikola[extras]
+
 pytest
 plumbum
 pyphen
 jinja2
 typogrify
-Nikola[extras]
 beautifulsoup4
+translitcodec
 
 # doit and/or nikola somehow screwed up their dependencies
 ws4py
