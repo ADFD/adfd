@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 def article_class_with_test_path(request):
     oldArticlesPath = Article.ARTICLES_PATH
     Article.ARTICLES_PATH = LocalPath(__file__).up() / 'data' / 'content'
-    log.info('serving aritcles from %s' % (Article.ARTICLES_PATH))
+    log.info('serving articles from %s' % (Article.ARTICLES_PATH))
 
     def finalizer():
         Article.ARTICLES_PATH = oldArticlesPath
