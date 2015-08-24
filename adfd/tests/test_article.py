@@ -37,6 +37,8 @@ class TestArticle(object):
         assert a1.slug == 'test-kitchen-sink'
         a2 = Article('test-kitchen-sink', 'some/prefix')
         assert a2.slug == 'some/prefix/test-kitchen-sink'
+        a2a = Article('test-kitchen-sink', 'some/prefix')
+        assert a2a.slug == 'some/prefix/test-kitchen-sink'
         a3 = Article('test-kitchen-sink')
         assert a3.slug == 'test-kitchen-sink'
         assert a3.metadataDict.items() == originalDictItems
