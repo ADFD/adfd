@@ -4,6 +4,7 @@ pyphen
 jinja2
 typogrify
 Nikola[extras]
+beautifulsoup4
 
 # doit and/or nikola somehow screwed up their dependencies
 ws4py
