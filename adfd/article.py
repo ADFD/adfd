@@ -66,11 +66,10 @@ class Article(object):
         slug = self.slug
         try:
             slugPrefix = slugPrefix.lower()
+        except:
             dirty = True
             slug = slug.split('/')[-1]
             self.metadataDict['slug'] = slug
-        except:
-            pass
         else:
             if not slug.startswith(slugPrefix):
                 dirty = True
