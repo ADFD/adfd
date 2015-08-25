@@ -41,12 +41,12 @@ class Article(object):
             return self.slugify(self.metadataDict['title'])
 
     def slugify(self, title):
-        result = []
+        words = []
         for word in self.PUNCT.split(title.lower()):
             word = word.encode('translit/long')
             if word:
-                result.append(word)
-        return u'-'.join(result)
+                words.append(word)
+        return u'-'.join(words)
 
     def persist_slug_prefix(self, slugPrefix):
         """writes changed slug back into the file"""
