@@ -25,3 +25,12 @@ class ContentGrabber(object):
         if not lines[-1]:
             lines.pop()
         return lines
+
+
+class ContentDumper(object):
+    def __init__(self, path, content):
+        self.path = path
+        self.content = content
+
+    def dump(self):
+        self.path.write(self.content, encoding='utf-8')

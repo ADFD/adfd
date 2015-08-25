@@ -1,53 +1,43 @@
-from plumbum.path.local import LocalPath
+import logging
 from adfd.article import Article
 
-structure = [
-    [
-        [Article('kitchen-sink', 'slug/prefix')],
-        'NaviOrdnerName'
-    ],
-    [
-        [Article(68, 'bla'), Article(71, 'blubb')],
-        'AndererNaviOrdnerName'
-    ],
-    [Article(8829), 'blarrr'],
-    [Article(8997), 'absetzhilfen'],
-]
+logging.basicConfig(level=logging.INFO)
 
-
-class Navigator(object):
-    def __init__(self, structure):
-        self.structure = structure
-
-    def change(self, lol):
-        for idx, item in enumerate(lol):
-            if isinstance(item, list):
-                self.change(item)
-            elif item.startswith('-'):
-                lol[idx] = ['not', item.split('-')[1]]
-
-
-def generate_navigation_links():
-    navi = Navigator(structure)
-
-
-# todo think about if we want to use markup in links and if yes: how.
+DEMO = 'Demo'
+INFO = 'Info'
 
 # For regular links: ('https://getnikola.com/', 'Nikola Homepage')
 # submenus: ((('http://a.com/', 'A'), ('http://b.com/', 'O')), 'Fruits')
 # Make sure to end all urls with /
 NAVIGATION_LINKS = {
-    'de': generate_navigation_links(),
-    'en': (
+    'de': (
         (
             (
-                ('/documentation.html', '<strong>Documentation</strong>'),
+                Article('kitchen-sink', DEMO).structuralRepresentation,
+                Article(966, DEMO).structuralRepresentation,
             ),
-            'Documentation'
+            DEMO
         ),
-        ('/blog/index.html', 'Blog'),
+        (
+            (
+                Article(689, INFO).structuralRepresentation,
+                Article(893, INFO).structuralRepresentation,
+            ),
+            INFO
+        ),
+        Article(940).structuralRepresentation,
     ),
 }
 
+# todo instead of changing metadata in place:
+# copy the articles to the right structure inside a folder 'information'
+# so that
+PAGES = [
+    # BAD # ("content/static/*.bb", "", "story.tmpl"),
+    # BAD # ("content/imported/*.bb", "", "story.tmpl"),
+    # GOOD # ("information/*.bb", "", "story.tmpl"),
+]
+# also finds the articles in the right places
+
 if __name__ == '__main__':
-    generate_navigation_links()
+    print NAVIGATION_LINKS

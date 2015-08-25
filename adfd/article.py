@@ -7,8 +7,7 @@ import re
 import translitcodec  # This registers new codecs for slugification
 
 from plumbum import LocalPath
-from adfd.utils import ContentGrabber
-
+from adfd.utils import ContentGrabber, ContentDumper
 
 log = logging.getLogger(__name__)
 
@@ -26,11 +25,24 @@ class Article(object):
             self.isImported = False
             self.identifier = identifier
             self.rootPath = self.ARTICLES_PATH / 'static'
+        log.debug("article %s/%s", self.rootPath, self.identifier)
         self.metadataDict = self.fetch_metadataDict()
         self.persist_slug_prefix(slugPrefix)
 
     def __repr__(self):
         return u'<%s %s>' % (self.__class__.__name__, self.slug)
+
+    @property
+    def structuralRepresentation(self):
+        return tuple([self.slug, self.linktext])
+
+    @property
+    def linktext(self):
+        try:
+            return self.metadataDict['linktext']
+
+        except KeyError:
+            return self.metadataDict['title']
 
     @property
     def slug(self):
@@ -52,18 +64,22 @@ class Article(object):
         """writes changed slug back into the file"""
         dirty = False
         slug = self.slug
-        if not slugPrefix:
+        try:
+            slugPrefix = slugPrefix.lower()
             dirty = True
             slug = slug.split('/')[-1]
             self.metadataDict['slug'] = slug
-        elif not slug.startswith(slugPrefix):
-            dirty = True
-            self.metadataDict['slug'] = "%s/%s" % (slugPrefix, slug)
+        except:
+            pass
+        else:
+            if not slug.startswith(slugPrefix):
+                dirty = True
+                self.metadataDict['slug'] = "%s/%s" % (slugPrefix, slug)
         if dirty:
             newDict = "\n".join(
                 [".. %s: %s" % (key, value) for key, value
                  in self.metadataDict.items()])
-            self.metadataPaths[0].write(newDict)
+            ContentDumper(self.metadataPaths[0], newDict).dump()
 
     def fetch_metadataDict(self):
         """only using first found metadata for now ..."""
@@ -73,7 +89,8 @@ class Article(object):
             if not line.strip():
                 break
 
-            key, value = line[3:].split(': ')
+            log.debug('process "%s"', line)
+            key, value = line[3:].split(': ', 1)
             metadataDict[key.strip()] = value.strip()
         return metadataDict
 
