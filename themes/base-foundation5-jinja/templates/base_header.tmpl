@@ -104,8 +104,8 @@
         <li class="active">
             {% for url, text in navigation_links[lang] %}
                 {% if isinstance(url, tuple) %}
-                    <li class="has-dropdown"> {{ text }}
-                    <a href="#">Right Button Dropdown</a>
+                    <li class="has-dropdown">
+                    <a href="/{{text | lower}}/">{{text}}</a>
                     <ul class="dropdown">
                     {% for suburl, text in url %}
                         {% if rel_link(permalink, suburl) == "#" %}
