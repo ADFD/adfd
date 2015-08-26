@@ -30,21 +30,3 @@ class TestArticle(object):
         assert a.content == (
             "some text from first post\n\nsome text from second post\n")
         assert isinstance(a.metadataDict, dict)
-
-    def test_slug_prefixing_is_idempotent(self):
-        a1 = Article('test-kitchen-sink')
-        originalDictItems = a1.metadataDict.items()
-        assert a1.slug == 'test-kitchen-sink'
-        a2 = Article('test-kitchen-sink', 'some/prefix')
-        assert a2.slug == 'some/prefix/test-kitchen-sink'
-        a3 = Article('test-kitchen-sink', 'some/prefix')
-        assert a3.slug == 'some/prefix/test-kitchen-sink'
-        a4 = Article('test-kitchen-sink')
-        assert a4.slug == 'test-kitchen-sink'
-        assert a4.metadataDict.items() == originalDictItems
-
-    def test_ensure_is_imported(self):
-        article = Article(666)
-        article.ensure_is_imported(666)
-        print article.content
-        assert 0
