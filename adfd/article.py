@@ -39,7 +39,7 @@ class Article(object):
 
     @property
     def structuralRepresentation(self):
-        return tuple([self.slug, self.linktext])
+        return tuple(["/%s/" % (self.slug), self.linktext])
 
     @property
     def linktext(self):
