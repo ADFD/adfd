@@ -9,12 +9,12 @@ log = logging.getLogger(__name__)
 
 @pytest.fixture(scope='module', autouse=True)
 def article_class_with_test_path(request):
-    oldArticlesPath = Article.ARTICLES_PATH
-    Article.ARTICLES_PATH = LocalPath(__file__).up() / 'data' / 'content'
-    log.info('serving articles from %s' % (Article.ARTICLES_PATH))
+    oldArticlesPath = Article.SRC_PATH
+    Article.SRC_PATH = LocalPath(__file__).up() / 'data' / 'content'
+    log.info('serving articles from %s' % (Article.SRC_PATH))
 
     def finalizer():
-        Article.ARTICLES_PATH = oldArticlesPath
+        Article.SRC_PATH = oldArticlesPath
 
     request.addfinalizer(finalizer)
 
@@ -42,3 +42,9 @@ class TestArticle(object):
         a4 = Article('test-kitchen-sink')
         assert a4.slug == 'test-kitchen-sink'
         assert a4.metadataDict.items() == originalDictItems
+
+    def test_ensure_is_imported(self):
+        article = Article(666)
+        article.ensure_is_imported(666)
+        print article.content
+        assert 0

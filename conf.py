@@ -39,8 +39,8 @@ THEME = "base-foundation5-jinja"
 # POSTS = (("posts/*.rst", "posts", "post.tmpl"), ...)
 # PAGES = (("stories/*.rst", "stories", "story.tmpl"), ...)
 PAGES = [
-    ("content/static/*.bb", "", "story.tmpl"),
-    # ("content/imported/*.bb", "", "story.tmpl"),
+    # ("content/static/*.bb", "", "story.tmpl"),
+    ("content/processed/*.bb", "", "story.tmpl"),
 ]
 POSTS = []
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 import logging
+import os
 import re
 
 # noinspection PyUnresolvedReferences
@@ -13,21 +14,25 @@ log = logging.getLogger(__name__)
 
 
 class Article(object):
-    ARTICLES_PATH = LocalPath(__file__).up(2) / 'content'
+    CONTENTS_PATH = LocalPath(__file__).up(2) / 'content'
+    SRC_PATH = CONTENTS_PATH
+    PROCESSED_PATH = CONTENTS_PATH / 'processed'
     PUNCT = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 
-    def __init__(self, identifier, slugPrefix=None):
+    def __init__(self, identifier, slugPrefix=''):
+        self.slugPrefix = slugPrefix.lower()
         if isinstance(identifier, int):
+            originalIdentifer = identifier
             self.isImported = True
             self.identifier = "%05d" % (identifier)
-            self.rootPath = self.ARTICLES_PATH / 'imported' / self.identifier
+            self.srcPath = self.SRC_PATH / 'imported' / self.identifier
+            self.ensure_is_imported(originalIdentifer)
         else:
             self.isImported = False
             self.identifier = identifier
-            self.rootPath = self.ARTICLES_PATH / 'static'
-        log.debug("article %s/%s", self.rootPath, self.identifier)
+            self.srcPath = self.SRC_PATH / 'static'
+        log.debug("article %s/%s", self.srcPath, self.identifier)
         self.metadataDict = self.fetch_metadataDict()
-        self.persist_slug_prefix(slugPrefix)
 
     def __repr__(self):
         return u'<%s %s>' % (self.__class__.__name__, self.slug)
@@ -60,26 +65,6 @@ class Article(object):
                 words.append(word)
         return u'-'.join(words)
 
-    def persist_slug_prefix(self, slugPrefix):
-        """writes changed slug back into the file"""
-        dirty = False
-        slug = self.slug
-        try:
-            slugPrefix = slugPrefix.lower()
-        except:
-            dirty = True
-            slug = slug.split('/')[-1]
-            self.metadataDict['slug'] = slug
-        else:
-            if not slug.startswith(slugPrefix):
-                dirty = True
-                self.metadataDict['slug'] = "%s/%s" % (slugPrefix, slug)
-        if dirty:
-            newDict = "\n".join(
-                [".. %s: %s" % (key, value) for key, value
-                 in self.metadataDict.items()])
-            ContentDumper(self.metadataPaths[0], newDict).dump()
-
     def fetch_metadataDict(self):
         """only using first found metadata for now ..."""
         metadata = ContentGrabber(absPath=self.metadataPaths[0]).grab()
@@ -105,15 +90,40 @@ class Article(object):
         if self.isImported:
             return [p for p in self._postPaths if str(p).endswith('.bb')]
 
-        return [self.rootPath / (self.identifier + '.bb')]
+        return [self.srcPath / (self.identifier + '.bb')]
 
     @property
     def metadataPaths(self):
         if self.isImported:
             return [p for p in self._postPaths if str(p).endswith('.meta')]
 
-        return [self.rootPath / (self.identifier + '.meta')]
+        return [self.srcPath / (self.identifier + '.meta')]
 
     @property
     def _postPaths(self):
-        return sorted([p for p in self.rootPath.list()])
+        return sorted([p for p in self.srcPath.list()])
+
+    def ensure_is_imported(self, identifier):
+        try:
+            if not len(self.contentFilePaths):
+                raise Exception("article folder for %s empty", identifier)
+
+        except OSError:
+            raise Exception("article %s not found", identifier)
+
+    def process(self):
+        """writes changed slug back into the file"""
+        if self.slugPrefix:
+            self.metadataDict['slug'] = "%s/%s" % (self.slugPrefix, self.slug)
+
+        newDict = "\n".join(
+            [".. %s: %s" % (key, value) for key, value
+             in self.metadataDict.items()])
+        try:
+            os.makedirs(str(self.PROCESSED_PATH))
+        except OSError:
+            pass
+        metadataDstPath = (self.PROCESSED_PATH / (self.identifier + '.meta'))
+        ContentDumper(metadataDstPath, newDict).dump()
+        articleDstPath = (self.PROCESSED_PATH / (self.identifier + '.bb'))
+        ContentDumper(articleDstPath, self.content).dump()

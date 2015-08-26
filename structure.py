@@ -1,43 +1,31 @@
 import logging
+import pprint
+
 from adfd.article import Article
 
 logging.basicConfig(level=logging.INFO)
 
-DEMO = 'Demo'
-INFO = 'Info'
+
+def get_prepared_article_representations(identifiers, path):
+    representations = []
+    for identifier in identifiers:
+        article = Article(identifier, path)
+        article.process()
+        representation = article.structuralRepresentation
+        representations.append(representation)
+    return tuple(representations), path
 
 # For regular links: ('https://getnikola.com/', 'Nikola Homepage')
 # submenus: ((('http://a.com/', 'A'), ('http://b.com/', 'O')), 'Fruits')
-# Make sure to end all urls with /
+# TODO Make sure to end all urls with /
 NAVIGATION_LINKS = {
     'de': (
-        (
-            (
-                Article('kitchen-sink', DEMO).structuralRepresentation,
-                Article(966, DEMO).structuralRepresentation,
-            ),
-            DEMO
-        ),
-        (
-            (
-                Article(689, INFO).structuralRepresentation,
-                Article(893, INFO).structuralRepresentation,
-            ),
-            INFO
-        ),
-        Article(940).structuralRepresentation,
-    ),
+        get_prepared_article_representations([940], ''),
+        get_prepared_article_representations(['kitchen-sink', 9730], 'Demo'),
+        get_prepared_article_representations([689, 893], 'Info'),
+    )
 }
 
-# todo instead of changing metadata in place:
-# copy the articles to the right structure inside a folder 'information'
-# so that
-PAGES = [
-    # BAD # ("content/static/*.bb", "", "story.tmpl"),
-    # BAD # ("content/imported/*.bb", "", "story.tmpl"),
-    # GOOD # ("information/*.bb", "", "story.tmpl"),
-]
-# also finds the articles in the right places
 
 if __name__ == '__main__':
-    print NAVIGATION_LINKS
+    pprint.pprint(NAVIGATION_LINKS)
