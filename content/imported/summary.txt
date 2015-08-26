@@ -90,6 +90,7 @@
     69560: re-suiziddebatte-kommentiertes-statement-von-prof-hegerl
     94704: re-suiziddebatte-kommentiertes-statement-von-prof-hegerl
     94835: re-suiziddebatte-kommentiertes-statement-von-prof-hegerl
+    111592: re-suiziddebatte-kommentiertes-statement-von-prof-hegerl
 934: Anhörung im englischen Parlament zum Einfluss der Pharmas
     5139: anhoerung-im-englischen-parlament-zum-einfluss-der-pharmas
     5140: 
@@ -399,6 +400,7 @@
     90181: neubewertung-von-cymbalta
     91082: re-gefahren-lyrica-pregabalin-cymbalta-duloxetin
     95630: re-gefahren-lyrica-pregabalin-cymbalta-duloxetin
+    111304: re-gefahren-lyrica-pregabalin-cymbalta-duloxetin
 8072: DGSP Stellungnahme: Verwendung von Neuroleptika
     69469: dgsp-stellungnahme-verwendung-von-neuroleptika
     69473: re-neue-studienergebnisse-ueber-die-anwendung-von-nl
@@ -776,6 +778,8 @@
     109287: all-party-parliamentary-group-for-prescribed-drug-dependence
 10082: Prof. Gøtzsche: Abhängigkeit SSRI: Reaktionen der Gesundheitsbehörden
     109376: prof-gotzsche-abhaengigkeit-ssri-reaktionen-der-gesundheitsbehoerden
+10170: Leider: Eli Lilly gewinnt Klage (Absetzsymptome)
+    111077: leider-eli-lilly-gewinnt-klage-absetzsymptome
 853: Infopaket zum Absetzen von Antidepressiva
     4731: infopaket-zum-absetzen-von-antidepressiva
     4732: einleitung
@@ -954,3 +958,5 @@
     106317: koerperliche-abhaengigkeit
 9910: Gereiztes ZNS/Funktionsstörung - Infoartikel
     106081: gereiztes-zns-funktionsstoerung-infoartikel
+10199: Diverse Absetz-Informationensschriften/Leitfäden
+    111679: diverse-absetz-informationensschriften-leitfaeden
