@@ -6,14 +6,14 @@
 
 //must be synched with variables of same name in conf.GLOBAL_CONTEXT
 
-$sansSerifFont: "Ubuntu:bold";
-$serifFont: "Vollkorn";
+//$sansSerifFont: "Ubuntu:bold";
+//$serifFont: "Vollkorn";
 
 //$sansSerifFont: "Pontano Sans";
 //$serifFont: "Crimson Text";
 
-//$sansSerifFont: "Open Sans";
-//$serifFont: "Bree Serif";
+$sansSerifFont: "Open Sans";
+$serifFont: "Bree Serif";
 
 //$sansSerifFont: "Allerta";
 //$serifFont: "Bevan";
@@ -128,12 +128,12 @@ article {
   @include list-style;
   background-color: scale-color($adfd-light-blue, $lightness: 40%);
   border: 1px solid scale-color($adfd-dark-blue, $lightness: 0%); // $blockquote-border;
+  text-align: justify;
   div, section {
     margin-top: 1em;
     margin-right: 0.5em;
     margin-bottom: 1em;
     margin-left: 0.5em;
-    text-align: justify;
     > p:first-letter {
       @include drop-caps;
     }
