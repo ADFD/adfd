@@ -1,14 +1,16 @@
 import pytest
 
-from adfd.adfd_parser import AdfdParser
-from testutils import DataGrabber
+from testutils import DataGrabber, PairTester
 
 
 class TestAdfdParser(object):
-    @pytest.mark.parametrize("fName,src,exp", DataGrabber('pairs').get_pairs())
-    def test_pairs(self, fName, src, exp):
-        if not exp:
-            pytest.xfail(reason='no expectation set for %s yet' % (fName))
-        parser = AdfdParser()
-        result = parser.format(src)
-        assert result.strip() == exp.strip()
+    ACCEPTANCE_PAIRS = DataGrabber('acceptance').get_pairs()
+    P_WRAP_PAIRS = DataGrabber('p-wrap').get_pairs()
+
+    @pytest.mark.parametrize("fName,src,exp", P_WRAP_PAIRS)
+    def test_p_wrap_pairs(self, fName, src, exp):
+        PairTester.test_pairs(fName, src, exp)
+
+    @pytest.mark.parametrize("fName,src,exp", ACCEPTANCE_PAIRS)
+    def test_acceptance_pairs(self, fName, src, exp):
+        PairTester.test_pairs(fName, src, exp)

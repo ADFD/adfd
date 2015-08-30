@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
 import logging
 import re
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString, Tag
 
 from adfd import bbcode
 
@@ -163,7 +164,10 @@ class AdfdParser(bbcode.Parser):
         """
         # primedText = AdfdPrimer(data).primedText
         tokens = self.fix_whitespace(self.tokenize(data))
-        return self._format_tokens(tokens, None, **context)
+        text = self._format_tokens(tokens, None, **context)
+        postProcessor = AdfdPostProcessor(text)
+        text = postProcessor.processedText
+        return text
 
     def pretty_print_html(self, rawHtmlStr):
         soup = BeautifulSoup(rawHtmlStr, "lxml")
@@ -342,3 +346,37 @@ class AdfdParser(bbcode.Parser):
         if '://' not in href and bbcode._domainRegex.match(href):
             href = 'http://' + href
         return '<a href="%s">%s</a>' % (href.replace('"', '%22'), value)
+
+
+class AdfdPostProcessor(object):
+    def __init__(self, text):
+        self.text = text
+        self.soup = BeautifulSoup(text, 'lxml')
+
+    @property
+    def processedText(self):
+        self.wrap_sections()
+        return self.soup.prettify()
+
+    def wrap_sections(self):
+        body = self.soup.find('body')
+        children = list(body.children)
+        currentKey = children[0]
+        sectionMap = OrderedDict({currentKey: None})
+        currentSectionTags = []
+        for child in children[1:]:
+            if type(child) == Tag and (re.match("h\d", child.name)):
+                if currentSectionTags:
+                    sectionMap[currentKey] = currentSectionTags
+                currentKey = child
+                sectionMap[currentKey] = None
+                currentSectionTags = []
+            else:
+                currentSectionTags.append(child)
+        sectionMap[currentKey] = currentSectionTags
+        for sectionStarter, items in sectionMap.items():
+            print sectionStarter, items
+            sectionTag = self.soup.new_tag('section')
+            sectionStarter.wrap(sectionTag)
+            for elem in items:
+                sectionTag.append(elem)

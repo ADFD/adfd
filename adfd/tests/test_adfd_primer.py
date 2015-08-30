@@ -8,7 +8,7 @@ from testutils import DataGrabber
 
 
 class TestAdfdPrimer(object):
-    dg = DataGrabber()
+    dg = DataGrabber('primer')
 
     @pytest.mark.parametrize("line,exp", dg.get_boolean_tests('headers1'))
     def test_headers1(self, line, exp):
