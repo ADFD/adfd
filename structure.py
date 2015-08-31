@@ -7,7 +7,7 @@ from adfd.article import Article
 logging.basicConfig(level=logging.INFO)
 
 
-def get_prepared_article_representations(identifiers, path):
+def get_prepared_article_representations(identifiers, path=u''):
     representations = []
     for identifier in identifiers:
         article = Article(identifier, path)
@@ -22,6 +22,7 @@ def get_prepared_article_representations(identifiers, path):
 
 NAVIGATION_LINKS = {
     'de': (
+        get_prepared_article_representations(['tmp-index']),
         get_prepared_article_representations([9913, 9910, 853], u'Absetzen'),
         get_prepared_article_representations([940, 9420], u'Hintergründe'),
         get_prepared_article_representations([689, 893], u'Info'),
