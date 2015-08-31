@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 import pprint
 
@@ -18,11 +19,13 @@ def get_prepared_article_representations(identifiers, path):
 # For regular links: ('https://getnikola.com/', 'Nikola Homepage')
 # submenus: ((('http://a.com/', 'A'), ('http://b.com/', 'O')), 'Fruits')
 # TODO Make sure to end all urls with /
+
 NAVIGATION_LINKS = {
     'de': (
-        get_prepared_article_representations([940], ''),
-        get_prepared_article_representations(['kitchen-sink', 9730], 'Demo'),
-        get_prepared_article_representations([689, 893], 'Info'),
+        get_prepared_article_representations([9913, 9910, 853], u'Absetzen'),
+        get_prepared_article_representations([940, 9420], u'Hintergründe'),
+        get_prepared_article_representations([689, 893], u'Info'),
+        get_prepared_article_representations(['kitchen-sink', 9730], u'Demo'),
     )
 }
 

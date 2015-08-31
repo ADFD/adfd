@@ -1,4 +1,0 @@
-AuthName "neueseite"
-AuthType Basic
-AuthUserFile /home/.htpasswd
-require valid-user

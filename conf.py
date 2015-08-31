@@ -77,7 +77,7 @@ REDIRECTIONS = []
 # call with nikola deploy <command>
 DEPLOY_COMMANDS = {
     'default': [
-        "rsync -rav --delete output/ mj13.de:/home/www/neueseite",
+        "rsync -rav --delete output/ mj13.de:/home/www/privat/neu",
     ],
     'check': [
         'nikola check -l',
