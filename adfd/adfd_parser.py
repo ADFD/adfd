@@ -3,10 +3,9 @@ from collections import OrderedDict
 import logging
 import re
 
-from bs4 import BeautifulSoup, NavigableString, Tag
+from bs4 import BeautifulSoup, Tag
 
 from adfd import bbcode
-
 
 log = logging.getLogger(__name__)
 
