@@ -27,6 +27,7 @@ NAVIGATION_LINKS = {
         get_prepared_article_representations([940, 9420], u'Hintergründe'),
         get_prepared_article_representations([689, 893], u'Info'),
         get_prepared_article_representations(['kitchen-sink', 9730], u'Demo'),
+        get_prepared_article_representations([10068], u'BBcode'),
     )
 }
 

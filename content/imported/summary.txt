@@ -961,3 +961,5 @@
     106081: gereiztes-zns-funktionsstoerung-infoartikel
 10199: Diverse Absetz-Informationensschriften/Leitfäden
     111679: diverse-absetz-informationensschriften-leitfaeden
+10068: Überschriften - fomatierter Beitrag
+    109252: ueberschriften-fomatierter-beitrag
