@@ -1,8 +1,12 @@
 [b]Personen/Insitutionen, die eine langsame Reduktion über einen längeren Zeitraum empfehlen:[/b]
 
 [b]Dr. Peter Breggin[/b]: Psychiatric Drug Withdawal (2012) - siehe auch [url=http://www.adfd.org/austausch/viewtopic.php?p=102841#p102841]hier[/url] bzw. Your Drug May Be Your Problem (1999/2007). Auf Youtube gibt es eine [url=http://adfd.org/austausch/viewtopic.php?f=6&t=9834]Kurzvideo-Serie[/url] von ihm zum Thema Psychopharmaka
+[b]
+Surviving Antidepressants (amerikanisches Forum)[/b]
+Why taper by 10% of my dosage? [url]http://survivingantidepressants.org/index.php?/topic/1024-why-taper-by-10-of-my-dosage/[/url]
+Important topics in the Tapering forum and FAQ [url]http://survivingantidepressants.org/index.php?/topic/300-important-topics-in-the-tapering-forum-and-faq/[/url]
 
-[b]The Icarus Project and Freedom Center[/b]: Harm Reduction Guide to Coming Off Psychiatric Drugs: auf [url=http://www.willhall.net/files/ComingOffPsychDrugsHarmReductGuide2Edonline.pdf]Englisch[/url] und in einer etwas holprigen [url=hhttp://www.willhall.net/files/HarmReductionLeitfadenzumrisikoarmenAbsetzenvonPsychopharmaka2EdOnline.pdf]deutschen Übersetzung[/url] 
+[b]The Icarus Project and Freedom Center[/b]: Harm Reduction Guide to Coming Off Psychiatric Drugs: auf [url=http://www.willhall.net/files/ComingOffPsychDrugsHarmReductGuide2Edonline.pdf]Englisch[/url] und in einer etwas holprigen [url=http://www.willhall.net/files/HarmReductionLeitfadenzumrisikoarmenAbsetzenvonPsychopharmaka2EdOnline.pdf]deutschen Übersetzung[/url] 
 
 [b]Deutschen Gesellschaft für Soziale Psychiatrie (DGSP e.V.)[/b]: [url=http://www.adfd.org/austausch/viewtopic.php?f=32&t=8997]Broschüre[/url]   Neuroleptika reduzieren und absetzen
 

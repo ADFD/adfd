@@ -2,7 +2,7 @@
 
 Man sollte niemals das Medikament kalt absetzen in dem Glauben, man könnte problemlos wieder eindosieren. Deshalb wird das langsame, stufenweise Absetzen empfohlen, um Entzugssymptome zu minimieren. [b]Wenn das Nervensystem erst einmal durch den Entzug destabilisiert ist, kann einem beim Eindoserien alles passieren.[/b]
 
-Viele Ärzte glauben bis heute, dass die akute Phase einen Entzuges (nach Kaltabsetzen oder wenigen großen Absetzschritten in sehr kurzer Zeit) nur wenige Wochen anhält.[b] Online-Erfahrungsberichte aus der ganzen Welt zeigen, dass diese auch monatelang anhalten können.[/b]
+Viele Ärzte glauben bis heute, dass die akute Phase einen Entzuges (nach Kaltabsetzen oder wenigen großen Absetzschritten in kurzer Zeit) nur wenige Wochen anhält.[b] Online-Erfahrungsberichte aus der ganzen Welt zeigen, dass diese auch monatelang anhalten können.[/b]
 
 Die Gebrauchsinformationen/Fachinformationen der meisten neuen Psychopharmaka weisen inzwischen auf eine [b]erneute Aufnahme der Medikation[/b] bei Enzugssyndromen an. Das ist alles, was die medizinische Fachwelt über die Behandlung von Entzugssyndromen weiß.
 
