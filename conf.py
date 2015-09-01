@@ -76,12 +76,8 @@ REDIRECTIONS = []
 # todo consider using nikola plugin -i ping
 # call with nikola deploy <command>
 DEPLOY_COMMANDS = {
-    'default': [
-        "rsync -rav --delete output/ mj13.de:/home/www/privat/neu",
-    ],
-    'check': [
-        'nikola check -l',
-    ],
+    'default': ["rsync -rav --delete output/ mj13.de:/home/www/privat/neu"],
+    'check': ['nikola check -l'],
 }
 COMMENT_SYSTEM_ID = None  # silence deploy warning (default testaccount)
 
