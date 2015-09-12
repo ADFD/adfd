@@ -24,10 +24,11 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
-__version_info__ = (1, 0, 21)
+import re
+
+__version_info__ = (1, 0, 22)
 __version__ = '.'.join(str(i) for i in __version_info__)
 
-import re
 
 # from http://daringfireball.net/2010/07/improved_regex_for_matching_urls
 # Only support one level of parentheses - was failing on some URLs.
@@ -480,6 +481,7 @@ class Parser (object):
                         render_func(tag_name, None, tag_opts, parent, context))
                 else:
                     # First, find the extent of this tag's tokens.
+                    # noinspection PyTypeChecker
                     end, consume = self._find_closing_token(
                         tag, tokens, idx + 1)
                     subtokens = tokens[idx + 1:end]
