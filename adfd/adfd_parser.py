@@ -38,10 +38,8 @@ class AdfdParser(bbcode.Parser):
         assert tokens
         return self._format_tokens(tokens, parent=None, **context)
 
-    def fix_whitespace(self, tokens=None):
+    def fix_whitespace(self, tokens):
         """normalize text to only contain single or no empty lines"""
-        tokens = tokens or self.tokens
-        assert tokens
         fixedTokens = []
         lastToken = [None]
         for token in tokens:
