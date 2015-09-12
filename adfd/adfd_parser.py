@@ -28,12 +28,12 @@ class AdfdParser(bbcode.Parser):
         Any context keyword arguments given here will be passed along to
         the render functions as a context dictionary.
         """
-        data = data or self.data
-        assert data
-        if not self.tokens:
-            self.tokens = self.fix_whitespace(self.tokenize(data))
-        text = self._format_tokens(self.tokens, None, **context)
-        return text
+        if data:
+            tokens = self.fix_whitespace(self.tokenize(data))
+        else:
+            tokens = self.tokens
+        assert tokens
+        return self._format_tokens(tokens, parent=None, **context)
 
     def fix_whitespace(self, tokens=None):
         """normalize text to only contain single or no empty lines"""
