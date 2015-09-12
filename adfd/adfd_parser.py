@@ -14,11 +14,13 @@ class AdfdParser(bbcode.Parser):
     def __init__(self, *args, **kwargs):
         try:
             self.data = kwargs.pop('data')
-            self.tokens = self.tokenize(self.data)
         except KeyError:
             self.data = None
-            self.tokens = None
         super(AdfdParser, self).__init__(*args, **kwargs)
+        if self.data:
+            self.tokens = self.tokenize(self.data)
+        else:
+            self.tokens = None
         self.add_default_formatters()
         self.add_custom_formatters()
 
