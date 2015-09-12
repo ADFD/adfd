@@ -65,7 +65,7 @@ class CompileBbcode(PageCompiler):
                 data = in_file.read()
             if not is_two_file:
                 data = re.split('(\n\n|\r\n\r\n)', data, maxsplit=1)[-1]
-            output = self.parser.format(data)
+            output = self.parser.to_html(data)
             out_file.write(output)
 
     def create_post(self, path, **kw):

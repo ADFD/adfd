@@ -62,5 +62,5 @@ def bs(text):
 if __name__ == '__main__':
     # text = "http://adfd.org simple paragraph should be wrapped in p tags."
     text = DataGrabber('1-structure.bb').grab()
-    text = AdfdParser().format(text)
+    text = AdfdParser(data=text).to_html()
     bs(text)

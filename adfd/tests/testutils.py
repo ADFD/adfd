@@ -11,7 +11,7 @@ class PairTester(object):
         exp = exp.strip()
         if not exp:
             pytest.xfail(reason='no expectation for %s' % (fName))
-        result = AdfdParser().format(src).strip()
+        result = AdfdParser(data=src).to_html()
         soup = BeautifulSoup(result, "lxml")
         result = soup.prettify()
         try:

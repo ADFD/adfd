@@ -12,22 +12,33 @@ class AdfdParser(bbcode.Parser):
     HEADER_TAGS = ['h%s' % (i) for i in range(1, 6)]
 
     def __init__(self, *args, **kwargs):
+        try:
+            self.data = kwargs.pop('data')
+            self.tokens = self.tokenize(self.data)
+        except KeyError:
+            self.data = None
+            self.tokens = None
         super(AdfdParser, self).__init__(*args, **kwargs)
         self.add_default_formatters()
         self.add_custom_formatters()
 
-    def format(self, data, **context):
+    def to_html(self, data=None, **context):
         """Format input text using any installed renderers.
 
         Any context keyword arguments given here will be passed along to
         the render functions as a context dictionary.
         """
-        tokens = self.fix_whitespace(self.tokenize(data))
-        text = self._format_tokens(tokens, None, **context)
+        data = data or self.data
+        assert data
+        if not self.tokens:
+            self.tokens = self.fix_whitespace(self.tokenize(data))
+        text = self._format_tokens(self.tokens, None, **context)
         return text
 
-    def fix_whitespace(self, tokens):
+    def fix_whitespace(self, tokens=None):
         """normalize text to only contain single or no empty lines"""
+        tokens = tokens or self.tokens
+        assert tokens
         fixedTokens = []
         lastToken = [None]
         for token in tokens:
