@@ -1,6 +1,7 @@
 import pytest
 
-from testutils import DataGrabber, PairTester
+from testutils import PairTester
+from adfd.utils import DataGrabber
 
 
 class TestAdfdParser(object):

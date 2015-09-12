@@ -2,9 +2,9 @@
 from __future__ import print_function
 
 import pytest
+from adfd_primer import AdfdPrimer, BadHeader, BadQuotes
 
-from adfd.adfd_parser import AdfdPrimer, BadHeader, BadQuotes
-from testutils import DataGrabber
+from adfd.utils import DataGrabber
 
 
 class TestAdfdPrimer(object):
