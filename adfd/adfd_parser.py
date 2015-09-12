@@ -17,12 +17,12 @@ class AdfdParser(bbcode.Parser):
         except KeyError:
             self.data = None
         super(AdfdParser, self).__init__(*args, **kwargs)
+        self.add_default_formatters()
+        self.add_custom_formatters()
         if self.data:
             self.tokens = self.tokenize(self.data)
         else:
             self.tokens = None
-        self.add_default_formatters()
-        self.add_custom_formatters()
 
     def to_html(self, data=None, **context):
         """Format input text using any installed renderers.
@@ -31,9 +31,10 @@ class AdfdParser(bbcode.Parser):
         the render functions as a context dictionary.
         """
         if data:
-            tokens = self.fix_whitespace(self.tokenize(data))
+            tokens = self.tokenize(data)
         else:
             tokens = self.tokens
+        tokens = self.fix_whitespace(tokens)
         assert tokens
         return self._format_tokens(tokens, parent=None, **context)
 
