@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from plumbum import LocalPath
 import pytest
 from adfd.adfd_parser import AdfdParser
@@ -51,6 +52,8 @@ class PairTester(object):
         if not exp:
             pytest.xfail(reason='no expectation for %s' % (fName))
         result = AdfdParser().format(src).strip()
+        soup = BeautifulSoup(result, "lxml")
+        result = soup.prettify()
         try:
             assert result == exp
         except AssertionError:
