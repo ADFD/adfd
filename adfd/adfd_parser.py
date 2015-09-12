@@ -10,6 +10,8 @@ log = logging.getLogger(__name__)
 
 class AdfdParser(bbcode.Parser):
     HEADER_TAGS = ['h%s' % (i) for i in range(1, 6)]
+    TOKENS = [bbcode.Parser.TOKEN_TAG_START, bbcode.Parser.TOKEN_TAG_END,
+              bbcode.Parser.TOKEN_NEWLINE, bbcode.Parser.TOKEN_DATA]
 
     def __init__(self, *args, **kwargs):
         try:
