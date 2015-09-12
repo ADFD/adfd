@@ -103,10 +103,10 @@ class TagOptions (object):
 
 
 class Parser (object):
-    TOKEN_TAG_START = 1
-    TOKEN_TAG_END = 2
-    TOKEN_NEWLINE = 3
-    TOKEN_DATA = 4
+    TOKEN_TAG_START = 'start'
+    TOKEN_TAG_END = 'end'
+    TOKEN_NEWLINE = 'newline'
+    TOKEN_DATA = 'data'
 
     def __init__(
             self, newline='<br>\n', normalize_newlines=True,
