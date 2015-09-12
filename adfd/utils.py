@@ -37,7 +37,7 @@ class ContentDumper(object):
 
 
 class DataGrabber(ContentGrabber):
-    DATA_PATH = LocalPath(__file__).up() / 'data'
+    DATA_PATH = LocalPath(__file__).up() / 'tests' / 'data'
 
     def __init__(self, relPath='.', absPath=None):
         super(DataGrabber, self).__init__(relPath, absPath)
