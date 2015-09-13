@@ -1,5 +1,7 @@
 import re
+
 from plumbum.path.local import LocalPath
+
 from adfd.adfd_parser import AdfdParser
 
 
@@ -15,11 +17,9 @@ class AdfdProcessor(object):
 
     def process(self):
         parser = AdfdParser(data=self.text)
-        self._firstPass = parser.to_html()
         apr = AdfdParagrafenreiter(parser.tokens)
         parser.tokens = apr.reitedieparagrafen()
-        self._secondPass = parser.to_html()
-        return self._secondPass
+        return parser.to_html()
 
 
 class Token(object):
@@ -163,15 +163,12 @@ class AdfdParagrafenreiter(object):
 
 
 if __name__ == '__main__':
-    from adfd.utils import DataGrabber
+    from bs4 import BeautifulSoup
 
-    p = DataGrabber.DATA_PATH / 'wrapping'
-    p1 = p / '01a-simple.bb'
-    p2 = p / '01b-simple.bb'
-    p3 = p / '01c-simple.bb'
-    ap = AdfdProcessor(path=p3)
+    rootPath = LocalPath(__file__).up(2)
+    p = (rootPath / 'content/imported/09910/'
+         '106081-gereiztes-zns-funktionsstoerung-infoartikel.bb')
+    ap = AdfdProcessor(path=p)
     print ap.text
-    ap.process()
-    print ap._firstPass
     print
-    print ap._secondPass
+    print BeautifulSoup(ap.process(), 'lxml').prettify()
