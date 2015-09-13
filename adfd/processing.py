@@ -24,7 +24,6 @@ class AdfdStructurer(object):
         return self.flatten(self.wrapped_quotes)
 
     def wrap_sections(self, tokens):
-        """[RETURNS NEW LIST] chop text into headers and sections"""
         lol = []
         current = []
         idx = 0
@@ -68,11 +67,11 @@ class AdfdStructurer(object):
             except IndexError:
                 nextToken = None
 
-            if self.is_quotes_start(token):
-                assert not self.is_quotes_end(nextToken), tokens
+            if self.is_quote_start(token):
+                assert not self.is_quote_end(nextToken), tokens
                 modifiedTokens.append(token)
                 modifiedTokens.append(self.P_START_TOKEN)
-            elif self.is_quotes_end(nextToken):
+            elif self.is_quote_end(nextToken):
                 modifiedTokens.append(token)
                 modifiedTokens.append(self.P_END_TOKEN)
             else:
@@ -95,7 +94,7 @@ class AdfdStructurer(object):
 
         return re.match("h\d", token.tag)
 
-    def is_quotes_start(self, token):
+    def is_quote_start(self, token):
         if not token:
             return False
 
@@ -104,7 +103,7 @@ class AdfdStructurer(object):
 
         return token.tag == "quote"
 
-    def is_quotes_end(self, token):
+    def is_quote_end(self, token):
         if not token:
             return False
 
