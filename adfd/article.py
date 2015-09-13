@@ -5,7 +5,7 @@ import os
 import re
 
 # noinspection PyUnresolvedReferences
-import translitcodec  # This registers new codecs for slugification
+import translitcodec  # register new codec for slugification
 
 from plumbum import LocalPath
 from adfd.utils import ContentGrabber, ContentDumper
