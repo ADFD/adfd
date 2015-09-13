@@ -61,7 +61,6 @@ class CompileBbcode(PageCompiler):
                 text = in_file.read()
             if not is_two_file:
                 text = re.split('(\n\n|\r\n\r\n)', text, maxsplit=1)[-1]
-
             out_file.write(AdfdProcessor(text=text).process())
 
     def create_post(self, path, **kw):
