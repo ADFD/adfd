@@ -1,6 +1,8 @@
 import logging
-from plumbum import LocalPath
 import pytest
+
+from plumbum import LocalPath
+
 from adfd.article import Article
 
 

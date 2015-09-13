@@ -1,27 +1,50 @@
 import re
+from plumbum.path.local import LocalPath
 from adfd.adfd_parser import AdfdParser
+
+
+class AdfdProcessor(object):
+    def __init__(self, text=None, path=None):
+        if text:
+            self.text = text
+        else:
+            assert path
+            path = LocalPath(path)
+            self.text = path.read()
+        assert self.text
+
+    def process(self):
+        parser = AdfdParser(data=self.text)
+        self._firstPass = parser.to_html()
+        apr = AdfdParagrafenreiter(parser.tokens)
+        parser.tokens = apr.reitedieparagrafen()
+        self._secondPass = parser.to_html()
+        return self._secondPass
 
 
 class Token(object):
     def __init__(self, *args):
-        self.type, self.tag, self.options, self.text = args
+        self.asTuple = args
+        self.type, self.tag, self.options, self.text = self.asTuple
 
     def __repr__(self):
         txt = "%s|" % (self.text[:10].encode('utf8').strip())
         return "%s%s" % ("%s|" % (self.tag) if self.tag else txt, self.type)
 
 
-class AdfdStructurer(object):
+class AdfdParagrafenreiter(object):
     P_START_TOKEN = Token(AdfdParser.TOKEN_TAG_START, 'p', None, '[p]')
     P_END_TOKEN = Token(AdfdParser.TOKEN_TAG_END, 'p', None, '[/p]')
 
     def __init__(self, tokens):
         self.tokens = [Token(*args) for args in tokens]
 
-    def structurize(self):
-        self.wrapped_sections = self.wrap_sections(self.tokens)
-        self.wrapped_quotes = self.wrap_quotes(self.wrapped_sections)
-        return self.flatten(self.wrapped_quotes)
+    def reitedieparagrafen(self):
+        self.paragraphed_sections = self.wrap_sections(self.tokens)
+        self.paragraphed_quotes = self.wrap_quotes(self.paragraphed_sections)
+        flatList = self.flatten(self.paragraphed_quotes)
+        tokensAsTuples = [t.asTuple for t in flatList]
+        return tokensAsTuples
 
     def wrap_sections(self, tokens):
         lol = []
@@ -31,8 +54,7 @@ class AdfdStructurer(object):
             token = tokens[idx]
             if self.is_header_start(token):
                 if current:
-                    self.p_wrap(current)
-                    lol.append(current)
+                    lol.append(self.wrap_section_paragraphs(current))
                     current = []
                 newIdx = idx + 3
                 lol.append(tokens[idx:newIdx])
@@ -43,8 +65,7 @@ class AdfdStructurer(object):
             idx += 1
 
         if current:
-            self.p_wrap(current)
-            lol.append(current)
+            lol.append(self.wrap_section_paragraphs(current))
         return lol
 
     def wrap_quotes(self, wrappedSections):
@@ -112,22 +133,45 @@ class AdfdStructurer(object):
 
         return token.tag == "quote"
 
-    def p_wrap(self, tokens):
+    def wrap_section_paragraphs(self, tokens):
+        tokens = self.strip_leading_newline_token(tokens)
+        idx = 0
         tokens.insert(0, self.P_START_TOKEN)
-        tokens.append(self.P_END_TOKEN)
+        while idx < (len(tokens)):
+            token = tokens[idx]
+            try:
+                nextToken = tokens[idx + 1]
+            except IndexError:
+                nextToken = None
+            if self.is_newline(token) and self.is_newline(nextToken):
+                tokens.insert(idx + 1, self.P_START_TOKEN)
+                if idx + 2 < len(tokens):
+                    tokens.insert(idx + 1, self.P_END_TOKEN)
+            idx += 1
+        return tokens
+
+    def strip_leading_newline_token(self, tokens):
+        if self.is_newline(tokens[0]):
+            tokens.pop(0)
+        return tokens
+
+    def is_newline(self, token):
+        if not token:
+            return False
+
+        return token.type == AdfdParser.TOKEN_NEWLINE
 
 
 if __name__ == '__main__':
     from adfd.utils import DataGrabber
 
-    dg = DataGrabber('pwrap')
-    data = dg.get_pairs()
-    in_ = data[0][1]
-    parser = AdfdParser(data=in_)
-    # print in_
-    tokens = parser.tokens
-    s = AdfdStructurer(tokens)
-    print "BEFORE", s.tokens
+    p = DataGrabber.DATA_PATH / 'wrapping'
+    p1 = p / '01a-simple.bb'
+    p2 = p / '01b-simple.bb'
+    p3 = p / '01c-simple.bb'
+    ap = AdfdProcessor(path=p3)
+    print ap.text
+    ap.process()
+    print ap._firstPass
     print
-    newTokens = s.structurize()
-    print "AFTER", newTokens
+    print ap._secondPass

@@ -36,7 +36,7 @@ TESTS = (
      '<ul><li>one</li><li>two</li></ul>\n'),
     ('[list=1]\n[*]one\n[*]two\n[/list]',
      '<ol style="list-style-type:decimal;"><li>one</li><li>two</li></ol>\n'),
-    ('[b\n oops [i]i[/i] forgot[/b]', '[b<br>\n oops <em>i</em> forgot'),
+    ('[b\n oops [i]i[/i] forgot[/b]', '[b\n oops <em>i</em> forgot'),
     ('[b]over[i]lap[/b]ped[/i]', '<strong>over<em>lap</em></strong>ped'),
     ('>> hey -- a dash...', '&gt;&gt; hey &ndash; a dash&#8230;'),
     ('[url]http://foo.com/s.php?some--data[/url]',
@@ -138,12 +138,12 @@ LINKS = [
 ]
 
 
-class TestParser(object):
+class TestBbcodeParser(object):
     parser = AdfdParser()
 
     @pytest.mark.parametrize(('src', 'expected'), TESTS)
     def test_format(self, src, expected):
-        tokens = self.parser.fix_whitespace(self.parser.tokenize(src))
+        tokens = self.parser.tokenize(src)
         result = self.parser._format_tokens(tokens, None)
         assert result == expected
 

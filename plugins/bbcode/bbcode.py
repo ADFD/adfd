@@ -33,10 +33,10 @@ import re
 
 try:
     from adfd import bbcode
-    from adfd.adfd_parser import AdfdParser
+    from adfd.processing import AdfdProcessor
 except ImportError:
     bbcode = None
-    AdfdParser = object()
+    AdfdProcessor = object()
 
 from nikola.plugin_categories import PageCompiler
 from nikola.utils import makedirs, req_missing, write_metadata
@@ -51,7 +51,6 @@ class CompileBbcode(PageCompiler):
     def __init__(self):
         if bbcode is None:
             return
-        self.parser = AdfdParser()
 
     def compile_html(self, source, dest, is_two_file=True):
         if bbcode is None:
@@ -59,11 +58,11 @@ class CompileBbcode(PageCompiler):
         makedirs(os.path.dirname(dest))
         with codecs.open(dest, "w+", "utf8") as out_file:
             with codecs.open(source, "r", "utf8") as in_file:
-                data = in_file.read()
+                text = in_file.read()
             if not is_two_file:
-                data = re.split('(\n\n|\r\n\r\n)', data, maxsplit=1)[-1]
-            output = self.parser.to_html(data)
-            out_file.write(output)
+                text = re.split('(\n\n|\r\n\r\n)', text, maxsplit=1)[-1]
+
+            out_file.write(AdfdProcessor(text=text).process())
 
     def create_post(self, path, **kw):
         content = kw.pop('content', 'Write your post here.')

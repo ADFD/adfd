@@ -109,7 +109,7 @@ class Parser (object):
     TOKEN_DATA = 'data'
 
     def __init__(
-            self, newline='<br>\n', normalize_newlines=True,
+            self, newline='\n', normalize_newlines=True,
             escape_html=True, replace_links=True,
             replace_cosmetic=True, tag_opener='[', tag_closer=']',
             linker=None, linker_takes_context=False, drop_unrecognized=False):

@@ -2,8 +2,8 @@
 import logging
 import re
 
-
 from adfd import bbcode
+
 
 log = logging.getLogger(__name__)
 
@@ -36,26 +36,8 @@ class AdfdParser(bbcode.Parser):
             tokens = self.tokenize(data)
         else:
             tokens = self.tokens
-        tokens = self.fix_whitespace(tokens)
         assert tokens
         return self._format_tokens(tokens, parent=None, **context)
-
-    def fix_whitespace(self, tokens):
-        """normalize text to only contain single or no empty lines"""
-        fixedTokens = []
-        lastToken = [None]
-        for token in tokens:
-            if token[0] == self.TOKEN_NEWLINE:
-                if self.is_block_display_token(lastToken[1]):
-                    continue
-
-            if (lastToken[0] == self.TOKEN_NEWLINE and
-                    token[0] == self.TOKEN_NEWLINE):
-                    continue
-
-            fixedTokens.append(token)
-            lastToken = token
-        return fixedTokens
 
     def add_default_formatters(self):
         self._add_simple_default_formatters()

@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import pytest
 
-from adfd.adfd_parser import AdfdParser
+from adfd.processing import AdfdProcessor
 from adfd.utils import DataGrabber
 
 
@@ -11,13 +11,14 @@ class PairTester(object):
         exp = exp.strip()
         if not exp:
             pytest.xfail(reason='no expectation for %s' % (fName))
-        result = AdfdParser(data=src).to_html()
-        soup = BeautifulSoup(result, "lxml")
-        result = soup.prettify()
+        print(fName)
+        result = AdfdProcessor(text=src).process()
+        result = BeautifulSoup(result, "lxml").prettify()
+        refPath = DataGrabber.DATA_PATH / ('%s.html' % (fName))
         try:
             assert result == exp
+            refPath.delete()
         except AssertionError:
-            p = DataGrabber.DATA_PATH / ('%s.html' % (fName))
-            with open(str(p), 'w') as f:
+            with open(str(refPath), 'w') as f:
                 f.write(result.encode('utf8'))
             raise
