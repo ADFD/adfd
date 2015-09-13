@@ -6,14 +6,15 @@ bla bla bla
 [quote]bla bla bla[/quote]
 
 [quote]
-bla bla bla
+    outer
+    [quote]
+        middle
+        [quote]
+            inner
+        [/quote]
+    middle
+    [/quote]
 [/quote]
-
-[quote]bla bla bla
-[/quote]
-
-[quote]
-bla bla bla[/quote]
 
 [quote]bla
 bla
