@@ -1,10 +1,3 @@
-"""
-
-[quote] a1 a2 [quote="author"]i1 i2[/quote] a3 a4 [/quote]
-should become
-[ quote, a1, a2, [quote="author", i1, i2, /quote], a2, a3 /quote ]
-
-"""
 import re
 from adfd.adfd_parser import AdfdParser
 
@@ -19,6 +12,9 @@ class Token(object):
 
 
 class AdfdStructurer(object):
+    P_START_TOKEN = Token(AdfdParser.TOKEN_TAG_START, 'p', None, '[p]')
+    P_END_TOKEN = Token(AdfdParser.TOKEN_TAG_END, 'p', None, '[/p]')
+
     def __init__(self, tokens):
         self.tokens = [Token(*args) for args in tokens]
 
@@ -28,6 +24,7 @@ class AdfdStructurer(object):
         return self.flatten(self.wrapped_quotes)
 
     def wrap_sections(self, tokens):
+        """[RETURNS NEW LIST] chop text into headers and sections"""
         lol = []
         current = []
         idx = 0
@@ -52,36 +49,36 @@ class AdfdStructurer(object):
         return lol
 
     def wrap_quotes(self, wrappedSections):
-        newSections = []
+        lol = []
         for section in wrappedSections:
             if self.is_header_start(section[0]):
-                newSections.append(section)
+                lol.append(section)
                 continue
 
-            lol = []
-            # noinspection PyTypeChecker
-            self._sectionize_quotes(section, 0, lol)
-            newSections.append(lol)
-        return newSections
+            lol.append(self._wrap_quotes(section))
+        return lol
 
-    def _sectionize_quotes(self, tokens, idx, lol):
-        current = []
+    def _wrap_quotes(self, tokens):
+        modifiedTokens = []
+        idx = 0
         while idx < len(tokens):
             token = tokens[idx]
+            try:
+                nextToken = tokens[idx + 1]
+            except IndexError:
+                nextToken = None
+
             if self.is_quotes_start(token):
-                lol.append(token)
-                idx += 1
-                idx = self._sectionize_quotes(tokens, idx, lol)
-            if self.is_quotes_end(token):
-                lol.append(current)
-                lol.append(token)
-                return idx
-
-            current.append(token)
+                assert not self.is_quotes_end(nextToken), tokens
+                modifiedTokens.append(token)
+                modifiedTokens.append(self.P_START_TOKEN)
+            elif self.is_quotes_end(nextToken):
+                modifiedTokens.append(token)
+                modifiedTokens.append(self.P_END_TOKEN)
+            else:
+                modifiedTokens.append(token)
             idx += 1
-
-        if current:
-            lol.append(current)
+        return modifiedTokens
 
     def flatten(self, lol):
         result = []
@@ -99,20 +96,26 @@ class AdfdStructurer(object):
         return re.match("h\d", token.tag)
 
     def is_quotes_start(self, token):
+        if not token:
+            return False
+
         if token.type != AdfdParser.TOKEN_TAG_START:
             return False
 
         return token.tag == "quote"
 
     def is_quotes_end(self, token):
+        if not token:
+            return False
+
         if token.type != AdfdParser.TOKEN_TAG_END:
             return False
 
         return token.tag == "quote"
 
     def p_wrap(self, tokens):
-        tokens.insert(0, Token(AdfdParser.TOKEN_TAG_START, 'p', None, '[p]'))
-        tokens.append(Token(AdfdParser.TOKEN_TAG_END, 'p', None, '[/p]'))
+        tokens.insert(0, self.P_START_TOKEN)
+        tokens.append(self.P_END_TOKEN)
 
 
 if __name__ == '__main__':
@@ -122,13 +125,10 @@ if __name__ == '__main__':
     data = dg.get_pairs()
     in_ = data[0][1]
     parser = AdfdParser(data=in_)
-    print in_
+    # print in_
     tokens = parser.tokens
     s = AdfdStructurer(tokens)
-    # for l in s.wrap_sections(s.tokens):
-    #     print l
-    # print
-    for l in s.wrap_quotes(s.wrap_sections(s.tokens)):
-        print l
-    # print structurer.structurize()
-    # print parser.to_html()
+    print "BEFORE", s.tokens
+    print
+    newTokens = s.structurize()
+    print "AFTER", newTokens
