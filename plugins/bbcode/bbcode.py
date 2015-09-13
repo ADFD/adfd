@@ -33,17 +33,14 @@ import re
 
 try:
     from adfd import bbcode
+    from adfd.adfd_parser import AdfdParser
 except ImportError:
-    bbcode = None  # NOQA
+    bbcode = None
+    AdfdParser = object()
 
 from nikola.plugin_categories import PageCompiler
 from nikola.utils import makedirs, req_missing, write_metadata
-try:
-    from collections import OrderedDict
-except ImportError:
-    OrderedDict = dict  # NOQA
-
-from adfd.adfd_parser import AdfdParser
+from collections import OrderedDict
 
 
 class CompileBbcode(PageCompiler):
