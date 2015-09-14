@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import re
 
 from bs4 import BeautifulSoup, Tag
 
