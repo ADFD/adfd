@@ -32,7 +32,7 @@ class Article(object):
             self.identifier = identifier
             self.srcPath = self.SRC_PATH / 'static'
         log.debug("article %s/%s", self.srcPath, self.identifier)
-        self.metadataDict = self.fetch_metadataDict()
+        self.metadataDict = self.fetch_metadata_dict()
 
     def __repr__(self):
         return u'<%s %s>' % (self.__class__.__name__, self.slug)
@@ -65,7 +65,7 @@ class Article(object):
                 words.append(word)
         return u'-'.join(words)
 
-    def fetch_metadataDict(self):
+    def fetch_metadata_dict(self):
         """only using first found metadata for now ..."""
         metadata = ContentGrabber(absPath=self.metadataPaths[0]).grab()
         metadataDict = OrderedDict()
