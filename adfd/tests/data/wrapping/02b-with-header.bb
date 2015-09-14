@@ -1,6 +1,7 @@
 [h1]With more than one Header[/h1]
 
 This is a simple paragraph that should be wrapped in p tags.
+
 [h2]Another header[/h2]
 
 This is a simple paragraph that should be wrapped in p tags.

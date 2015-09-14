@@ -144,9 +144,12 @@ class AdfdParagrafenreiter(object):
             except IndexError:
                 nextToken = None
             if self.is_newline(token) and self.is_newline(nextToken):
-                tokens.insert(idx + 1, self.P_START_TOKEN)
-                if idx + 2 < len(tokens):
-                    tokens.insert(idx + 1, self.P_END_TOKEN)
+                tokens.insert(idx, self.P_END_TOKEN)
+                if idx + 3 >= len(tokens):
+                    break
+
+                else:
+                    tokens.insert(idx + 2, self.P_START_TOKEN)
             idx += 1
         return tokens
 
@@ -166,9 +169,11 @@ if __name__ == '__main__':
     from bs4 import BeautifulSoup
 
     rootPath = LocalPath(__file__).up(2)
-    p = (rootPath / 'content/imported/09910/'
-         '106081-gereiztes-zns-funktionsstoerung-infoartikel.bb')
+    p = (rootPath / 'content/processed/10068.bb')
     ap = AdfdProcessor(path=p)
     print ap.text
     print
-    print BeautifulSoup(ap.process(), 'lxml').prettify()
+    html = ap.process()
+    print html
+    print '#' * 80
+    print BeautifulSoup(html, 'html.parser').prettify()

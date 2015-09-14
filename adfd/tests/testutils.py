@@ -13,7 +13,7 @@ class PairTester(object):
             pytest.xfail(reason='no expectation for %s' % (fName))
         print(fName)
         result = AdfdProcessor(text=src).process()
-        result = BeautifulSoup(result, "lxml").prettify()
+        result = BeautifulSoup(result, "html.parser").prettify()
         refPath = DataGrabber.DATA_PATH / ('%s.html' % (fName))
         try:
             assert result == exp
