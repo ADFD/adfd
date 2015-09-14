@@ -203,14 +203,14 @@ USE_BUNDLES = False
 # Put in global_context things you want available on all your templates.
 # It can be anything, data, functions, modules, etc.
 GLOBAL_CONTEXT = {
-    # 'sansSerifFont': 'Ubuntu:bold',
-    # 'serifFont': 'Vollkorn',
+    'sansSerifFont': 'Ubuntu:bold',
+    'serifFont': 'Vollkorn',
 
     # 'sansSerifFont': 'Open+Sans',
-    # 'serifFont': 'Crimson+Text',
+    # 'serifFont': 'Bree+Serif',
 
-    'sansSerifFont': 'Pontano+Sans',
-    'serifFont': 'Bree+Serif',
+    # 'sansSerifFont': 'Pontano+Sans',
+    # 'serifFont': 'Crimson+Text',
 
     # 'sansSerifFont': 'Allerta',
     # 'serifFont': 'Bevan',
