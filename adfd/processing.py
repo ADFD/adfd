@@ -26,10 +26,19 @@ class Token(object):
     def __init__(self, *args):
         self.asTuple = args
         self.type, self.tag, self.options, self.text = self.asTuple
+        self.isOpener = self.type == AdfdParser.TOKEN_TAG_START
+        self.isCloser = self.type == AdfdParser.TOKEN_TAG_END
+        self.isHeaderStart = self.isOpener and re.match("h\d", self.tag)
+        self.isQuoteStart = self.isOpener and self.tag == "quote"
+        self.isQuoteEnd = self.isCloser and self.tag == "quote"
+        self.isNewline = self.isCloser and self.tag == "quote"
 
     def __repr__(self):
         txt = "%s|" % (self.text[:10].encode('utf8').strip())
         return "%s%s" % ("%s|" % (self.tag) if self.tag else txt, self.type)
+
+    def __str__(self):
+        return self.__repr__()
 
 
 class AdfdParagrafenreiter(object):
@@ -40,6 +49,19 @@ class AdfdParagrafenreiter(object):
         self.tokens = [Token(*args) for args in tokens]
 
     def reitedieparagrafen(self):
+        """
+        1. split headers and sections, like before
+        2. Add new token that signals block changes
+        2. Inside each section
+            first pass:
+                fix newlines:
+                    before and after block tags -> makes sure there are
+                    2 newlines
+                replace double newLines with single block change token
+                ... or do this in one step (addd and replace right away)
+            second pass:
+                wrap paragraphs around all blocks
+        """
         self.paragraphed_sections = self.wrap_sections(self.tokens)
         self.paragraphed_quotes = self.wrap_quotes(self.paragraphed_sections)
         flatList = self.flatten(self.paragraphed_quotes)
@@ -52,7 +74,7 @@ class AdfdParagrafenreiter(object):
         idx = 0
         while idx < len(tokens):
             token = tokens[idx]
-            if self.is_header_start(token):
+            if token.isHeaderStart:
                 if current:
                     lol.append(self.wrap_section_paragraphs(current))
                     current = []
@@ -71,7 +93,7 @@ class AdfdParagrafenreiter(object):
     def wrap_quotes(self, wrappedSections):
         lol = []
         for section in wrappedSections:
-            if self.is_header_start(section[0]):
+            if section[0].isHeaderStart:
                 lol.append(section)
                 continue
 
@@ -88,11 +110,11 @@ class AdfdParagrafenreiter(object):
             except IndexError:
                 nextToken = None
 
-            if self.is_quote_start(token):
-                assert not self.is_quote_end(nextToken), tokens
+            if token.isQuoteStart:
+                assert nextToken.isQuoteEnd
                 modifiedTokens.append(token)
                 modifiedTokens.append(self.P_START_TOKEN)
-            elif self.is_quote_end(nextToken):
+            elif nextToken and nextToken.isQuoteEnd:
                 modifiedTokens.append(token)
                 modifiedTokens.append(self.P_END_TOKEN)
             else:
@@ -100,50 +122,25 @@ class AdfdParagrafenreiter(object):
             idx += 1
         return modifiedTokens
 
-    def flatten(self, lol):
-        result = []
-        for el in lol:
-            if isinstance(el, list):
-                result.extend(self.flatten(el))
-            else:
-                result.append(el)
-        return result
-
-    def is_header_start(self, token):
-        if token.type != AdfdParser.TOKEN_TAG_START:
-            return False
-
-        return re.match("h\d", token.tag)
-
-    def is_quote_start(self, token):
-        if not token:
-            return False
-
-        if token.type != AdfdParser.TOKEN_TAG_START:
-            return False
-
-        return token.tag == "quote"
-
-    def is_quote_end(self, token):
-        if not token:
-            return False
-
-        if token.type != AdfdParser.TOKEN_TAG_END:
-            return False
-
-        return token.tag == "quote"
-
     def wrap_section_paragraphs(self, tokens):
-        tokens = self.strip_leading_newline_token(tokens)
-        idx = 0
+        """Wrap paragraphs in section.
+
+        I define a paragraph as a text separated by two newlines - simples
+
+        All other tags encountered within the paragraph can just be skipped.
+        """
+        tokens = self.strip_leading_newline(tokens)
         tokens.insert(0, self.P_START_TOKEN)
+        idx = 1
         while idx < (len(tokens)):
+            idx = self.skip_tags(tokens, idx)
             token = tokens[idx]
             try:
                 nextToken = tokens[idx + 1]
             except IndexError:
                 nextToken = None
-            if self.is_newline(token) and self.is_newline(nextToken):
+            if token.isNewline and nextToken.isNewLine:
+
                 tokens.insert(idx, self.P_END_TOKEN)
                 if idx + 3 >= len(tokens):
                     break
@@ -153,16 +150,28 @@ class AdfdParagrafenreiter(object):
             idx += 1
         return tokens
 
-    def strip_leading_newline_token(self, tokens):
-        if self.is_newline(tokens[0]):
+    def strip_leading_newline(self, tokens):
+        if tokens[0].isNewline:
             tokens.pop(0)
         return tokens
 
-    def is_newline(self, token):
-        if not token:
-            return False
+    def skip_tags(self, tokens, idx):
+        if tokens[idx].isOpener:
+            idx += 1
+            if tokens[idx].isCloser:
+                return idx + 1
 
-        return token.type == AdfdParser.TOKEN_NEWLINE
+            idx = self.skip_tags(tokens, idx)
+        return idx
+
+    def flatten(self, lol):
+        result = []
+        for el in lol:
+            if isinstance(el, list):
+                result.extend(self.flatten(el))
+            else:
+                result.append(el)
+        return result
 
 
 if __name__ == '__main__':
