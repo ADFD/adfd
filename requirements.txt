@@ -16,3 +16,5 @@ mako
 configparser
 cloudpickle
 image
+
+ipython[all]
