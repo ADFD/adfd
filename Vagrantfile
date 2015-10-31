@@ -13,6 +13,7 @@ Vagrant.configure(2) do |config|
       python-pip \
       libxml2-dev \
       libxslt1-dev \
+      libncurses5-dev \
       python-lxml \
       python-pygments
 
