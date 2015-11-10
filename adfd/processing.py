@@ -44,6 +44,7 @@ class Token(object):
 class AdfdParagrafenreiter(object):
     P_START_TOKEN = Token(AdfdParser.TOKEN_TAG_START, 'p', None, '[p]')
     P_END_TOKEN = Token(AdfdParser.TOKEN_TAG_END, 'p', None, '[/p]')
+    BLOCK_CHANGE_TOKEN = Token('change', None, None, None)
 
     def __init__(self, tokens):
         self.tokens = [Token(*args) for args in tokens]
@@ -62,13 +63,13 @@ class AdfdParagrafenreiter(object):
             second pass:
                 wrap paragraphs around all blocks
         """
-        self.paragraphed_sections = self.wrap_sections(self.tokens)
-        self.paragraphed_quotes = self.wrap_quotes(self.paragraphed_sections)
+        self.sections = self.make_sections(self.tokens)
+        self.paragraphed_quotes = self.wrap_quotes(self.sections)
         flatList = self.flatten(self.paragraphed_quotes)
         tokensAsTuples = [t.asTuple for t in flatList]
         return tokensAsTuples
 
-    def wrap_sections(self, tokens):
+    def make_sections(self, tokens):
         lol = []
         current = []
         idx = 0
@@ -180,9 +181,9 @@ if __name__ == '__main__':
     rootPath = LocalPath(__file__).up(2)
     p = (rootPath / 'content/processed/10068.bb')
     ap = AdfdProcessor(path=p)
-    print ap.text
-    print
+    print(ap.text)
+    print()
     html = ap.process()
-    print html
-    print '#' * 80
-    print BeautifulSoup(html, 'html.parser').prettify()
+    print(html)
+    print('#' * 80)
+    print(BeautifulSoup(html, 'html.parser').prettify())

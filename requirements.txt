@@ -8,13 +8,4 @@ typogrify
 beautifulsoup4
 translitcodec
 
-# doit and/or nikola somehow screwed up their dependencies
-ws4py
-watchdog
-mako
-
-configparser
-cloudpickle
-image
-
 ipython[all]
