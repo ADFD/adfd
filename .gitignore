@@ -6,7 +6,7 @@ __pycache__
 .idea/*
 .vagrant/*
 .sass-cache/*
-/.doit.db
+.doit.db.*
 
 adfd/lab/*.html
 output/*
