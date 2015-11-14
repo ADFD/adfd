@@ -1,11 +1,19 @@
+pytest
+
 Nikola[extras]
 
-pytest
 plumbum
 pyphen
 jinja2
 typogrify
 beautifulsoup4
+
+mysqlclient
+sqlalchemy
+sqlsoup
 translitcodec
+numpy
+matplotlib
+pandas
 
 ipython[all]
