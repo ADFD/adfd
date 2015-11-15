@@ -49,8 +49,8 @@ class Topic(object):
 
     @property
     def posts(self):
-        """:rtype: list of DbPost"""
-        return [DbPost(postId) for postId in self.postIds]
+        """:rtype: list of Post"""
+        return [Post(postId) for postId in self.postIds]
 
     def filter_excluded_post_ids(self):
         if self.topicId:
@@ -65,7 +65,7 @@ class Topic(object):
 
     def fetch_basic_topic_data(self):
         firstPostId = self.postIds[0]
-        firstPost = DbPost(firstPostId)
+        firstPost = Post(firstPostId)
         self.topicId = firstPost.topicId
         self.subject = firstPost.subject
         self.fileName = "%s.bb" % (firstPost.slug)
@@ -77,12 +77,16 @@ class EmptyTopicException(Exception):
     pass
 
 
-class DbPost(object):
+class Post(object):
     def __init__(self, postId):
         self.postId = postId
         self.kitchen = SoupKitchen()
         self.p = self.kitchen.fetch_post(postId)
         self.topicId = self.p.topic_id
+
+    def __repr__(self):
+        return ("<%s %s (%s)>" %
+                (self.__class__.__name__, self.postId, self.uniqueSlug))
 
     @property
     def metadata(self):
