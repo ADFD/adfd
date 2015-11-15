@@ -154,6 +154,7 @@ def generate_schema(writeToFile="schema.py"):
 
 
 def get_session():
+    """":rtype: sqlalchemy.orm.session.Session"""
     Session = sessionmaker()
     Session.configure(bind=create_engine(cst.DB_URL, echo=False))
     return Session()

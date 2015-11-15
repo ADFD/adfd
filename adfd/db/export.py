@@ -6,13 +6,11 @@ import os
 import re
 import subprocess
 
-import sqlsoup
-
 # noinspection PyUnresolvedReferences
 import translitcodec  # This registers new codecs for slugification
 
 from adfd.db import cst
-from adfd.db.schema import PhpbbPost, PhpbbForum, PhpbbTopic
+from adfd.db.schema import PhpbbPost, PhpbbForum, PhpbbTopic, PhpbbUser
 from adfd.db.utils import get_session
 
 
@@ -22,46 +20,57 @@ log = logging.getLogger(__name__)
 class Forum(object):
     def __init__(self, forumId):
         self.forumId = forumId
-        self._topicIds = SoupKitchen.fetch_topic_ids_from_forum(forumId)
+        self.kitchen = SoupKitchen()
 
     @property
     def topics(self):
-        # return [Topic(topicId) for topicId in self._topicIds]
-        for topicId in self._topicIds:
-            try:
-                yield Topic(topicId)
+        topicIds = self.kitchen.fetch_topic_ids_from_forum(self.forumId)
+        return [Topic(topicId) for topicId in topicIds]
 
-            except EmptyTopicException:
-                log.warning("topic %s is corrupt", topicId)
-                continue
+        # for topicId in topicIds:
+        #     try:
+        #         yield Topic(topicId)
+        #
+        #     except EmptyTopicException:
+        #         log.warning("topic %s is corrupt", topicId)
+        #         continue
 
 
 class Topic(object):
     def __init__(self, topicId=None, postIds=None, excludedPostIds=None):
         assert topicId or postIds, 'need either topic or post id'
         assert not (topicId and postIds), 'need only one'
-        if topicId:
-            ids = SoupKitchen.fetch_post_ids_from_topic(topicId)
-            self.postIds = [i for i in ids if i not in (excludedPostIds or [])]
-        else:
-            if not isinstance(postIds, list):
-                assert isinstance(postIds, int), (postIds, type(postIds))
-                postIds = [postIds]
-            self.postIds = postIds
-        if not self.postIds:
-            raise EmptyTopicException("Topic %s has no posts" % (topicId))
-        firstPostId = self.postIds[0]
-        firstPost = DbPost(firstPostId)
-        self.topicId = firstPost.topicId
-        self.subject = firstPost.subject
-        self.fileName = "%s.bb" % (firstPost.slug)
-        if topicId:  # little sanity check ...
-            assert topicId == self.topicId, (topicId, self.topicId)
+        self.topicId = topicId
+        self.postIds = postIds
+        self.excludedPostIds = excludedPostIds or []
+        self.kitchen = SoupKitchen()
+        self.filter_excluded_post_ids()
+        self.fetch_basic_topic_data()
 
     @property
     def posts(self):
         """:rtype: list of DbPost"""
         return [DbPost(postId) for postId in self.postIds]
+
+    def filter_excluded_post_ids(self):
+        if self.topicId:
+            ids = self.kitchen.fetch_post_ids_from_topic(self.topicId)
+            self.postIds = [i for i in ids if i not in self.excludedPostIds]
+        else:
+            if not isinstance(self.postIds, list):
+                assert isinstance(self.postIds, int), self.postIds
+                self.postIds = [self.postIds]
+        if not self.postIds:
+            raise EmptyTopicException("Topic %s has no posts" % (self.topicId))
+
+    def fetch_basic_topic_data(self):
+        firstPostId = self.postIds[0]
+        firstPost = DbPost(firstPostId)
+        self.topicId = firstPost.topicId
+        self.subject = firstPost.subject
+        self.fileName = "%s.bb" % (firstPost.slug)
+        if self.topicId:  # little sanity check ...
+            assert self.topicId == self.topicId, (self.topicId, self.topicId)
 
 
 class EmptyTopicException(Exception):
@@ -71,7 +80,8 @@ class EmptyTopicException(Exception):
 class DbPost(object):
     def __init__(self, postId):
         self.postId = postId
-        self.p = SoupKitchen.fetch_post(postId)
+        self.kitchen = SoupKitchen()
+        self.p = self.kitchen.fetch_post(postId)
         self.topicId = self.p.topic_id
 
     @property
@@ -105,19 +115,19 @@ class DbPost(object):
     def slug(self):
         result = []
         for word in cst.SLUG.PUNCT.split(self.subject.lower()):
-            word = word.encode('translit/long')
+            # word = word.encode('translit/long')
             if word and word.strip() != 'None':
                 result.append(word)
         return u'-'.join(result)
 
     @property
     def subject(self):
-        return self.preprocess(self.p.post_subject.decode(cst.ENC.IN))
+        return self.preprocess(self.p.post_subject)
 
     @property
     def username(self):
         username = (self.p.post_username or
-                    SoupKitchen.get_username(self.p.poster_id))
+                    self.kitchen.get_username(self.p.poster_id))
         username = username.decode(cst.ENC.IN)
         return self.preprocess(username)
 
@@ -178,39 +188,33 @@ class DbPost(object):
         return text
 
 
-# fixme this is an awful mix between soup and schema access *juck*
 class SoupKitchen(object):
-    db = sqlsoup.SQLSoup(cst.DB_URL)
+    def __init__(self):
+        self.query = get_session().query
 
-    @classmethod
-    def fetch_topic_ids_from_forum(cls, forumId):
-        session = get_session()
-        query = session.query(PhpbbTopic).join(
-            PhpbbForum, PhpbbTopic.forum_id == PhpbbTopic.forum_id).\
-            filter(PhpbbTopic.forum_id == forumId)
+    def fetch_topic_ids_from_forum(self, forumId):
+        """:rtype: list of int"""
+        query = self.query.query(PhpbbTopic).join(
+            PhpbbForum, PhpbbForum.forum_id == PhpbbTopic.forum_id)\
+            .filter(PhpbbTopic.forum_id == forumId)
         return [row.topic_id for row in query.all()]
 
-    @classmethod
-    def fetch_post_ids_from_topic(cls, topicId):
-        where = cls.db.phpbb_posts.topic_id == str(topicId)
-        posts = cls.db.phpbb_posts.filter(where).\
-            order_by(PhpbbPost.post_time).all()
-        return [p.post_id for p in posts]
+    def fetch_post_ids_from_topic(self, topicId):
+        """:rtype: list of int"""
+        query = self.query.query(PhpbbPost).join(
+            PhpbbTopic, PhpbbTopic.topic_id == PhpbbPost.topic_id)\
+            .filter(PhpbbTopic.topic_id == topicId)
+        return [row.post_id for row in query.all()]
 
-    @classmethod
-    def fetch_post(cls, postId):
-        where = cls.db.phpbb_posts.post_id == str(postId)
-        return cls.db.phpbb_posts.filter(where).first()
+    def fetch_post(self, postId):
+        """:rtype: adfd.db.schema.PhpbbPost"""
+        q = self.query.query(PhpbbPost).filter(PhpbbPost.post_id == postId)
+        return q.first()
 
-    @classmethod
-    def get_username(cls, userId):
-        where = cls.db.phpbb_users.user_id == str(userId)
-        try:
-            return cls.db.phpbb_users.filter(where).first().username
-
-        except AttributeError:
-            log.warning("no username for %s found", userId)
-            return "Anonymous"
+    def get_username(self, userId):
+        """:rtype: str"""
+        q = self.query.query(PhpbbUser).filter(PhpbbUser.user_id == userId)
+        return q.first() or "Anonymous"
 
 
 class TopicsExporter(object):
