@@ -112,7 +112,7 @@ class AdfdParagrafenreiter(object):
                 nextToken = None
 
             if token.isQuoteStart:
-                assert nextToken.isQuoteEnd
+                assert not nextToken.isQuoteEnd, nextToken
                 modifiedTokens.append(token)
                 modifiedTokens.append(self.P_START_TOKEN)
             elif nextToken and nextToken.isQuoteEnd:
@@ -140,7 +140,7 @@ class AdfdParagrafenreiter(object):
                 nextToken = tokens[idx + 1]
             except IndexError:
                 nextToken = None
-            if token.isNewline and nextToken.isNewLine:
+            if token.isNewline and nextToken.isNewline:
 
                 tokens.insert(idx, self.P_END_TOKEN)
                 if idx + 3 >= len(tokens):
@@ -173,17 +173,3 @@ class AdfdParagrafenreiter(object):
             else:
                 result.append(el)
         return result
-
-
-if __name__ == '__main__':
-    from bs4 import BeautifulSoup
-
-    rootPath = LocalPath(__file__).up(2)
-    p = (rootPath / 'content/processed/10068.bb')
-    ap = AdfdProcessor(path=p)
-    print(ap.text)
-    print()
-    html = ap.process()
-    print(html)
-    print('#' * 80)
-    print(BeautifulSoup(html, 'html.parser').prettify())
