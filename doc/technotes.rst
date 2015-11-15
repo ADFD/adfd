@@ -74,6 +74,9 @@ http://www.harimari.com/
 ######
 Design
 ######
+
+Tufte CSS: https://github.com/edwardtufte/tufte-css
+
 ====================
 Schräger Hintergrund
 ====================
