@@ -10,5 +10,6 @@ __pycache__
 .doit.db.*
 output/*
 
+*.bb.html
 cred.py
 __scratchpad.py
