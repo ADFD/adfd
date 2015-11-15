@@ -1,4 +1,8 @@
+import pytest
+from bs4 import BeautifulSoup
 from plumbum import LocalPath
+
+from adfd.processing import AdfdProcessor
 
 
 class ContentGrabber(object):
@@ -73,3 +77,22 @@ class DataGrabber(ContentGrabber):
             contents.append((fName, src, exp))
             idx += 2
         return contents
+
+
+class PairTester(object):
+    @classmethod
+    def test_pairs(cls, fName, src, exp):
+        exp = exp.strip()
+        if not exp:
+            pytest.xfail(reason='no expectation for %s' % (fName))
+        print(fName)
+        result = AdfdProcessor(text=src).process()
+        result = BeautifulSoup(result, "html.parser").prettify()
+        refPath = DataGrabber.DATA_PATH / ('%s.html' % (fName))
+        try:
+            assert result == exp
+            refPath.delete()
+        except AssertionError:
+            with open(str(refPath), 'w') as f:
+                f.write(result)
+            raise
