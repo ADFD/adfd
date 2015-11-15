@@ -61,7 +61,7 @@ class Topic(object):
                 assert isinstance(self.postIds, int), self.postIds
                 self.postIds = [self.postIds]
         if not self.postIds:
-            raise EmptyTopicException("Topic %s has no posts" % (self.topicId))
+            raise TopicIsEmpty("Topic %s has no posts" % (self.topicId))
 
     def fetch_basic_topic_data(self):
         firstPostId = self.postIds[0]
@@ -73,8 +73,8 @@ class Topic(object):
             assert self.topicId == self.topicId, (self.topicId, self.topicId)
 
 
-class EmptyTopicException(Exception):
-    pass
+class TopicIsEmpty(Exception):
+    """raised if the topic contains no posts"""
 
 
 class Post(object):
@@ -82,6 +82,9 @@ class Post(object):
         self.postId = postId
         self.kitchen = SoupKitchen()
         self.p = self.kitchen.fetch_post(postId)
+        if not self.p:
+            raise PostDoesNotExist()
+
         self.topicId = self.p.topic_id
 
     def __repr__(self):
@@ -132,7 +135,7 @@ class Post(object):
     def username(self):
         username = (self.p.post_username or
                     self.kitchen.get_username(self.p.poster_id))
-        username = username.decode(cst.ENC.IN)
+        # username = username.decode(cst.ENC.IN)
         return self.preprocess(username)
 
     @property
@@ -146,7 +149,8 @@ class Post(object):
 
     @property
     def rawText(self):
-        return self.p.post_text.decode(cst.ENC.IN)
+        return self.p.post_text
+        # return self.p.post_text.decode(cst.ENC.IN)
 
     @staticmethod
     def preprocess(text, bbcodeUid=None):
@@ -192,6 +196,10 @@ class Post(object):
         return text
 
 
+class PostDoesNotExist(Exception):
+    """raised if a post with the given ID does not exist"""
+
+
 class SoupKitchen(object):
     def __init__(self):
         self.query = get_session().query
@@ -217,8 +225,8 @@ class SoupKitchen(object):
 
     def get_username(self, userId):
         """:rtype: str"""
-        q = self.query(PhpbbUser).filter(PhpbbUser.user_id == userId)
-        return q.first() or "Anonymous"
+        n = self.query(PhpbbUser).filter(PhpbbUser.user_id == userId).first()
+        return n.username or "Anonymous"
 
 
 class TopicsExporter(object):

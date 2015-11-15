@@ -2,6 +2,7 @@ pytest
 
 Nikola[extras]
 
+six >= 1.7
 plumbum
 pyphen
 jinja2
