@@ -10,10 +10,6 @@ beautifulsoup4
 
 mysqlclient
 sqlalchemy
-sqlsoup
 translitcodec
-numpy
-matplotlib
-pandas
 
 ipython[all]

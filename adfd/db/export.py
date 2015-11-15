@@ -194,26 +194,26 @@ class SoupKitchen(object):
 
     def fetch_topic_ids_from_forum(self, forumId):
         """:rtype: list of int"""
-        query = self.query.query(PhpbbTopic).join(
+        query = self.query(PhpbbTopic).join(
             PhpbbForum, PhpbbForum.forum_id == PhpbbTopic.forum_id)\
             .filter(PhpbbTopic.forum_id == forumId)
         return [row.topic_id for row in query.all()]
 
     def fetch_post_ids_from_topic(self, topicId):
         """:rtype: list of int"""
-        query = self.query.query(PhpbbPost).join(
+        query = self.query(PhpbbPost).join(
             PhpbbTopic, PhpbbTopic.topic_id == PhpbbPost.topic_id)\
             .filter(PhpbbTopic.topic_id == topicId)
         return [row.post_id for row in query.all()]
 
     def fetch_post(self, postId):
         """:rtype: adfd.db.schema.PhpbbPost"""
-        q = self.query.query(PhpbbPost).filter(PhpbbPost.post_id == postId)
+        q = self.query(PhpbbPost).filter(PhpbbPost.post_id == postId)
         return q.first()
 
     def get_username(self, userId):
         """:rtype: str"""
-        q = self.query.query(PhpbbUser).filter(PhpbbUser.user_id == userId)
+        q = self.query(PhpbbUser).filter(PhpbbUser.user_id == userId)
         return q.first() or "Anonymous"
 
 

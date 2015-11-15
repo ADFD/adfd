@@ -96,7 +96,7 @@ def _obj_attr(obj, hideString='', filterMethods=True, filterPrivate=True,
     out = out or [(objName, str(type(obj)), repr(obj))]
     boundTo = "'%s' " % (objName) if objName else ""
     header = "|# %s%s (0x%X) #|" % (boundTo, type(obj).__name__, (id(obj)))
-    numDashes = 40 - len(header) / 2
+    numDashes = 40 - len(header) // 2
     out = (
         ["\n," + "-" * (numDashes - 1) + header + "-" * numDashes] +
         [_prepare_content(content) for content in out] +
