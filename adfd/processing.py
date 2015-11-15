@@ -12,7 +12,7 @@ class AdfdProcessor(object):
         else:
             assert path
             path = LocalPath(path)
-            self.text = path.read()
+            self.text = path.read('utf8')
         assert self.text
 
     def process(self):
