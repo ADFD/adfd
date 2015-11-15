@@ -21,19 +21,34 @@ class Forum(object):
     def __init__(self, forumId):
         self.forumId = forumId
         self.kitchen = SoupKitchen()
+        self.dbObject = self.kitchen.fetch_forum(self.forumId)
+        if not self.dbObject:
+            raise ForumDoesNotExist
+        self.topicIds = self.kitchen.fetch_topic_ids_from_forum(self.forumId)
+        if not self.topicIds:
+            raise ForumIsEmpty()
+
+    @property
+    def name(self):
+        return self.dbObject.forum_name
 
     @property
     def topics(self):
-        topicIds = self.kitchen.fetch_topic_ids_from_forum(self.forumId)
-        return [Topic(topicId) for topicId in topicIds]
+        for topicId in self.topicIds:
+            try:
+                yield Topic(topicId)
 
-        # for topicId in topicIds:
-        #     try:
-        #         yield Topic(topicId)
-        #
-        #     except EmptyTopicException:
-        #         log.warning("topic %s is corrupt", topicId)
-        #         continue
+            except TopicIsEmpty:
+                log.warning("topic %s is corrupt", topicId)
+                continue
+
+
+class ForumDoesNotExist(Exception):
+    """raised if the forum contains no topics"""
+
+
+class ForumIsEmpty(Exception):
+    """raised if the forum contains no topics"""
 
 
 class Topic(object):
@@ -61,7 +76,7 @@ class Topic(object):
                 assert isinstance(self.postIds, int), self.postIds
                 self.postIds = [self.postIds]
         if not self.postIds:
-            raise TopicIsEmpty("Topic %s has no posts" % (self.topicId))
+            raise TopicIsEmpty()
 
     def fetch_basic_topic_data(self):
         firstPostId = self.postIds[0]
@@ -217,6 +232,11 @@ class SoupKitchen(object):
             PhpbbTopic, PhpbbTopic.topic_id == PhpbbPost.topic_id)\
             .filter(PhpbbTopic.topic_id == topicId)
         return [row.post_id for row in query.all()]
+
+    def fetch_forum(self, forumId):
+        """:rtype: adfd.db.schema.PhpbbForum"""
+        q = self.query(PhpbbForum).filter(PhpbbForum.forum_id == forumId)
+        return q.first()
 
     def fetch_post(self, postId):
         """:rtype: adfd.db.schema.PhpbbPost"""
