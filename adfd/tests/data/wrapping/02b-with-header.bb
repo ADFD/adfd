@@ -8,4 +8,5 @@ This is a simple paragraph that should be wrapped in p tags.
 
 [h1]And another header[/h1]
 
+
 This is a simple paragraph that should be wrapped in p tags.
