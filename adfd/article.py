@@ -83,8 +83,7 @@ class Article(object):
         contents = []
         for path in self.contentFilePaths:
             contents.append(ContentGrabber(absPath=path).grab())
-        content = "\n".join(contents)
-        return ArticleContent(content).asHTml
+        return "\n".join(contents)
 
     @property
     def contentFilePaths(self):
@@ -128,24 +127,3 @@ class Article(object):
         ContentDumper(metadataDstPath, newDict).dump()
         articleDstPath = (self.PROCESSED_PATH / (self.identifier + '.bb'))
         ContentDumper(articleDstPath, self.content).dump()
-
-
-class ArticleContent(object):
-    def __init__(self, rawBbcode):
-        self.rawBbcode = rawBbcode
-
-    @cached_property
-    def toc(self):
-        raise NotImplementedError
-
-    @cached_property
-    def structure(self):
-        raise NotImplementedError
-
-    @cached_property
-    def sections(self):
-        pass
-
-    @cached_property
-    def asHTml(self):
-        raise NotImplementedError

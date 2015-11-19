@@ -6,9 +6,9 @@ from adfd.adfd_parser import AdfdParser
 
 class TestAdfdParser(object):
     ACCEPTANCE_PAIRS = DataGrabber('acceptance').get_pairs()
-    WRAPPING_PAIRS = DataGrabber('wrapping').get_pairs()
+    TRANSFORMATION_PAIRS = DataGrabber('transform').get_pairs()
 
-    @pytest.mark.parametrize("fName,src,exp", WRAPPING_PAIRS)
+    @pytest.mark.parametrize("fName,src,exp", TRANSFORMATION_PAIRS)
     def test_p_wrap_pairs(self, fName, src, exp):
         PairTester.test_pairs(fName, src, exp)
 

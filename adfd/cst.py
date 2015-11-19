@@ -23,4 +23,5 @@ class SLUG(object):
 
 class PATH(object):
     PROJECT = HERE.up(2) / 'adfd'
-    IMPORTS = PROJECT / 'content' / 'imported'
+    IMPORTS = PROJECT / 'adfd' / 'content' / 'imported'
+    TEST_DATA = PROJECT / 'adfd' / 'tests' / 'data'

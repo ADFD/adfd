@@ -25,17 +25,20 @@ class AdfdProcessor(object):
 class Token(object):
     def __init__(self, *args):
         self.asTuple = args
-        self.type, self.tag, self.options, self.text = self.asTuple
+        self.type, self.tag, self.options, text = self.asTuple
+        self.text = text.strip() if text else ''
         self.isOpener = self.type == AdfdParser.TOKEN_TAG_START
         self.isCloser = self.type == AdfdParser.TOKEN_TAG_END
         self.isHeaderStart = self.isOpener and re.match("h\d", self.tag)
         self.isQuoteStart = self.isOpener and self.tag == "quote"
         self.isQuoteEnd = self.isCloser and self.tag == "quote"
-        self.isNewline = self.isCloser and self.tag == "quote"
+        self.isNewline = self.type == 'newline'
 
     def __repr__(self):
-        txt = "%s|" % (self.text[:10].encode('utf8').strip())
-        return "%s%s" % ("%s|" % (self.tag) if self.tag else txt, self.type)
+        if self.tag:
+            return "<%s%s>" % ('/' if self.isCloser else '', self.tag)
+
+        return self.text
 
     def __str__(self):
         return self.__repr__()
