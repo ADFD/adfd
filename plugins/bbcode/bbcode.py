@@ -32,11 +32,9 @@ import os
 import re
 
 try:
-    from adfd import bbcode
-    from adfd.processing import AdfdProcessor
+    from adfd.article import ArticleContent
 except ImportError:
-    bbcode = None
-    AdfdProcessor = object()
+    ArticleContent = None
 
 from nikola.plugin_categories import PageCompiler
 from nikola.utils import makedirs, req_missing, write_metadata
@@ -49,11 +47,11 @@ class CompileBbcode(PageCompiler):
 
     # noinspection PyMissingConstructor
     def __init__(self):
-        if bbcode is None:
+        if ArticleContent is None:
             return
 
     def compile_html(self, source, dest, is_two_file=True):
-        if bbcode is None:
+        if ArticleContent is None:
             req_missing(['bbcode'], 'build this site (compile BBCode)')
         makedirs(os.path.dirname(dest))
         with codecs.open(dest, "w+", "utf8") as out_file:
@@ -61,7 +59,7 @@ class CompileBbcode(PageCompiler):
                 text = in_file.read()
             if not is_two_file:
                 text = re.split('(\n\n|\r\n\r\n)', text, maxsplit=1)[-1]
-            out_file.write(AdfdProcessor(text=text).process())
+            out_file.write(ArticleContent(text).asHTml)
 
     def create_post(self, path, **kw):
         content = kw.pop('content', 'Write your post here.')
