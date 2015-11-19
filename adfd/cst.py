@@ -9,7 +9,6 @@ except ImportError:
 
 
 HERE = plumbum.LocalPath(__file__).up()
-PROJECT_PATH = HERE.up(2) / 'adfd'
 
 
 class ENC(object):
@@ -22,5 +21,6 @@ class SLUG(object):
     PUNCT = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 
 
-class SITE(object):
-    EXPORT_PATH = PROJECT_PATH / 'content' / 'imported'
+class PATH(object):
+    PROJECT = HERE.up(2) / 'adfd'
+    IMPORTS = PROJECT / 'content' / 'imported'

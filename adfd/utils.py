@@ -86,13 +86,21 @@ class PairTester(object):
         if not exp:
             pytest.xfail(reason='no expectation for %s' % (fName))
         print(fName)
-        result = AdfdProcessor(text=src).process()
-        result = BeautifulSoup(result, "html.parser").prettify()
+        rawHtml = AdfdProcessor(text=src).process()
+        print("\n## RAW ##")
+        print(rawHtml)
+        prettified = BeautifulSoup(rawHtml, "html.parser").prettify()
+        print("\n## PRETTIFIED ##")
+        print(prettified)
+        print("\n## EXPECTED ##")
+        print(exp)
         refPath = DataGrabber.DATA_PATH / ('%s.html' % (fName))
         try:
-            assert result == exp
+            if prettified != exp:
+                pytest.fail('no match')
+
             refPath.delete()
         except AssertionError:
             with open(str(refPath), 'w') as f:
-                f.write(result)
+                f.write(prettified)
             raise

@@ -1,15 +1,15 @@
 # coding=utf-8
-from datetime import datetime
 import html
 import logging
 import os
 import re
 import subprocess
+from datetime import datetime
 
 # noinspection PyUnresolvedReferences
 import translitcodec  # This registers new codecs for slugification
 
-from adfd.db import cst
+from adfd import cst
 from adfd.db.schema import PhpbbPost, PhpbbForum, PhpbbTopic, PhpbbUser
 from adfd.db.utils import get_session
 
@@ -250,7 +250,7 @@ class SoupKitchen(object):
 
 
 class TopicsExporter(object):
-    SUMMARY_PATH = cst.SITE.EXPORT_PATH / 'summary.txt'
+    SUMMARY_PATH = cst.PATH.IMPORTS / 'summary.txt'
     """keep a list of topics and their imported posts as text"""
 
     def __init__(self, topics):
@@ -271,7 +271,7 @@ class TopicsExporter(object):
         out = []
         for topic in self.topics:
             out.append("%s: %s" % (topic.topicId, topic.subject))
-            topicPath = cst.SITE.EXPORT_PATH / ("%05d" % (topic.topicId))
+            topicPath = cst.PATH.IMPORTS / ("%05d" % (topic.topicId))
             for post in topic.posts:
                 current = "%s: %s" % (post.postId, post.slug)
                 log.info("export: %s", current)
@@ -287,17 +287,17 @@ class TopicsExporter(object):
     def add_files(self):
         cmd = ['git', 'add', '--all', '.']
         try:
-            subprocess.check_output(cmd, cwd=str(cst.SITE.EXPORT_PATH))
+            subprocess.check_output(cmd, cwd=str(cst.PATH.IMPORTS))
         except subprocess.CalledProcessError:
             pass
 
     def prune_orphans(self):
-        for p in cst.SITE.EXPORT_PATH.walk():
+        for p in cst.PATH.IMPORTS.walk():
             if not p.isdir() and not any(ap == p for ap in self.allPaths):
                 log.warning("removing %s", p)
                 cmd = ['git', 'rm', '-f', str(p)]
                 try:
-                    subprocess.check_output(cmd, cwd=str(cst.SITE.EXPORT_PATH))
+                    subprocess.check_output(cmd, cwd=str(cst.PATH.IMPORTS))
                 except subprocess.CalledProcessError:
                     p.delete()
 

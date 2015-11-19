@@ -6,8 +6,7 @@ from types import FunctionType, MethodType
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import sessionmaker
 
-from adfd.db import cst
-
+from adfd import cst
 
 log = logging.getLogger(__name__)
 

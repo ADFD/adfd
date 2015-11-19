@@ -65,9 +65,9 @@ class AdfdParagrafenreiter(object):
         """
         self.sections = self.make_sections(self.tokens)
         self.paragraphed_quotes = self.wrap_quotes(self.sections)
-        flatList = self.flatten(self.paragraphed_quotes)
-        tokensAsTuples = [t.asTuple for t in flatList]
-        return tokensAsTuples
+        self.flatList = self.flatten(self.paragraphed_quotes)
+        self.tokensAsTuples = [t.asTuple for t in self.flatList]
+        return self.tokensAsTuples
 
     def make_sections(self, tokens):
         lol = []

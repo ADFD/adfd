@@ -6,7 +6,7 @@ import re
 
 # noinspection PyUnresolvedReferences
 import translitcodec  # register new codec for slugification
-
+from cached_property import cached_property
 from plumbum import LocalPath
 from adfd.utils import ContentGrabber, ContentDumper
 
@@ -78,12 +78,13 @@ class Article(object):
             metadataDict[key.strip()] = value.strip()
         return metadataDict
 
-    @property
+    @cached_property
     def content(self):
         contents = []
         for path in self.contentFilePaths:
             contents.append(ContentGrabber(absPath=path).grab())
-        return "\n".join(contents)
+        content = "\n".join(contents)
+        return ArticleContent(content).asHTml
 
     @property
     def contentFilePaths(self):
@@ -127,3 +128,24 @@ class Article(object):
         ContentDumper(metadataDstPath, newDict).dump()
         articleDstPath = (self.PROCESSED_PATH / (self.identifier + '.bb'))
         ContentDumper(articleDstPath, self.content).dump()
+
+
+class ArticleContent(object):
+    def __init__(self, rawBbcode):
+        self.rawBbcode = rawBbcode
+
+    @cached_property
+    def toc(self):
+        raise NotImplementedError
+
+    @cached_property
+    def structure(self):
+        raise NotImplementedError
+
+    @cached_property
+    def sections(self):
+        pass
+
+    @cached_property
+    def asHTml(self):
+        raise NotImplementedError
