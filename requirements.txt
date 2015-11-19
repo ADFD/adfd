@@ -1,16 +1,15 @@
-pytest
-
-Nikola[extras]
-
-six >= 1.7
-plumbum
-pyphen
-jinja2
-typogrify
 beautifulsoup4
-
+cached-property
 mysqlclient
+plumbum
 sqlalchemy
 translitcodec
 
+jinja2
+Nikola[extras]
+pyphen
+six >= 1.7
+typogrify
+
 ipython[all]
+pytest
