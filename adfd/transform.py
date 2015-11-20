@@ -1,11 +1,9 @@
-from itertools import chain
-
 import itertools
+
 from cached_property import cached_property
 
-from adfd.cst import PATH
 from adfd.bbcode import Token, AdfdParser
-from adfd.db.utils import obj_attr
+from adfd.cst import PATH
 
 
 class Chunk(object):
