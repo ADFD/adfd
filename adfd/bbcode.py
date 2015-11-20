@@ -563,7 +563,7 @@ class Token(object):
         self.isHeaderStart = self.isOpener and re.match("h\d", self.tag)
         self.isQuoteStart = self.isOpener and self.tag == "quote"
         self.isQuoteEnd = self.isCloser and self.tag == "quote"
-        self.isNewline = self.type == 'newline'
+        self.isNewline = self.type == Parser.TOKEN_NEWLINE
 
     def __repr__(self):
         if self.tag:
@@ -587,6 +587,7 @@ class Chunk(object):
     def __init__(self, tokens, chunkType):
         self.tokens = tokens
         self.chunkType = chunkType
+        self.clean()
         self.modify()
 
     def __repr__(self):
@@ -596,8 +597,34 @@ class Chunk(object):
     def tokensAsTuples(self):
         return [t.asTuple for t in self.tokens]
 
+    def clean(self):
+        """remove duplicate newlines which serve as block change indicator"""
+        if self.tokens[0].isNewline:
+            self.tokens.pop()
+        idx = 0
+        while idx < len(self.tokens):
+            token = self.tokens[idx]
+            try:
+                nextToken = self.tokens[idx + 1]
+                if token.isNewline and nextToken.isNewline:
+                    self.tokens.pop(idx)
+                    continue
+
+            except IndexError:
+                pass
+            idx += 1
+
+    @cached_property
+    def isEmpty(self):
+        for token in self.tokens:
+            if not token.isNewline:
+                return False
+
     def modify(self):
         """this innocent method is the reason why we have chunks"""
+        if self.isEmpty:
+            return
+
         if self.chunkType == self.PARAGRAPH:
             self.tokens.insert(0, self.P_START_TOKEN)
             self.tokens.append(self.P_END_TOKEN)
@@ -610,7 +637,7 @@ class Chunkman(object):
         self._chunks = []
 
     @cached_property
-    def serialized(self):
+    def flattened(self):
         return list(itertools.chain(*[c.tokensAsTuples for c in self.chunks]))
 
     @cached_property
@@ -640,11 +667,7 @@ class Chunkman(object):
                 curentTokens = self.flush(self.tokens[sIdx:idx], Chunk.QUOTE)
                 continue
 
-            try:
-                nextToken = self.tokens[idx + 1]
-            except IndexError:
-                nextToken = None
-            if token.isNewline and nextToken and nextToken.isNewline:
+            if self.is_block_change(self.tokens, idx):
                 curentTokens = self.flush(curentTokens)
                 idx += 1
                 continue
@@ -657,11 +680,18 @@ class Chunkman(object):
 
     def flush(self, tokens, chunkType=Chunk.PARAGRAPH):
         """append cleaned tokens and return a fresh (empty) list"""
-        tokensWithoutNewlines = [t for t in tokens if not t.isNewline]
-        if tokensWithoutNewlines:
-            chunk = Chunk(tokensWithoutNewlines, chunkType)
+        chunk = Chunk(tokens, chunkType)
+        if not chunk.isEmpty:
             self._chunks.append(chunk)
         return []
+
+    def is_block_change(self, tokens, idx):
+        try:
+            nextToken = tokens[idx + 1]
+            return tokens[idx].isNewline and nextToken.isNewline
+
+        except IndexError:
+            pass
 
 
 class AdfdParser(Parser):
@@ -680,9 +710,7 @@ class AdfdParser(Parser):
         """
         if data:
             assert not tokens, tokens
-            tokens = self.tokenize(data)
-            chunks = Chunkman(tokens)
-            tokens = chunks.serialized
+            tokens = Chunkman(self.tokenize(data)).flattened
         assert tokens
         return self._format_tokens(tokens, parent=None, **context)
 
