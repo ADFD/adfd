@@ -1,6 +1,6 @@
 [h1]Überschrift 1 mit Leerzeile vor erstem Paragraf[/h1]
 
-(3) Paragrafen ohne Leerzeilen sollten als Paragrafen erkannt werden ...
+(1) Paragraf mit Umbrüchen ohne Leerzeilen sollten NICHT als Paragrafen erkannt werden ...
 Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr.
 sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.
@@ -15,7 +15,8 @@ Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie co
 
 [h2]Überschrift 2[/h2]
 
-Die nächste Zeile hat 80 Zeichen - ideale Zeilenlänge zum Lesen ...
+Der nächste Paragraf hat 80 Zeichen - ideale Zeilenlänge zum Lesen ...
+
 Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod
 
 [h3]Überschrift 3[/h3]

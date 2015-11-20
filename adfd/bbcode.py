@@ -567,6 +567,8 @@ class Token(object):
         self.isHeaderStart = self.isOpener and re.match("h\d", self.tag)
         self.isQuoteStart = self.isOpener and self.tag == "quote"
         self.isQuoteEnd = self.isCloser and self.tag == "quote"
+        self.isListStart = self.isOpener and self.tag == "list"
+        self.isListEnd = self.isCloser and self.tag == "list"
         self.isNewline = self.type == Parser.TOKEN_NEWLINE
 
     def __repr__(self):
@@ -584,7 +586,8 @@ class Chunk(object):
     HEADER = 'header'
     PARAGRAPH = 'paragraph'
     QUOTE = 'quote'
-    TYPES = [HEADER, PARAGRAPH, QUOTE]
+    LIST = 'list'
+    TYPES = [HEADER, PARAGRAPH, QUOTE, LIST]
     P_START_TOKEN = Token(Parser.TOKEN_TAG_START, 'p', None, '[p]')
     P_END_TOKEN = Token(Parser.TOKEN_TAG_END, 'p', None, '[/p]')
 
@@ -666,6 +669,16 @@ class Chunkman(object):
                 curentTokens = self.flush(self.tokens[sIdx:idx], Chunk.QUOTE)
                 continue
 
+            if token.isListStart:
+                self.flush(curentTokens)
+                sIdx = idx
+                while not token.isListEnd:
+                    idx += 1
+                    token = self.tokens[idx]
+                idx += 1
+                curentTokens = self.flush(self.tokens[sIdx:idx], Chunk.LIST)
+                continue
+
             if self.is_block_change(self.tokens, idx):
                 curentTokens = self.flush(curentTokens)
                 idx += 1
@@ -694,7 +707,7 @@ class Chunkman(object):
 
 
 class AdfdParser(Parser):
-    HEADER_TAGS = ['h%s' % (i) for i in range(1, 4)]
+    HEADER_TAGS = ['h%s' % (i) for i in range(1, 6)]
     DEMOTION_LEVEL = 1  # number of levels header tags get demoted
 
     def __init__(self, *args, **kwargs):
@@ -711,7 +724,7 @@ class AdfdParser(Parser):
             assert not tokens, tokens
             tokens = Chunkman(self.tokenize(data)).flattened
         assert tokens
-        return self._format_tokens(tokens, parent=None, **context)
+        return self._format_tokens(tokens, parent=None, **context).strip()
 
     def _add_formatters(self):
         self.add_simple_formatter('b', '<strong>%(value)s</strong>')
@@ -726,7 +739,7 @@ class AdfdParser(Parser):
             transform_newlines=False, swallow_trailing_newline=True)
         self.add_simple_formatter('hr', '<hr>\n', standalone=True)
         self.add_simple_formatter('i', '<em>%(value)s</em>')
-        self.add_simple_formatter('p', '<p>%(value)s</p>')
+        self.add_simple_formatter('p', '<p>%(value)s</p>\n')
         self.add_simple_formatter('s', '<strike>%(value)s</strike>')
         self.add_simple_formatter(
             'u', '<span style="text-decoration: underline;">%(value)s</span>')
@@ -829,7 +842,7 @@ class AdfdParser(Parser):
         author = (options['quote'] if (options and 'quote' in options) else '')
         cite = "<footer><cite>%s</cite></footer>" % (author) if author else ''
         value = value.replace('\n', '<br>')
-        return '<blockquote><p>%s%s</p></blockquote>' % (value, cite)
+        return '<blockquote><p>%s%s</p></blockquote>\n' % (value, cite)
 
     def _add_section_formatter(self):
         self.add_formatter(

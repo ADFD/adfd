@@ -12,10 +12,10 @@ class TestAdfdParser(object):
     def test_transform_pairs(self, fName, src, exp):
         PairTester.test_pairs(fName, src, exp)
 
-    # @pytest.mark.parametrize("fName,src,exp", ACCEPTANCE_PAIRS)
-    # def test_acceptance_pairs(self, fName, src, exp):
-    #     PairTester.test_pairs(fName, src, exp)
-    #
+    @pytest.mark.parametrize("fName,src,exp", ACCEPTANCE_PAIRS)
+    def test_acceptance_pairs(self, fName, src, exp):
+        PairTester.test_pairs(fName, src, exp)
+
     # # noinspection PyUnusedLocal
     # @pytest.mark.parametrize("fName,src,exp", ACCEPTANCE_PAIRS)
     # def test_different_call_options(self, fName, src, exp):
