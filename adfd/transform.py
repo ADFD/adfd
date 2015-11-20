@@ -1,3 +1,6 @@
+from itertools import chain
+
+import itertools
 from cached_property import cached_property
 
 from adfd.cst import PATH
@@ -6,7 +9,6 @@ from adfd.db.utils import obj_attr
 
 
 class Chunk(object):
-    """A chunk is a list of tokens that knows how to transform itself"""
     HEADER = 'header'
     PARAGRAPH = 'paragraph'
     QUOTE = 'quote'
@@ -17,15 +19,14 @@ class Chunk(object):
     def __init__(self, tokens, chunkType):
         self.tokens = tokens
         self.chunkType = chunkType
-        self.parser = AdfdParser()
         self.prepare_tokens()
 
     def __repr__(self):
         return " ".join([str(c) for c in self.tokens])
 
-    @cached_property
-    def asHtml(self):
-        return self.parser.to_html(tokens=self.tokensAsTuples)
+    # @cached_property
+    # def asHtml(self):
+    #     return self.parser.to_html(tokens=self.tokensAsTuples)
 
     @cached_property
     def tokensAsTuples(self):
@@ -36,9 +37,9 @@ class Chunk(object):
         if self.chunkType == self.PARAGRAPH:
             self.tokens.insert(0, self.P_START_TOKEN)
             self.tokens.append(self.P_END_TOKEN)
-        elif self.chunkType == self.QUOTE:
-            self.tokens.insert(1, self.P_START_TOKEN)
-            self.tokens.insert(len(self.tokens) - 1, self.P_END_TOKEN)
+        # elif self.chunkType == self.QUOTE:
+        #     self.tokens.insert(1, self.P_START_TOKEN)
+        #     self.tokens.insert(len(self.tokens) - 1, self.P_END_TOKEN)
 
 
 class ArticleContent(object):
@@ -47,8 +48,11 @@ class ArticleContent(object):
         self.tokens = [Token(*t) for t in AdfdParser().tokenize(rawBbcode)]
         self._chunks = []
 
-    # @cached_property
-    @property
+    @cached_property
+    def serializedChunks(self):
+        return list(itertools.chain(*[c.tokensAsTuples for c in self.chunks]))
+
+    @cached_property
     def chunks(self):
         """article chunks which can be converted individually
 
@@ -119,12 +123,14 @@ if __name__ == '__main__':
     p = PATH.TEST_DATA / 'transform' / '02c-with-header-and-quote.bb'
     content = p.read('utf8')
     ac = ArticleContent(content)
-    # print(ac.tokens)
-    for idx, chunk in enumerate(ac.chunks):
-        print("%s: %s" % (idx, chunk))
-        print(chunk.asHtml)
-        # print(obj_attr(chunk))
-        # for token in chunk.tokens:
-        #     # print(token)
-        #     # print(type(token))
-        #     print(obj_attr(token))
+    print(ac.serializedChunks)
+    html = AdfdParser().to_html(tokens=ac.serializedChunks)
+    print(html)
+    # for idx, chunk in enumerate(ac.chunks):
+    #     print("%s: %s" % (idx, chunk))
+    #     print(chunk.asHtml)
+    #     # print(obj_attr(chunk))
+    #     # for token in chunk.tokens:
+    #     #     # print(token)
+    #     #     # print(type(token))
+    #     #     print(obj_attr(token))
