@@ -79,8 +79,9 @@ class ShowPost(cli.Application):
 
     def _open_html_in_webbrowser(self, html):
         path = LocalPath("/tmp/adfd-html-out.html")
-        with open(str(path), encoding='utf8', mode='w') as f:
-            f.write(html)
+        html = ('<html><head><meta charset="utf-8"></head>'
+                '<body>%s</body></html>' % (html))
+        path.write(html, 'utf8')
         webbrowser.open("file://%s" % (path))
 
 
