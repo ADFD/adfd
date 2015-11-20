@@ -555,7 +555,7 @@ class Parser (object):
                     self._transform(token_text, escape, links,
                                     cosmetic, **context))
             idx += 1
-        return ''.join(formatted).strip()
+        return ''.join(formatted)
 
     def strip(self, data, strip_newlines=False):
         """Strip out any tags from the input text.
@@ -572,7 +572,8 @@ class Parser (object):
 
 
 class AdfdParser(Parser):
-    HEADER_TAGS = ['h%s' % (i) for i in range(1, 6)]
+    HEADER_TAGS = ['h%s' % (i) for i in range(1, 4)]
+    DEMOTION_LEVEL = 1  # number of levels header tags get demoted
 
     def __init__(self, *args, **kwargs):
         super(AdfdParser, self).__init__(*args, **kwargs)
@@ -690,9 +691,9 @@ class AdfdParser(Parser):
 
     def _add_header_formatters(self):
         for tag in self.HEADER_TAGS:
-            demotedTag = tag[0] + str(int(tag[1]) + 1)
+            demotedTag = tag[0] + str(int(tag[1]) + self.DEMOTION_LEVEL)
             self.add_simple_formatter(
-                tag, '<%s>%%(value)s</%s>\n' % (demotedTag, demotedTag))
+                tag, '\n<%s>%%(value)s</%s>\n' % (demotedTag, demotedTag))
 
     def _add_quote_formatter(self):
         self.add_formatter(

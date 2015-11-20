@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 from plumbum import LocalPath
 
 from adfd.bbcode import AdfdParser
-from adfd.processing import AdfdProcessor
 
 
 class ContentGrabber(object):
@@ -89,7 +88,6 @@ class PairTester(object):
         if not exp:
             pytest.xfail(reason='no expectation for %s' % (fName))
         print(fName)
-        # rawHtml = AdfdProcessor(text=src).process()
         rawHtml = cls._parser.to_html(src)
         print("\n## RAW ##")
         print(rawHtml)

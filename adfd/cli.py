@@ -3,9 +3,10 @@ import webbrowser
 
 from nikola.__main__ import main as nikola_main
 from plumbum import cli, LocalPath
+
+from adfd.bbcode import AdfdParser
 from adfd.db.export import (
     Post, PostDoesNotExist, Topic, Forum, ForumIsEmpty, ForumDoesNotExist)
-from adfd.processing import AdfdProcessor
 
 
 class Adfd(cli.Application):
@@ -71,19 +72,16 @@ class ShowPost(cli.Application):
             print("slug: %s" % (post.slug))
             print(post.content)
         elif self.outType == 'html':
-            ap = AdfdProcessor(post.content)
-            self._open_html_in_webbrowser(ap.process())
+            html = AdfdParser().to_html(data=post.content)
+            self._open_html_in_webbrowser(html)
         elif self.outType == 'summary':
             print(post)
 
-    def _open_html_in_webbrowser(self, htmlText):
+    def _open_html_in_webbrowser(self, html):
         path = LocalPath("/tmp/adfd-html-out.html")
-        try:
-            with open(str(path), 'w') as f:
-                f.write(htmlText)
-            webbrowser.open("file://%s" % (path))
-        finally:
-            path.delete()
+        with open(str(path), encoding='utf8', mode='w') as f:
+            f.write(html)
+        webbrowser.open("file://%s" % (path))
 
 
 @Adfd.subcommand("build")
