@@ -1,8 +1,6 @@
-import re
-
 from plumbum.path.local import LocalPath
 
-from adfd.adfd_parser import AdfdParser
+from adfd.bbcode import Token, AdfdParser
 
 
 class AdfdProcessor(object):
@@ -20,28 +18,6 @@ class AdfdProcessor(object):
         apr = AdfdParagrafenreiter(parser.tokens)
         parser.tokens = apr.reitedieparagrafen()
         return parser.to_html()
-
-
-class Token(object):
-    def __init__(self, *args):
-        self.asTuple = args
-        self.type, self.tag, self.options, text = self.asTuple
-        self.text = text.strip() if text else ''
-        self.isOpener = self.type == AdfdParser.TOKEN_TAG_START
-        self.isCloser = self.type == AdfdParser.TOKEN_TAG_END
-        self.isHeaderStart = self.isOpener and re.match("h\d", self.tag)
-        self.isQuoteStart = self.isOpener and self.tag == "quote"
-        self.isQuoteEnd = self.isCloser and self.tag == "quote"
-        self.isNewline = self.type == 'newline'
-
-    def __repr__(self):
-        if self.tag:
-            return "<%s%s>" % ('/' if self.isCloser else '', self.tag)
-
-        return self.text
-
-    def __str__(self):
-        return self.__repr__()
 
 
 class AdfdParagrafenreiter(object):

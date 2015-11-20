@@ -5,13 +5,12 @@ import sys
 import pytest
 
 from adfd import bbcode
-from adfd.adfd_parser import AdfdParser
 
 
 # todo fix them
+from adfd.bbcode import AdfdParser
+
 BROKEN_TESTS = (
-    ('[quote] \r\ntesting\nstrip [/quote]',
-     '<blockquote>testing<br>\nstrip</blockquote>'),
     ('[list] [*]Entry 1 [*]Entry 2 [*]Entry 3   [/list]',
      '<ul><li>Entry 1</li><li>Entry 2</li><li>Entry 3</li></ul>'),
     ('[code python]lambda code: [code] + [1, 2][/code]',
@@ -137,9 +136,26 @@ LINKS = [
     '=%2fvvvvv%2f(asdf@qwertybean.com/qwertybean)',
 ]
 
+QUOTES = [
+    ('[quote]bla[/quote]', '<blockquote><p>bla</p></blockquote>'),
+    ('[quote]bla[quote]blubb[/quote][/quote]',
+     '<blockquote><p>bla<blockquote><p>blubb</p>'
+     '</blockquote></p></blockquote>'),
+    ('[quote]bla\n\nblubb[/quote]',
+     '<blockquote><p>bla<br><br>blubb</p></blockquote>'),
+    ('[quote] \r\ntesting\nstrip [/quote]',
+     '<blockquote><p>testing<br>strip</p></blockquote>'),
+]
 
-class TestBbcodeParser(object):
+
+class TestAdfdParser(object):
     parser = AdfdParser()
+
+    @pytest.mark.parametrize(('src', 'expected'), BROKEN_TESTS)
+    def test_broken_format(self, src, expected):
+        tokens = self.parser.tokenize(src)
+        result = self.parser._format_tokens(tokens, None)
+        assert result != expected
 
     @pytest.mark.parametrize(('src', 'expected'), TESTS)
     def test_format(self, src, expected):
@@ -147,11 +163,17 @@ class TestBbcodeParser(object):
         result = self.parser._format_tokens(tokens, None)
         assert result == expected
 
-    @pytest.mark.parametrize(('src', 'expected'), BROKEN_TESTS)
-    def test_broken_format(self, src, expected):
+    @pytest.mark.parametrize('link', LINKS)
+    def test_url(self, link):
+        link = link.strip()
+        num = len(bbcode._urlRegex.findall(link))
+        assert num == 1, 'Found %d links in "%s"' % (num, link)
+
+    @pytest.mark.parametrize(('src', 'expected'), QUOTES)
+    def test_quotes(self, src, expected):
         tokens = self.parser.tokenize(src)
         result = self.parser._format_tokens(tokens, None)
-        assert result != expected
+        assert result == expected
 
     def test_parse_opts(self):
         tag_name, opts = self.parser._parse_opts(
@@ -204,12 +226,6 @@ class TestBbcodeParser(object):
             'hello www.apple.com world'), None, substitution="oh hai")
         assert s == ('hello <a href="www.apple.com" '
                      'target="_blank">oh hai</a> world')
-
-    @pytest.mark.parametrize('link', LINKS)
-    def test_url(self, link):
-        link = link.strip()
-        num = len(bbcode._urlRegex.findall(link))
-        assert num == 1, 'Found %d links in "%s"' % (num, link)
 
     def test_unicode(self):
         if sys.version_info >= (3,):

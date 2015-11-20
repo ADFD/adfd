@@ -1,7 +1,7 @@
 import pytest
 
+from adfd.bbcode import AdfdParser
 from adfd.utils import DataGrabber, PairTester
-from adfd.adfd_parser import AdfdParser
 
 
 class TestAdfdParser(object):

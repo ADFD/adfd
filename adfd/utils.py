@@ -2,6 +2,7 @@ import pytest
 from bs4 import BeautifulSoup
 from plumbum import LocalPath
 
+from adfd.bbcode import AdfdParser
 from adfd.processing import AdfdProcessor
 
 
@@ -80,13 +81,16 @@ class DataGrabber(ContentGrabber):
 
 
 class PairTester(object):
+    _parser = AdfdParser()
+
     @classmethod
     def test_pairs(cls, fName, src, exp):
         exp = exp.strip()
         if not exp:
             pytest.xfail(reason='no expectation for %s' % (fName))
         print(fName)
-        rawHtml = AdfdProcessor(text=src).process()
+        # rawHtml = AdfdProcessor(text=src).process()
+        rawHtml = cls._parser.to_html(src)
         print("\n## RAW ##")
         print(rawHtml)
         prettified = BeautifulSoup(rawHtml, "html.parser").prettify()
