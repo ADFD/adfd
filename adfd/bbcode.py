@@ -28,8 +28,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The derived code is Copyright (c) 2015, Oliver Bestwalter (same license).
 """
+import itertools
 import re
 
+from cached_property import cached_property
+
+from adfd.cst import PATH
 
 # from http://daringfireball.net/2010/07/improved_regex_for_matching_urls
 # Only support one level of parentheses - was failing on some URLs.
@@ -70,28 +74,6 @@ REPLACE_COSMETIC = (
     ('(c)', '&copy;'),
     ('(reg)', '&reg;'),
     ('(tm)', '&trade;'))
-
-
-class Token(object):
-    def __init__(self, *args):
-        self.asTuple = args
-        self.type, self.tag, self.options, text = self.asTuple
-        self.text = text.strip() if text else ''
-        self.isOpener = self.type == AdfdParser.TOKEN_TAG_START
-        self.isCloser = self.type == AdfdParser.TOKEN_TAG_END
-        self.isHeaderStart = self.isOpener and re.match("h\d", self.tag)
-        self.isQuoteStart = self.isOpener and self.tag == "quote"
-        self.isQuoteEnd = self.isCloser and self.tag == "quote"
-        self.isNewline = self.type == 'newline'
-
-    def __repr__(self):
-        if self.tag:
-            return "<%s%s>" % ('/' if self.isCloser else '', self.tag)
-
-        return "<%s>" % (self.text)
-
-    def __str__(self):
-        return self.__repr__()
 
 
 class TagOptions (object):
@@ -571,6 +553,117 @@ class Parser (object):
         return ''.join(text)
 
 
+class Token(object):
+    def __init__(self, *args):
+        self.asTuple = args
+        self.type, self.tag, self.options, text = self.asTuple
+        self.text = text.strip() if text else ''
+        self.isOpener = self.type == Parser.TOKEN_TAG_START
+        self.isCloser = self.type == Parser.TOKEN_TAG_END
+        self.isHeaderStart = self.isOpener and re.match("h\d", self.tag)
+        self.isQuoteStart = self.isOpener and self.tag == "quote"
+        self.isQuoteEnd = self.isCloser and self.tag == "quote"
+        self.isNewline = self.type == 'newline'
+
+    def __repr__(self):
+        if self.tag:
+            return "<%s%s>" % ('/' if self.isCloser else '', self.tag)
+
+        return "<%s>" % (self.text)
+
+    def __str__(self):
+        return self.__repr__()
+
+
+class Chunk(object):
+    """modify token groups to fix missing formatting in forum articles"""
+    HEADER = 'header'
+    PARAGRAPH = 'paragraph'
+    QUOTE = 'quote'
+    TYPES = [HEADER, PARAGRAPH, QUOTE]
+    P_START_TOKEN = Token(Parser.TOKEN_TAG_START, 'p', None, '[p]')
+    P_END_TOKEN = Token(Parser.TOKEN_TAG_END, 'p', None, '[/p]')
+
+    def __init__(self, tokens, chunkType):
+        self.tokens = tokens
+        self.chunkType = chunkType
+        self.modify()
+
+    def __repr__(self):
+        return " ".join([str(c) for c in self.tokens])
+
+    @cached_property
+    def tokensAsTuples(self):
+        return [t.asTuple for t in self.tokens]
+
+    def modify(self):
+        """this innocent method is the reason why we have chunks"""
+        if self.chunkType == self.PARAGRAPH:
+            self.tokens.insert(0, self.P_START_TOKEN)
+            self.tokens.append(self.P_END_TOKEN)
+
+
+class Chunkman(object):
+    """create token groups specific to forum articles for preparation"""
+    def __init__(self, tokens):
+        self.tokens = [Token(*t) for t in tokens]
+        self._chunks = []
+
+    @cached_property
+    def serialized(self):
+        return list(itertools.chain(*[c.tokensAsTuples for c in self.chunks]))
+
+    @cached_property
+    def chunks(self):
+        """article chunks which can be converted individually
+
+        :rtype: list of list of TransformableChunk
+        """
+        curentTokens = []
+        idx = 0
+        while idx < len(self.tokens):
+            token = self.tokens[idx]
+            if token.isHeaderStart:
+                curentTokens = self.flush(curentTokens)
+                newIdx = idx + 3
+                self.flush(self.tokens[idx:newIdx], Chunk.HEADER)
+                idx = newIdx
+                continue
+
+            if token.isQuoteStart:
+                self.flush(curentTokens)
+                sIdx = idx
+                while not token.isQuoteEnd:
+                    idx += 1
+                    token = self.tokens[idx]
+                idx += 1
+                curentTokens = self.flush(self.tokens[sIdx:idx], Chunk.QUOTE)
+                continue
+
+            try:
+                nextToken = self.tokens[idx + 1]
+            except IndexError:
+                nextToken = None
+            if token.isNewline and nextToken and nextToken.isNewline:
+                curentTokens = self.flush(curentTokens)
+                idx += 1
+                continue
+
+            curentTokens.append(token)
+            idx += 1
+
+        self.flush(curentTokens)
+        return self._chunks
+
+    def flush(self, tokens, chunkType=Chunk.PARAGRAPH):
+        """append cleaned tokens and return a fresh (empty) list"""
+        tokensWithoutNewlines = [t for t in tokens if not t.isNewline]
+        if tokensWithoutNewlines:
+            chunk = Chunk(tokensWithoutNewlines, chunkType)
+            self._chunks.append(chunk)
+        return []
+
+
 class AdfdParser(Parser):
     HEADER_TAGS = ['h%s' % (i) for i in range(1, 4)]
     DEMOTION_LEVEL = 1  # number of levels header tags get demoted
@@ -589,6 +682,8 @@ class AdfdParser(Parser):
         if data:
             assert not tokens, tokens
             tokens = self.tokenize(data)
+            chunks = Chunkman(tokens)
+            tokens = chunks.serialized
         assert tokens
         return self._format_tokens(tokens, parent=None, **context)
 
@@ -740,3 +835,19 @@ class AdfdParser(Parser):
         if '://' not in href and _domainRegex.match(href):
             href = 'http://' + href
         return '<a href="%s">%s</a>' % (href.replace('"', '%22'), value)
+
+if __name__ == '__main__':
+    p = PATH.TEST_DATA / 'transform' / '01b-simple.bb'
+    # p = PATH.TEST_DATA / 'transform' / '01a-simple.bb'
+    # p = PATH.TEST_DATA / 'transform' / '02c-with-header-and-quote.bb'
+    content = p.read('utf8')
+    html = AdfdParser().to_html(data=content)
+    print(html)
+    # for idx, chunk in enumerate(ac.chunks):
+    #     print("%s: %s" % (idx, chunk))
+    #     print(chunk.asHtml)
+    #     # print(obj_attr(chunk))
+    #     # for token in chunk.tokens:
+    #     #     # print(token)
+    #     #     # print(type(token))
+    #     #     print(obj_attr(token))

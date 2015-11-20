@@ -98,9 +98,7 @@ class PairTester(object):
         print(exp)
         refPath = DataGrabber.DATA_PATH / ('%s.html' % (fName))
         try:
-            if prettified != exp:
-                pytest.fail('no match')
-
+            assert prettified == exp
             refPath.delete()
         except AssertionError:
             with open(str(refPath), 'w') as f:
