@@ -32,7 +32,7 @@ import os
 import re
 
 try:
-    from adfd.article import ArticleContent
+    from adfd.transform import ArticleContent
 except ImportError:
     ArticleContent = None
 
