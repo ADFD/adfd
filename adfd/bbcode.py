@@ -35,20 +35,24 @@ from cached_property import cached_property
 
 from adfd.cst import PATH
 
-# from http://daringfireball.net/2010/07/improved_regex_for_matching_urls
-# Only support one level of parentheses - was failing on some URLs.
-# See http://www.regular-expressions.info/catastrophic.html
 _urlRegex = re.compile(
     r'(?im)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)'
     r'(?:[^\s()<>]+|\([^\s()<>]+\))'
     r'+(?:\([^\s()<>]+\)|[^\s`!()\[\]{};:\'".,<>?]))')
+"""
+from http://daringfireball.net/2010/07/improved_regex_for_matching_urls
+Only support one level of parentheses - was failing on some URLs.
+See http://www.regular-expressions.info/catastrophic.html
+"""
 
-# For the URL tag, try to be smart about when to append a missing http://.
-# If the given link looks like a domain, add a http:// in front of it,
-# otherwise leave it alone (since it may be a relative path, a filename, etc).
 _domainRegex = re.compile(
     r'(?im)(?:www\d{0,3}[.]|[a-z0-9.\-]+[.]'
     r'(?:com|net|org|edu|biz|gov|mil|info|io|name|me|tv|us|uk|mobi))')
+"""
+For the URL tag, try to be smart about when to append a missing http://.
+If the given link looks like a domain, add a http:// in front of it,
+otherwise leave it alone (since it may be a relative path, a filename, etc).
+"""
 
 
 def _replace(data, replacements):
@@ -598,24 +602,19 @@ class Chunk(object):
         return [t.asTuple for t in self.tokens]
 
     def clean(self):
-        """remove duplicate newlines which serve as block change indicator"""
-        if self.tokens[0].isNewline:
-            self.tokens.pop()
-        idx = 0
-        while idx < len(self.tokens):
-            token = self.tokens[idx]
+        """remove newlines at beginning and end of chunk"""
+        for idx in [0, -1]:
             try:
-                nextToken = self.tokens[idx + 1]
-                if token.isNewline and nextToken.isNewline:
+                while self.tokens[idx].isNewline:
                     self.tokens.pop(idx)
-                    continue
-
             except IndexError:
                 pass
-            idx += 1
 
     @cached_property
     def isEmpty(self):
+        if not self.tokens:
+            return True
+
         for token in self.tokens:
             if not token.isNewline:
                 return False
