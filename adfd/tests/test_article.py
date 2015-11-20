@@ -30,5 +30,5 @@ class TestArticle(object):
     def test_topic_id_path(self):
         a = Article(1)
         assert a.content == (
-            "some text from first post\n\nsome text from second post\n")
+            "söme text from first pöst\n\nsome text from second post\n")
         assert isinstance(a.metadataDict, dict)
