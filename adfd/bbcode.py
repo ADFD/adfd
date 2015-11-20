@@ -670,8 +670,7 @@ class AdfdParser(Parser):
 
     def __init__(self, *args, **kwargs):
         super(AdfdParser, self).__init__(*args, **kwargs)
-        self._add_default_formatters()
-        self._add_custom_formatters()
+        self._add_formatters()
 
     def to_html(self, data=None, tokens=None, **context):
         """Format input text using any installed renderers.
@@ -687,33 +686,34 @@ class AdfdParser(Parser):
         assert tokens
         return self._format_tokens(tokens, parent=None, **context)
 
-    def _add_default_formatters(self):
+    def _add_formatters(self):
         self.add_simple_formatter('b', '<strong>%(value)s</strong>')
+        self.add_simple_formatter('br', '<br>\n', standalone=True)
+
+        # todo use foundation way for centering
+        self.add_simple_formatter(
+            'center', '<div style="text-align:center;">%(value)s</div>\n')
+
         self.add_simple_formatter(
             'code', '<code>%(value)s</code>\n', render_embedded=False,
             transform_newlines=False, swallow_trailing_newline=True)
+        self.add_simple_formatter('hr', '<hr>\n', standalone=True)
         self.add_simple_formatter('i', '<em>%(value)s</em>')
+        self.add_simple_formatter('p', '<p>%(value)s</p>')
         self.add_simple_formatter('s', '<strike>%(value)s</strike>')
         self.add_simple_formatter(
             'u', '<span style="text-decoration: underline;">%(value)s</span>')
         self.add_simple_formatter('sub', '<sub>%(value)s</sub>')
         self.add_simple_formatter('sup', '<sup>%(value)s</sup>')
-        self._add_img_formatter()
+
+        self._add_bbvideo_formatter()
         self._add_color_formatter()
+        self._add_header_formatters()
+        self._add_img_formatter()
         self._add_list_formatter()
         self._add_quote_formatter()
-        self._add_url_formatter()
-
-    def _add_custom_formatters(self):
-        self.add_simple_formatter('p', '<p>%(value)s</p>')
-        self.add_simple_formatter('br', '<br>\n', standalone=True)
-        self.add_simple_formatter('hr', '<hr>\n', standalone=True)
-        # todo use foundation way for centering
-        self.add_simple_formatter(
-            'center', '<div style="text-align:center;">%(value)s</div>\n')
-        self._add_bbvideo_formatter()
-        self._add_header_formatters()
         self._add_section_formatter()
+        self._add_url_formatter()
 
     def _add_bbvideo_formatter(self):
         self.add_formatter('BBvideo', self._render_bbvideo,
