@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import codecs
 import logging
 import re
 from collections import OrderedDict
@@ -33,7 +34,7 @@ class Article(object):
             self.isImported = False
             self.identifier = identifier
             self.srcPath = self.SRC_PATH / 'static'
-        log.debug("article %s/%s", self.srcPath, self.identifier)
+        log.debug("id: %s source: %s", self.srcPath, self.identifier)
         self.metadataDict = self.fetch_metadata_dict()
 
     def __repr__(self):
@@ -62,7 +63,7 @@ class Article(object):
     def slugify(self, title):
         words = []
         for word in self.PUNCT.split(title.lower()):
-            word = word.encode('translit/long')
+            word = codecs.encode(word, 'translit/long')
             if word:
                 words.append(word)
         return u'-'.join(words)
