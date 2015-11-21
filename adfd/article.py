@@ -35,7 +35,7 @@ class Article(object):
             self.identifier = identifier
             self.srcPath = self.SRC_PATH / 'static'
         log.debug("id: %s source: %s", self.srcPath, self.identifier)
-        self.metadataDict = self.fetch_metadata_dict()
+        self.md = self.fetch_metadata_dict()
 
     def __repr__(self):
         return u'<%s %s>' % (self.__class__.__name__, self.slug)
@@ -45,20 +45,24 @@ class Article(object):
         return tuple(["/%s/" % (self.slug), self.linktext])
 
     @property
+    def title(self):
+        return self.md['title']
+
+    @property
     def linktext(self):
         try:
-            return self.metadataDict['linktext']
+            return self.md['linktext']
 
         except KeyError:
-            return self.metadataDict['title']
+            return self.md['title']
 
     @property
     def slug(self):
         try:
-            return self.metadataDict['slug']
+            return self.md['slug']
 
         except KeyError:
-            return self.slugify(self.metadataDict['title'])
+            return self.slugify(self.md['title'])
 
     def slugify(self, title):
         words = []
@@ -117,10 +121,10 @@ class Article(object):
     def process(self):
         """writes changed slug back into the file"""
         if self.slugPrefix:
-            self.metadataDict['slug'] = "%s/%s" % (self.slugPrefix, self.slug)
+            self.md['slug'] = "%s/%s" % (self.slugPrefix, self.slug)
         newDict = "\n".join(
             [".. %s: %s" % (key, value) for key, value
-             in self.metadataDict.items()])
+             in self.md.items()])
         metadataDstPath = self.PROCESSED_PATH / (self.identifier + '.meta')
         ContentDumper(metadataDstPath, newDict).dump()
         articleDstPath = self.PROCESSED_PATH / (self.identifier + '.bb')

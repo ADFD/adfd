@@ -5,7 +5,6 @@ from plumbum import LocalPath
 
 from adfd.article import Article
 
-
 log = logging.getLogger(__name__)
 
 
@@ -25,10 +24,15 @@ class TestArticle(object):
     def test_rel_path(self):
         a = Article('test-kitchen-sink')
         assert 'Lorem ipsum dolor sit amet' in a.content
-        assert isinstance(a.metadataDict, dict)
+        assert isinstance(a.md, dict)
 
     def test_topic_id_path(self):
         a = Article(1)
         assert a.content == (
             "söme text from first pöst\n\nsome text from second post\n")
-        assert isinstance(a.metadataDict, dict)
+        assert isinstance(a.md, dict)
+
+    def test_slug_transliteration(self):
+        a = Article(1)
+        assert a.title == 'Söme snaßy Tätle'
+        assert a.slug == 'soeme-snassy-taetle'
