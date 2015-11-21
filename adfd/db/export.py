@@ -23,7 +23,7 @@ class Forum(object):
         self.kitchen = SoupKitchen()
         self.dbObject = self.kitchen.fetch_forum(self.forumId)
         if not self.dbObject:
-            raise ForumDoesNotExist
+            raise ForumDoesNotExist(str(forumId))
         self.topicIds = self.kitchen.fetch_topic_ids_from_forum(self.forumId)
         if not self.topicIds:
             raise ForumIsEmpty()
