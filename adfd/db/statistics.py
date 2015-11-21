@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from adfd.db.utils import get_session
+from adfd.utils import obj_attr
 
 __all__ = [
     'StatsPlotter',
@@ -120,10 +121,10 @@ class StatsPlotter(object):
 
 def series_stats():
     df = DataFetcher()
-    df.set_time_range(start='2010/01/01', end='2015/05/31')
+    df.set_time_range(start='2015/01/01', end='2015/10/30')
     sp = StatsPlotter(df.get_series())
     sp.save('teststats')
-    # poa(p.series)
+    obj_attr(sp.series)
 
 
 if __name__ == '__main__':
