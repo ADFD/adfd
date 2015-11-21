@@ -249,7 +249,16 @@ class SoupKitchen(object):
 
 
 class TopicsExporter(object):
-    SUMMARY_PATH = cst.PATH.IMPORTS / 'summary.txt'
+    CONTENT_PATH = cst.PATH.CONTENT
+    """root of all content for the website"""
+    RAW_PATH = CONTENT_PATH / cst.DIR.RAW
+    """exported bbcode like it was when edited
+    It is not raw in the sense that it has the same format like stored in DB
+    as this is quite different from what one sees in the editor, but from
+    an editors perspective that does not matter, so this is considered raw
+    """
+
+    SUMMARY_PATH = CONTENT_PATH / 'summary.txt'
     """keep a list of topics and their imported posts as text"""
 
     def __init__(self, topics):
@@ -270,7 +279,7 @@ class TopicsExporter(object):
         out = []
         for topic in self.topics:
             out.append("%s: %s" % (topic.topicId, topic.subject))
-            topicPath = cst.PATH.IMPORTS / ("%05d" % (topic.topicId))
+            topicPath = self.RAW_PATH / ("%05d" % (topic.topicId))
             for post in topic.posts:
                 current = "%s: %s" % (post.postId, post.slug)
                 log.info("export: %s", current)
@@ -286,17 +295,17 @@ class TopicsExporter(object):
     def add_files(self):
         cmd = ['git', 'add', '--all', '.']
         try:
-            subprocess.check_output(cmd, cwd=str(cst.PATH.IMPORTS))
+            subprocess.check_output(cmd, cwd=str(self.RAW_PATH))
         except subprocess.CalledProcessError:
             pass
 
     def prune_orphans(self):
-        for p in cst.PATH.IMPORTS.walk():
+        for p in self.RAW_PATH.walk():
             if not p.isdir() and not any(ap == p for ap in self.allPaths):
                 log.warning("removing %s", p)
                 cmd = ['git', 'rm', '-f', str(p)]
                 try:
-                    subprocess.check_output(cmd, cwd=str(cst.PATH.IMPORTS))
+                    subprocess.check_output(cmd, cwd=str(self.RAW_PATH))
                 except subprocess.CalledProcessError:
                     p.delete()
 

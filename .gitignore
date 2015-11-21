@@ -11,5 +11,6 @@ __pycache__
 output/*
 
 *.bb.html
-cred.py
+local_settings.py
 __scratchpad.py
+content/*

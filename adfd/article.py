@@ -7,8 +7,9 @@ from collections import OrderedDict
 # noinspection PyUnresolvedReferences
 import translitcodec  # register new codec for slugification
 from cached_property import cached_property
-from plumbum import LocalPath
 
+from adfd import cst
+from adfd.cst import DIR
 from adfd.utils import ContentGrabber, ContentDumper
 
 
@@ -16,24 +17,22 @@ log = logging.getLogger(__name__)
 
 
 class Article(object):
-    CONTENTS_PATH = LocalPath(__file__).up(2) / 'content'
-    SRC_PATH = CONTENTS_PATH
-    PROCESSED_PATH = CONTENTS_PATH / 'processed'
-    PUNCT = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
+    SRC_PATH = cst.PATH.CONTENT
+    PREPARED_PATH = SRC_PATH / DIR.PREPARED
 
     def __init__(self, identifier, slugPrefix=''):
-        self.PROCESSED_PATH.mkdir()
+        self.PREPARED_PATH.mkdir()
         self.slugPrefix = slugPrefix.lower()
         if isinstance(identifier, int):
             originalIdentifer = identifier
             self.isImported = True
             self.identifier = "%05d" % (identifier)
-            self.srcPath = self.SRC_PATH / 'imported' / self.identifier
+            self.srcPath = self.SRC_PATH / DIR.RAW / self.identifier
             self.ensure_is_imported(originalIdentifer)
         else:
             self.isImported = False
             self.identifier = identifier
-            self.srcPath = self.SRC_PATH / 'static'
+            self.srcPath = self.SRC_PATH / DIR.STATIC
         log.debug("id: %s source: %s", self.srcPath, self.identifier)
         self.md = self.fetch_metadata_dict()
 
@@ -66,7 +65,7 @@ class Article(object):
 
     def slugify(self, title):
         words = []
-        for word in self.PUNCT.split(title.lower()):
+        for word in cst.SLUG.PUNCT.split(title.lower()):
             word = codecs.encode(word, 'translit/long')
             if word:
                 words.append(word)
@@ -120,16 +119,17 @@ class Article(object):
                 raise Exception("article folder for %s empty", identifier)
 
         except OSError:
-            raise Exception("article %s not found", identifier)
+            raise Exception(
+                "article %s not found at %s", identifier, self.srcPath)
 
-    def process(self):
+    def finalize_slug(self):
         """writes changed slug back into the file"""
         if self.slugPrefix:
             self.md['slug'] = "%s/%s" % (self.slugPrefix, self.slug)
         newDict = "\n".join(
             [".. %s: %s" % (key, value) for key, value
              in self.md.items()])
-        metadataDstPath = self.PROCESSED_PATH / (self.identifier + '.meta')
+        metadataDstPath = self.PREPARED_PATH / (self.identifier + '.meta')
         ContentDumper(metadataDstPath, newDict).dump()
-        articleDstPath = self.PROCESSED_PATH / (self.identifier + '.bb')
+        articleDstPath = self.PREPARED_PATH / (self.identifier + '.bb')
         ContentDumper(articleDstPath, self.content).dump()

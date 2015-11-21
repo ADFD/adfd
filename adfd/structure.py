@@ -21,6 +21,7 @@ import pprint
 
 from adfd.article import Article
 
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -28,7 +29,7 @@ def get_prepared_article_representations(identifiers, path=u''):
     representations = []
     for identifier in identifiers:
         article = Article(identifier, path)
-        article.process()
+        article.finalize_slug()
         representation = article.structuralRepresentation
         representations.append(representation)
     return tuple(representations), path
