@@ -151,7 +151,6 @@ class Post(object):
     def username(self):
         username = (self.p.post_username or
                     self.kitchen.get_username(self.p.poster_id))
-        # username = username.decode(cst.ENC.IN)
         return self.preprocess(username)
 
     @property
@@ -166,7 +165,6 @@ class Post(object):
     @property
     def rawText(self):
         return self.p.post_text
-        # return self.p.post_text.decode(cst.ENC.IN)
 
     @staticmethod
     def preprocess(text, bbcodeUid=None):
@@ -308,4 +306,4 @@ class TopicsExporter(object):
         except OSError as e:
             log.debug(e)
         # log.info('write %s', path)
-        path.write(content.encode(cst.ENC.OUT))
+        path.write(content.encode('utf8'))
