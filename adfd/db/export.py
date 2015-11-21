@@ -251,8 +251,9 @@ class SoupKitchen(object):
 class TopicsExporter(object):
     CONTENT_PATH = cst.PATH.CONTENT
     """root of all content for the website"""
-    RAW_PATH = CONTENT_PATH / cst.DIR.RAW
-    """exported bbcode like it was when edited
+    RAW_EXPORT_PATH = CONTENT_PATH / cst.DIR.RAW
+    """exported bbcode like it looks when edited
+
     It is not raw in the sense that it has the same format like stored in DB
     as this is quite different from what one sees in the editor, but from
     an editors perspective that does not matter, so this is considered raw
@@ -279,7 +280,7 @@ class TopicsExporter(object):
         out = []
         for topic in self.topics:
             out.append("%s: %s" % (topic.topicId, topic.subject))
-            topicPath = self.RAW_PATH / ("%05d" % (topic.topicId))
+            topicPath = self.RAW_EXPORT_PATH / ("%05d" % (topic.topicId))
             for post in topic.posts:
                 current = "%s: %s" % (post.postId, post.slug)
                 log.info("export: %s", current)
@@ -295,24 +296,21 @@ class TopicsExporter(object):
     def add_files(self):
         cmd = ['git', 'add', '--all', '.']
         try:
-            subprocess.check_output(cmd, cwd=str(self.RAW_PATH))
+            subprocess.check_output(cmd, cwd=str(self.RAW_EXPORT_PATH))
         except subprocess.CalledProcessError:
             pass
 
     def prune_orphans(self):
-        for p in self.RAW_PATH.walk():
+        for p in self.RAW_EXPORT_PATH.walk():
             if not p.isdir() and not any(ap == p for ap in self.allPaths):
                 log.warning("removing %s", p)
                 cmd = ['git', 'rm', '-f', str(p)]
                 try:
-                    subprocess.check_output(cmd, cwd=str(self.RAW_PATH))
+                    subprocess.check_output(cmd, cwd=str(self.RAW_EXPORT_PATH))
                 except subprocess.CalledProcessError:
                     p.delete()
 
     def write(self, path, content):
-        try:
-            os.makedirs(str(path.dirname))
-        except OSError as e:
-            log.debug(e)
-        # log.info('write %s', path)
+        log.info('%s', path)
+        path.dirname.mkdir()
         path.write(content.encode('utf8'))
