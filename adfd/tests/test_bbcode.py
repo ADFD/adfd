@@ -10,10 +10,8 @@ import pytest
 from adfd.bbcode import AdfdParser, _urlRegex
 
 KITCHEN_SINK = (
-    ('<http://foo.com/blah_blah>',
-     '&lt;<a href="http://foo.com/blah_blah">'
-     'http://foo.com/blah_blah</a>&gt;'),
-
+    ('<http://foo.com/bla_bla>',
+     '&lt;<a href="http://foo.com/bla_bla">http://foo.com/bla_bla</a>&gt;'),
     ('hello :[ world', 'hello :[ world'),
     ('[B]hello world[/b]', '<strong>hello world</strong>'),
     ('[b][i]test[/i][/b]', '<strong><em>test</em></strong>'),
