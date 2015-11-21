@@ -110,22 +110,6 @@ class PairTester(object):
             raise
 
 
-def poa(o):
-    value = obj_attr(o)
-    try:
-        print(value)
-        return
-
-    except:
-        for enc in cst.ENC.ALL:
-            try:
-                print(value.encode(enc))
-                return
-
-            except:
-                pass
-
-
 _specialAttrNames = [
     "str", "repr", "dict", "doc", "class", "delattr", "format",
     "getattribute", "hash", "init", "module", "new", "reduce", "reduce_ex",
