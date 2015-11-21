@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import time
 
+import time
 from nikola import filters
 
-import structure
 from LICENSE import LICENSE_LINK as LICENSE
+from adfd import structure
 
 BLOG_AUTHOR = "ADFD"  # (translatable)
 BLOG_TITLE = "ADFD"  # (translatable)
