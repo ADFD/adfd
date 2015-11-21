@@ -1,10 +1,11 @@
 __pycache__
 *.py[cod]
 *.egg-info
+*.cache/*
 
-.cache/*
 .idea/*
 .vagrant/*
+.tox/*
 
 .sass-cache/*
 .doit.db.*
