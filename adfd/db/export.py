@@ -126,7 +126,7 @@ class Post(object):
             return "re-%s" % (self.postId)
 
         if self.slug.startswith('re-'):
-            return "%s-%s" % (self.postId, self.slug)
+            return "%06d-%s" % (self.postId, self.slug)
 
         return self.slug
 
