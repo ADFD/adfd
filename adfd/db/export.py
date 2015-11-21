@@ -27,7 +27,7 @@ class Forum(object):
 
         self.topicIds = self.kitchen.fetch_topic_ids_from_forum(self.forumId)
         if not self.topicIds:
-            raise ForumIsEmpty()
+            raise ForumIsEmpty(str(forumId))
 
     @property
     def name(self):
