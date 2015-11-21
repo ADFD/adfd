@@ -164,33 +164,33 @@ class TestAdfdParser(object):
         assert result == expected
 
     def test_parse_opts(self):
-        tag_name, opts = self.parser._parse_opts(
+        tag, opts = self.parser._parse_opts(
             'url="http://test.com/s.php?a=bcd efg"  popup')
-        assert tag_name == 'url'
+        assert tag == 'url'
         assert opts == {'url': 'http://test.com/s.php?a=bcd efg',
                         'popup': ''}
-        tag_name, opts = self.parser._parse_opts('tag sep="=" flag=1')
-        assert tag_name == 'tag'
+        tag, opts = self.parser._parse_opts('tag sep="=" flag=1')
+        assert tag == 'tag'
         assert opts == {'sep': '=', 'flag': '1'}
-        tag_name, opts = self.parser._parse_opts(
+        tag, opts = self.parser._parse_opts(
             ' quote opt1 opt2 author = Watson, Dan   ')
-        assert tag_name == 'quote'
+        assert tag == 'quote'
         assert opts == {'author': 'Watson, Dan', 'opt1': '', 'opt2': ''}
-        tag_name, opts = self.parser._parse_opts('quote = Watson, Dan')
-        assert tag_name == 'quote'
+        tag, opts = self.parser._parse_opts('quote = Watson, Dan')
+        assert tag == 'quote'
         assert opts == {'quote': 'Watson, Dan'}
-        tag_name, opts = self.parser._parse_opts(
+        tag, opts = self.parser._parse_opts(
             """Quote='Dan "Darsh" Watson'""")
-        assert tag_name == 'quote'
+        assert tag == 'quote'
         assert opts == {'quote': 'Dan "Darsh" Watson'}
 
     def test_strip(self):
         result = self.parser.strip('[b]hello \n[i]world[/i][/b] -- []',
                                    strip_newlines=True)
         assert result == 'hello world -- []'
-        html_parser = AdfdParser(tag_opener='<', tag_closer='>',
-                                 drop_unrecognized=True)
-        result = html_parser.strip(
+        parser = AdfdParser(
+            tag_opener='<', tag_closer='>', drop_unrecognized=True)
+        result = parser.strip(
             '<div class="test"><b>hello</b> <i>world</i><img src="test.jpg" '
             '/></div>')
         assert result == 'hello world'
