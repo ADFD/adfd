@@ -30,12 +30,16 @@ def generate_schema(writeToFile="schema.py"):
         print(declText)
 
 
-def get_session():
+def get_db_session():
     """":rtype: sqlalchemy.orm.session.Session"""
+    logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
     Session = sessionmaker()
-    Session.configure(bind=create_engine(cst.DB_URL, echo=False))
+    engine = create_engine(cst.DB_URL, echo=False)
+    Session.configure(bind=engine)
     return Session()
 
+
+DB_SESSION = get_db_session()
 
 if __name__ == '__main__':
     generate_schema(writeToFile='')

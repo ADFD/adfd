@@ -18,7 +18,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from adfd.db.utils import get_session
+from adfd.db.utils import DB_SESSION
 from adfd.utils import obj_attr
 
 __all__ = [
@@ -59,7 +59,7 @@ class DataFetcher(object):
         return self.data
 
     def fech_raw_data(self):
-        return get_session().execute(self.statement)
+        return DB_SESSION.execute(self.statement)
 
     @property
     def statement(self):

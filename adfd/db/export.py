@@ -1,7 +1,6 @@
 # coding=utf-8
 import html
 import logging
-import os
 import re
 import subprocess
 from datetime import datetime
@@ -11,8 +10,7 @@ import translitcodec  # This registers new codecs for slugification
 
 from adfd import cst
 from adfd.db.schema import PhpbbPost, PhpbbForum, PhpbbTopic, PhpbbUser
-from adfd.db.utils import get_session
-
+from adfd.db.utils import DB_SESSION
 
 log = logging.getLogger(__name__)
 
@@ -20,12 +18,12 @@ log = logging.getLogger(__name__)
 class Forum(object):
     def __init__(self, forumId):
         self.forumId = forumId
-        self.kitchen = SoupKitchen()
-        self.dbObject = self.kitchen.fetch_forum(self.forumId)
+        self.db = DbWrapper()
+        self.dbObject = self.db.fetch_forum(self.forumId)
         if not self.dbObject:
             raise ForumDoesNotExist(str(forumId))
 
-        self.topicIds = self.kitchen.fetch_topic_ids_from_forum(self.forumId)
+        self.topicIds = self.db.fetch_topic_ids_from_forum(self.forumId)
         if not self.topicIds:
             raise ForumIsEmpty(str(forumId))
 
@@ -59,7 +57,7 @@ class Topic(object):
         self.topicId = topicId
         self.postIds = postIds
         self.excludedPostIds = excludedPostIds or []
-        self.kitchen = SoupKitchen()
+        self.db = DbWrapper()
         self.filter_excluded_post_ids()
         self.fetch_basic_topic_data()
 
@@ -70,14 +68,14 @@ class Topic(object):
 
     def filter_excluded_post_ids(self):
         if self.topicId:
-            ids = self.kitchen.fetch_post_ids_from_topic(self.topicId)
+            ids = self.db.fetch_post_ids_from_topic(self.topicId)
             self.postIds = [i for i in ids if i not in self.excludedPostIds]
         else:
             if not isinstance(self.postIds, list):
                 assert isinstance(self.postIds, int), self.postIds
                 self.postIds = [self.postIds]
         if not self.postIds:
-            raise TopicIsEmpty()
+            raise TopicIsEmpty(str(self.topicId))
 
     def fetch_basic_topic_data(self):
         firstPostId = self.postIds[0]
@@ -85,8 +83,6 @@ class Topic(object):
         self.topicId = firstPost.topicId
         self.subject = firstPost.subject
         self.fileName = "%s.bb" % (firstPost.slug)
-        if self.topicId:  # little sanity check ...
-            assert self.topicId == self.topicId, (self.topicId, self.topicId)
 
 
 class TopicIsEmpty(Exception):
@@ -96,12 +92,12 @@ class TopicIsEmpty(Exception):
 class Post(object):
     def __init__(self, postId):
         self.postId = postId
-        self.kitchen = SoupKitchen()
-        self.p = self.kitchen.fetch_post(postId)
-        if not self.p:
-            raise PostDoesNotExist()
+        self.db = DbWrapper()
+        self.dbp = self.db.fetch_post(postId)
+        if not self.dbp:
+            raise PostDoesNotExist(str(postId))
 
-        self.topicId = self.p.topic_id
+        self.topicId = self.dbp.topic_id
 
     def __repr__(self):
         return ("<%s %s (%s)>" %
@@ -112,12 +108,12 @@ class Post(object):
         return "%s\n\n" % '\n'.join([
             u'.. author: %s' % (self.username),
             u'.. lastUpdate: %s' % (self.lastUpdate),
-            u'.. postDate: %s' % (self.format_date(int(self.p.post_time))),
+            u'.. postDate: %s' % (self.format_date(int(self.dbp.post_time))),
             u'.. postId: %s' % (self.postId),
             u'.. slug: %s' % (self.uniqueSlug),
             u'.. title: %s' % (self.subject),
             u'.. topicId: %s' % (self.topicId),
-            u'.. authorId: %s' % (self.p.poster_id)])
+            u'.. authorId: %s' % (self.dbp.poster_id)])
 
     @property
     def content(self):
@@ -145,26 +141,26 @@ class Post(object):
 
     @property
     def subject(self):
-        return self.preprocess(self.p.post_subject)
+        return self.preprocess(self.dbp.post_subject)
 
     @property
     def username(self):
-        username = (self.p.post_username or
-                    self.kitchen.get_username(self.p.poster_id))
+        username = (self.dbp.post_username or
+                    self.db.get_username(self.dbp.poster_id))
         return self.preprocess(username)
 
     @property
     def lastUpdate(self):
-        lastUpdate = (self.p.post_edit_time or self.p.post_time)
+        lastUpdate = (self.dbp.post_edit_time or self.dbp.post_time)
         return self.format_date(lastUpdate)
 
     @property
     def preprocessedText(self):
-        return self.preprocess(self.rawText, self.p.bbcode_uid)
+        return self.preprocess(self.rawText, self.dbp.bbcode_uid)
 
     @property
     def rawText(self):
-        return self.p.post_text
+        return self.dbp.post_text
 
     @staticmethod
     def preprocess(text, bbcodeUid=None):
@@ -214,9 +210,9 @@ class PostDoesNotExist(Exception):
     """raised if a post with the given ID does not exist"""
 
 
-class SoupKitchen(object):
+class DbWrapper(object):
     def __init__(self):
-        self.query = get_session().query
+        self.query = DB_SESSION.query
 
     def fetch_topic_ids_from_forum(self, forumId):
         """:rtype: list of int"""
