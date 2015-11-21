@@ -1,31 +1,30 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from adfd.db.export import Topic, Forum, TopicsExporter
+from adfd.db import export
 
 FORUM_IDS = [
-    5,   # Erfahrungsberichte
-    6,   # Hintergrundinformationen über Psychopharmaka
-    19,  # Hilfen zum Absetzen von Psychopharmaka
+    6,    # Hintergrundinformationen über Psychopharmaka
+    19,   # Hilfen zum Absetzen von Psychopharmaka
+    51,   # Erfahrungsberichte
+    54,   # Webseite/Inhalt
 ]
 
 TOPICS = [
-    Topic(postIds=[109252]),
-    # Topic(2207),
-    # Topic(9345, excludedPostIds=[94933, 95114, 95786]),
+    # export.Topic(9324),
+    # export.Topic(9481), not there but passed back by topic
+    # export.Topic(postIds=[109252]),
+    # export.Topic(9345, excludedPostIds=[94933, 95114, 95786]),
 ]
 
 
-def export_all(forumIds, topics):
-    allTopics = []
+def export_all(topics, forumIds):
+    allTopics = topics
     for forumId in forumIds:
-        forum = Forum(forumId)
-        allTopics.extend(forum.topics)
-    allTopics.extend(topics)
-    te = TopicsExporter(allTopics)
-    te.export_topics()
+        allTopics.extend(export.Forum(forumId).topics)
+    export.TopicsExporter(allTopics).export_topics()
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    export_all(FORUM_IDS, TOPICS)
+    export_all(TOPICS, FORUM_IDS)

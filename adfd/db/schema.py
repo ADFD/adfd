@@ -1,49 +1,10 @@
-# coding: utf-8
-from sqlalchemy import BigInteger, Column, DateTime, Index, Integer, \
-    SmallInteger, String, Table, Text, VARBINARY, text
+from sqlalchemy import (BigInteger, Column, Index, Integer, SmallInteger,
+                        String, Table, Text, text)
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 metadata = Base.metadata
 
-t_ajax_chat_bans = Table(
-    'ajax_chat_bans', metadata,
-    Column('userID', Integer, nullable=False),
-    Column('userName', String(64, 'utf8_bin'), nullable=False),
-    Column('dateTime', DateTime, nullable=False),
-    Column('ip', VARBINARY(16), nullable=False)
-)
-
-t_ajax_chat_invitations = Table(
-    'ajax_chat_invitations', metadata,
-    Column('userID', Integer, nullable=False),
-    Column('channel', Integer, nullable=False),
-    Column('dateTime', DateTime, nullable=False)
-)
-
-
-class AjaxChatMessage(Base):
-    __tablename__ = 'ajax_chat_messages'
-
-    id = Column(Integer, primary_key=True)
-    userID = Column(Integer, nullable=False)
-    userName = Column(String(64, 'utf8_bin'), nullable=False)
-    userRole = Column(Integer, nullable=False)
-    channel = Column(Integer, nullable=False)
-    dateTime = Column(DateTime, nullable=False)
-    ip = Column(VARBINARY(16), nullable=False)
-    text = Column(Text)
-
-
-t_ajax_chat_online = Table(
-    'ajax_chat_online', metadata,
-    Column('userID', Integer, nullable=False),
-    Column('userName', String(64, 'utf8_bin'), nullable=False),
-    Column('userRole', Integer, nullable=False),
-    Column('channel', Integer, nullable=False),
-    Column('dateTime', DateTime, nullable=False),
-    Column('ip', VARBINARY(16), nullable=False)
-)
 
 t_phpbb_acl_groups = Table(
     'phpbb_acl_groups', metadata,
