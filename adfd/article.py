@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
-import codecs
 import logging
 from collections import OrderedDict
 
-# noinspection PyUnresolvedReferences
-import translitcodec  # register new codec for slugification
 from cached_property import cached_property
 
 from adfd import cst
 from adfd.cst import DIR
-from adfd.utils import ContentGrabber, ContentDumper
-
+from adfd.utils import ContentGrabber, ContentDumper, slugify
 
 log = logging.getLogger(__name__)
 
@@ -60,15 +56,7 @@ class Article(object):
             return self.md['slug']
 
         except KeyError:
-            return self.slugify(self.md['title'])
-
-    def slugify(self, title):
-        words = []
-        for word in cst.SLUG.PUNCT.split(title.lower()):
-            word = codecs.encode(word, 'translit/long')
-            if word:
-                words.append(word)
-        return u'-'.join(words)
+            return slugify(self.md['title'])
 
     # fixme
     def fetch_metadata_dict(self):

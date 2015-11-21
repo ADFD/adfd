@@ -1,15 +1,28 @@
+import codecs
 import logging
 import os
 from types import FunctionType, MethodType
+# noinspection PyUnresolvedReferences
+import translitcodec  # register new codec for slugification
 
 import pytest
 from plumbum import LocalPath
+
 
 from adfd import cst
 from adfd.bbcode import AdfdParser
 
 
 log = logging.getLogger(__name__)
+
+
+def slugify(title):
+    words = []
+    for word in cst.SLUG.PUNCT.split(title.lower()):
+        word = codecs.encode(word, 'translit/long')
+        if word:
+            words.append(word)
+    return '-'.join(words)
 
 
 class ContentGrabber(object):

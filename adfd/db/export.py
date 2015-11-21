@@ -5,12 +5,13 @@ import re
 import subprocess
 from datetime import datetime
 
-# noinspection PyUnresolvedReferences
-import translitcodec  # This registers new codecs for slugification
+from cached_property import cached_property
 
 from adfd import cst
 from adfd.db.schema import PhpbbPost, PhpbbForum, PhpbbTopic, PhpbbUser
 from adfd.db.utils import DB_SESSION
+from adfd.utils import slugify
+
 
 log = logging.getLogger(__name__)
 
@@ -98,12 +99,13 @@ class Post(object):
             raise PostDoesNotExist(str(postId))
 
         self.topicId = self.dbp.topic_id
+        self.rawText = self.dbp.post_text
 
     def __repr__(self):
         return ("<%s %s (%s)>" %
                 (self.__class__.__name__, self.postId, self.uniqueSlug))
 
-    @property
+    @cached_property
     def metadata(self):
         return "%s\n\n" % '\n'.join([
             u'.. author: %s' % (self.username),
@@ -115,52 +117,53 @@ class Post(object):
             u'.. topicId: %s' % (self.topicId),
             u'.. authorId: %s' % (self.dbp.poster_id)])
 
-    @property
+    @cached_property
     def content(self):
         """This should be exactly the editable source of the post"""
         return self.sanitize(self.preprocessedText)
 
-    @property
-    def uniqueSlug(self):
-        if not self.slug:
-            return "re-%s" % (self.postId)
+    @cached_property
+    def filename(self):
+        filename = '%06d' % (self.postId)
+        if self.slug:
+            filename += '-%s' % (self.slug)
+        return filename
 
-        if self.slug.startswith('re-'):
-            return "%06d-%s" % (self.postId, self.slug)
+    @cached_property
+    def uniqueSlug(self):
+        isReSlug = self.slug.startswith('re-')
+        if not self.slug or isReSlug:
+            slug = str(self.postId)
+            subslug = slugify(self.subject)
+            if not subslug or isReSlug:
+                return slug
+
+            return "%s-%s" % (slug, subslug)
 
         return self.slug
 
-    @property
+    @cached_property
     def slug(self):
-        result = []
-        for word in cst.SLUG.PUNCT.split(self.subject.lower()):
-            # word = word.encode('translit/long')
-            if word and word.strip() != 'None':
-                result.append(word)
-        return u'-'.join(result)
+        return slugify(self.subject)
 
-    @property
+    @cached_property
     def subject(self):
         return self.preprocess(self.dbp.post_subject)
 
-    @property
+    @cached_property
     def username(self):
         username = (self.dbp.post_username or
                     self.db.get_username(self.dbp.poster_id))
         return self.preprocess(username)
 
-    @property
+    @cached_property
     def lastUpdate(self):
         lastUpdate = (self.dbp.post_edit_time or self.dbp.post_time)
         return self.format_date(lastUpdate)
 
-    @property
+    @cached_property
     def preprocessedText(self):
         return self.preprocess(self.rawText, self.dbp.bbcode_uid)
-
-    @property
-    def rawText(self):
-        return self.dbp.post_text
 
     @staticmethod
     def preprocess(text, bbcodeUid=None):
@@ -258,7 +261,7 @@ class TopicsExporter(object):
     SUMMARY_PATH = CONTENT_PATH / 'summary.txt'
     """keep a list of topics and their imported posts as text"""
 
-    def __init__(self, topics):
+    def __init__(self, topics, useGit=False):
         self.topics = topics
         """:type: list of Topic"""
         self.allPaths = [self.SUMMARY_PATH]
@@ -266,28 +269,37 @@ class TopicsExporter(object):
 
         used to keep track of what whould be removed between imports
         """
+        self.useGit = useGit
 
     def export_topics(self):
         self.update_directory()
-        self.prune_orphans()
-        self.add_files()
+        if self.useGit:
+            self.prune_orphans()
+            self.add_files()
 
     def update_directory(self):
         out = []
         for topic in self.topics:
             out.append("%s: %s" % (topic.topicId, topic.subject))
-            topicPath = self.RAW_EXPORT_PATH / ("%05d" % (topic.topicId))
-            for post in topic.posts:
-                current = "%s: %s" % (post.postId, post.slug)
-                log.info("export: %s", current)
-                out.append("    " + current)
-                patt = "%s-%s.%%s" % (post.postId, post.slug)
-                postMetadataPath = topicPath / (patt % ('meta'))
-                postContentPath = topicPath / (patt % ('bb'))
-                self.allPaths.extend([postMetadataPath, postContentPath])
-                self.write(postMetadataPath, post.metadata)
-                self.write(postContentPath, post.content)
+            out.extend(self._export_topic(topic))
+        log.info('%s files, %s topics', len(self.allPaths), len(self.topics))
         self.write(self.SUMMARY_PATH, "\n".join(out))
+
+    def _export_topic(self, topic):
+        out = []
+        topicPath = self.RAW_EXPORT_PATH / ("%05d" % (topic.topicId))
+        log.info('%s -> %s', topic.topicId, topicPath)
+        for post in topic.posts:
+            current = "%s" % (post.uniqueSlug)
+            log.debug("export: %s", current)
+            out.append("    " + current)
+            patt = "%s.%%s" % (post.filename)
+            postMetadataPath = topicPath / (patt % ('meta'))
+            postContentPath = topicPath / (patt % ('bb'))
+            self.allPaths.extend([postMetadataPath, postContentPath])
+            self.write(postMetadataPath, post.metadata)
+            self.write(postContentPath, post.content)
+        return out
 
     def add_files(self):
         cmd = ['git', 'add', '--all', '.']
@@ -307,6 +319,6 @@ class TopicsExporter(object):
                     p.delete()
 
     def write(self, path, content):
-        log.info('%s', path)
+        log.debug('%s', path)
         path.dirname.mkdir()
         path.write(content.encode('utf8'))
