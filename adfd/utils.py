@@ -5,6 +5,7 @@ from types import FunctionType, MethodType
 import pytest
 from plumbum import LocalPath
 
+from adfd import cst
 from adfd.bbcode import AdfdParser
 
 
@@ -107,6 +108,7 @@ class PairTester(object):
             with open(str(refPath), 'w') as f:
                 f.write(html)
             raise
+
 
 def poa(o):
     value = obj_attr(o)
