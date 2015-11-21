@@ -4,23 +4,9 @@ import sys
 
 import pytest
 
-from adfd import bbcode
+from adfd.bbcode import AdfdParser, _urlRegex
 
-
-# todo fix them
-from adfd.bbcode import AdfdParser
-
-BROKEN_TESTS = (
-    ('[list] [*]Entry 1 [*]Entry 2 [*]Entry 3   [/list]',
-     '<ul><li>Entry 1</li><li>Entry 2</li><li>Entry 3</li></ul>'),
-    ('[code python]lambda code: [code] + [1, 2][/code]',
-     '<code>lambda code: [code] + [1, 2]</code>'),
-    ('[list]\n[*]item with[code]some\ncode[/code] and text after[/list]',
-     '<ul><li>item with<code>some\ncode</code> and text after</li></ul>'),
-    ('line one[hr]line two', 'line one<hr />line two'),
-)
-
-TESTS = (
+KITCHEN_SINK = (
     ('hello :[ world', 'hello :[ world'),
     ('[B]hello world[/b]', '<strong>hello world</strong>'),
     ('[b][i]test[/i][/b]', '<strong><em>test</em></strong>'),
@@ -31,10 +17,16 @@ TESTS = (
     ('[b]]he[llo [ w]orld[/b]', '<strong>]he[llo [ w]orld</strong>'),
     ('[b]hello [] world[/b]', '<strong>hello [] world</strong>'),
     ('[/asdf][/b]', '[/asdf]'),
-    ('[list]\n[*]one\n[*]two\n[/list]',
-     '<ul><li>one</li><li>two</li></ul>\n'),
+    ('line one[hr]line two', 'line one<hr>\nline two'),
+    ('[list]\n[*]one\n[*]two\n[/list]', '<ul><li>one</li><li>two</li></ul>'),
     ('[list=1]\n[*]one\n[*]two\n[/list]',
-     '<ol style="list-style-type:decimal;"><li>one</li><li>two</li></ol>\n'),
+     '<ol style="list-style-type:decimal;"><li>one</li><li>two</li></ol>'),
+    ('[list] [*]Entry 1 [*]Entry 2 [*]Entry 3   [/list]',
+     '<ul><li>Entry 1</li><li>Entry 2</li><li>Entry 3</li></ul>'),
+    ('[list]\n[*]item with[code]some\ncode[/code] and text after[/list]',
+     '<ul><li>item with<code>some\ncode</code>\n and text after</li></ul>'),
+    ('[code python]lambda code: [code] + [1, 2][/code]',
+     '<code>lambda code: [code] + [1, 2]</code>'),
     ('[b\n oops [i]i[/i] forgot[/b]', '[b\n oops <em>i</em> forgot'),
     ('[b]over[i]lap[/b]ped[/i]', '<strong>over<em>lap</em></strong>ped'),
     ('>> hey -- a dash...', '&gt;&gt; hey &ndash; a dash&#8230;'),
@@ -151,28 +143,22 @@ QUOTES = [
 class TestAdfdParser(object):
     parser = AdfdParser()
 
-    @pytest.mark.parametrize(('src', 'expected'), BROKEN_TESTS)
-    def test_broken_format(self, src, expected):
-        tokens = self.parser.tokenize(src)
-        result = self.parser._format_tokens(tokens, None)
-        assert result != expected
-
-    @pytest.mark.parametrize(('src', 'expected'), TESTS)
+    @pytest.mark.parametrize(('src', 'expected'), KITCHEN_SINK)
     def test_format(self, src, expected):
         tokens = self.parser.tokenize(src)
-        result = self.parser._format_tokens(tokens, None)
+        result = self.parser._format_tokens(tokens, None).strip()
         assert result == expected
 
     @pytest.mark.parametrize('link', LINKS)
     def test_url(self, link):
         link = link.strip()
-        num = len(bbcode._urlRegex.findall(link))
+        num = len(_urlRegex.findall(link))
         assert num == 1, 'Found %d links in "%s"' % (num, link)
 
     @pytest.mark.parametrize(('src', 'expected'), QUOTES)
     def test_quotes(self, src, expected):
         tokens = self.parser.tokenize(src)
-        result = self.parser._format_tokens(tokens, None)
+        result = self.parser._format_tokens(tokens, None).strip()
         assert result == expected
 
     def test_parse_opts(self):
