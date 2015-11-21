@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-from collections import OrderedDict
 import logging
-import os
 import re
+from collections import OrderedDict
 
 # noinspection PyUnresolvedReferences
 import translitcodec  # register new codec for slugification
 from cached_property import cached_property
 from plumbum import LocalPath
+
 from adfd.utils import ContentGrabber, ContentDumper
+
 
 log = logging.getLogger(__name__)
 
@@ -20,6 +21,7 @@ class Article(object):
     PUNCT = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 
     def __init__(self, identifier, slugPrefix=''):
+        self.PROCESSED_PATH.mkdir()
         self.slugPrefix = slugPrefix.lower()
         if isinstance(identifier, int):
             originalIdentifer = identifier
@@ -115,15 +117,10 @@ class Article(object):
         """writes changed slug back into the file"""
         if self.slugPrefix:
             self.metadataDict['slug'] = "%s/%s" % (self.slugPrefix, self.slug)
-
         newDict = "\n".join(
             [".. %s: %s" % (key, value) for key, value
              in self.metadataDict.items()])
-        try:
-            os.makedirs(str(self.PROCESSED_PATH))
-        except OSError:
-            pass
-        metadataDstPath = (self.PROCESSED_PATH / (self.identifier + '.meta'))
+        metadataDstPath = self.PROCESSED_PATH / (self.identifier + '.meta')
         ContentDumper(metadataDstPath, newDict).dump()
-        articleDstPath = (self.PROCESSED_PATH / (self.identifier + '.bb'))
+        articleDstPath = self.PROCESSED_PATH / (self.identifier + '.bb')
         ContentDumper(articleDstPath, self.content).dump()
