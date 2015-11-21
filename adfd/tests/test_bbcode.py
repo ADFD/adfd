@@ -213,12 +213,8 @@ class TestAdfdParser(object):
                      'target="_blank">oh hai</a> world')
 
     def test_unicode(self):
-        if sys.version_info >= (3,):
-            src = '[center]ƒünk¥ • §tüƒƒ[/center]'
-            dst = '<div style="text-align:center;">ƒünk¥ • §tüƒƒ</div>'
-        else:
-            src = u'[center]ƒünk¥ • §tüƒƒ[/center]'
-            dst = u'<div style="text-align:center;">ƒünk¥ • §tüƒƒ</div>'
+        src = '[center]ƒünk¥ • §tüƒƒ[/center]'
+        dst = '<div style="text-align:center;">ƒünk¥ • §tüƒƒ</div>'
         tokens = self.parser.tokenize(src)
         result = self.parser._format_tokens(tokens, None)
         assert result.strip() == dst

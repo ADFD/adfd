@@ -41,11 +41,11 @@ def get_prepared_article_representations(identifiers, path=u''):
 NAVIGATION_LINKS = {
     'de': (
         get_prepared_article_representations(['tmp-index']),
-        get_prepared_article_representations([9913, 9910, 853], u'Absetzen'),
-        get_prepared_article_representations([940, 9420], u'Hintergründe'),
-        get_prepared_article_representations([689, 893], u'Info'),
-        get_prepared_article_representations(['kitchen-sink', 9730], u'Demo'),
-        get_prepared_article_representations([10068], u'BBcode'),
+        get_prepared_article_representations([9913, 9910, 853], 'Absetzen'),
+        get_prepared_article_representations([940, 9420], 'Hintergründe'),
+        get_prepared_article_representations([689, 893], 'Info'),
+        get_prepared_article_representations(['kitchen-sink', 9730], 'Demo'),
+        get_prepared_article_representations([10068], 'BBcode'),
     )
 }
 

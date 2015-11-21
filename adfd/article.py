@@ -32,7 +32,7 @@ class Article(object):
         self.md = self.fetch_metadata_dict()
 
     def __repr__(self):
-        return u'<%s %s>' % (self.__class__.__name__, self.slug)
+        return '<%s %s>' % (self.__class__.__name__, self.slug)
 
     @property
     def structuralRepresentation(self):

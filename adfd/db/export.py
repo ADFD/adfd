@@ -108,14 +108,14 @@ class Post(object):
     @cached_property
     def metadata(self):
         return "%s\n\n" % '\n'.join([
-            u'.. author: %s' % (self.username),
-            u'.. lastUpdate: %s' % (self.lastUpdate),
-            u'.. postDate: %s' % (self.format_date(int(self.dbp.post_time))),
-            u'.. postId: %s' % (self.postId),
-            u'.. slug: %s' % (self.uniqueSlug),
-            u'.. title: %s' % (self.subject),
-            u'.. topicId: %s' % (self.topicId),
-            u'.. authorId: %s' % (self.dbp.poster_id)])
+            '.. author: %s' % (self.username),
+            '.. lastUpdate: %s' % (self.lastUpdate),
+            '.. postDate: %s' % (self.format_date(int(self.dbp.post_time))),
+            '.. postId: %s' % (self.postId),
+            '.. slug: %s' % (self.uniqueSlug),
+            '.. title: %s' % (self.subject),
+            '.. topicId: %s' % (self.topicId),
+            '.. authorId: %s' % (self.dbp.poster_id)])
 
     @cached_property
     def content(self):
