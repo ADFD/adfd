@@ -7,6 +7,8 @@ except ImportError:
     DB_URL = "mysql://user:password@localhost/dbname"
     raise Exception("Need DB_URL (like: %s)" % (DB_URL))
 
+DB_URL += '?charset=utf8'
+"""Important! See: http://goo.gl/rGuQey"""
 
 HERE = plumbum.LocalPath(__file__).up()
 
