@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+
+"""
 import sys
 
 import pytest
@@ -7,6 +10,10 @@ import pytest
 from adfd.bbcode import AdfdParser, _urlRegex
 
 KITCHEN_SINK = (
+    ('<http://foo.com/blah_blah>',
+     '&lt;<a href="http://foo.com/blah_blah">'
+     'http://foo.com/blah_blah</a>&gt;'),
+
     ('hello :[ world', 'hello :[ world'),
     ('[B]hello world[/b]', '<strong>hello world</strong>'),
     ('[b][i]test[/i][/b]', '<strong><em>test</em></strong>'),
@@ -50,10 +57,6 @@ KITCHEN_SINK = (
      '<a href="&lt;script&gt;alert(1);&lt;/script&gt;">xss</a>'),
     ('[color=<script></script>]xss[/color]',
      '<span style="color:inherit;">xss</span>'),
-    # Known issue: since HTML is escaped first, the trailing &gt is
-    # captured by the URL regex.
-    # ('<http://foo.com/blah_blah>', '&lt;<a
-    # href="http://foo.com/blah_blah">http://foo.com/blah_blah</a>&gt;'),
     ('[COLOR=red]hello[/color]', '<span style="color:red;">hello</span>'),
     ('[URL=apple.com]link[/URL]', '<a href="http://apple.com">link</a>'),
     ('[url=relative/url.html]link[/url]',
@@ -61,6 +64,7 @@ KITCHEN_SINK = (
     ('[url=/absolute/url.html]link[/url]',
      '<a href="/absolute/url.html">link</a>'),
     ('[url=test.html]page[/url]', '<a href="test.html">page</a>'),
+
     # Tests to make sure links don't get cosmetic replacements.
     ('[url=http://test.com/my--page]test[/url]',
      '<a href="http://test.com/my--page">test</a>'),
