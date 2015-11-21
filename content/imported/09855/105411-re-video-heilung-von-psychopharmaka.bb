@@ -1,1 +1,0 @@
-Ergänzt um einen weiteren Videovortrag zu Neuroplastizität

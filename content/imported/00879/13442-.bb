@@ -1,4 +1,0 @@
-Chemie für die Seele. Gefahren und Alternativen. Josef Zethenbauer und Wolfgang Steck, Athenäum, 1986, 336 Seiten.
-
-Für alle die Psychopharmaka nehmen (und verschreiben).
-Schlaf- und Aufputschmittel, Tranquilizer, Antidepressiva und Neuroleptika sind keine Heilmittel. Zwar können manche von diesen Medikamenten psychische Leiden lindern, aber viele schaden mehr als sie nützen. In diesem Buch werden die einzelnen Medikamentengruppen erstmals leichtverständlich erklärt: ihre Wirkungen, ihre Gefahren - und die Alternativen. Die Autoren stellen auch pflanzliche, homöopathische und andere psychisch wirksame Arzneien vor. (Covertext).

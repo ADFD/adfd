@@ -1,2 +1,0 @@
-Hallo, ja ich denke auch das das gemeint ist , wir haben ja viele im Forum denen ausschleichen empfohlen wird, nur verstehen die Ärzte darunter jetzt halbieren und in zwei Wochen ganz raus damit. Das verstehen die unter langsamen Ausschleichen :o 
-Lg Petra

@@ -1,1 +1,0 @@
-hallo marsu....ich hatte nicht nur " gelegentliche befindlichkeitsstörungen ( schön wäre es)...nur mal so bemerkt lg AMANDA

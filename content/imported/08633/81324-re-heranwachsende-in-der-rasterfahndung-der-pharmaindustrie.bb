@@ -1,3 +1,0 @@
-Erinnert mich an meine Teenagerzeit... So eine Kampagne lief bei mir zwar nicht, aber ich bekam Fluoxetin verschrieben - mit 13! Ein Glück, dass ich eine sehr pharmakritische Mutter und keine Tablette genommen habe.  :wacko: 
-
-Ich finde den Titel der Kampagne schon mehr als verstörend. Als Teenager hätte man mir bestimmt 5 psychische Krankheiten anhängen können, wovon heute nichts mehr übrig ist. Man sollte die Kinder vielleicht einfach mal Kinder sein lassen, aufhören mit der ganzen Druckmacherei und nicht zu vergessen, der Wechsel in die Adoleszenz ist eine völlig neue Welt. Da muss man sich zuerst orientieren, was da überhaupt für Veränderungen statt finden.

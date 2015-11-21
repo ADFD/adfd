@@ -1,1 +1,0 @@
-Übersetzung ist oben drin :)

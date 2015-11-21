@@ -1,3 +1,0 @@
-In der Psychiatrie waren wir uns eigentlich auch einig daß die VERRUECKTEN nicht die Patienten sind. Verrückt haben wir Ärzte bezeichnet die der Meinung waren daß es Patienten hilft beobachtet zu werden wie Medikamente wirken oder Ärzte die denken daß PILLEN eine Therapie ersetzen können. Super Beitrag............Hier gab es ja schon mal einen Beitrag über das " Nachts essen Syndrom ".
-
-Gruß AMANDA

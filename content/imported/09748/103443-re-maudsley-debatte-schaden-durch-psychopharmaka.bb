@@ -1,1 +1,0 @@
-Ich finds super das wer sagt das sie nicht zur Langzeiteinnahme geeignet sind und das Kliniken geben muss zum absetzen..!!Lg Markus

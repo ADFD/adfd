@@ -1,1 +1,0 @@
-Hallo Morula, danke, dass du das mitgeteilt hast. Ich dachte immer, Embryotox sei eine tolle Sache. Das mag wohl auch für gewissen Medikamente stimmen, für Psychopharmaka aber offensichtlich nicht (siehe auch Edgars Recherchen). Danke für Deinen Einblick bzgl. der Mitbegründerin! Grüße Miju

@@ -1,1 +1,0 @@
-Ich denke auch, dass sie wirklich meint, dass nach einem Monat alles weg ist - Murmeline: Deine Version find ich auch gut.

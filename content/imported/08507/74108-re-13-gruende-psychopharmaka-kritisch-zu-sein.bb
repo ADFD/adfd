@@ -1,1 +1,0 @@
-klasse gemacht, kurz, klar, verständlich - einfach super, danke schön ihr fleissigen lieschen  :hug:

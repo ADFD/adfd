@@ -1,1 +1,0 @@
-Das allerdings sehe ich ganz und gar nicht so!

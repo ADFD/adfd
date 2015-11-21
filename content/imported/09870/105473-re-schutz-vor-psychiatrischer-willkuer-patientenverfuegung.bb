@@ -1,2 +1,0 @@
-Hallo, für mich ist das ganz wichtig und ich hab es jetzt auch im zentralen Vorsorgeregister , der Link von Oliver angemeldet, kostet einmal 2.50 Euro und zum Registieren nochmals 13 Euro. Aber das ist dort gut angelegt. 
-Lg Petra

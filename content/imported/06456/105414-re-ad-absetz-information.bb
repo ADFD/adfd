@@ -1,1 +1,0 @@
-Texte wurde ergänzt und korrigiert :)

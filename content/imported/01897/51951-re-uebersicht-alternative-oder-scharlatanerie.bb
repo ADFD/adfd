@@ -1,1 +1,0 @@
-Gibt hier kein Daumen hoch Smilie - von daher "ganz Deiner Meinung " ! :)

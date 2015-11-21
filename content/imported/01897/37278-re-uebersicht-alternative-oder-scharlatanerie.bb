@@ -1,7 +1,0 @@
-Hallo antianti (u. Alle),
-
-Ich stimme voll und ganz zu und wollte auf keinen Fall sagen, dass man all das nicht tun soll, ich hab da wohl etwas zu hart ausgedrückt. Ich wollte damit nur zum Ausdruck bringen, dass es oft so dargestellt wird, dass man alle psychischen Probleme selbst lösen kann im Sinne einer Heilung, in vielen Büchern z.B. und auch von vielen selbsternannten Therapeuten und dass dann die Gefahr besteht, dass man vielleicht selbst an sich rumdoktert, obwohl man eigentlich ohne professionelle Hilfe nicht mehr auskommt. Das war bei mir lange Zeit der Fall, dass ich immer dachte, in den Büchern steht doch drin, dass man das damit alleine schafft, aber es hat nicht geklappt und ich hab erst sehr spät erkannt, dass diese ganze Selbsthilfeliteratur da auch meist unverantwortliche Sachen verspricht. Natürlich ist es klasse, wenn einem diese Maßnahmen helfen, sich aus einem Tief selbst befreien zu können oder sich etwas Linderung zu verschaffen, aber man sollte einfach die Grenzen u. Möglichkeiten realistisch einschätzen und nicht  zu viel erwarten.
-Zur Sache mit den Vorstellungsübungen: Sicherer Ort ist ja etwas, das man aus der "richtigen" Psychotherapie kennt, hast Du das dort gelernt oder hast Du Dir das selbst "beigebracht"? 
-So, jetzt ein bisschen ab aufs Trampi...
-
-Marsu

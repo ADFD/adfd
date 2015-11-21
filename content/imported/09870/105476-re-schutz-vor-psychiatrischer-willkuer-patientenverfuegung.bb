@@ -1,1 +1,0 @@
-Soweit ich weiß, muss es aber nicht notariell beglaubigt sein oder?

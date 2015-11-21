@@ -1,4 +1,0 @@
-Es ist tatsächlich so, dass die geläufige Empfehlung der Ärzte ist, dass die Med. während der SS weitergekommen werden sollen, bzw. reduziert und nach der Geburt, sofort wieder die normale Dosis genommen werden soll. Meist ist bei den Kindern auf den ersten Blick nichts pathologisches zu erkennen, aber wie so oft, weiß niemand welche Spätfolgen die Einnahme hat! Es gibt Studien die belegen, dass die Einnahme von ADs während der SS, das Risiko für Authismus erhöht.
-Ich weiß für mich, dass ich unter Med. niemals schwanger werden würde, auch nicht kurz nach dem Absetzen. Aber das ist ja meine eigene Entscheidung! 
-
-Lg Morula

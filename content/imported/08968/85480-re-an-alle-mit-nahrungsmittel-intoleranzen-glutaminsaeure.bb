@@ -1,1 +1,0 @@
-Danke Jamie, überlege gerade Basetabletten zu nehmen wegen meiner Magen säure und das passt lg chrissi

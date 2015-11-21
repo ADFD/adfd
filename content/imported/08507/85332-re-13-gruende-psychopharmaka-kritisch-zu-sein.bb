@@ -1,2 +1,0 @@
-Hallo fraidycat, wie du sicher gelesen hast hat Jamie nur diesen Text [url]http://cepuk.org/unrecognised-facts/[/url]  aus dem Englischen für User übersetzt die nicht so gut Englisch können. 
-Gruß LisaMarie

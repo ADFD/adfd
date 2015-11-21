@@ -1,5 +1,0 @@
-Meine Güte,
-
-diesen tollen Artikel von Phil hab ich in der Zeit, seit der ich hier bin, leider nie gefunden gehabt. sonst hätte ich mir etliche Behandlungen sicher nochmal überlegt, die mich viel Geld gekostet haben und nur die Behandler froh und reich gemacht haben... 
-Ich sehe es nicht als Problem an, Dinge kritisch darzustellen. Wir sind doch hier alle selbst in der Lage, uns unsere eigene Meinung zu bilden und das, was wir lesen, abzulehnen oder zuzustimmen. Es wird doch auch keinem verwehrt, es doch zu probieren. 
-Für mich sollte Phil RS ganz klar zum Ehrenmitglied dieses Forums erhoben werden, ich verdanke seinen Informationen unendlich viel an Wissen, nicht nur über Psychopharmaka, sondern auch darüber, wie wir sonst so verladen werden von den "freien Medien" und unseren Regierenden.

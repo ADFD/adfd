@@ -1,1 +1,0 @@
-Was heißt peinlich... So funktioniert Vertuschung. Und nicht Rede und Antwort zu stehen ist doch ein generelles Prinzip von Leuten, die Dreck am Stecken haben.

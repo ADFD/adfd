@@ -1,2 +1,0 @@
-Also tatsächlich. Ich hatte ja schon vermutet, dass die da etwas anleiern, was dem Teen Screen Programm ähnelt. 
-Oh, Mann! Was kann man denn da tun? Es muss doch eine Möglichkeit geben, hier Gegenaufklärung zu betreiben!

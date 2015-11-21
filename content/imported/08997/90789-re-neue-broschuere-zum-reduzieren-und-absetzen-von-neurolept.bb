@@ -1,1 +1,0 @@
-Vielen Dank für diesen tollen Tipp. Habe einiges hilfreiche für mich und meinen Freund daraus holen können. Sollte Pflichtlektüre für jeden Psychiater werden!!!

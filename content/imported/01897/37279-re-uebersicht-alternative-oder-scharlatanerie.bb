@@ -1,5 +1,0 @@
-[quote="Marsupilami"]dass dann die Gefahr besteht, dass man vielleicht selbst an sich rumdoktert, obwohl man eigentlich ohne professionelle Hilfe nicht mehr auskommt. Das war bei mir lange Zeit der Fall, dass ich immer dachte, in den Büchern steht doch drin, dass man das damit alleine schafft, aber es hat nicht geklappt und ich hab erst sehr spät erkannt, dass diese ganze Selbsthilfeliteratur da auch meist unverantwortliche Sachen verspricht.[/quote]
-
-Ja, das stimmt. Ich bin auch sehr für Selbsthilfe, aber manchmal braucht man eben Hilfe zur Selbsthilfe. Ohne meinen Klinikaufenthalt hätte ich es damals nicht gepackt.
-
-Die Vorstellungsübungen (sicherer Ort etc.) habe ich alle in der Klinik kennengelernt. Ich finde speziell den sicheren Ort sehr schön, weil man den mit etwas Übung sozusagen immer bei sich hat und sich bei Bedarf - geistig - dorthin zurückziehen kann.

@@ -1,1 +1,0 @@
-vielen lieben dank jamie, dass du dir diese mühe machst mit dem übersetzen  :)  :hug:

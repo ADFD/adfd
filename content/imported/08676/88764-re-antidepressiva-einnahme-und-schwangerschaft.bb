@@ -1,5 +1,0 @@
-Hallo , also ich wäre niemals unter der Einnahme von Medikamenten schwanger geworden, niemand kann mir einreden das man ohne weiteres seine Medikamente weiter nehmen sollte in der Schwangerschaft. Ich habe zwei gesunden Kindern die inzwischen 36 und 33 Jahre alt sind das Leben geschenkt und ihnen somit die besten Startbedinungen mitgegeben. Hab in beiden Schwangerschaften weder Medikamente , nichtmals ne Schmerztablette genommen , nicht geraucht und keinen Tropfen Alkohol getrunken. 
-Klar gibt es auch Indikationen wo Medikamente genommen werden müssen, wie bei Anja, die vielleicht ansonsten ihren Sohn verloren hätte. Aber zu schreiben das ein Mittel wie Paroxetin unproblematisch ist verursacht bei mir Gänsehaut. Das wäre meine persöhnliche Meinung dazu. Und das hat nichts mit Panikmacherei zu tun. 
-
-Ich bin in einer Zeit geboren worden wo Kontagan als Mittel gegen Übelkeit an schwangere Frauen rausgegeben wurde und ich bin dankbar das meine Mutter abgelehnt hat dieses zu nehmen obwohl sie an schwerem Erbrechen gelitten hat. 
-Das ist meine Persöhnliche Meinung dazu lg Petra

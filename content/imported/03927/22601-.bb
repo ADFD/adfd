@@ -1,1 +1,0 @@
-vielen Dank Phil. Das bestätigt, was ich schon Jahrzehnte vermute. Außer, das ein bestimmter Teil des menschlichen Gehirns betäubt wird, geschieht nichts. Deshalb der Ruf der Betroffenen nach immer mehr, immer stärkeren Psychopharmaka.

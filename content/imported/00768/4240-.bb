@@ -1,1 +1,0 @@
-18, 30... herauszögern um jeden Preis. Was ist die nächste Stufe ? 45 ?
