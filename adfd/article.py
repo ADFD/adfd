@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import codecs
 import logging
-import re
 from collections import OrderedDict
 
 # noinspection PyUnresolvedReferences
