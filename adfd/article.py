@@ -72,8 +72,12 @@ class Article(object):
                 words.append(word)
         return u'-'.join(words)
 
+    # fixme
     def fetch_metadata_dict(self):
-        """only using first found metadata for now ..."""
+        """only using first found metadata for now ...
+        todo: merge into one dict and e.g always set last update
+        to newest update of all posts the article consists of
+        """
         metadata = ContentGrabber(absPath=self.metadataPaths[0]).grab()
         metadataDict = OrderedDict()
         for line in metadata.split('\n'):
