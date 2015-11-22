@@ -1,3 +1,4 @@
+import logging
 import sys
 
 from adfd.db.export import export
@@ -77,6 +78,7 @@ class Export(cli.Application):
 
 
 def main():
+    logging.basicConfig(level=logging.INFO)
     AdfdDb.run()
 
 

@@ -19,21 +19,14 @@ def export():
             log.warning('kwargs %s are broken', str(kwargs))
     for forumId in conf.RAW.FORUM_IDS:
         allTopics.extend(phpbb_classes.Forum(forumId).topics)
-    TopicsExporter(allTopics).export_topics()
+    TopicsExporter(allTopics).process()
 
 
 class TopicsExporter(object):
-    CONTENT_PATH = cst.PATH.CONTENT
+    TOPICS_PATH = cst.PATH.TOPICS
     """root of all content for the website"""
-    RAW_EXPORT_PATH = CONTENT_PATH / cst.DIR.RAW
-    """exported bbcode like it looks when edited
 
-    It is not raw in the sense that it has the same format like stored in DB
-    as this is quite different from what one sees in the editor, but from
-    an editors perspective that does not matter, so this is considered raw
-    """
-
-    SUMMARY_PATH = CONTENT_PATH / 'summary.txt'
+    SUMMARY_PATH = TOPICS_PATH / 'summary.txt'
     """keep a list of topics and their imported posts as text"""
 
     def __init__(self, topics, useGit=False):
@@ -46,22 +39,22 @@ class TopicsExporter(object):
         """
         self.useGit = useGit
 
-    def export_topics(self):
-        self.update_directory()
+    def process(self):
+        self._export_topics()
         if self.useGit:
-            self.prune_orphans()
-            self.add_files()
+            self._git_prune_orphans()
+            self._git_add_files()
 
-    def update_directory(self):
+    def _export_topics(self):
         out = []
         for topic in self.topics:
             out.extend(self._export_topic(topic))
         log.info('%s files, %s topics', len(self.allPaths), len(self.topics))
-        self.write(self.SUMMARY_PATH, "\n".join(out))
+        self._write(self.SUMMARY_PATH, "\n".join(out))
 
     def _export_topic(self, topic):
         out = ["%s: %s" % (topic.id, topic.subject)]
-        topicPath = self.RAW_EXPORT_PATH / ("%05d" % (topic.id))
+        topicPath = self.TOPICS_PATH / ("%05d" % (topic.id)) / cst.DIR.RAW
         log.info('%s -> %s', topic.id, topicPath)
         for post in topic.posts:
             current = "%s" % (post.uniqueSlug)
@@ -71,28 +64,28 @@ class TopicsExporter(object):
             postMetadataPath = topicPath / (patt % ('meta'))
             postContentPath = topicPath / (patt % ('bb'))
             self.allPaths.extend([postMetadataPath, postContentPath])
-            self.write(postMetadataPath, post.metadata)
-            self.write(postContentPath, post.content)
+            self._write(postMetadataPath, post.metadata)
+            self._write(postContentPath, post.content)
         return out
 
-    def add_files(self):
+    def _git_add_files(self):
         cmd = ['git', 'add', '--all', '.']
         try:
-            subprocess.check_output(cmd, cwd=str(self.RAW_EXPORT_PATH))
+            subprocess.check_output(cmd, cwd=str(self.TOPICS_PATH))
         except subprocess.CalledProcessError:
             pass
 
-    def prune_orphans(self):
-        for p in self.RAW_EXPORT_PATH.walk():
+    def _git_prune_orphans(self):
+        for p in self.TOPICS_PATH.walk():
             if not p.isdir() and not any(ap == p for ap in self.allPaths):
                 log.warning("removing %s", p)
                 cmd = ['git', 'rm', '-f', str(p)]
                 try:
-                    subprocess.check_output(cmd, cwd=str(self.RAW_EXPORT_PATH))
+                    subprocess.check_output(cmd, cwd=str(self.TOPICS_PATH))
                 except subprocess.CalledProcessError:
                     p.delete()
 
-    def write(self, path, content):
+    def _write(self, path, content):
         log.debug('%s', path)
         path.dirname.mkdir()
         path.write(content.encode('utf8'))
