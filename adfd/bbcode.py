@@ -4,7 +4,7 @@ import re
 
 from cached_property import cached_property
 
-from adfd.cst import PATH
+from adfd import cst
 
 _urlRegex = re.compile(
     r'(?im)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)'
@@ -846,19 +846,3 @@ class AdfdParser(Parser):
         if '://' not in href and _domainRegex.match(href):
             href = 'http://' + href
         return '<a href="%s">%s</a>' % (href.replace('"', '%22'), value)
-
-if __name__ == '__main__':
-    p = PATH.TEST_DATA / 'transform' / '01b-simple.bb'
-    # p = PATH.TEST_DATA / 'transform' / '01a-simple.bb'
-    # p = PATH.TEST_DATA / 'transform' / '02c-with-header-and-quote.bb'
-    content = p.read('utf8')
-    html = AdfdParser().to_html(data=content)
-    print(html)
-    # for idx, chunk in enumerate(ac.chunks):
-    #     print("%s: %s" % (idx, chunk))
-    #     print(chunk.asHtml)
-    #     # print(obj_attr(chunk))
-    #     # for token in chunk.tokens:
-    #     #     # print(token)
-    #     #     # print(type(token))
-    #     #     print(obj_attr(token))
