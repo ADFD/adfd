@@ -27,10 +27,7 @@ class Forum(object):
         self.topicIds = self.db.fetch_topic_ids_from_forum(self.forumId)
         if not self.topicIds:
             raise ForumIsEmpty(str(forumId))
-
-    @property
-    def name(self):
-        return self.dbObject.forum_name
+        self.name = self.dbObject.forum_name
 
     @property
     def topics(self):
@@ -39,7 +36,7 @@ class Forum(object):
                 yield Topic(topicId)
 
             except TopicIsEmpty:
-                log.warning("topic %s is corrupt", topicId)
+                log.warning("topic %s is broken", topicId)
                 continue
 
 
