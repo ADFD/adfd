@@ -22,7 +22,7 @@ from adfd.db.utils import get_db_session
 from adfd.utils import obj_attr
 
 
-log = logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 class DataFetcher(object):
@@ -125,4 +125,5 @@ def series_stats():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
     series_stats()

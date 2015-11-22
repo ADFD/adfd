@@ -39,8 +39,9 @@ THEME = "base-foundation5-jinja"
 # POSTS = (("posts/*.rst", "posts", "post.tmpl"), ...)
 # PAGES = (("stories/*.rst", "stories", "story.tmpl"), ...)
 PAGES = [
-    # ("content/static/*.bb", "", "story.tmpl"),
-    ("content/processed/*.bb", "", "story.tmpl"),
+    # fixme finding stuff in sibfolders not tested yet ...
+    ("content/static/*.html", "", "story.tmpl"),
+    ("content/topics/*.html", "", "story.tmpl"),
 ]
 POSTS = []
 
@@ -250,8 +251,8 @@ CONTENT_FOOTER_FORMATS = {
 }
 
 COMPILERS = {
-    "bbcode": ('.bb',),
-    # "html": ('.html', '.htm'),  # assumes file is HTML and just copies it
+    # "bbcode": ('.bb',),
+    "html": ('.html', '.htm'),  # assumes file is HTML and just copies it
     # "rest": ('.rst', '.txt'),
     # "rest_html5": ('.rst', '.txt'),  # needs rest-html5 plugin
     # "markdown": ('.md', '.mdown', '.markdown'),

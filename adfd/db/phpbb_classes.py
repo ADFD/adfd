@@ -5,6 +5,7 @@ from datetime import datetime
 
 from cached_property import cached_property
 
+from adfd.content import Metadata
 from adfd.db.utils import DbWrapper
 from adfd.utils import slugify
 
@@ -102,15 +103,16 @@ class Post(object):
 
     @cached_property
     def metadata(self):
-        return "%s\n\n" % '\n'.join([
-            '.. author: %s' % (self.username),
-            '.. lastUpdate: %s' % (self.lastUpdate),
-            '.. postDate: %s' % (self.format_date(int(self.dbp.post_time))),
-            '.. postId: %s' % (self.id),
-            '.. slug: %s' % (self.uniqueSlug),
-            '.. title: %s' % (self.subject),
-            '.. topicId: %s' % (self.topicId),
-            '.. authorId: %s' % (self.dbp.poster_id)])
+        return Metadata(data=dict(
+            slug=self.uniqueSlug,
+            title=self.subject,
+            author=self.username,
+            authorId=str(self.dbp.poster_id),
+            lastUpdate=str(self.lastUpdate),
+            postDate=str(self.format_date(int(self.dbp.post_time))),
+            topicId=str(self.topicId),
+            postId=str(self.id)
+        ))
 
     @cached_property
     def content(self):
@@ -153,8 +155,7 @@ class Post(object):
 
     @cached_property
     def lastUpdate(self):
-        lastUpdate = (self.dbp.post_edit_time or self.dbp.post_time)
-        return self.format_date(lastUpdate)
+        return self.format_date(self.dbp.post_edit_time or self.dbp.post_time)
 
     @cached_property
     def preprocessedText(self):

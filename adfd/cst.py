@@ -19,6 +19,11 @@ class SLUG(object):
     PUNCT = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 
 
+class EXT(object):
+    BBCODE = '.bbcode'
+    META = '.meta'
+
+
 class DIR(object):
     TOPICS = 'topics'
     RAW = 'raw'
@@ -40,3 +45,4 @@ class PATH(object):
     TEST_DATA = PROJECT / 'adfd' / 'tests' / 'data'
     CONTENT = CONTENT_ROOT
     TOPICS = CONTENT / DIR.TOPICS
+    STATIC = CONTENT / DIR.STATIC

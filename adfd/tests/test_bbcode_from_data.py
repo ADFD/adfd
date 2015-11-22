@@ -13,6 +13,6 @@ class TestAdfdParser(object):
 
     @pytest.mark.parametrize("fName,src,exp", ACCEPTANCE_PAIRS)
     def test_acceptance_pairs(self, fName, src, exp):
-        if fName in ['nested-quotes.bb']:
+        if fName in ['nested-quotes.bbcode']:
             pytest.xfail('nested quuotes is tricky and of qquestionable use')
         PairTester.test_pairs(fName, src, exp)

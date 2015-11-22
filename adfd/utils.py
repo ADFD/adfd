@@ -26,7 +26,7 @@ def slugify(title):
 
 
 class ContentGrabber(object):
-    def __init__(self, relPath='.', absPath=None):
+    def __init__(self, absPath=None, relPath='.'):
         if absPath:
             self.rootPath = absPath
         else:

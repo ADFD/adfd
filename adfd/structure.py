@@ -20,15 +20,16 @@ Each Article has
 import logging
 import pprint
 
-from adfd.article import Article
+from adfd.content import Article
+
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def get_prepared_article_representations(identifiers, path=u''):
     representations = []
     for identifier in identifiers:
-
         article = Article(identifier, path)
-        article.finalize_slug()
         representation = article.structuralRepresentation
         representations.append(representation)
     return tuple(representations), path
@@ -52,5 +53,4 @@ NAVIGATION_LINKS = {
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
     pprint.pprint(NAVIGATION_LINKS)
