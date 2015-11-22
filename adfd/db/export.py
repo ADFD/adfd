@@ -18,15 +18,16 @@ log = logging.getLogger(__name__)
 
 class Forum(object):
     def __init__(self, forumId):
-        self.forumId = forumId
+        self.id = forumId
         self.db = DbWrapper()
-        self.dbObject = self.db.fetch_forum(self.forumId)
+        self.dbObject = self.db.fetch_forum(self.id)
         if not self.dbObject:
-            raise ForumDoesNotExist(str(forumId))
+            raise ForumDoesNotExist(str(self.id))
 
-        self.topicIds = self.db.fetch_topic_ids_from_forum(self.forumId)
+        self.topicIds = self.db.fetch_topic_ids_from_forum(self.id)
         if not self.topicIds:
-            raise ForumIsEmpty(str(forumId))
+            raise ForumIsEmpty(str(self.id))
+
         self.name = self.dbObject.forum_name
 
     @property
@@ -49,38 +50,38 @@ class ForumIsEmpty(Exception):
 
 
 class Topic(object):
+    """This has a bit of flexibility to make it possible to filter posts."""
     def __init__(self, topicId=None, postIds=None, excludedPostIds=None):
         assert topicId or postIds, 'need either topic or post id'
         assert not (topicId and postIds), 'need only one'
-        self.topicId = topicId
-        self.postIds = postIds
-        self.excludedPostIds = excludedPostIds or []
+        self.id = topicId
         self.db = DbWrapper()
-        self.filter_excluded_post_ids()
-        self.fetch_basic_topic_data()
+        self.postIds = self.get_ids(self.id, postIds, excludedPostIds or [])
+        if self.postIds:
+            self.subject = self.get_subject(self.postIds[0])
 
-    @property
+    @cached_property
     def posts(self):
         """:rtype: list of Post"""
         return [Post(postId) for postId in self.postIds]
 
-    def filter_excluded_post_ids(self):
-        if self.topicId:
-            ids = self.db.fetch_post_ids_from_topic(self.topicId)
-            self.postIds = [i for i in ids if i not in self.excludedPostIds]
-        else:
-            if not isinstance(self.postIds, list):
-                assert isinstance(self.postIds, int), self.postIds
-                self.postIds = [self.postIds]
-        if not self.postIds:
-            raise TopicIsEmpty(str(self.topicId))
+    def get_ids(self, topicId, postIds, excludedPostIds):
+        if topicId:
+            ids = self.db.fetch_post_ids_from_topic(topicId)
+            return [i for i in ids if i not in excludedPostIds]
 
-    def fetch_basic_topic_data(self):
-        firstPostId = self.postIds[0]
-        firstPost = Post(firstPostId)
-        self.topicId = firstPost.topicId
-        self.subject = firstPost.subject
-        self.fileName = "%s.bb" % (firstPost.slug)
+        if not isinstance(postIds, list):
+            assert isinstance(postIds, int), postIds
+            log.warning('no sanity check for arbitrarily set postIds')
+            return [postIds]
+
+        if not postIds:
+            raise TopicIsEmpty(str(topicId))
+
+    def get_subject(self, wantedPostId):
+        # first **wanted** post does not have to be the actual first post
+        # If this is the case the topic information is set from first wanted
+        return Post(wantedPostId).subject
 
 
 class TopicIsEmpty(Exception):
@@ -89,18 +90,18 @@ class TopicIsEmpty(Exception):
 
 class Post(object):
     def __init__(self, postId):
-        self.postId = postId
+        self.id = postId
         self.db = DbWrapper()
-        self.dbp = self.db.fetch_post(postId)
+        self.dbp = self.db.fetch_post(self.id)
         if not self.dbp:
-            raise PostDoesNotExist(str(postId))
+            raise PostDoesNotExist(str(self.id))
 
         self.topicId = self.dbp.topic_id
         self.rawText = self.dbp.post_text
 
     def __repr__(self):
         return ("<%s %s (%s)>" %
-                (self.__class__.__name__, self.postId, self.uniqueSlug))
+                (self.__class__.__name__, self.id, self.uniqueSlug))
 
     @cached_property
     def metadata(self):
@@ -108,7 +109,7 @@ class Post(object):
             '.. author: %s' % (self.username),
             '.. lastUpdate: %s' % (self.lastUpdate),
             '.. postDate: %s' % (self.format_date(int(self.dbp.post_time))),
-            '.. postId: %s' % (self.postId),
+            '.. postId: %s' % (self.id),
             '.. slug: %s' % (self.uniqueSlug),
             '.. title: %s' % (self.subject),
             '.. topicId: %s' % (self.topicId),
@@ -121,7 +122,7 @@ class Post(object):
 
     @cached_property
     def filename(self):
-        filename = '%06d' % (self.postId)
+        filename = '%06d' % (self.id)
         if self.slug:
             filename += '-%s' % (self.slug)
         return filename
@@ -130,7 +131,7 @@ class Post(object):
     def uniqueSlug(self):
         isReSlug = self.slug.startswith('re-')
         if not self.slug or isReSlug:
-            slug = str(self.postId)
+            slug = str(self.id)
             subslug = slugify(self.subject)
             if not subslug or isReSlug:
                 return slug
@@ -277,15 +278,17 @@ class TopicsExporter(object):
     def update_directory(self):
         out = []
         for topic in self.topics:
-            out.append("%s: %s" % (topic.topicId, topic.subject))
-            out.extend(self._export_topic(topic))
+            try:
+                out.extend(self._export_topic(topic))
+            except AttributeError:
+                log.warning('topic %s broken', topic.id)
         log.info('%s files, %s topics', len(self.allPaths), len(self.topics))
         self.write(self.SUMMARY_PATH, "\n".join(out))
 
     def _export_topic(self, topic):
-        out = []
-        topicPath = self.RAW_EXPORT_PATH / ("%05d" % (topic.topicId))
-        log.info('%s -> %s', topic.topicId, topicPath)
+        out = ["%s: %s" % (topic.id, topic.subject)]
+        topicPath = self.RAW_EXPORT_PATH / ("%05d" % (topic.id))
+        log.info('%s -> %s', topic.id, topicPath)
         for post in topic.posts:
             current = "%s" % (post.uniqueSlug)
             log.debug("export: %s", current)

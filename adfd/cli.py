@@ -1,7 +1,6 @@
 import sys
 import webbrowser
 
-from nikola.__main__ import main as nikola_main
 from plumbum import cli, LocalPath
 
 from adfd.bbcode import AdfdParser
@@ -29,7 +28,7 @@ class ShowForum(cli.Application):
             return 1
 
         if self.outType == 'bbcode':
-            print("Forum with ID %s" % (forum.forumId))
+            print("Forum with ID %s" % (forum.id))
             print("name: %s" % (forum.name))
         elif self.outType == 'summary':
             print("topic ids:", forum.topicIds)
@@ -47,7 +46,7 @@ class ShowTopic(cli.Application):
             return 1
 
         if self.outType == 'bbcode':
-            print("Topic with ID %s" % (topic.topicId))
+            print("Topic with ID %s" % (topic.id))
             print("subject: %s" % (topic.subject))
             print("slug: %s" % (topic.subject))
             print("\n".join([p.content for p in topic.posts]))
@@ -67,7 +66,7 @@ class ShowPost(cli.Application):
             return 1
 
         if self.outType == 'bbcode':
-            print("Post with ID %s by %s" % (post.postId, post.username))
+            print("Post with ID %s by %s" % (post.id, post.username))
             print("subject: %s" % (post.subject))
             print("slug: %s" % (post.slug))
             print(post.content)
@@ -83,18 +82,6 @@ class ShowPost(cli.Application):
                 '<body>%s</body></html>' % (html))
         path.write(html, 'utf8')
         webbrowser.open("file://%s" % (path))
-
-
-@Adfd.subcommand("build")
-class BuildSite(cli.Application):
-    def main(self):
-        nikola_main(['build'])
-
-
-@Adfd.subcommand("deploy")
-class DeploySite(cli.Application):
-    def main(self):
-        nikola_main(['deploy'])
 
 
 def main():
