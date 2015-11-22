@@ -15,11 +15,8 @@ setup(
     packages=['adfd'],
     include_package_data=True,
     zip_safe=False,
-    platforms='Unix',
     install_requires=requirements,
-    entry_points=dict(console_scripts=[
-        'adfd=adfd.cli:main',
-    ]),
+    platforms='Unix',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
@@ -29,4 +26,8 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.4',
     ],
+    entry_points=dict(console_scripts=[
+        'adfd=adfd.cli:main',
+        'db=adfd.db.cli:main',
+    ]),
 )
