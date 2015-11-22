@@ -16,13 +16,11 @@ Each Article has
     * metadata from accompanying file (e.g. tags, slug, ...)
 
 """
+
 import logging
 import pprint
 
 from adfd.article import Article
-
-
-logging.basicConfig(level=logging.INFO)
 
 
 def get_prepared_article_representations(identifiers, path=u''):
@@ -35,10 +33,12 @@ def get_prepared_article_representations(identifiers, path=u''):
         representations.append(representation)
     return tuple(representations), path
 
+
+# fixme this is still with nikola constraints
+# todo create fitting stucture and inject it via GLOBAL_CONTEXT in own theme
 # For regular links: ('https://getnikola.com/', 'Nikola Homepage')
 # submenus: ((('http://a.com/', 'A'), ('http://b.com/', 'O')), 'Fruits')
 # TODO Make sure to end all urls with /
-
 NAVIGATION_LINKS = {
     'de': (
         get_prepared_article_representations(['tmp-index']),
@@ -52,4 +52,5 @@ NAVIGATION_LINKS = {
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     pprint.pprint(NAVIGATION_LINKS)

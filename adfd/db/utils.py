@@ -5,6 +5,7 @@ from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import sessionmaker
 
 from adfd import cst
+from adfd.db.phpbb_schema import PhpbbTopic, PhpbbForum, PhpbbPost, PhpbbUser
 
 
 log = logging.getLogger(__name__)
@@ -39,7 +40,42 @@ def get_db_session():
     return Session()
 
 
-DB_SESSION = get_db_session()
+class DbWrapper(object):
+    """very simple wrapper that can fetch the little that's needed atm"""
+    DB_SESSION = get_db_session()
+
+    def __init__(self):
+        self.query = self.DB_SESSION.query
+
+    def fetch_topic_ids_from_forum(self, forumId):
+        """:rtype: list of int"""
+        query = self.query(PhpbbTopic).join(
+            PhpbbForum, PhpbbForum.forum_id == PhpbbTopic.forum_id)\
+            .filter(PhpbbTopic.forum_id == forumId)
+        return [row.topic_id for row in query.all()]
+
+    def fetch_post_ids_from_topic(self, topicId):
+        """:rtype: list of int"""
+        query = self.query(PhpbbPost).join(
+            PhpbbTopic, PhpbbTopic.topic_id == PhpbbPost.topic_id)\
+            .filter(PhpbbTopic.topic_id == topicId)
+        return [row.post_id for row in query.all()]
+
+    def fetch_forum(self, forumId):
+        """:rtype: adfd.db.phpbb_schema.PhpbbForum"""
+        q = self.query(PhpbbForum).filter(PhpbbForum.forum_id == forumId)
+        return q.first()
+
+    def fetch_post(self, postId):
+        """:rtype: adfd.db.phpbb_schema.PhpbbPost"""
+        q = self.query(PhpbbPost).filter(PhpbbPost.post_id == postId)
+        return q.first()
+
+    def get_username(self, userId):
+        """:rtype: str"""
+        n = self.query(PhpbbUser).filter(PhpbbUser.user_id == userId).first()
+        return n.username or "Anonymous"
+
 
 if __name__ == '__main__':
     generate_schema(writeToFile='')

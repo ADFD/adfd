@@ -18,19 +18,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from adfd.db.utils import DB_SESSION
+from adfd.db.utils import get_db_session
 from adfd.utils import obj_attr
-
-__all__ = [
-    'StatsPlotter',
-    'Posts',
-]
 
 
 log = logging.basicConfig(level=logging.DEBUG)
 
 
 class DataFetcher(object):
+    DB_SESSION = get_db_session()
+
     def __init__(
             self, tableName='phpbb_posts',
             timeColumn='post_time', timeFmt='%Y/%m/%d',
@@ -59,7 +56,7 @@ class DataFetcher(object):
         return self.data
 
     def fech_raw_data(self):
-        return DB_SESSION.execute(self.statement)
+        return self.DB_SESSION.execute(self.statement)
 
     @property
     def statement(self):
