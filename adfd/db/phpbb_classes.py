@@ -48,16 +48,51 @@ class ForumIsEmpty(Exception):
 
 class Topic(object):
     """This has a bit of flexibility to make it possible to filter posts."""
+    METAMATCHER = re.compile(r'\[meta\](.*)\[/meta\]',
+                             flags=re.MULTILINE | re.DOTALL)
+
     def __init__(self, topicId=None, postIds=None, excludedPostIds=None):
         assert topicId or postIds, 'need either topic or post id'
         assert not (topicId and postIds), 'need only one'
         self.postIds = self.get_ids(topicId, postIds, excludedPostIds or [])
-        self.id, self.subject = self.get_data(self.postIds[0])
+        self.posts = [Post(postId) for postId in self.postIds]
+        self.firstPost = self.posts[0]
+        # first **wanted** post does not have to be the actual first post
+        # data and additional metadata is always set from this post
+        self.id = self.firstPost.id
+        self.subject = self.firstPost.subject
+        self.md = self.set_meta_data()
 
-    @cached_property
-    def posts(self):
-        """:rtype: list of Post"""
-        return [Post(postId) for postId in self.postIds]
+    def set_meta_data(self):
+        data = dict(
+            slug=self.firstPost.uniqueSlug,
+            title=self.firstPost.subject,
+            author=self.firstPost.username,
+            authorId=str(self.firstPost.dbp.poster_id),
+            lastUpdate=str(self._get_latest_update(self.posts)),
+            postDate=str(self.format_date(self.firstPost.dbp.post_time)),
+            topicId=str(self.firstPost.topicId),
+            postId=str(self.firstPost.id))
+        return Metadata(data=data)
+
+    @classmethod
+    def get_meta_overrides(cls, content):
+        metaInfoDict = {}
+        match = cls.METAMATCHER.match(content)
+        if match:
+            metaLines = match.group(1).split('\n')
+            for line in metaLines:
+                if not line.strip():
+                    continue
+
+                key, value = line.split(':')
+                metaInfoDict[key.strip()] = value.strip()
+        return metaInfoDict
+
+    @classmethod
+    def _get_latest_update(cls, posts):
+        newestDate = sorted([p.lastUpdate for p in posts], reverse=True)[0]
+        return cls.format_date(newestDate)
 
     def get_ids(self, topicId, postIds, excludedPostIds):
         if topicId:
@@ -75,11 +110,9 @@ class Topic(object):
 
         return ids
 
-    def get_data(self, wantedPostId):
-        # first **wanted** post does not have to be the actual first post
-        # If this is the case the topic information is set from first wanted
-        post = Post(wantedPostId)
-        return post.topicId, post.subject
+    @staticmethod
+    def format_date(timestamp):
+        return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y')
 
 
 class TopicIsEmpty(Exception):
@@ -100,19 +133,6 @@ class Post(object):
     def __repr__(self):
         return ("<%s %s (%s)>" %
                 (self.__class__.__name__, self.id, self.uniqueSlug))
-
-    @cached_property
-    def metadata(self):
-        return Metadata(data=dict(
-            slug=self.uniqueSlug,
-            title=self.subject,
-            author=self.username,
-            authorId=str(self.dbp.poster_id),
-            lastUpdate=str(self.lastUpdate),
-            postDate=str(self.format_date(int(self.dbp.post_time))),
-            topicId=str(self.topicId),
-            postId=str(self.id)
-        ))
 
     @cached_property
     def content(self):
@@ -155,7 +175,7 @@ class Post(object):
 
     @cached_property
     def lastUpdate(self):
-        return self.format_date(self.dbp.post_edit_time or self.dbp.post_time)
+        return self.dbp.post_edit_time or self.dbp.post_time
 
     @cached_property
     def preprocessedText(self):
@@ -167,10 +187,6 @@ class Post(object):
             text = text.replace(':%s' % (bbcodeUid), '')
         text = html.unescape(text)
         return text
-
-    @staticmethod
-    def format_date(timestamp):
-        return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y')
 
     @classmethod
     def sanitize(cls, text):

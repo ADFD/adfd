@@ -24,6 +24,11 @@ class EXT(object):
     META = '.meta'
 
 
+class FILENAME(object):
+    CONTENT = 'content' + EXT.BBCODE
+    META = 'meta' + EXT.META
+
+
 class DIR(object):
     TOPICS = 'topics'
     RAW = 'raw'

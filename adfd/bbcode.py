@@ -723,6 +723,7 @@ class AdfdParser(Parser):
         self._add_img_formatter()
         self._add_list_formatter()
         self._add_quote_formatter()
+        self._add_meta_formatter()
         self._add_section_formatter()
         self._add_url_formatter()
 
@@ -814,6 +815,16 @@ class AdfdParser(Parser):
         cite = "<footer><cite>%s</cite></footer>" % (author) if author else ''
         value = value.replace('\n', '<br>')
         return '<blockquote><p>%s%s</p></blockquote>\n' % (value, cite)
+
+    def _add_meta_formatter(self):
+        self.add_formatter(
+            'meta', self._render_quote, transform_newlines=False,
+            strip=True, swallow_trailing_newline=True)
+
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def _render_meta(name, value, options, parent, context):
+        return '<div style="display: none;">%s</div>\n' % (value)
 
     def _add_section_formatter(self):
         self.add_formatter(

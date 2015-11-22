@@ -3,7 +3,7 @@ import logging
 
 from cached_property import cached_property
 
-from adfd.cst import EXT, DIR, PATH
+from adfd.cst import EXT, DIR, PATH, FILENAME
 from adfd.utils import ContentGrabber, ContentDumper, slugify
 
 
@@ -11,9 +11,6 @@ log = logging.getLogger(__name__)
 
 
 class Article(object):
-    PREPARED_FILENAME = 'prepared' + EXT.BBCODE
-    META_FILENAME = 'meta' + EXT.META
-
     def __init__(self, identifier, slugPrefix=''):
         self.slugPrefix = slugPrefix.lower()
         isPrepared = self._init_paths(identifier)
@@ -35,20 +32,20 @@ class Article(object):
             dirname = "%05d" % (identifier)
             topicPath = PATH.TOPICS / dirname
             assert topicPath.exists(), topicPath
-            self.prepContentDstPath = topicPath / self.PREPARED_FILENAME
-            self.prepMdDstPath = topicPath / self.META_FILENAME
+            self.prepContentDstPath = topicPath / FILENAME.CONTENT
+            self.prepMdDstPath = topicPath / FILENAME.META
             log.debug('candidate: %s', self.prepContentDstPath)
             if self.prepContentDstPath.exists():
                 log.info('prepared article found %s', self.prepContentDstPath)
                 self.paths = [self.prepContentDstPath]
-                self.mdSrcPath = topicPath / self.META_FILENAME
+                self.mdSrcPath = topicPath / FILENAME.META
             else:
                 isPrepared = False
                 rawPath = topicPath / DIR.RAW
                 log.debug('candidate: %s', rawPath)
                 paths = sorted([p for p in rawPath.list()])
                 self.paths = [p for p in paths if str(p).endswith(EXT.BBCODE)]
-                self.mdSrcPath = rawPath / self.META_FILENAME
+                self.mdSrcPath = rawPath / FILENAME.META
         else:
             log.debug('try to get static article %s', identifier)
             self.identifier = identifier

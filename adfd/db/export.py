@@ -56,15 +56,16 @@ class TopicsExporter(object):
         out = ["%s: %s" % (topic.id, topic.subject)]
         topicPath = self.TOPICS_PATH / ("%05d" % (topic.id)) / cst.DIR.RAW
         log.info('%s -> %s', topic.id, topicPath)
+        metadataPath = topicPath / cst.FILENAME.META
+        self._write(metadataPath, topic.md.asFileContents)
+        self.allPaths.append(metadataPath)
         for post in topic.posts:
             current = "%s" % (post.uniqueSlug)
             log.debug("export: %s", current)
             out.append("    " + current)
             contentPath = topicPath / (post.filename + cst.EXT.BBCODE)
             self._write(contentPath, post.content)
-            metadataPath = topicPath / (post.filename + cst.EXT.META)
-            self._write(metadataPath, post.metadata.asFileContents)
-            self.allPaths.extend([metadataPath, contentPath])
+            self.allPaths.append(contentPath)
         return out
 
     def _git_add_files(self):
