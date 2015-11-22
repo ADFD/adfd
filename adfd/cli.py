@@ -4,13 +4,13 @@ import webbrowser
 from plumbum import cli, LocalPath
 
 from adfd.bbcode import AdfdParser
-from adfd.db.export import (
-    Post, PostDoesNotExist, Topic, Forum, ForumIsEmpty, ForumDoesNotExist)
 
 
 class Adfd(cli.Application):
     pass
 
+
+# fixme remove db related stuff and work exclusively on generated content
 
 @Adfd.subcommand("forum")
 class ShowForum(cli.Application):
