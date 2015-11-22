@@ -5,12 +5,12 @@ with open("requirements.txt") as f:
     requirements = [l.strip() for l in f.readlines() if not l.startswith('#')]
 
 setup(
-    name='ADFD Website',
-    description='Content and tools to build the ADFD website',
-    version='0.2.0',
-    license='BSD for tools and CC for content',
-    author='ADFD',
-    author_email='webmaster@adfd.org',
+    name='adfd-website-tools',
+    description='tools to generate content for the ADFD website',
+    version='0.5',
+    license='BSD',
+    author='Oliver Bestwalter',
+    author_email='forenmaster@adfd.org',
     long_description='',
     packages=['adfd'],
     include_package_data=True,
@@ -27,6 +27,6 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: Unix',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.4',
     ],
 )

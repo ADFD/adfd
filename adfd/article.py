@@ -6,6 +6,7 @@ from cached_property import cached_property
 
 from adfd import cst
 from adfd.cst import DIR
+from adfd.db.export import TopicsExporter
 from adfd.utils import ContentGrabber, ContentDumper, slugify
 
 log = logging.getLogger(__name__)

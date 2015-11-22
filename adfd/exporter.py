@@ -11,7 +11,7 @@ FORUM_IDS = [
 ]
 
 TOPICS = [
-    # export.Topic(9324),
+    export.Topic(10068),
     # export.Topic(9481), not there but passed back by topic
     # export.Topic(postIds=[109252]),
     # export.Topic(9345, excludedPostIds=[94933, 95114, 95786]),

@@ -1,15 +1,5 @@
-beautifulsoup4
-cached-property
 mysqlclient
-plumbum
 sqlalchemy
+cached-property
+plumbum
 translitcodec
-
-jinja2
-Nikola[extras]
-pyphen
-six >= 1.7
-typogrify
-
-ipython[all]
-pytest

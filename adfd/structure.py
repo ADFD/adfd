@@ -28,6 +28,7 @@ logging.basicConfig(level=logging.INFO)
 def get_prepared_article_representations(identifiers, path=u''):
     representations = []
     for identifier in identifiers:
+
         article = Article(identifier, path)
         article.finalize_slug()
         representation = article.structuralRepresentation
