@@ -48,22 +48,23 @@ class ForumIsEmpty(Exception):
 
 class Topic(object):
     """This has a bit of flexibility to make it possible to filter posts."""
-    METAMATCHER = re.compile(r'\[meta\](.*)\[/meta\]',
-                             flags=re.MULTILINE | re.DOTALL)
+    META_RE = re.compile(r'\[meta\](.*)\[/meta\]', re.MULTILINE | re.DOTALL)
 
     def __init__(self, topicId=None, postIds=None, excludedPostIds=None):
         assert topicId or postIds, 'need either topic or post id'
         assert not (topicId and postIds), 'need only one'
-        self.postIds = self.get_ids(topicId, postIds, excludedPostIds or [])
+        self.postIds = self._init_ids(topicId, postIds, excludedPostIds or [])
         self.posts = [Post(postId) for postId in self.postIds]
         self.firstPost = self.posts[0]
-        # first **wanted** post does not have to be the actual first post
-        # data and additional metadata is always set from this post
+        """first **not excluded** post - may not be actual first post
+
+        all metadata is set from this post
+        """
         self.id = self.firstPost.id
         self.subject = self.firstPost.subject
-        self.md = self.set_meta_data()
+        self.md = self._init_metadata()
 
-    def set_meta_data(self):
+    def _init_metadata(self):
         data = dict(
             slug=self.firstPost.uniqueSlug,
             title=self.firstPost.subject,
@@ -73,19 +74,22 @@ class Topic(object):
             postDate=str(self.format_date(self.firstPost.dbp.post_time)),
             topicId=str(self.firstPost.topicId),
             postId=str(self.firstPost.id))
-        return Metadata(data=data)
+        md = Metadata(data=data)
+        md.override(self.get_md_overrides(self.firstPost.content))
+        return md
 
     @classmethod
-    def get_meta_overrides(cls, content):
+    def get_md_overrides(cls, content):
         metaInfoDict = {}
-        match = cls.METAMATCHER.match(content)
+        match = cls.META_RE.search(content)
         if match:
             metaLines = match.group(1).split('\n')
             for line in metaLines:
                 if not line.strip():
                     continue
 
-                key, value = line.split(':')
+                assert isinstance(line, str)  # pycharm is strange sometimes
+                key, value = line.split(':', maxsplit=1)
                 metaInfoDict[key.strip()] = value.strip()
         return metaInfoDict
 
@@ -94,7 +98,7 @@ class Topic(object):
         newestDate = sorted([p.lastUpdate for p in posts], reverse=True)[0]
         return cls.format_date(newestDate)
 
-    def get_ids(self, topicId, postIds, excludedPostIds):
+    def _init_ids(self, topicId, postIds, excludedPostIds):
         if topicId:
             ids = DbWrapper().fetch_post_ids_from_topic(topicId)
             ids = [i for i in ids if i not in excludedPostIds]

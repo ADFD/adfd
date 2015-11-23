@@ -43,3 +43,8 @@ class TestArticle(object):
         a.remove_prepared_files()
         assert a.title == 'Söme snaßy Tätle'
         assert a.slug == 'soeme-snassy-taetle'
+
+
+# todo
+class TestMetadata(object):
+    pass

@@ -78,11 +78,15 @@ class ArticleNotFound(Exception):
 
 
 class Metadata(object):
+    _OVERRIDABLES = ['author', 'linktext', 'slug', 'title']
+    """those can be overridden by metadata in post content"""
+
     def __init__(self, path=None, data=None, slugPrefix=None):
-        self.slug = None
-        self.linktext = None
         self.title = None
         self.author = None
+        self.slug = None
+        self.linktext = None
+
         self.authorId = None
         self.lastUpdate = None
         self.postDate = None
@@ -120,3 +124,14 @@ class Metadata(object):
     def _populate_from_data(self, data):
         for key in data or {}:
             setattr(self, key, data[key])
+
+    def override(self, overrideMap):
+        for key, value in overrideMap.items():
+            if key not in self._OVERRIDABLES:
+                raise NotOverridable('key')
+
+            setattr(self, key, value)
+
+
+class NotOverridable(Exception):
+    """raise if a key mustn't be overriden (e.g. postId)"""
