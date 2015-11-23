@@ -3,6 +3,7 @@ import logging
 
 from cached_property import cached_property
 
+from adfd.conf import METADATA
 from adfd.cst import EXT, DIR, PATH, FILENAME
 from adfd.utils import ContentGrabber, ContentDumper, slugify
 
@@ -78,8 +79,6 @@ class ArticleNotFound(Exception):
 
 
 class Metadata(object):
-    _OVERRIDABLES = ['author', 'linktext', 'slug', 'title']
-    """those can be overridden by metadata in post content"""
 
     def __init__(self, path=None, data=None, slugPrefix=None):
         self.title = None
@@ -127,7 +126,7 @@ class Metadata(object):
 
     def override(self, overrideMap):
         for key, value in overrideMap.items():
-            if key not in self._OVERRIDABLES:
+            if key not in METADATA.OVERRIDABLES:
                 raise NotOverridable('key')
 
             setattr(self, key, value)

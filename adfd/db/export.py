@@ -12,12 +12,12 @@ log = logging.getLogger(__name__)
 
 def export():
     allTopics = []
-    for kwargs in conf.RAW.TOPIC_KWARGS:
+    for kwargs in conf.EXPORT.TOPIC_KWARGS:
         try:
             allTopics.append(phpbb_classes.Topic(**kwargs))
         except phpbb_classes.TopicIsEmpty:
             log.warning('kwargs %s are broken', str(kwargs))
-    for forumId in conf.RAW.FORUM_IDS:
+    for forumId in conf.EXPORT.FORUM_IDS:
         allTopics.extend(phpbb_classes.Forum(forumId).topics)
     TopicsExporter(allTopics).process()
 
