@@ -79,7 +79,6 @@ class ArticleNotFound(Exception):
 
 
 class Metadata(object):
-
     def __init__(self, path=None, data=None, slugPrefix=None):
         self.title = None
         self.author = None
