@@ -60,7 +60,7 @@ class TopicsExporter(object):
         self._write(metadataPath, topic.md.asFileContents)
         self.allPaths.append(metadataPath)
         for post in topic.posts:
-            current = "%s" % (post.uniqueSlug)
+            current = "%s" % (post.subject)
             log.debug("export: %s", current)
             out.append("    " + current)
             contentPath = topicPath / (post.filename + cst.EXT.BBCODE)

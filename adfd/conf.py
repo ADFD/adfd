@@ -9,6 +9,7 @@ class RAW(object):
     ]
 
     TOPIC_KWARGS = [
+        dict(topicId=9913),
         dict(topicId=10068),
         dict(topicId=9481),  # not there but passed back by topic?
         dict(postIds=[109252]),

@@ -60,7 +60,7 @@ class Topic(object):
 
         all metadata is set from this post
         """
-        self.id = self.firstPost.id
+        self.id = self.firstPost.topicId
         self.subject = self.firstPost.subject
         self.md = self._init_metadata()
 
