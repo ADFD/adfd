@@ -50,10 +50,10 @@ class Topic(object):
     """This has a bit of flexibility to make it possible to filter posts."""
     META_RE = re.compile(r'\[meta\](.*)\[/meta\]', re.MULTILINE | re.DOTALL)
 
-    def __init__(self, topicId=None, postIds=None, excludedPostIds=None):
-        assert topicId or postIds, 'need either topic or post id'
-        assert not (topicId and postIds), 'need only one'
-        self.postIds = self._init_ids(topicId, postIds, excludedPostIds or [])
+    def __init__(self, topicId=None, postId=None, excludedPostIds=None):
+        assert topicId or postId, 'need either topic or post id'
+        assert not (topicId and postId), 'need only one'
+        self.postIds = self._init_ids(topicId, postId, excludedPostIds or [])
         self.posts = [Post(postId) for postId in self.postIds]
         self.firstPost = self.posts[0]
         """first **not excluded** post - may not be actual first post
@@ -98,15 +98,12 @@ class Topic(object):
         newestDate = sorted([p.lastUpdate for p in posts], reverse=True)[0]
         return cls.format_date(newestDate)
 
-    def _init_ids(self, topicId, postIds, excludedPostIds):
+    def _init_ids(self, topicId, postId, excludedPostIds):
         if topicId:
             ids = DbWrapper().fetch_post_ids_from_topic(topicId)
             ids = [i for i in ids if i not in excludedPostIds]
-        elif isinstance(postIds, list):
-            ids = postIds
         else:
-            assert isinstance(postIds, int), postIds
-            ids = [postIds]
+            ids = [postId]
             log.warning('no sanity check for arbitrarily set postIds')
 
         if not ids:

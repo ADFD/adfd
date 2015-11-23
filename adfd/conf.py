@@ -8,11 +8,9 @@ class EXPORT(object):
     """export the whole forum"""
 
     TOPIC_KWARGS = [
-        dict(topicId=9913),
-        dict(topicId=10068),
-        dict(topicId=9481),  # not there but passed back by topic?
-        dict(postIds=[109252]),
-        dict(topicId=9345, excludedPostIds=[94933, 95114, 95786]),
+        # dict(topicId=9913),
+        # dict(postId=109252),
+        # dict(topicId=9345, excludedPostIds=[94933, 95114, 95786]),
     ]
     """export the topic (or some parts of it)"""
 
