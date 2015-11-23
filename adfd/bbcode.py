@@ -4,8 +4,6 @@ import re
 
 from cached_property import cached_property
 
-from adfd import cst
-
 _urlRegex = re.compile(
     r'(?im)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)'
     r'(?:[^\s()<>]+|\([^\s()<>]+\))'
