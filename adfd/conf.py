@@ -3,8 +3,6 @@ class EXPORT(object):
     FORUM_IDS = [
         6,    # Hintergrundinformationen über Psychopharmaka
         19,   # Hilfen zum Absetzen von Psychopharmaka
-        51,   # Erfahrungsberichte
-        53,   # Webseite: Planung und Dokumentation
         54,   # Webseite: Inhalt
     ]
     """export the whole forum"""
