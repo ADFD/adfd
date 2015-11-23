@@ -11,7 +11,6 @@ __pycache__
 .doit.db.*
 output/*
 
-*.bb.html
+*.bbcode.html
 local_settings.py
-__scratchpad.py
 content/*
