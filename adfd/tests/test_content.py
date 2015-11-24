@@ -45,6 +45,8 @@ class TestArticle(object):
         assert a.slug == 'soeme-snassy-taetle'
 
 
-# todo
 class TestMetadata(object):
-    pass
+    def test_populate_from_text(self):
+        text = 'bla\n[meta]title: supertitle[/meta]\nblubb'
+        md = Metadata(text=text)
+        assert md.title == 'supertitle'

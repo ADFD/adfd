@@ -29,7 +29,7 @@ class Article(object):
 
     def _init_paths(self, identifier):
         self.isPrepared = True
-        log.error('get article from %s', identifier)
+        log.info('get article from %s', identifier)
         if self.isStatic:
             log.debug('try to get static article %s', identifier)
             self.identifier = identifier
@@ -102,7 +102,6 @@ class Metadata(object):
         self.populate_from_text(text)
         if slugPrefix:
             self.slug = "%s%s" % (slugPrefix, self.slug)
-        log.debug(str(self._dict))
 
     def __repr__(self):
         return self.asFileContents
@@ -126,15 +125,14 @@ class Metadata(object):
 
             log.debug('process "%s"', line)
             key, value = line[3:].split(': ', 1)
-            log.debug('self.%s = %s', key, value)
-            setattr(self, key.strip(), value.strip())
+            self.update(key, value)
 
     def populate_from_kwargs(self, kwargs):
         if not kwargs:
             return
 
         for key, value in kwargs.items():
-            setattr(self, key, value)
+            self.update(key, value)
 
     def populate_from_text(self, text):
         if not text:
@@ -156,7 +154,11 @@ class Metadata(object):
             if key not in METADATA.OVERRIDABLES:
                 raise NotOverridable('key')
 
-            setattr(self, key, value.strip())
+            self.update(key, value)
+
+    def update(self, key, value):
+        log.debug('self.%s = %s', key, value)
+        setattr(self, key.strip(), value.strip())
 
 
 class NotOverridable(Exception):
