@@ -5,6 +5,7 @@ from datetime import datetime
 
 from cached_property import cached_property
 
+from adfd.content import Metadata
 from adfd.db.utils import DbWrapper
 from adfd.utils import slugify
 
@@ -64,7 +65,7 @@ class Topic(object):
         self.firstPost = self.posts[0]
         self.id = self.firstPost.topicId
         self.subject = self.firstPost.subject
-        self.md = dict(
+        self.md = Metadata(kwargs=dict(
             slug=self.firstPost.uniqueSlug,
             title=self.firstPost.subject,
             author=self.firstPost.username,
@@ -72,7 +73,7 @@ class Topic(object):
             lastUpdate=str(self._get_latest_update(self.posts)),
             postDate=str(self.format_date(self.firstPost.dbp.post_time)),
             topicId=str(self.firstPost.topicId),
-            postId=str(self.firstPost.id))
+            postId=str(self.firstPost.id)))
 
     @classmethod
     def _get_latest_update(cls, posts):

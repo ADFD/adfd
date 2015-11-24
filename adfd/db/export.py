@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 def export():
     allTopics = []
-    for kwargs in conf.EXPORT.TOPIC_KWARGS:
+    for kwargs in conf.EXPORT.TOPIC_IDS:
         try:
             allTopics.append(Topic(**kwargs))
         except TopicDoesNotExist:
