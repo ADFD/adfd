@@ -5,10 +5,8 @@ from datetime import datetime
 
 from cached_property import cached_property
 
-from adfd.content import Metadata
 from adfd.db.utils import DbWrapper
 from adfd.utils import slugify
-
 
 log = logging.getLogger(__name__)
 
@@ -60,13 +58,10 @@ class ForumIsEmpty(Exception):
 class Topic(object):
     """This has a bit of flexibility to make it possible to filter posts."""
 
-    def __init__(self, topicId=None, postId=None, excludedPostIds=None):
-        assert topicId or postId, 'need either topic or post id'
-        assert not (topicId and postId), 'need only one'
-        self.postIds = self._init_ids(topicId, postId, excludedPostIds or [])
+    def __init__(self, topicId):
+        self.postIds = self.fetch_post_ids(topicId)
         self.posts = [Post(postId) for postId in self.postIds]
         self.firstPost = self.posts[0]
-        """first **not excluded** post - may not be actual first post"""
         self.id = self.firstPost.topicId
         self.subject = self.firstPost.subject
         self.md = dict(
@@ -85,14 +80,8 @@ class Topic(object):
         newestDate = sorted([p.lastUpdate for p in posts], reverse=True)[0]
         return cls.format_date(newestDate)
 
-    def _init_ids(self, topicId, postId, excludedPostIds):
-        if topicId:
-            ids = DbWrapper().fetch_post_ids_from_topic(topicId)
-            ids = [i for i in ids if i not in excludedPostIds]
-        else:
-            ids = [postId]
-            log.warning('no sanity check for arbitrarily set postIds')
-
+    def fetch_post_ids(self, topicId):
+        ids = DbWrapper().fetch_post_ids_from_topic(topicId)
         if not ids:
             raise TopicDoesNotExist(str(topicId))
 

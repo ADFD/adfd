@@ -5,14 +5,10 @@ class EXPORT(object):
         19,   # Hilfen zum Absetzen von Psychopharmaka
         54,   # Webseite: Inhalt
     ]
-    """export the whole forum"""
+    """export whole forums"""
 
-    TOPIC_KWARGS = [
-        # dict(topicId=9913),
-        # dict(postId=109252),
-        # dict(topicId=9345, excludedPostIds=[94933, 95114, 95786]),
-    ]
-    """export the topic (or some parts of it)"""
+    TOPIC_IDS = []
+    """export single topics"""
 
 
 class METADATA(object):
