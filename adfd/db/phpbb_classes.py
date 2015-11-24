@@ -59,7 +59,6 @@ class ForumIsEmpty(Exception):
 
 class Topic(object):
     """This has a bit of flexibility to make it possible to filter posts."""
-    META_RE = re.compile(r'\[meta\](.*)\[/meta\]', re.MULTILINE | re.DOTALL)
 
     def __init__(self, topicId=None, postId=None, excludedPostIds=None):
         assert topicId or postId, 'need either topic or post id'
@@ -67,16 +66,10 @@ class Topic(object):
         self.postIds = self._init_ids(topicId, postId, excludedPostIds or [])
         self.posts = [Post(postId) for postId in self.postIds]
         self.firstPost = self.posts[0]
-        """first **not excluded** post - may not be actual first post
-
-        all metadata is set from this post
-        """
+        """first **not excluded** post - may not be actual first post"""
         self.id = self.firstPost.topicId
         self.subject = self.firstPost.subject
-        self.md = self._init_metadata()
-
-    def _init_metadata(self):
-        data = dict(
+        self.md = dict(
             slug=self.firstPost.uniqueSlug,
             title=self.firstPost.subject,
             author=self.firstPost.username,
@@ -85,27 +78,10 @@ class Topic(object):
             postDate=str(self.format_date(self.firstPost.dbp.post_time)),
             topicId=str(self.firstPost.topicId),
             postId=str(self.firstPost.id))
-        md = Metadata(data=data)
-        md.override(self.get_md_overrides(self.firstPost.content))
-        return md
-
-    @classmethod
-    def get_md_overrides(cls, content):
-        metaInfoDict = {}
-        match = cls.META_RE.search(content)
-        if match:
-            metaLines = match.group(1).split('\n')
-            for line in metaLines:
-                if not line.strip():
-                    continue
-
-                assert isinstance(line, str)  # pycharm is strange sometimes
-                key, value = line.split(':', maxsplit=1)
-                metaInfoDict[key.strip()] = value.strip()
-        return metaInfoDict
 
     @classmethod
     def _get_latest_update(cls, posts):
+        # fixme still broken?
         newestDate = sorted([p.lastUpdate for p in posts], reverse=True)[0]
         return cls.format_date(newestDate)
 
