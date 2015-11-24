@@ -13,6 +13,17 @@ from adfd.utils import slugify
 log = logging.getLogger(__name__)
 
 
+__all__ = [
+    'Forum',
+    'ForumDoesNotExist',
+    'ForumIsEmpty',
+    'Topic',
+    'TopicDoesNotExist',
+    'Post',
+    'PostDoesNotExist',
+]
+
+
 class Forum(object):
     def __init__(self, forumId):
         self.id = forumId
@@ -33,7 +44,7 @@ class Forum(object):
             try:
                 yield Topic(topicId)
 
-            except TopicIsEmpty:
+            except TopicDoesNotExist:
                 log.warning("topic %s is broken", topicId)
                 continue
 
@@ -107,7 +118,7 @@ class Topic(object):
             log.warning('no sanity check for arbitrarily set postIds')
 
         if not ids:
-            raise TopicIsEmpty(str(topicId))
+            raise TopicDoesNotExist(str(topicId))
 
         return ids
 
@@ -116,7 +127,7 @@ class Topic(object):
         return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y')
 
 
-class TopicIsEmpty(Exception):
+class TopicDoesNotExist(Exception):
     """raised if the topic contains no posts"""
 
 

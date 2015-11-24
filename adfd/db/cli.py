@@ -1,12 +1,11 @@
 import logging
 import sys
 
-from adfd.db.export import export
 from plumbum import cli
 
-from adfd.db.phpbb_classes import (
-    Post, PostDoesNotExist, Topic, ForumIsEmpty, ForumDoesNotExist, Forum,
-    TopicIsEmpty)
+from adfd.db.export import export
+from adfd.db.phpbb_classes import *
+from adfd.utils import get_config_info
 
 
 class AdfdDb(cli.Application):
@@ -39,7 +38,7 @@ class AdfdDbTopic(cli.Application):
     def main(self, topicId):
         try:
             topic = Topic(topicId)
-        except TopicIsEmpty:
+        except TopicDoesNotExist:
             print("topic with id %s does not exist" % (topicId))
             return 1
 
@@ -72,9 +71,15 @@ class AdfdDbPost(cli.Application):
 
 
 @AdfdDb.subcommand("export")
-class Export(cli.Application):
+class AdfdDbExport(cli.Application):
     def main(self):
         export()
+
+
+@AdfdDb.subcommand("status")
+class AdfdDbStatus(cli.Application):
+    def main(self):
+        print(get_config_info())
 
 
 def main():

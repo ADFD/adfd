@@ -1,22 +1,17 @@
-import re
 import tempfile
 
 import plumbum
 
 try:
-    from adfd.db.local_settings import _DB_URL, _CONTENT_ROOT
+    from adfd.db.local_settings import _dbUrl, _contentRoot
 except ImportError:
-    _DB_URL = "mysql://user:password@localhost/dbname"
-    _CONTENT_ROOT = tempfile.gettempdir()
+    _dbUrl = "mysql://user:password@localhost/dbname"
+    _contentRoot = tempfile.gettempdir()
 
 
-DB_URL = _DB_URL + '?charset=utf8'
+DB_URL = _dbUrl + '?charset=utf8'
 """Important! See: http://goo.gl/rGuQey"""
-CONTENT_ROOT = plumbum.LocalPath(_CONTENT_ROOT)
-
-
-class SLUG(object):
-    PUNCT = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
+CONTENT_ROOT = plumbum.LocalPath(_contentRoot)
 
 
 class EXT(object):

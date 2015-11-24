@@ -1,28 +1,37 @@
 import codecs
 import logging
 import os
+import re
 from types import FunctionType, MethodType
-# noinspection PyUnresolvedReferences
-import translitcodec  # register new codec for slugification
 
 import pytest
 from plumbum import LocalPath
 
-
-from adfd import cst
 from adfd.bbcode import AdfdParser
 
 
 log = logging.getLogger(__name__)
 
 
-def slugify(title):
-    words = []
-    for word in cst.SLUG.PUNCT.split(title.lower()):
-        word = codecs.encode(word, 'translit/long')
-        if word:
-            words.append(word)
-    return '-'.join(words)
+class _Slugification(object):
+    """Turn sentences into slugs to be used in filenames and URLs"""
+    SEP = '-'
+
+    def __init__(self):
+        # noinspection PyUnresolvedReferences
+        import translitcodec  # register new codec for slugification
+
+        self.splitter = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
+
+    def __call__(self, text):
+        words = []
+        for word in self.splitter.split(text.lower()):
+            word = codecs.encode(word, 'translit/long')
+            if word:
+                words.append(word)
+        return self.SEP.join(words)
+
+slugify = _Slugification()
 
 
 class ContentGrabber(object):
@@ -136,9 +145,8 @@ def obj_attr(obj, hideString='', filterMethods=True, filterPrivate=True,
              sanitize=False, excludeAttrs=None, indent=0, objName=""):
     try:
         if any(isinstance(obj, t) for t in SIMPLE_OBJECTS):
-            content = ("[simple obj_attr] %s (%s): %s" %
-                       (objName or "(anon)", type(obj).__name__, str(obj)))
-            return content
+            return ("[%s] %s = %s" %
+                    (type(obj).__name__, objName or "(anon)", str(obj)))
 
         return _obj_attr(
             obj, hideString, filterMethods, filterPrivate,
@@ -151,7 +159,8 @@ def obj_attr(obj, hideString='', filterMethods=True, filterPrivate=True,
 
 
 def _obj_attr(obj, hideString='', filterMethods=True, filterPrivate=True,
-              sanitize=False, excludeAttrs=None, indent=0, objName=""):
+              sanitize=False, excludeAttrs=None, indent=0, objName="",
+              terminalSize=120):
     """show attributes of any object - generic representation of objects"""
     excludeAttrs = excludeAttrs or []
     names = dir(obj)
@@ -164,10 +173,13 @@ def _obj_attr(obj, hideString='', filterMethods=True, filterPrivate=True,
     if filterPrivate:
         names = [n for n in names if not n.startswith('_')]
     out = []
+    maxTypeLen = 0
     for name in sorted([d for d in names if d not in excludeAttrs]):
         try:
             attr = getattr(obj, name)
             attrType = type(attr)
+            if len(attrType.__name__) > maxTypeLen:
+                maxTypeLen = len(attrType.__name__)
             if attr is obj:
                 continue  # recursion avoidance
 
@@ -191,30 +203,33 @@ def _obj_attr(obj, hideString='', filterMethods=True, filterPrivate=True,
     out = out or [(objName, str(type(obj)), repr(obj))]
     boundTo = "'%s' " % (objName) if objName else ""
     header = "|# %s%s (0x%X) #|" % (boundTo, type(obj).__name__, (id(obj)))
-    numDashes = 40 - len(header) // 2
+    numDashes = (terminalSize // 2) - len(header) // 2
+    maxNameLen = max([len(name) for name in names])
     out = (
         ["\n," + "-" * (numDashes - 1) + header + "-" * numDashes] +
-        [_prepare_content(content) for content in out] +
-        ["'" + "-" * 80])
+        [_prep_line(content, maxNameLen, maxTypeLen, terminalSize)
+         for content in out] + ["'" + "-" * terminalSize])
     if sanitize:
         out = [o.replace('<', '(').replace('>', ')') for o in out]
     if indent:
         out = ["%s%s" % (" " * indent, o) for o in out]
-    return os.linesep.join(out) + "\n  "
-    # return os.linesep.join(out) + "\ncaller: %s" % (caller(10))
+    return os.linesep.join(out)
 
 
-def _prepare_content(contentTuple):
+def _prep_line(contentTuple, maxNameLen, maxTypeLen, terminalSize):
     """add line breaks within an attribute line"""
     name, typeName, value = contentTuple
-    pattern = "| %-30s %15s: %%s" % (name, typeName.rpartition(".")[-1])
+    typeName = typeName.rpartition(".")[-1]
+    formattedName = name + ' ' * (maxNameLen - len(name))
+    formattedType = typeName + ' ' * (maxTypeLen - len(typeName))
+    pattern = "| [%s] %s %%s" % (formattedType, formattedName)
     if not isinstance(value, str):
         value = str(value)
 
     if value.strip().startswith("| "):
         return pattern % (value)
 
-    windowSize = 80
+    windowSize = terminalSize
     firstLineLength = len(pattern) - 7
     curPos = windowSize - firstLineLength
     lines = [pattern % value[:curPos]]
@@ -226,3 +241,14 @@ def _prepare_content(contentTuple):
         lines.append("\n|    %s" % (curString))
         curPos += windowSize
     return "".join(lines)
+
+
+def get_config_info():
+    from adfd import conf, cst
+
+    inf = {k: v for k, v in vars(conf).items() if k.isupper()}
+    inf.update({k: v for k, v in vars(cst).items() if k.isupper()})
+    out = []
+    for name, obj in sorted([(k, v) for k, v in inf.items() if k.isupper()]):
+        out.append(obj_attr(obj, objName=name))
+    return '\n'.join(out)

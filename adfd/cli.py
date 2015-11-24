@@ -41,7 +41,7 @@ class ShowTopic(cli.Application):
     def main(self, topicId):
         try:
             topic = Topic(topicId)
-        except PostDoesNotExist:
+        except Topic:
             print("topic with id %s does not exist" % (topicId))
             return 1
 

@@ -4,8 +4,7 @@ import subprocess
 
 from adfd import cst
 from adfd import conf
-from adfd.db import phpbb_classes
-
+from adfd.db.phpbb_classes import Forum, TopicDoesNotExist, Topic
 
 log = logging.getLogger(__name__)
 
@@ -14,11 +13,11 @@ def export():
     allTopics = []
     for kwargs in conf.EXPORT.TOPIC_KWARGS:
         try:
-            allTopics.append(phpbb_classes.Topic(**kwargs))
-        except phpbb_classes.TopicIsEmpty:
+            allTopics.append(Topic(**kwargs))
+        except TopicDoesNotExist:
             log.warning('kwargs %s are broken', str(kwargs))
     for forumId in conf.EXPORT.FORUM_IDS:
-        allTopics.extend(phpbb_classes.Forum(forumId).topics)
+        allTopics.extend(Forum(forumId).topics)
     TopicsExporter(allTopics).process()
 
 
