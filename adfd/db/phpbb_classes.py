@@ -117,9 +117,11 @@ class Post(object):
     @cached_property
     def content(self):
         """post text as bbcode plus the subject wrapped in header tags"""
-        title = self.TITLE_WRAP % (self.subject)
-        content = self.sanitize(self.preprocessedText)
-        return "%s\n%s" % (title, content)
+        content = ''
+        if self.subject:
+            content += self.TITLE_WRAP % (self.subject) + '\n'
+        content += self.sanitize(self.preprocessedText)
+        return content
 
     @cached_property
     def filename(self):

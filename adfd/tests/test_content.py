@@ -35,7 +35,7 @@ class TestArticle(object):
         a = Article(1)
         a.remove_prepared_files()
         assert a.content == (
-            "söme text from first pöst\n\nsome text from second post\n")
+            "söme text from first pöst\n\n\nsome text from second post\n")
         assert isinstance(a.md, Metadata)
 
     def test_slug_transliteration(self):
