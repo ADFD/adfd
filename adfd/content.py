@@ -15,10 +15,14 @@ log = logging.getLogger(__name__)
 class Article(object):
     def __init__(self, identifier, slugPrefix='', refresh=True):
         self.isStatic = not isinstance(identifier, int)
-        self._init_paths(identifier)
+        topicPath = self._init_paths(identifier, refresh)
+        if not self.paths:
+            raise ArticleNotFound(str(identifier))
+
         self.md = Metadata(path=self.mdSrcPath, slugPrefix=slugPrefix.lower())
-        if not self.isStatic:
-            self._prepare(refresh)
+        if topicPath:
+            self._dump_contents()
+
         self.md.populate_from_text(self.content)
         self.title = self.md.title
         self.linktext = self.md.linktext or self.md.title
@@ -27,8 +31,7 @@ class Article(object):
     def __repr__(self):
         return '<%s %s>' % (self.__class__.__name__, self.slug)
 
-    def _init_paths(self, identifier):
-        self.isPrepared = True
+    def _init_paths(self, identifier, refresh):
         log.info('get article from %s', identifier)
         if self.isStatic:
             log.debug('try to get static article %s', identifier)
@@ -36,31 +39,31 @@ class Article(object):
             paths = PATH.STATIC.list()
             self.paths = [p for p in paths if identifier in str(p)]
             self.mdSrcPath = PATH.STATIC / (identifier + EXT.META)
-        else:
-            dirname = "%05d" % (identifier)
-            topicPath = PATH.TOPICS / dirname
-            assert topicPath.exists(), topicPath
-            self.prepContentDstPath = topicPath / FILENAME.CONTENT
-            self.prepMdDstPath = topicPath / FILENAME.META
-            log.debug('candidate: %s', self.prepContentDstPath)
-            if self.prepContentDstPath.exists():
-                log.info('prepared article found %s', self.prepContentDstPath)
-                self.paths = [self.prepContentDstPath]
-                self.mdSrcPath = topicPath / FILENAME.META
-            else:
-                self.isPrepared = False
-                rawPath = topicPath / DIR.RAW
-                log.debug('candidate: %s', rawPath)
-                paths = sorted([p for p in rawPath.list()])
-                self.paths = [p for p in paths if str(p).endswith(EXT.BBCODE)]
-                self.mdSrcPath = rawPath / FILENAME.META
-        if not self.paths:
-            raise ArticleNotFound(str(identifier))
+            return
 
-    def _prepare(self, refresh):
-        if not self.isPrepared or refresh:
-            ContentDumper(self.prepContentDstPath, self.content).dump()
-            ContentDumper(self.prepMdDstPath, self.md.asFileContents).dump()
+        topicPath = PATH.TOPICS / ("%05d" % (identifier))
+        self.prepContentDstPath = topicPath / FILENAME.CONTENT
+        self.prepMdDstPath = topicPath / FILENAME.META
+        if refresh:
+            self.prepContentDstPath.delete()
+            self.prepMdDstPath.delete()
+        log.debug('candidate: %s', self.prepContentDstPath)
+        if not self.prepContentDstPath.exists():
+            rawPath = topicPath / DIR.RAW
+            log.debug('candidate: %s', rawPath)
+            paths = sorted([p for p in rawPath.list()])
+            self.paths = [p for p in paths if str(p).endswith(EXT.BBCODE)]
+            self.mdSrcPath = rawPath / FILENAME.META
+            return topicPath
+
+        log.info('prepared article found %s', self.prepContentDstPath)
+        assert self.mdSrcPath.exists(), self.mdSrcPath
+        self.paths = [self.prepContentDstPath]
+        self.mdSrcPath = topicPath / FILENAME.META
+
+    def _dump_contents(self):
+        ContentDumper(self.prepContentDstPath, self.content).dump()
+        ContentDumper(self.prepMdDstPath, self.md.asFileContents).dump()
 
     @property
     def structuralRepresentation(self):
@@ -71,7 +74,7 @@ class Article(object):
         contents = []
         for path in self.paths:
             contents.append(ContentGrabber(path).grab())
-        return "\n".join(contents)
+        return "\n\n".join(contents)
 
     def remove_prepared_files(self):
         for path in [self.prepContentDstPath, self.prepMdDstPath]:
