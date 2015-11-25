@@ -4,77 +4,32 @@ import webbrowser
 from plumbum import cli, LocalPath
 
 from adfd.bbcode import AdfdParser
+from adfd.content import Article, ArticleNotFound
 
 
-class Adfd(cli.Application):
+class AdfdCnt(cli.Application):
     pass
 
 
-# fixme remove db related stuff and work exclusively on generated content
-
-@Adfd.subcommand("forum")
-class ShowForum(cli.Application):
-    outType = cli.SwitchAttr(["out-type"], default='bbcode')
-
-    def main(self, forumId):
-        try:
-            forum = Forum(forumId)
-        except ForumDoesNotExist:
-            print("forum with id %s does not exist" % (forumId))
-            return 1
-
-        except ForumIsEmpty:
-            print("forum with id %s is empty" % (forumId))
-            return 1
-
-        if self.outType == 'bbcode':
-            print("Forum with ID %s" % (forum.id))
-            print("name: %s" % (forum.name))
-        elif self.outType == 'summary':
-            print("topic ids:", forum.topicIds)
-
-
-@Adfd.subcommand("topic")
+@AdfdCnt.subcommand("article")
 class ShowTopic(cli.Application):
-    outType = cli.SwitchAttr(["out-type"], default='bbcode')
+    outType = cli.SwitchAttr(["out-type"], default='raw')
+    refresh = cli.Flag(["refresh"], default=True)
 
-    def main(self, topicId):
+    def main(self, identifier):
+        identifier = int(identifier) if identifier.isdigit() else identifier
         try:
-            topic = Topic(topicId)
-        except Topic:
-            print("topic with id %s does not exist" % (topicId))
+            article = Article(identifier, refresh=self.refresh)
+        except ArticleNotFound:
+            print("Article '%s' does not exist" % (identifier))
             return 1
 
-        if self.outType == 'bbcode':
-            print("Topic with ID %s" % (topic.id))
-            print("subject: %s" % (topic.subject))
-            print("slug: %s" % (topic.subject))
-            print("\n".join([p.content for p in topic.posts]))
-        elif self.outType == 'summary':
-            print("post ids:", topic.postIds)
-
-
-@Adfd.subcommand("post")
-class ShowPost(cli.Application):
-    outType = cli.SwitchAttr(["out-type"], default='bbcode')
-
-    def main(self, postId):
-        try:
-            post = Post(postId)
-        except PostDoesNotExist:
-            print("post with id %s does not exist" % (postId))
-            return 1
-
-        if self.outType == 'bbcode':
-            print("Post with ID %s by %s" % (post.id, post.username))
-            print("subject: %s" % (post.subject))
-            print("slug: %s" % (post.slug))
-            print(post.content)
+        print(article.md.asFileContents)
+        if self.outType == 'raw':
+            print(article.content)
         elif self.outType == 'html':
-            html = AdfdParser().to_html(data=post.content)
+            html = AdfdParser().to_html(data=article.content)
             self._open_html_in_webbrowser(html)
-        elif self.outType == 'summary':
-            print(post)
 
     def _open_html_in_webbrowser(self, html):
         path = LocalPath("/tmp/adfd-html-out.html")
@@ -85,7 +40,7 @@ class ShowPost(cli.Application):
 
 
 def main():
-    Adfd.run()
+    AdfdCnt.run()
 
 
 if __name__ == '__main__':

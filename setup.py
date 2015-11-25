@@ -27,7 +27,7 @@ setup(
         'Programming Language :: Python :: 3.4',
     ],
     entry_points=dict(console_scripts=[
-        'adfd=adfd.cli:main',
+        'cnt=adfd.cli:main',
         'db=adfd.db.cli:main',
     ]),
 )
