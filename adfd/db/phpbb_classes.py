@@ -98,6 +98,8 @@ class TopicDoesNotExist(Exception):
 
 
 class Post(object):
+    TITLE_WRAP = "[h1]%s[/h1]"
+
     def __init__(self, postId):
         self.id = postId
         self.db = DbWrapper()
@@ -114,8 +116,10 @@ class Post(object):
 
     @cached_property
     def content(self):
-        """This should be exactly the editable source of the post"""
-        return self.sanitize(self.preprocessedText)
+        """post text as bbcode plus the subject wrapped in header tags"""
+        title = self.TITLE_WRAP % (self.subject)
+        content = self.sanitize(self.preprocessedText)
+        return "%s\n%s" % (title, content)
 
     @cached_property
     def filename(self):
