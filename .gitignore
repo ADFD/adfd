@@ -3,10 +3,6 @@ __pycache__
 *.egg-info
 *.cache/*
 
-.idea/*
-.vagrant/*
-.tox/*
-
 .sass-cache/*
 .doit.db.*
 output/*
