@@ -13,4 +13,17 @@ class EXPORT(object):
 
 class METADATA(object):
     OVERRIDABLES = ['author', 'linktext', 'slug', 'title']
-    """those can be overridden by metadata in post content"""
+    """those can be overridden by metadata in post content
+
+    For this to work the bbcode tag ``meta`` has to be defined on the board.
+    The following settings to be done in ``adm/index.php?i=acp_bbcodes``
+    define the tag and make it invisible if the post is viewed directly.
+
+    BBCODE use:
+
+        [meta]{TEXT}[/meta]
+
+    BBCODE replacement:
+
+        <span style="display: none;">[meta]{TEXT}[/meta]</span>
+    """
