@@ -63,10 +63,9 @@ class TopicsExporter(object):
             out.append("    " + current)
             contentPath = topicPath / (post.filename + cst.EXT.BBCODE)
             dump_contents(contentPath, post.content)
-            self.allPaths.append(contentPath)
-            metadataPath = topicPath / cst.FILENAME.META
+            metadataPath = topicPath / (post.filename + cst.EXT.META)
             dump_contents(metadataPath, post.md.asFileContents)
-            self.allPaths.append(metadataPath)
+            self.allPaths.extend([contentPath, metadataPath])
         return out
 
     def _git_add_files(self):
