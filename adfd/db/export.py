@@ -7,6 +7,7 @@ from adfd import conf
 from adfd.db.phpbb_classes import Forum, TopicDoesNotExist, Topic
 from adfd.utils import dump_contents
 
+
 log = logging.getLogger(__name__)
 
 
