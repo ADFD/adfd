@@ -1,13 +1,12 @@
 import html
 import logging
 import re
-from datetime import datetime
 
 from cached_property import cached_property
 
 from adfd.content import Metadata
 from adfd.db.utils import DbWrapper
-from adfd.utils import slugify
+from adfd.utils import slugify, format_date
 
 log = logging.getLogger(__name__)
 
@@ -61,25 +60,21 @@ class Topic(object):
 
     def __init__(self, topicId):
         self.postIds = self.fetch_post_ids(topicId)
-        self.posts = [Post(postId) for postId in self.postIds]
         self.firstPost = self.posts[0]
         self.id = self.firstPost.topicId
         self.subject = self.firstPost.subject
-        self.md = Metadata(kwargs=dict(
-            slug=self.firstPost.uniqueSlug,
-            title=self.firstPost.subject,
-            author=self.firstPost.username,
-            authorId=str(self.firstPost.dbp.poster_id),
-            lastUpdate=str(self._get_latest_update(self.posts)),
-            postDate=str(self.format_date(self.firstPost.dbp.post_time)),
-            topicId=str(self.firstPost.topicId),
-            postId=str(self.firstPost.id)))
+        self.lastUpdate = self._get_latest_update(self.posts),
+
+    @cached_property
+    def posts(self):
+        """:rtype: list of Post"""
+        return [Post(postId) for postId in self.postIds]
 
     @classmethod
     def _get_latest_update(cls, posts):
         # fixme still broken?
         newestDate = sorted([p.lastUpdate for p in posts], reverse=True)[0]
-        return cls.format_date(newestDate)
+        return format_date(newestDate)
 
     def fetch_post_ids(self, topicId):
         ids = DbWrapper().fetch_post_ids_from_topic(topicId)
@@ -88,18 +83,12 @@ class Topic(object):
 
         return ids
 
-    @staticmethod
-    def format_date(timestamp):
-        return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y')
-
 
 class TopicDoesNotExist(Exception):
     """raised if the topic contains no posts"""
 
 
 class Post(object):
-    TITLE_WRAP = "[h1]%s[/h1]"
-
     def __init__(self, postId):
         self.id = postId
         self.db = DbWrapper()
@@ -109,6 +98,15 @@ class Post(object):
 
         self.topicId = self.dbp.topic_id
         self.rawText = self.dbp.post_text
+        self.md = Metadata(kwargs=dict(
+            slug=self.uniqueSlug,
+            title=self.subject,
+            author=self.username,
+            authorId=str(self.dbp.poster_id),
+            lastUpdate=str(self.lastUpdate),
+            postDate=str(format_date(self.dbp.post_time)),
+            topicId=str(self.topicId),
+            postId=str(self.id)))
 
     def __repr__(self):
         return ("<%s %s (%s)>" %
@@ -116,12 +114,7 @@ class Post(object):
 
     @cached_property
     def content(self):
-        """post text as bbcode plus the subject wrapped in header tags"""
-        content = ''
-        if self.subject:
-            content += self.TITLE_WRAP % (self.subject) + '\n'
-        content += self.sanitize(self.preprocessedText)
-        return content
+        return self.sanitize(self.preprocessedText)
 
     @cached_property
     def filename(self):

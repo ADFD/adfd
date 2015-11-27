@@ -5,6 +5,7 @@ import subprocess
 from adfd import cst
 from adfd import conf
 from adfd.db.phpbb_classes import Forum, TopicDoesNotExist, Topic
+from adfd.utils import dump_contents
 
 log = logging.getLogger(__name__)
 
@@ -49,22 +50,22 @@ class TopicsExporter(object):
         for topic in self.topics:
             out.extend(self._export_topic(topic))
         log.info('%s files, %s topics', len(self.allPaths), len(self.topics))
-        self._write(self.SUMMARY_PATH, "\n".join(out))
+        dump_contents(self.SUMMARY_PATH, "\n".join(out))
 
     def _export_topic(self, topic):
         out = ["%s: %s" % (topic.id, topic.subject)]
         topicPath = self.TOPICS_PATH / ("%05d" % (topic.id)) / cst.DIR.RAW
         log.info('%s -> %s', topic.id, topicPath)
-        metadataPath = topicPath / cst.FILENAME.META
-        self._write(metadataPath, topic.md.asFileContents)
-        self.allPaths.append(metadataPath)
         for post in topic.posts:
             current = "%s" % (post.subject)
             log.debug("export: %s", current)
             out.append("    " + current)
             contentPath = topicPath / (post.filename + cst.EXT.BBCODE)
-            self._write(contentPath, post.content)
+            dump_contents(contentPath, post.content)
             self.allPaths.append(contentPath)
+            metadataPath = topicPath / cst.FILENAME.META
+            dump_contents(metadataPath, post.md.asFileContents)
+            self.allPaths.append(metadataPath)
         return out
 
     def _git_add_files(self):
@@ -83,8 +84,3 @@ class TopicsExporter(object):
                     subprocess.check_output(cmd, cwd=str(self.TOPICS_PATH))
                 except subprocess.CalledProcessError:
                     p.delete()
-
-    def _write(self, path, content):
-        log.debug('%s', path)
-        path.dirname.mkdir()
-        path.write(content.encode('utf8'))

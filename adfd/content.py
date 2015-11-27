@@ -6,8 +6,7 @@ from cached_property import cached_property
 
 from adfd.conf import METADATA
 from adfd.cst import EXT, DIR, PATH, FILENAME
-from adfd.utils import ContentGrabber, ContentDumper, slugify
-
+from adfd.utils import dump_contents, slugify, ContentGrabber
 
 log = logging.getLogger(__name__)
 
@@ -62,8 +61,8 @@ class Article(object):
         self.mdSrcPath = topicPath / FILENAME.META
 
     def _dump_contents(self):
-        ContentDumper(self.prepContentDstPath, self.content).dump()
-        ContentDumper(self.prepMdDstPath, self.md.asFileContents).dump()
+        dump_contents(self.prepContentDstPath, self.content)
+        dump_contents(self.prepMdDstPath, self.md.asFileContents)
 
     @property
     def structuralRepresentation(self):
@@ -86,6 +85,20 @@ class ArticleNotFound(Exception):
 
 
 class Metadata(object):
+    """For overriding this directly from post contents the bbcode tag
+    ``meta`` has to be defined on the board.
+
+    The following settings to be done in ``adm/index.php?i=acp_bbcodes``
+    define the tag and make it invisible if the post is viewed directly.
+
+    BBCODE use:
+
+        [meta]{TEXT}[/meta]
+
+    BBCODE replacement:
+
+        <span style="display: none;">[meta]{TEXT}[/meta]</span>
+    """
     META_RE = re.compile(r'\[meta\](.*)\[/meta\]', re.MULTILINE | re.DOTALL)
 
     def __init__(self, path=None, kwargs=None, text=None, slugPrefix=None):
@@ -111,7 +124,8 @@ class Metadata(object):
 
     @property
     def asFileContents(self):
-        return "\n".join([".. %s: %s" % (k, v) for k, v in self._dict.items()])
+        return "\n".join([".. %s: %s" % (k, v) for k, v in self._dict.items()
+                          if v is not None])
 
     @property
     def _dict(self):

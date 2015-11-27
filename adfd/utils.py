@@ -1,4 +1,5 @@
 import codecs
+from datetime import datetime
 import logging
 import os
 import re
@@ -11,6 +12,10 @@ from adfd.bbcode import AdfdParser
 
 
 log = logging.getLogger(__name__)
+
+
+def format_date(timestamp):
+    return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y')
 
 
 class _Slugification(object):
@@ -60,13 +65,10 @@ class ContentGrabber(object):
         return lines
 
 
-class ContentDumper(object):
-    def __init__(self, path, content):
-        self.path = path
-        self.content = content
-
-    def dump(self):
-        self.path.write(self.content, encoding='utf-8')
+def dump_contents(path, contents):
+    log.debug('%s', path)
+    path.dirname.mkdir()
+    path.write(contents, encoding='utf8')
 
 
 class DataGrabber(ContentGrabber):
