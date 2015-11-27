@@ -18,4 +18,5 @@ def test_db_connection_sets_encoding():
 @pytest.mark.skipif("is_running_in_ci()")
 def test_export():
     # if this runs through everything is considered fine
+    print(os.environ)
     export()
