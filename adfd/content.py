@@ -15,9 +15,10 @@ def finalize(structure):
     """using nikola constraints
     todo create fitting stucture and inject it via GLOBAL_CONTEXT in own theme
     """
-    for topicId, relPath in structure:
-        article = Article(topicId, relPath)
-        article.process()
+    for topicIds, relPath in structure:
+        for topicId in topicIds:
+            article = Article(topicId, relPath)
+            article.process()
 
 
 # def get_prepared_article_representations(identifiers, path=''):
@@ -43,7 +44,7 @@ class Article(object):
         mdSrcPath = PATH.CNT_PREPARED / (identifier + EXT.META)
         self.md = Metadata(mdSrcPath, relPath=relPath)
         self.htmlDstPath = PATH.CNT_FINAL / relPath / (identifier + EXT.HTML)
-        self.mdDstPath = PATH.CNT_FINAL / (identifier + EXT.META)
+        self.mdDstPath = PATH.CNT_FINAL / relPath / (identifier + EXT.META)
 
         self.title = self.md.title
         self.linktext = self.md.linktext or self.md.title

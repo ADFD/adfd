@@ -12,7 +12,9 @@ class EXPORT(object):
     ]
     """export whole forums"""
 
-    TOPIC_IDS = []
+    TOPIC_IDS = [
+        10068,
+    ]
     """export single topics"""
 
 

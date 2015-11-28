@@ -16,14 +16,8 @@ Each Article has
     * ordering comes from place in the list.
     * metadata from accompanying file (e.g. tags, slug, ...)
 """
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
-log = logging.getLogger(__name__)
-
-
 STRUCTURE = [
-    ([10694]),
+    ([10694], '.'),
     ([9913, 9910, 853], 'Absetzen'),
     ([940, 9420], 'Hintergründe'),
     ([689, 893], 'Info'),

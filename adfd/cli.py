@@ -12,7 +12,10 @@ from adfd.utils import get_config_info
 
 
 class AdfdCnt(cli.Application):
-    pass
+    @cli.switch("l", int)
+    def set_log_level(self, level):
+        """Sets the log-level of the logger"""
+        logging.root.setLevel(level)
 
 
 @AdfdCnt.subcommand("finalize")
@@ -37,7 +40,7 @@ class AdfdCntStructure(cli.Application):
 
 
 @AdfdCnt.subcommand("conf")
-class AdfdCntPrepare(cli.Application):
+class AdfdCntConf(cli.Application):
     def main(self):
         print(get_config_info())
 
@@ -70,5 +73,5 @@ class AdfdCntArticle(cli.Application):
 
 
 def main():
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.WARNING)
     AdfdCnt.run()

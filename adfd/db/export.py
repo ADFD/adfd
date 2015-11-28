@@ -13,11 +13,11 @@ log = logging.getLogger(__name__)
 
 def export():
     allTopics = []
-    for kwargs in conf.EXPORT.TOPIC_IDS:
+    for id in conf.EXPORT.TOPIC_IDS:
         try:
-            allTopics.append(Topic(**kwargs))
+            allTopics.append(Topic(id))
         except TopicDoesNotExist:
-            log.warning('kwargs %s are broken', str(kwargs))
+            log.warning('kwargs %s are broken', str(id))
     for forumId in conf.EXPORT.FORUM_IDS:
         allTopics.extend(Forum(forumId).topics)
     TopicsExporter(allTopics).export_all()
