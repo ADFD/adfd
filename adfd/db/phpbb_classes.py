@@ -99,7 +99,7 @@ class Post(object):
         self.topicId = self.dbp.topic_id
         self.rawText = self.dbp.post_text
         self.md = Metadata(kwargs=dict(
-            slug=self.uniqueSlug,
+            slug=self.slug,
             title=self.subject,
             author=self.username,
             authorId=str(self.dbp.poster_id),
@@ -110,11 +110,31 @@ class Post(object):
 
     def __repr__(self):
         return ("<%s %s (%s)>" %
-                (self.__class__.__name__, self.id, self.uniqueSlug))
+                (self.__class__.__name__, self.id, self.slug))
 
     @cached_property
     def content(self):
-        return self.sanitize(self.preprocessedText)
+        content = self._preprocess(self.rawText, self.dbp.bbcode_uid)
+        content = self._fix_db_storage_patterns(content)
+        return self._fix_whitespace(content)
+
+    @cached_property
+    def slug(self):
+        return slugify(self.subject)
+
+    @cached_property
+    def subject(self):
+        return self._preprocess(self.dbp.post_subject)
+
+    @cached_property
+    def username(self):
+        username = (self.dbp.post_username or
+                    self.db.get_username(self.dbp.poster_id))
+        return self._preprocess(username)
+
+    @cached_property
+    def lastUpdate(self):
+        return self.dbp.post_edit_time or self.dbp.post_time
 
     @cached_property
     def filename(self):
@@ -123,55 +143,15 @@ class Post(object):
             filename += '-%s' % (self.slug)
         return filename
 
-    @cached_property
-    def uniqueSlug(self):
-        isReSlug = self.slug.startswith('re-')
-        if not self.slug or isReSlug:
-            slug = str(self.id)
-            subslug = slugify(self.subject)
-            if not subslug or isReSlug:
-                return slug
-
-            return "%s-%s" % (slug, subslug)
-
-        return self.slug
-
-    @cached_property
-    def slug(self):
-        return slugify(self.subject)
-
-    @cached_property
-    def subject(self):
-        return self.preprocess(self.dbp.post_subject)
-
-    @cached_property
-    def username(self):
-        username = (self.dbp.post_username or
-                    self.db.get_username(self.dbp.poster_id))
-        return self.preprocess(username)
-
-    @cached_property
-    def lastUpdate(self):
-        return self.dbp.post_edit_time or self.dbp.post_time
-
-    @cached_property
-    def preprocessedText(self):
-        return self.preprocess(self.rawText, self.dbp.bbcode_uid)
-
     @staticmethod
-    def preprocess(text, bbcodeUid=None):
+    def _preprocess(text, bbcodeUid=None):
         if bbcodeUid:
             text = text.replace(':%s' % (bbcodeUid), '')
         text = html.unescape(text)
         return text
 
     @classmethod
-    def sanitize(cls, text):
-        text = cls.fix_db_storage_patterns(text)
-        return cls.fix_whitespace(text)
-
-    @classmethod
-    def fix_db_storage_patterns(cls, text):
+    def _fix_db_storage_patterns(cls, text):
         """restore original bbcode from phpBB db storage scheme"""
         pairs = [
             ("<!-- s(\S+) -->(?:.*?)<!-- s(?:\S+) -->", '\g<1>'),
@@ -187,7 +167,7 @@ class Post(object):
         return text
 
     @classmethod
-    def fix_whitespace(cls, text):
+    def _fix_whitespace(cls, text):
         text = text.replace('\r\n', '\n').replace('\r', '\n')
         lines = []
         for line in text.split('\n'):
