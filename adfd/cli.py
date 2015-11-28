@@ -1,4 +1,4 @@
-import sys
+import logging
 import webbrowser
 
 from plumbum import cli, LocalPath
@@ -12,10 +12,9 @@ class AdfdCnt(cli.Application):
     pass
 
 
-# todo add dump command that creates customized articles from db export
-
 @AdfdCnt.subcommand("prepare")
 class AdfdCntPrepare(cli.Application):
+    """prepare imported articles for final transformation"""
     def main(self):
         prepare_all(PATH.CNT_RAW)
 
@@ -48,8 +47,5 @@ class AdfdCntArticle(cli.Application):
 
 
 def main():
+    logging.basicConfig(level=logging.INFO)
     AdfdCnt.run()
-
-
-if __name__ == '__main__':
-    sys.exit(main())
