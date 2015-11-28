@@ -27,6 +27,7 @@ class Article(object):
 
 def prepare_all(containerPath):
     for path in [p for p in containerPath.list() if p.isdir()]:
+        log.info('prepare %s', path)
         TopicPreparator(path).prepare()
 
 
@@ -82,7 +83,7 @@ def prepare_metadata(paths, slugPrefix=None):
         tmpMd = Metadata(path)
         allAuthors.add(tmpMd.author)
         if not tmpMd.slug:
-            tmpMd.slug = slugify(tmpMd.title)
+            tmpMd.slug = slugify(tmpMd.title or 'no title')
         tmpMd.linktext = tmpMd.linktext or tmpMd.title
         tmpMd.dump()
         md.populate_from_kwargs(tmpMd.asDict)
