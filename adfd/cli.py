@@ -4,24 +4,32 @@ import webbrowser
 from plumbum import cli, LocalPath
 
 from adfd.bbcode import AdfdParser
-from adfd.content import Article, ArticleNotFound
+from adfd.content import Article, TopicNotImported, prepare_all
+from adfd.cst import PATH
 
 
 class AdfdCnt(cli.Application):
     pass
 
 
+# todo add dump command that creates customized articles from db export
+
+@AdfdCnt.subcommand("prepare")
+class AdfdCntPrepare(cli.Application):
+    def main(self):
+        prepare_all(PATH.CNT_RAW)
+
+
 @AdfdCnt.subcommand("article")
-class ShowTopic(cli.Application):
+class AdfdCntArticle(cli.Application):
     outType = cli.SwitchAttr(["out-type"], default='raw')
     refresh = cli.Flag(["refresh"], default=True)
 
     def main(self, identifier):
-        identifier = int(identifier) if identifier.isdigit() else identifier
         try:
-            article = Article(identifier, refresh=self.refresh)
-        except ArticleNotFound:
-            print("Article '%s' does not exist" % (identifier))
+            article = Article(int(identifier))
+        except TopicNotImported as e:
+            print(e)
             return 1
 
         print(article.md.asFileContents)

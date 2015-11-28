@@ -6,7 +6,7 @@ from cached_property import cached_property
 
 from adfd.content import Metadata
 from adfd.db.utils import DbWrapper
-from adfd.utils import slugify, format_date
+from adfd.utils import slugify, date_from_timestamp
 
 log = logging.getLogger(__name__)
 
@@ -63,7 +63,7 @@ class Topic(object):
         self.firstPost = self.posts[0]
         self.id = self.firstPost.topicId
         self.subject = self.firstPost.subject
-        self.lastUpdate = self._get_latest_update(self.posts),
+        self.lastUpdate = self._get_last_update(self.posts)
 
     @cached_property
     def posts(self):
@@ -71,10 +71,9 @@ class Topic(object):
         return [Post(postId) for postId in self.postIds]
 
     @classmethod
-    def _get_latest_update(cls, posts):
-        # fixme still broken?
-        newestDate = sorted([p.lastUpdate for p in posts], reverse=True)[0]
-        return format_date(newestDate)
+    def _get_last_update(cls, posts):
+        newestDate = sorted([p._postTime for p in posts], reverse=True)[0]
+        return date_from_timestamp(newestDate)
 
     def fetch_post_ids(self, topicId):
         ids = DbWrapper().fetch_post_ids_from_topic(topicId)
@@ -98,13 +97,14 @@ class Post(object):
 
         self.topicId = self.dbp.topic_id
         self.rawText = self.dbp.post_text
+        self._postTime = self.dbp.post_edit_time or self.dbp.post_time
         self.md = Metadata(kwargs=dict(
             slug=self.slug,
             title=self.subject,
             author=self.username,
             authorId=str(self.dbp.poster_id),
             lastUpdate=str(self.lastUpdate),
-            postDate=str(format_date(self.dbp.post_time)),
+            postDate=str(date_from_timestamp(self.dbp.post_time)),
             topicId=str(self.topicId),
             postId=str(self.id)))
 
@@ -134,7 +134,7 @@ class Post(object):
 
     @cached_property
     def lastUpdate(self):
-        return self.dbp.post_edit_time or self.dbp.post_time
+        return date_from_timestamp(self._postTime)
 
     @cached_property
     def filename(self):

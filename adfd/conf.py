@@ -12,5 +12,25 @@ class EXPORT(object):
 
 
 class METADATA(object):
-    OVERRIDABLES = ['author', 'linktext', 'slug', 'title']
+    OVERRIDABLES = [
+        'author',
+        'title',
+        'slug',
+        'linktext',
+    ]
     """those can be overridden by metadata in post content"""
+    ATTRIBUTES = OVERRIDABLES + [
+        'authorId',
+        'lastUpdate',
+        'postDate',
+        'topicId',
+        'postId',
+
+        'allAuthors',
+        'useTitles',
+        'excludePosts',
+        'includePosts',
+    ]
+    """All allowed attributes in use, prevents shooting self in foot"""
+
+DATE_FORMAT = '%d.%m.%Y'

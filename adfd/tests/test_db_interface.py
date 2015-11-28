@@ -19,4 +19,4 @@ def is_running_in_ci():
 @pytest.mark.skipif("is_running_in_ci()")
 def test_topic_export():
     # if this runs through everything is considered fine
-    TopicsExporter([Topic(68)]).process()
+    TopicsExporter([Topic(68)]).export_all()

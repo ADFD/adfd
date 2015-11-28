@@ -1,15 +1,15 @@
 import codecs
-from datetime import datetime
 import logging
 import os
 import re
+from datetime import datetime
 from types import FunctionType, MethodType
 
 import pytest
 from plumbum import LocalPath
 
 from adfd.bbcode import AdfdParser
-
+from adfd.conf import DATE_FORMAT
 
 log = logging.getLogger(__name__)
 
@@ -23,8 +23,8 @@ def get_paths(containerPath, ext=None, content=None):
     return paths
 
 
-def format_date(timestamp):
-    return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y')
+def date_from_timestamp(timestamp):
+    return datetime.fromtimestamp(timestamp).strftime(DATE_FORMAT)
 
 
 class _Slugification(object):
@@ -263,3 +263,26 @@ def get_config_info():
     for name, obj in sorted([(k, v) for k, v in inf.items() if k.isupper()]):
         out.append(obj_attr(obj, objName=name))
     return '\n'.join(out)
+
+
+# todo remove, when it's blatantly obvious that I don't need it
+# class Git(object):
+#     def __init__(self, path):
+#         self.path = path
+#
+#     def _git_add_files(self):
+#         cmd = ['git', 'add', '--all', '.']
+#         try:
+#             subprocess.check_output(cmd, cwd=str(self.path))
+#         except subprocess.CalledProcessError:
+#             pass
+#
+#     def _git_prune_orphans(self):
+#         for p in self.TOPICS_PATH.walk():
+#             if not p.isdir() and not any(ap == p for ap in self.allPaths):
+#                 log.warning("removing %s", p)
+#                 cmd = ['git', 'rm', '-f', str(p)]
+#                 try:
+#                     subprocess.check_output(cmd, cwd=str(self.TOPICS_PATH))
+#                 except subprocess.CalledProcessError:
+#                     p.delete()

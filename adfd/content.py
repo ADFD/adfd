@@ -2,80 +2,92 @@
 import logging
 import re
 
-from cached_property import cached_property
-
 from adfd.conf import METADATA
-from adfd.cst import EXT, DIR, PATH, FILENAME
-from adfd.utils import dump_contents, slugify, ContentGrabber, get_paths
+from adfd.cst import EXT, PATH
+from adfd.utils import dump_contents, ContentGrabber, get_paths, slugify
+
 
 log = logging.getLogger(__name__)
 
 
 class Article(object):
-    def __init__(self, identifier, slugPrefix='', refresh=True):
-        self.identifier = identifier
-        self.isStatic = not isinstance(identifier, int)
-        if self.isStatic:
-            self.cntPaths = [PATH.STATIC / (self.identifier + EXT.BBCODE)]
-            self.mdPaths = [PATH.STATIC / (self.identifier + EXT.META)]
-            self.preppedCntPath = self.preppedMdPath = None
-        else:
-            self.topicPath = PATH.TOPICS / ("%05d" % (identifier))
-            self.preppedCntPath = self.topicPath / FILENAME.CONTENT
-            self.preppedMdPath = self.topicPath / FILENAME.META
-            if refresh:
-                self.remove_prepared_files()
-            self.cntPaths, self.mdPaths = self._init_imported()
-        if not self.cntPaths:
-            raise ArticleNotFound(str(identifier))
-
-        self.mm = MergedMetadata(self.mdPaths, slugPrefix=slugPrefix.lower())
-        self.md = self.mm.mds[0]
+    def __init__(self, identifier):
+        self.identifier = ("%05d" % (identifier))
+        self.cntPath = PATH.CNT_PREPARED / (self.identifier + EXT.BBCODE)
+        self.content = ContentGrabber(self.cntPath).grab()
+        self.md = Metadata(PATH.CNT_PREPARED / (self.identifier + EXT.META))
         self.title = self.md.title
         self.linktext = self.md.linktext or self.md.title
-        self.slug = self.md.slug or slugify(self.md.title)
-        if not self.isStatic:
-            self._dump_contents()
-
-    def __repr__(self):
-        return '<%s %s>' % (self.__class__.__name__, self.slug)
-
-    def _init_imported(self):
-        log.info('candidate: %s', self.preppedCntPath)
-        if self.preppedCntPath.exists():
-            log.info('prepared article found %s', self.preppedCntPath)
-            cntPaths = [self.preppedCntPath]
-            mdPaths = self.preppedMdPath
-        else:
-            rawPath = self.topicPath / DIR.RAW
-            log.debug('candidate: %s', rawPath)
-            cntPaths = get_paths(rawPath, EXT.BBCODE)
-            mdPaths = get_paths(rawPath, EXT.META)
-        return cntPaths, mdPaths
-
-    def _dump_contents(self):
-        if not self.isStatic:
-            dump_contents(self.preppedCntPath, self.content)
-            dump_contents(self.preppedMdPath, self.md.asFileContents)
+        self.slug = self.md.slug
 
     @property
     def structuralRepresentation(self):
         return tuple(["/%s/" % (self.slug), self.linktext])
 
-    @cached_property
+
+def prepare_all(containerPath):
+    for path in [p for p in containerPath.list() if p.isdir()]:
+        TopicPreparator(path).prepare()
+
+
+class TopicPreparator(object):
+    """Take exported files of a topic and prepare them for HTML conversion"""
+    def __init__(self, path, slugPrefix=None):
+        self.slugPrefix = slugPrefix
+        self.path = path
+        self.cntSrcPaths = get_paths(self.path, EXT.BBCODE)
+        if not self.cntSrcPaths:
+            raise TopicNotImported(self.path)
+
+        self.mdSrcPaths = get_paths(self.path, EXT.META)
+        self.md = prepare_metadata(self.mdSrcPaths, self.slugPrefix)
+        filename = '%05d' % (int(self.md.topicId))
+        self.cntDstPath = PATH.CNT_PREPARED / (filename + EXT.BBCODE)
+        self.mdDstPath = PATH.CNT_PREPARED / (filename + EXT.META)
+
+    def __repr__(self):
+        return '<%s %s>' % (self.__class__.__name__, self.path)
+
+    @property
     def content(self):
+        """merge contents from topic files into one file"""
         contents = []
-        for path in self.cntPaths:
-            contents.append(ContentGrabber(path).grab())
+        for path in self.cntSrcPaths:
+            content = ''
+            if self.md.useTitles:
+                content += self.md.title + '\n'
+            content += ContentGrabber(path).grab()
+            contents.append(content)
         return "\n\n".join(contents)
 
-    def remove_prepared_files(self):
-        for path in [self.preppedCntPath, self.preppedCntPath]:
-            path.delete()
+    def prepare(self):
+        dump_contents(self.cntDstPath, self.content)
+        self.md.dump(self.mdDstPath)
 
 
-class ArticleNotFound(Exception):
-    """raise when the article is nowhere to be found"""
+class TopicNotImported(Exception):
+    """raise when the raw path of the topic is"""
+
+
+def prepare_metadata(paths, slugPrefix=None):
+    """
+    * add missing data and write back
+    * return merged metadata newest to oldest (first post wins)
+
+    :returns: Metadata
+    """
+    md = Metadata(slugPrefix=slugPrefix)
+    allAuthors = set()
+    for path in reversed(paths):
+        tmpMd = Metadata(path)
+        allAuthors.add(tmpMd.author)
+        if not tmpMd.slug:
+            tmpMd.slug = slugify(tmpMd.title)
+        tmpMd.linktext = tmpMd.linktext or tmpMd.title
+        tmpMd.dump()
+        md.populate_from_kwargs(tmpMd.asDict)
+    md.allAuthors = ",".join(allAuthors)
+    return md
 
 
 class Metadata(object):
@@ -96,8 +108,11 @@ class Metadata(object):
     META_RE = re.compile(r'\[meta\](.*)\[/meta\]', re.MULTILINE | re.DOTALL)
 
     def __init__(self, path=None, kwargs=None, text=None, slugPrefix=None):
-        self.title = None
+        """WARNING: all public attributes will coerced to strings if written"""
+        self._path = path
+
         self.author = None
+        self.title = None
         self.slug = None
         self.linktext = None
 
@@ -107,34 +122,54 @@ class Metadata(object):
         self.topicId = None
         self.postId = None
 
+        self.allAuthors = None
+        self.useTitles = None
+        self.excludePosts = None
+        self.includePosts = None
+
         self.populate_from_file(path)
         self.populate_from_kwargs(kwargs)
         self.populate_from_text(text)
         if slugPrefix:
-            self.slug = "%s%s" % (slugPrefix, self.slug)
+            self.slug = "%s%s" % (slugPrefix.lower(), self.slug)
 
     def __repr__(self):
         return self.asFileContents
 
     @property
     def asFileContents(self):
-        return "\n".join([".. %s: %s" % (k, v) for k, v in self._dict.items()
+        return "\n".join([".. %s: %s" % (k, v) for k, v in self.asDict.items()
                           if v is not None])
 
     @property
-    def _dict(self):
-        return {name: getattr(self, name) for name in vars(self)
-                if not name.startswith('_')}
+    def asDict(self):
+        dict_ = {}
+        for name in vars(self):
+            if name.startswith('_'):
+                continue
+
+            if name not in METADATA.ATTRIBUTES:
+                raise NotAnAttribute(name)
+
+            attr = getattr(self, name)
+            if not attr:
+                continue
+
+            if attr in ['True', 'False']:
+                attr = True if attr == 'True' else False
+
+            dict_[name] = attr
+        return dict_
 
     def populate_from_file(self, path):
-        if not path:
+        if not path or not path.exists():
             return
 
         for line in ContentGrabber(path).grab().split('\n'):
             if not line.strip():
                 continue
 
-            log.debug('process "%s"', line)
+            log.debug('export_all "%s"', line)
             key, value = line[3:].split(': ', 1)
             self.update(key, value)
 
@@ -171,20 +206,21 @@ class Metadata(object):
         log.debug('self.%s = %s', key, value)
         setattr(self, key.strip(), value.strip())
 
+    def dump(self, path=None):
+        path = path or self._path
+        if not path:
+            raise PathMissing(self.asFileContents)
+
+        dump_contents(path, self.asFileContents)
+
+
+class PathMissing(Exception):
+    """raise if trying to dump a file without knowing the path"""
+
+
+class NotAnAttribute(Exception):
+    """raise if a key is not an attribute"""
+
 
 class NotOverridable(Exception):
     """raise if a key mustn't be overriden (e.g. postId)"""
-
-
-class MergedMetadata(object):
-    def __init__(self, paths, slugPrefix=''):
-        """:type paths: list of paths to metadata files"""
-        self.mds = [Metadata(path, slugPrefix=slugPrefix) for path in paths]
-
-    @cached_property
-    def lastUpdate(self):
-        return sorted([md.lastUpdate for md in self.mds], reverse=True)[0]
-
-    @staticmethod
-    def get_all_metadata_paths(path):
-        return get_paths(path, EXT.META)
