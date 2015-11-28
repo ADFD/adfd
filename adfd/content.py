@@ -6,63 +6,57 @@ from cached_property import cached_property
 
 from adfd.conf import METADATA
 from adfd.cst import EXT, DIR, PATH, FILENAME
-from adfd.utils import dump_contents, slugify, ContentGrabber
+from adfd.utils import dump_contents, slugify, ContentGrabber, get_paths
 
 log = logging.getLogger(__name__)
 
 
 class Article(object):
     def __init__(self, identifier, slugPrefix='', refresh=True):
+        self.identifier = identifier
         self.isStatic = not isinstance(identifier, int)
-        topicPath = self._init_paths(identifier, refresh)
-        if not self.paths:
+        if self.isStatic:
+            self.cntPaths = [PATH.STATIC / (self.identifier + EXT.BBCODE)]
+            self.mdPaths = [PATH.STATIC / (self.identifier + EXT.META)]
+            self.preppedCntPath = self.preppedMdPath = None
+        else:
+            self.topicPath = PATH.TOPICS / ("%05d" % (identifier))
+            self.preppedCntPath = self.topicPath / FILENAME.CONTENT
+            self.preppedMdPath = self.topicPath / FILENAME.META
+            if refresh:
+                self.remove_prepared_files()
+            self.cntPaths, self.mdPaths = self._init_imported()
+        if not self.cntPaths:
             raise ArticleNotFound(str(identifier))
 
-        self.md = Metadata(path=self.mdSrcPath, slugPrefix=slugPrefix.lower())
-        if topicPath:
-            self._dump_contents()
-
-        self.md.populate_from_text(self.content)
+        self.mm = MergedMetadata(self.mdPaths, slugPrefix=slugPrefix.lower())
+        self.md = self.mm.mds[0]
         self.title = self.md.title
         self.linktext = self.md.linktext or self.md.title
         self.slug = self.md.slug or slugify(self.md.title)
+        if not self.isStatic:
+            self._dump_contents()
 
     def __repr__(self):
         return '<%s %s>' % (self.__class__.__name__, self.slug)
 
-    def _init_paths(self, identifier, refresh):
-        log.info('get article from %s', identifier)
-        if self.isStatic:
-            log.debug('try to get static article %s', identifier)
-            self.identifier = identifier
-            paths = PATH.STATIC.list()
-            self.paths = [p for p in paths if identifier in str(p)]
-            self.mdSrcPath = PATH.STATIC / (identifier + EXT.META)
-            return
-
-        topicPath = PATH.TOPICS / ("%05d" % (identifier))
-        self.prepContentDstPath = topicPath / FILENAME.CONTENT
-        self.prepMdDstPath = topicPath / FILENAME.META
-        if refresh:
-            self.prepContentDstPath.delete()
-            self.prepMdDstPath.delete()
-        log.debug('candidate: %s', self.prepContentDstPath)
-        if not self.prepContentDstPath.exists():
-            rawPath = topicPath / DIR.RAW
+    def _init_imported(self):
+        log.info('candidate: %s', self.preppedCntPath)
+        if self.preppedCntPath.exists():
+            log.info('prepared article found %s', self.preppedCntPath)
+            cntPaths = [self.preppedCntPath]
+            mdPaths = self.preppedMdPath
+        else:
+            rawPath = self.topicPath / DIR.RAW
             log.debug('candidate: %s', rawPath)
-            paths = sorted([p for p in rawPath.list()])
-            self.paths = [p for p in paths if str(p).endswith(EXT.BBCODE)]
-            self.mdSrcPath = rawPath / FILENAME.META
-            return topicPath
-
-        log.info('prepared article found %s', self.prepContentDstPath)
-        assert self.mdSrcPath.exists(), self.mdSrcPath
-        self.paths = [self.prepContentDstPath]
-        self.mdSrcPath = topicPath / FILENAME.META
+            cntPaths = get_paths(rawPath, EXT.BBCODE)
+            mdPaths = get_paths(rawPath, EXT.META)
+        return cntPaths, mdPaths
 
     def _dump_contents(self):
-        dump_contents(self.prepContentDstPath, self.content)
-        dump_contents(self.prepMdDstPath, self.md.asFileContents)
+        if not self.isStatic:
+            dump_contents(self.preppedCntPath, self.content)
+            dump_contents(self.preppedMdPath, self.md.asFileContents)
 
     @property
     def structuralRepresentation(self):
@@ -71,12 +65,12 @@ class Article(object):
     @cached_property
     def content(self):
         contents = []
-        for path in self.paths:
+        for path in self.cntPaths:
             contents.append(ContentGrabber(path).grab())
         return "\n\n".join(contents)
 
     def remove_prepared_files(self):
-        for path in [self.prepContentDstPath, self.prepMdDstPath]:
+        for path in [self.preppedCntPath, self.preppedCntPath]:
             path.delete()
 
 
@@ -180,3 +174,17 @@ class Metadata(object):
 
 class NotOverridable(Exception):
     """raise if a key mustn't be overriden (e.g. postId)"""
+
+
+class MergedMetadata(object):
+    def __init__(self, paths, slugPrefix=''):
+        """:type paths: list of paths to metadata files"""
+        self.mds = [Metadata(path, slugPrefix=slugPrefix) for path in paths]
+
+    @cached_property
+    def lastUpdate(self):
+        return sorted([md.lastUpdate for md in self.mds], reverse=True)[0]
+
+    @staticmethod
+    def get_all_metadata_paths(path):
+        return get_paths(path, EXT.META)

@@ -4,7 +4,7 @@ import pytest
 from plumbum import LocalPath
 
 from adfd import cst
-from adfd.content import Article, Metadata
+from adfd.content import Article, Metadata, MergedMetadata
 
 log = logging.getLogger(__name__)
 
@@ -26,9 +26,10 @@ def article_class_with_test_path(request):
 
 
 class TestArticle(object):
-    def test_rel_path(self):
+    def test_static(self):
         a = Article('test-kitchen-sink')
         assert 'Lorem ipsum dolor sit amet' in a.content
+        assert isinstance(a.mm, MergedMetadata)
         assert isinstance(a.md, Metadata)
 
     def test_topic_id_path(self):
@@ -36,6 +37,7 @@ class TestArticle(object):
         a.remove_prepared_files()
         assert a.content == (
             "söme text from first pöst\n\n\nsome text from second post\n")
+        assert isinstance(a.mm, MergedMetadata)
         assert isinstance(a.md, Metadata)
 
     def test_slug_transliteration(self):

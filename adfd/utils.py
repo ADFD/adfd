@@ -14,6 +14,15 @@ from adfd.bbcode import AdfdParser
 log = logging.getLogger(__name__)
 
 
+def get_paths(containerPath, ext=None, content=None):
+    paths = sorted([p for p in containerPath.list()])
+    if ext:
+        paths = [p for p in paths if p.endswith(ext)]
+    if content:
+        paths = [p for p in paths if content in p]
+    return paths
+
+
 def format_date(timestamp):
     return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y')
 
