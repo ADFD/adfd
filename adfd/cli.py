@@ -6,6 +6,7 @@ from plumbum import cli, LocalPath
 from adfd.bbcode import AdfdParser
 from adfd.content import Article, TopicNotImported, prepare_all
 from adfd.cst import PATH
+from adfd.utils import get_config_info
 
 
 class AdfdCnt(cli.Application):
@@ -17,6 +18,12 @@ class AdfdCntPrepare(cli.Application):
     """prepare imported articles for final transformation"""
     def main(self):
         prepare_all(PATH.CNT_RAW)
+
+
+@AdfdCnt.subcommand("conf")
+class AdfdCntPrepare(cli.Application):
+    def main(self):
+        print(get_config_info())
 
 
 @AdfdCnt.subcommand("article")
