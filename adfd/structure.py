@@ -12,9 +12,9 @@ a list of articles.
 
 Each Article has
     * ID that is used to localize the file with the content
-    * and the ordering comes from place in the list.
+    * relative path the article should be placed on the site
+    * ordering comes from place in the list.
     * metadata from accompanying file (e.g. tags, slug, ...)
-
 """
 
 import logging

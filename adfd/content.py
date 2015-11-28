@@ -11,11 +11,12 @@ log = logging.getLogger(__name__)
 
 
 class Article(object):
-    def __init__(self, identifier):
+    def __init__(self, identifier, relPath=None):
         self.identifier = ("%05d" % (identifier))
         self.cntPath = PATH.CNT_PREPARED / (self.identifier + EXT.BBCODE)
         self.content = ContentGrabber(self.cntPath).grab()
-        self.md = Metadata(PATH.CNT_PREPARED / (self.identifier + EXT.META))
+        mdPath = PATH.CNT_PREPARED / (self.identifier + EXT.META)
+        self.md = Metadata(mdPath, relPath)
         self.title = self.md.title
         self.linktext = self.md.linktext or self.md.title
         self.slug = self.md.slug
@@ -33,15 +34,14 @@ def prepare_all(containerPath):
 
 class TopicPreparator(object):
     """Take exported files of a topic and prepare them for HTML conversion"""
-    def __init__(self, path, slugPrefix=None):
-        self.slugPrefix = slugPrefix
+    def __init__(self, path):
         self.path = path
         self.cntSrcPaths = get_paths(self.path, EXT.BBCODE)
         if not self.cntSrcPaths:
             raise TopicNotImported(self.path)
 
         self.mdSrcPaths = get_paths(self.path, EXT.META)
-        self.md = prepare_metadata(self.mdSrcPaths, self.slugPrefix)
+        self.md = prepare_metadata(self.mdSrcPaths)
         filename = '%05d' % (int(self.md.topicId))
         self.cntDstPath = PATH.CNT_PREPARED / (filename + EXT.BBCODE)
         self.mdDstPath = PATH.CNT_PREPARED / (filename + EXT.META)
@@ -70,14 +70,14 @@ class TopicNotImported(Exception):
     """raise when the raw path of the topic is"""
 
 
-def prepare_metadata(paths, slugPrefix=None):
+def prepare_metadata(paths):
     """
     * add missing data and write back
     * return merged metadata newest to oldest (first post wins)
 
     :returns: Metadata
     """
-    md = Metadata(slugPrefix=slugPrefix)
+    md = Metadata()
     allAuthors = set()
     for path in reversed(paths):
         tmpMd = Metadata(path)
@@ -108,31 +108,26 @@ class Metadata(object):
     """
     META_RE = re.compile(r'\[meta\](.*)\[/meta\]', re.MULTILINE | re.DOTALL)
 
-    def __init__(self, path=None, kwargs=None, text=None, slugPrefix=None):
-        """WARNING: all public attributes will coerced to strings if written"""
+    def __init__(self, path=None, kwargs=None, text=None, relPath=None):
+        """WARNING: all public attributes are written as meta data"""
         self._path = path
-
         self.author = None
         self.title = None
         self.slug = None
         self.linktext = None
-
         self.authorId = None
         self.lastUpdate = None
         self.postDate = None
         self.topicId = None
         self.postId = None
-
         self.allAuthors = None
         self.useTitles = None
         self.excludePosts = None
         self.includePosts = None
-
+        self.relPath = relPath
         self.populate_from_file(path)
         self.populate_from_kwargs(kwargs)
         self.populate_from_text(text)
-        if slugPrefix:
-            self.slug = "%s%s" % (slugPrefix.lower(), self.slug)
 
     def __repr__(self):
         return self.asFileContents
