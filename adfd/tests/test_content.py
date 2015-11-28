@@ -4,7 +4,7 @@ import pytest
 from plumbum import LocalPath
 
 from adfd import cst
-from adfd.content import Article, Metadata, prepare_all
+from adfd.content import Article, Metadata, prepare
 
 log = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ def fakeRawPath(request):
 
 class TestPreparator(object):
     def test_preparation(self, fakeRawPath):
-        prepare_all(fakeRawPath)
+        prepare(fakeRawPath)
 
 
 class TestArticle(object):

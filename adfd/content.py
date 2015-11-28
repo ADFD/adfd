@@ -2,31 +2,63 @@
 import logging
 import re
 
-from adfd.conf import METADATA
-from adfd.cst import EXT, PATH
+from adfd.bbcode import AdfdParser
+from adfd.conf import METADATA, PATH
+from adfd.cst import EXT
 from adfd.utils import dump_contents, ContentGrabber, get_paths, slugify
 
 
 log = logging.getLogger(__name__)
 
 
+def finalize(structure):
+    """using nikola constraints
+    todo create fitting stucture and inject it via GLOBAL_CONTEXT in own theme
+    """
+    for topicId, relPath in structure:
+        article = Article(topicId, relPath)
+        article.process()
+
+
+# def get_prepared_article_representations(identifiers, path=''):
+#     """creating old fashioned nikola nav links.
+#     For regular links: ('https://getnikola.com/', 'Nikola Homepage')
+#     submenus: ((('http://a.com/', 'A'), ('http://b.com/', 'O')), 'Fruits')
+#     TODO Make sure to end all urls with /
+#     """
+#     # representations = []
+#     # for identifier in identifiers:
+#     #     article = Article(identifier, path)
+#     #     article.process()
+#     #     representation = article.structuralRepresentation
+#     #     representations.append(representation)
+#     # return tuple(representations), path
+
+
 class Article(object):
-    def __init__(self, identifier, relPath=None):
-        self.identifier = ("%05d" % (identifier))
-        self.cntPath = PATH.CNT_PREPARED / (self.identifier + EXT.BBCODE)
+    def __init__(self, identifier, relPath='.'):
+        identifier = ("%05d" % (identifier))
+        self.cntPath = PATH.CNT_PREPARED / (identifier + EXT.BBCODE)
         self.content = ContentGrabber(self.cntPath).grab()
-        mdPath = PATH.CNT_PREPARED / (self.identifier + EXT.META)
-        self.md = Metadata(mdPath, relPath)
+        mdSrcPath = PATH.CNT_PREPARED / (identifier + EXT.META)
+        self.md = Metadata(mdSrcPath, relPath=relPath)
+        self.htmlDstPath = PATH.CNT_FINAL / relPath / (identifier + EXT.HTML)
+        self.mdDstPath = PATH.CNT_FINAL / (identifier + EXT.META)
+
         self.title = self.md.title
         self.linktext = self.md.linktext or self.md.title
         self.slug = self.md.slug
+
+    def process(self):
+        dump_contents(self.htmlDstPath, (AdfdParser().to_html(self.content)))
+        self.md.dump(self.mdDstPath)
 
     @property
     def structuralRepresentation(self):
         return tuple(["/%s/" % (self.slug), self.linktext])
 
 
-def prepare_all(containerPath):
+def prepare(containerPath):
     for path in [p for p in containerPath.list() if p.isdir()]:
         log.info('prepare %s', path)
         TopicPreparator(path).prepare()

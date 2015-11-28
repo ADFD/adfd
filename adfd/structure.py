@@ -16,41 +16,16 @@ Each Article has
     * ordering comes from place in the list.
     * metadata from accompanying file (e.g. tags, slug, ...)
 """
-
 import logging
-import pprint
-
-from adfd.content import Article
-
 
 logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
-def get_prepared_article_representations(identifiers, path=u''):
-    representations = []
-    for identifier in identifiers:
-        article = Article(identifier, path)
-        representation = article.structuralRepresentation
-        representations.append(representation)
-    return tuple(representations), path
-
-
-# fixme this is still with nikola constraints
-# todo create fitting stucture and inject it via GLOBAL_CONTEXT in own theme
-# For regular links: ('https://getnikola.com/', 'Nikola Homepage')
-# submenus: ((('http://a.com/', 'A'), ('http://b.com/', 'O')), 'Fruits')
-# TODO Make sure to end all urls with /
-NAVIGATION_LINKS = {
-    'de': (
-        get_prepared_article_representations(['tmp-index']),
-        get_prepared_article_representations([9913, 9910, 853], 'Absetzen'),
-        get_prepared_article_representations([940, 9420], 'Hintergründe'),
-        get_prepared_article_representations([689, 893], 'Info'),
-        get_prepared_article_representations(['kitchen-sink', 9730], 'Demo'),
-        get_prepared_article_representations([10068], 'BBcode'),
-    )
-}
-
-
-if __name__ == '__main__':
-    pprint.pprint(NAVIGATION_LINKS)
+STRUCTURE = [
+    ([10694]),
+    ([9913, 9910, 853], 'Absetzen'),
+    ([940, 9420], 'Hintergründe'),
+    ([689, 893], 'Info'),
+    ([10068], 'BBcode'),
+]

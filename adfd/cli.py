@@ -1,11 +1,13 @@
 import logging
+import pprint
 import webbrowser
 
 from plumbum import cli, LocalPath
 
 from adfd.bbcode import AdfdParser
-from adfd.content import Article, TopicNotImported, prepare_all
-from adfd.cst import PATH
+from adfd.content import Article, TopicNotImported, prepare, finalize
+from adfd.conf import PATH
+from adfd.structure import STRUCTURE
 from adfd.utils import get_config_info
 
 
@@ -13,11 +15,25 @@ class AdfdCnt(cli.Application):
     pass
 
 
+@AdfdCnt.subcommand("finalize")
+class AdfdCntFinalize(cli.Application):
+    """finalize prepared articles and create structure"""
+    def main(self):
+        finalize(STRUCTURE)
+
+
 @AdfdCnt.subcommand("prepare")
 class AdfdCntPrepare(cli.Application):
     """prepare imported articles for final transformation"""
     def main(self):
-        prepare_all(PATH.CNT_RAW)
+        prepare(PATH.CNT_RAW)
+
+
+@AdfdCnt.subcommand("structure")
+class AdfdCntStructure(cli.Application):
+    """prepare imported articles for final transformation"""
+    def main(self):
+        pprint.pprint(STRUCTURE)
 
 
 @AdfdCnt.subcommand("conf")

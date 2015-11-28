@@ -2,7 +2,8 @@
 import logging
 
 from adfd import conf
-from adfd.cst import PATH, EXT
+from adfd.cst import EXT
+from adfd.conf import PATH
 from adfd.db.phpbb_classes import Forum, TopicDoesNotExist, Topic
 from adfd.utils import dump_contents
 
