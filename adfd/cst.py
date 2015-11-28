@@ -26,3 +26,7 @@ class DIR(object):
     PREPARED = 'prepared'
     FINAL = 'final'
     """the resulting html"""
+
+
+class FILENAME(object):
+    DIRINFO = 'dirinfo.txt'

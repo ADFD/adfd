@@ -4,7 +4,7 @@ import re
 
 from adfd.bbcode import AdfdParser
 from adfd.conf import METADATA, PATH
-from adfd.cst import EXT
+from adfd.cst import EXT, FILENAME
 from adfd.utils import dump_contents, ContentGrabber, get_paths, slugify
 
 
@@ -21,30 +21,18 @@ def finalize(structure):
             article.process()
 
 
-# def get_prepared_article_representations(identifiers, path=''):
-#     """creating old fashioned nikola nav links.
-#     For regular links: ('https://getnikola.com/', 'Nikola Homepage')
-#     submenus: ((('http://a.com/', 'A'), ('http://b.com/', 'O')), 'Fruits')
-#     TODO Make sure to end all urls with /
-#     """
-#     # representations = []
-#     # for identifier in identifiers:
-#     #     article = Article(identifier, path)
-#     #     article.process()
-#     #     representation = article.structuralRepresentation
-#     #     representations.append(representation)
-#     # return tuple(representations), path
-
-
 class Article(object):
     def __init__(self, identifier, relPath='.'):
+        sRelPath = self.slugify_rel_path(relPath)
+        dirInfoPath = PATH.CNT_FINAL / sRelPath / FILENAME.DIRINFO
+        dump_contents(dirInfoPath, relPath)
         identifier = ("%05d" % (identifier))
         self.cntPath = PATH.CNT_PREPARED / (identifier + EXT.BBCODE)
         self.content = ContentGrabber(self.cntPath).grab()
         mdSrcPath = PATH.CNT_PREPARED / (identifier + EXT.META)
-        self.md = Metadata(mdSrcPath, relPath=relPath)
-        self.htmlDstPath = PATH.CNT_FINAL / relPath / (identifier + EXT.HTML)
-        self.mdDstPath = PATH.CNT_FINAL / relPath / (identifier + EXT.META)
+        self.md = Metadata(mdSrcPath)
+        self.htmlDstPath = PATH.CNT_FINAL / sRelPath / (identifier + EXT.HTML)
+        self.mdDstPath = PATH.CNT_FINAL / sRelPath / (identifier + EXT.META)
 
         self.title = self.md.title
         self.linktext = self.md.linktext or self.md.title
@@ -53,6 +41,10 @@ class Article(object):
     def process(self):
         dump_contents(self.htmlDstPath, (AdfdParser().to_html(self.content)))
         self.md.dump(self.mdDstPath)
+
+    @staticmethod
+    def slugify_rel_path(relPath):
+        return "/".join([slugify(s) for s in relPath.split('/')])
 
     @property
     def structuralRepresentation(self):
@@ -141,7 +133,7 @@ class Metadata(object):
     """
     META_RE = re.compile(r'\[meta\](.*)\[/meta\]', re.MULTILINE | re.DOTALL)
 
-    def __init__(self, path=None, kwargs=None, text=None, relPath=None):
+    def __init__(self, path=None, kwargs=None, text=None):
         """WARNING: all public attributes are written as meta data"""
         self._path = path
         self.author = None
@@ -157,7 +149,6 @@ class Metadata(object):
         self.useTitles = None
         self.excludePosts = None
         self.includePosts = None
-        self.relPath = relPath
         self.populate_from_file(path)
         self.populate_from_kwargs(kwargs)
         self.populate_from_text(text)
