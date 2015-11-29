@@ -134,7 +134,7 @@ class PairTester(object):
         print(html)
         print("\n## EXPECTED ##")
         print(exp)
-        refPath = DataGrabber.DATA_PATH / ('%s.html' % (fName))
+        refPath = DataGrabber.DATA_PATH / ('%s.html' % (fName[:-7]))
         try:
             assert html == exp
             refPath.delete()
