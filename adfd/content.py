@@ -157,7 +157,7 @@ class Metadata(object):
     @property
     def asDict(self):
         dict_ = OrderedDict()
-        for name in vars(self):
+        for name in sorted(vars(self)):
             if name.startswith('_'):
                 continue
 
