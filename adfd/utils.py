@@ -47,6 +47,10 @@ class _Slugification(object):
 slugify = _Slugification()
 
 
+def slugify_path(relPath):
+    return "/".join([slugify(s) for s in relPath.split('/')])
+
+
 class ContentGrabber(object):
     def __init__(self, absPath=None, relPath='.'):
         if absPath:
@@ -255,11 +259,10 @@ def _prep_line(contentTuple, maxNameLen, maxTypeLen, terminalSize):
     return "".join(lines)
 
 
-def get_config_info():
-    from adfd import conf, cst
-
-    inf = {k: v for k, v in vars(conf).items() if k.isupper()}
-    inf.update({k: v for k, v in vars(cst).items() if k.isupper()})
+def get_obj_info(objects):
+    inf = {}
+    for obj in objects:
+        inf.update({k: v for k, v in vars(obj).items() if k.isupper()})
     out = []
     for name, obj in sorted([(k, v) for k, v in inf.items() if k.isupper()]):
         out.append(obj_attr(obj, objName=name))

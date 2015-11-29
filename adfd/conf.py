@@ -20,7 +20,7 @@ class EXPORT(object):
 STRUCTURE = [
     ([10694], '.'),
     ([9913, 9910, 853], 'Absetzen'),
-    ([9241], 'Hintergründe/'),
+    ([9241], 'Hintergründe'),
     ([10046, 933], 'Hintergründe/System'),
     ([940, 9420], 'Hintergründe/Geschichte'),
     ([689, 893], 'Info'),

@@ -6,9 +6,9 @@ import re
 
 from adfd.bbcode import AdfdParser
 from adfd.conf import METADATA, PATH, BBCODE
-from adfd.cst import EXT, FILENAME
-from adfd.utils import dump_contents, ContentGrabber, get_paths, slugify
-
+from adfd.cst import EXT
+from adfd.utils import (
+    dump_contents, ContentGrabber, get_paths, slugify, slugify_path)
 
 log = logging.getLogger(__name__)
 
@@ -26,6 +26,14 @@ def finalize(structure):
         for topicId in topicIds:
             log.info('finalize %s at %s', topicId, relPath)
             TopicFinalizer(topicId, relPath).process()
+
+
+def make_navigation_links(structure):
+    l = []
+    for topicIds, relPath in structure:
+        for topicId in topicIds:
+            l.append(TopicFinalizer(topicId, relPath).structuralRepresentation)
+    return l
 
 
 class TopicPreparator(object):
@@ -86,28 +94,25 @@ class TopicPreparator(object):
 
 class TopicFinalizer(object):
     def __init__(self, topicId, relPath='.'):
-        sRelPath = self.slugify_rel_path(relPath)
-        dirInfoPath = PATH.CNT_FINAL / sRelPath / FILENAME.DIRINFO
-        dump_contents(dirInfoPath, relPath)
+        self.relPath = slugify_path(relPath)
         topicId = ("%05d" % (topicId))
         self.cntPath = PATH.CNT_PREPARED / (topicId + EXT.BBCODE)
         self.content = ContentGrabber(self.cntPath).grab()
         mdSrcPath = PATH.CNT_PREPARED / (topicId + EXT.META)
         self.md = Metadata(mdSrcPath)
-        self.htmlDstPath = PATH.CNT_FINAL / sRelPath / (topicId + EXT.HTML)
-        self.mdDstPath = PATH.CNT_FINAL / sRelPath / (topicId + EXT.META)
+        self.htmlDstPath = PATH.CNT_FINAL / self.relPath / (topicId + EXT.HTML)
+        self.mdDstPath = PATH.CNT_FINAL / self.relPath / (topicId + EXT.META)
 
     def process(self):
         dump_contents(self.htmlDstPath, (AdfdParser().to_html(self.content)))
         self.md.dump(self.mdDstPath)
 
-    @staticmethod
-    def slugify_rel_path(relPath):
-        return "/".join([slugify(s) for s in relPath.split('/')])
-
     @property
     def structuralRepresentation(self):
-        return tuple(["/%s/" % (self.md.slug), self.md.linktext])
+        slug = '/%s/' % (self.md.slug)
+        if self.relPath:
+            slug = '/%s%s' % (self.relPath, slug)
+        return tuple([slug, self.md.linktext])
 
 
 class Metadata(object):

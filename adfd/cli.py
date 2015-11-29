@@ -4,10 +4,10 @@ import webbrowser
 
 from plumbum import cli, LocalPath
 
+from adfd import cst, conf
 from adfd.bbcode import AdfdParser
 from adfd.content import TopicFinalizer, TopicNotFound, prepare, finalize
-from adfd.conf import PATH, STRUCTURE
-from adfd.utils import get_config_info
+from adfd.utils import get_obj_info
 
 
 class AdfdCnt(cli.Application):
@@ -21,27 +21,27 @@ class AdfdCnt(cli.Application):
 class AdfdCntFinalize(cli.Application):
     """finalize prepared articles and create structure"""
     def main(self):
-        finalize(STRUCTURE)
+        finalize(conf.STRUCTURE)
 
 
 @AdfdCnt.subcommand("prepare")
 class AdfdCntPrepare(cli.Application):
     """prepare imported articles for final transformation"""
     def main(self):
-        prepare(PATH.CNT_RAW)
+        prepare(conf.PATH.CNT_RAW)
 
 
 @AdfdCnt.subcommand("structure")
 class AdfdCntStructure(cli.Application):
     """prepare imported articles for final transformation"""
     def main(self):
-        pprint.pprint(STRUCTURE)
+        pprint.pprint(conf.STRUCTURE)
 
 
 @AdfdCnt.subcommand("conf")
 class AdfdCntConf(cli.Application):
     def main(self):
-        print(get_config_info())
+        print(get_obj_info([cst, conf]))
 
 
 @AdfdCnt.subcommand("article")
