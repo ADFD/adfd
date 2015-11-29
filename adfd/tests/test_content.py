@@ -35,8 +35,8 @@ class TestArticle(object):
 
     def test_slug_transliteration(self):
         a = TopicFinalizer(1)
-        assert a.title == 'Söme snaßy Tätle'
-        assert a.slug == 'soeme-snassy-taetle'
+        assert a.md.title == 'Söme snaßy Tätle'
+        assert a.md.slug == 'soeme-snassy-taetle'
 
 
 class TestMetadata(object):

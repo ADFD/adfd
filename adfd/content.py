@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
+from collections import OrderedDict
+
 import re
 
 from adfd.bbcode import AdfdParser
@@ -94,10 +96,6 @@ class TopicFinalizer(object):
         self.htmlDstPath = PATH.CNT_FINAL / sRelPath / (topicId + EXT.HTML)
         self.mdDstPath = PATH.CNT_FINAL / sRelPath / (topicId + EXT.META)
 
-        self.title = self.md.title
-        self.linktext = self.md.linktext or self.md.title
-        self.slug = self.md.slug
-
     def process(self):
         dump_contents(self.htmlDstPath, (AdfdParser().to_html(self.content)))
         self.md.dump(self.mdDstPath)
@@ -108,7 +106,7 @@ class TopicFinalizer(object):
 
     @property
     def structuralRepresentation(self):
-        return tuple(["/%s/" % (self.slug), self.linktext])
+        return tuple(["/%s/" % (self.md.slug), self.md.linktext])
 
 
 class Metadata(object):
@@ -158,7 +156,7 @@ class Metadata(object):
 
     @property
     def asDict(self):
-        dict_ = {}
+        dict_ = OrderedDict()
         for name in vars(self):
             if name.startswith('_'):
                 continue
