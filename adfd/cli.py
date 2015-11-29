@@ -5,7 +5,7 @@ import webbrowser
 from plumbum import cli, LocalPath
 
 from adfd.bbcode import AdfdParser
-from adfd.content import Article, TopicNotImported, prepare, finalize
+from adfd.content import TopicFinalizer, TopicNotFound, prepare, finalize
 from adfd.conf import PATH, STRUCTURE
 from adfd.utils import get_config_info
 
@@ -51,8 +51,8 @@ class AdfdCntArticle(cli.Application):
 
     def main(self, identifier):
         try:
-            article = Article(int(identifier))
-        except TopicNotImported as e:
+            article = TopicFinalizer(int(identifier))
+        except TopicNotFound as e:
             print(e)
             return 1
 

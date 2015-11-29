@@ -11,50 +11,19 @@ from adfd.utils import dump_contents, ContentGrabber, get_paths, slugify
 log = logging.getLogger(__name__)
 
 
-def finalize(structure):
-    """using nikola constraints
-    todo create fitting stucture and inject it via GLOBAL_CONTEXT in own theme
-    """
-    for topicIds, relPath in structure:
-        for topicId in topicIds:
-            article = Article(topicId, relPath)
-            article.process()
-
-
-class Article(object):
-    def __init__(self, identifier, relPath='.'):
-        sRelPath = self.slugify_rel_path(relPath)
-        dirInfoPath = PATH.CNT_FINAL / sRelPath / FILENAME.DIRINFO
-        dump_contents(dirInfoPath, relPath)
-        identifier = ("%05d" % (identifier))
-        self.cntPath = PATH.CNT_PREPARED / (identifier + EXT.BBCODE)
-        self.content = ContentGrabber(self.cntPath).grab()
-        mdSrcPath = PATH.CNT_PREPARED / (identifier + EXT.META)
-        self.md = Metadata(mdSrcPath)
-        self.htmlDstPath = PATH.CNT_FINAL / sRelPath / (identifier + EXT.HTML)
-        self.mdDstPath = PATH.CNT_FINAL / sRelPath / (identifier + EXT.META)
-
-        self.title = self.md.title
-        self.linktext = self.md.linktext or self.md.title
-        self.slug = self.md.slug
-
-    def process(self):
-        dump_contents(self.htmlDstPath, (AdfdParser().to_html(self.content)))
-        self.md.dump(self.mdDstPath)
-
-    @staticmethod
-    def slugify_rel_path(relPath):
-        return "/".join([slugify(s) for s in relPath.split('/')])
-
-    @property
-    def structuralRepresentation(self):
-        return tuple(["/%s/" % (self.slug), self.linktext])
-
-
 def prepare(containerPath):
+    PATH.CNT_PREPARED.delete()
     for path in [p for p in containerPath.list() if p.isdir()]:
         log.info('prepare %s', path)
         TopicPreparator(path).prepare()
+
+
+def finalize(structure):
+    PATH.CNT_FINAL.delete()
+    for topicIds, relPath in structure:
+        for topicId in topicIds:
+            log.info('finalize %s at %s', topicId, relPath)
+            TopicFinalizer(topicId, relPath).process()
 
 
 class TopicPreparator(object):
@@ -63,10 +32,10 @@ class TopicPreparator(object):
         self.path = path
         self.cntSrcPaths = get_paths(self.path, EXT.BBCODE)
         if not self.cntSrcPaths:
-            raise TopicNotImported(self.path)
+            raise TopicNotFound(self.path)
 
         self.mdSrcPaths = get_paths(self.path, EXT.META)
-        self.md = prepare_metadata(self.mdSrcPaths)
+        self.md = self.prepare_metadata(self.mdSrcPaths)
         filename = '%05d' % (int(self.md.topicId))
         self.cntDstPath = PATH.CNT_PREPARED / (filename + EXT.BBCODE)
         self.mdDstPath = PATH.CNT_PREPARED / (filename + EXT.META)
@@ -90,30 +59,56 @@ class TopicPreparator(object):
         dump_contents(self.cntDstPath, self.content)
         self.md.dump(self.mdDstPath)
 
+    @staticmethod
+    def prepare_metadata(paths):
+        """
+        * add missing data and write back
+        * return merged metadata newest to oldest (first post wins)
 
-class TopicNotImported(Exception):
-    """raise when the raw path of the topic is"""
+        :returns: Metadata
+        """
+        md = Metadata()
+        allAuthors = set()
+        for path in reversed(paths):
+            tmpMd = Metadata(path)
+            allAuthors.add(tmpMd.author)
+            if not tmpMd.slug:
+                tmpMd.slug = slugify(tmpMd.title or 'no title')
+            tmpMd.linktext = tmpMd.linktext or tmpMd.title
+            tmpMd.dump()
+            md.populate_from_kwargs(tmpMd.asDict)
+        md.allAuthors = ",".join(allAuthors)
+        return md
 
 
-def prepare_metadata(paths):
-    """
-    * add missing data and write back
-    * return merged metadata newest to oldest (first post wins)
+class TopicFinalizer(object):
+    def __init__(self, topicId, relPath='.'):
+        sRelPath = self.slugify_rel_path(relPath)
+        dirInfoPath = PATH.CNT_FINAL / sRelPath / FILENAME.DIRINFO
+        dump_contents(dirInfoPath, relPath)
+        topicId = ("%05d" % (topicId))
+        self.cntPath = PATH.CNT_PREPARED / (topicId + EXT.BBCODE)
+        self.content = ContentGrabber(self.cntPath).grab()
+        mdSrcPath = PATH.CNT_PREPARED / (topicId + EXT.META)
+        self.md = Metadata(mdSrcPath)
+        self.htmlDstPath = PATH.CNT_FINAL / sRelPath / (topicId + EXT.HTML)
+        self.mdDstPath = PATH.CNT_FINAL / sRelPath / (topicId + EXT.META)
 
-    :returns: Metadata
-    """
-    md = Metadata()
-    allAuthors = set()
-    for path in reversed(paths):
-        tmpMd = Metadata(path)
-        allAuthors.add(tmpMd.author)
-        if not tmpMd.slug:
-            tmpMd.slug = slugify(tmpMd.title or 'no title')
-        tmpMd.linktext = tmpMd.linktext or tmpMd.title
-        tmpMd.dump()
-        md.populate_from_kwargs(tmpMd.asDict)
-    md.allAuthors = ",".join(allAuthors)
-    return md
+        self.title = self.md.title
+        self.linktext = self.md.linktext or self.md.title
+        self.slug = self.md.slug
+
+    def process(self):
+        dump_contents(self.htmlDstPath, (AdfdParser().to_html(self.content)))
+        self.md.dump(self.mdDstPath)
+
+    @staticmethod
+    def slugify_rel_path(relPath):
+        return "/".join([slugify(s) for s in relPath.split('/')])
+
+    @property
+    def structuralRepresentation(self):
+        return tuple(["/%s/" % (self.slug), self.linktext])
 
 
 class Metadata(object):
@@ -232,6 +227,10 @@ class Metadata(object):
             raise PathMissing(self.asFileContents)
 
         dump_contents(path, self.asFileContents)
+
+
+class TopicNotFound(Exception):
+    """raise when the raw path of the topic is"""
 
 
 class PathMissing(Exception):

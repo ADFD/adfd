@@ -4,7 +4,7 @@ import pytest
 from plumbum import LocalPath
 
 from adfd import cst
-from adfd.content import Article, Metadata, prepare
+from adfd.content import TopicFinalizer, Metadata, prepare
 
 log = logging.getLogger(__name__)
 
@@ -28,13 +28,13 @@ class TestPreparator(object):
 
 class TestArticle(object):
     def test_topic_id_path(self):
-        a = Article(1)
+        a = TopicFinalizer(1)
         assert a.content == (
             "söme text from first pöst\n\n\nsome text from second post\n")
         assert isinstance(a.md, Metadata)
 
     def test_slug_transliteration(self):
-        a = Article(1)
+        a = TopicFinalizer(1)
         assert a.title == 'Söme snaßy Tätle'
         assert a.slug == 'soeme-snassy-taetle'
 
