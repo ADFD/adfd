@@ -4,7 +4,6 @@ from collections import OrderedDict
 
 import re
 
-from adfd import conf
 from adfd.bbcode import AdfdParser
 from adfd.conf import METADATA, PATH, BBCODE
 from adfd.cst import EXT, FILENAME
