@@ -25,7 +25,7 @@ class METADATA(object):
         'slug',
         'linktext',
     ]
-    """those can be overridden by metadata in post content"""
+    """can be overridden by metadata in post content"""
     ATTRIBUTES = OVERRIDABLES + [
         'authorId',
         'lastUpdate',
@@ -40,7 +40,7 @@ class METADATA(object):
 
         'relPath',
     ]
-    """All allowed attributes in use, prevents shooting self in foot"""
+    """all allowed attributes in use, prevents shooting self in foot"""
 
 DATE_FORMAT = '%d.%m.%Y'
 
