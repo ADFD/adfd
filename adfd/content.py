@@ -4,8 +4,9 @@ from collections import OrderedDict
 
 import re
 
+from adfd import conf
 from adfd.bbcode import AdfdParser
-from adfd.conf import METADATA, PATH
+from adfd.conf import METADATA, PATH, BBCODE
 from adfd.cst import EXT, FILENAME
 from adfd.utils import dump_contents, ContentGrabber, get_paths, slugify
 
@@ -30,6 +31,7 @@ def finalize(structure):
 
 class TopicPreparator(object):
     """Take exported files of a topic and prepare them for HTML conversion"""
+
     def __init__(self, path):
         self.path = path
         self.cntSrcPaths = get_paths(self.path, EXT.BBCODE)
@@ -52,7 +54,7 @@ class TopicPreparator(object):
         for path in self.cntSrcPaths:
             content = ''
             if self.md.useTitles:
-                content += self.md.title + '\n'
+                content += BBCODE.TITLE_PATTERN % (self.md.title)
             content += ContentGrabber(path).grab()
             contents.append(content)
         return "\n\n".join(contents)

@@ -76,3 +76,7 @@ class METADATA(object):
 
     DATE_FORMAT = '%d.%m.%Y'
     """this format will be used for human readable dates in meta data"""
+
+
+class BBCODE(object):
+    TITLE_PATTERN = '[h2]%s[/h2]\n'
