@@ -9,7 +9,7 @@ import pytest
 from plumbum import LocalPath
 
 from adfd.bbcode import AdfdParser
-from adfd.conf import DATE_FORMAT
+from adfd.conf import METADATA
 
 log = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ def get_paths(containerPath, ext=None, content=None):
 
 
 def date_from_timestamp(timestamp):
-    return datetime.fromtimestamp(timestamp).strftime(DATE_FORMAT)
+    return datetime.fromtimestamp(timestamp).strftime(METADATA.DATE_FORMAT)
 
 
 class _Slugification(object):

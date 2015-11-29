@@ -6,8 +6,7 @@ from plumbum import cli, LocalPath
 
 from adfd.bbcode import AdfdParser
 from adfd.content import Article, TopicNotImported, prepare, finalize
-from adfd.conf import PATH
-from adfd.structure import STRUCTURE
+from adfd.conf import PATH, STRUCTURE
 from adfd.utils import get_config_info
 
 
