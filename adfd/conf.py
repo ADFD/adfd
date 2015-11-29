@@ -50,7 +50,23 @@ class PATH(object):
 
 
 class METADATA(object):
-    """settings for the accompanying meta data used by the web generator"""
+    """settings for the accompanying meta data used by the web generator
+
+    For overriding this directly from post contents the bbcode tag
+    ``meta`` has to be defined on the board.
+
+    The following settings to be done in ``adm/index.php?i=acp_bbcodes``
+    define the tag and make it invisible if the post is viewed directly.
+
+    BBCODE use:
+
+        [meta]{TEXT}[/meta]
+
+    BBCODE replacement:
+
+        <span style="display: none;">[meta]{TEXT}[/meta]</span>
+    """
+
     OVERRIDABLES = [
         'author',
         'title',
