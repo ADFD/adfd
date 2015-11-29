@@ -5,7 +5,6 @@ import re
 from datetime import datetime
 from types import FunctionType, MethodType
 
-import pytest
 from plumbum import LocalPath
 
 from adfd.bbcode import AdfdParser
@@ -124,6 +123,8 @@ class PairTester(object):
 
     @classmethod
     def test_pairs(cls, fName, src, exp):
+        import pytest
+
         exp = exp.strip()
         if not exp:
             pytest.xfail(reason='no expectation for %s' % (fName))
