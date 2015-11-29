@@ -676,6 +676,7 @@ class Chunkman(object):
 
 
 class AdfdParser(Parser):
+    ORPHAN_MATCHER = re.compile(r'^<p></p>')
     HEADER_TAGS = ['h%s' % (i) for i in range(1, 6)]
     DEMOTION_LEVEL = 1  # number of levels header tags get demoted
 
@@ -693,7 +694,18 @@ class AdfdParser(Parser):
             assert not tokens, tokens
             tokens = Chunkman(self.tokenize(data)).flattened
         assert tokens
-        return self._format_tokens(tokens, parent=None, **context).strip()
+        html = self._format_tokens(tokens, parent=None, **context).strip()
+        return self.cleanup(html)
+
+    def cleanup(self, text):
+        out = []
+        for line in text.split('\n'):
+            if not line.strip():
+                continue
+
+            if not re.match(self.ORPHAN_MATCHER, line):
+                out.append(line)
+        return '\n'.join(out)
 
     def _add_formatters(self):
         self.add_simple_formatter('b', '<strong>%(value)s</strong>')
@@ -721,7 +733,7 @@ class AdfdParser(Parser):
         self._add_img_formatter()
         self._add_list_formatter()
         self._add_quote_formatter()
-        self._add_meta_formatter()
+        self._add_removals()
         self._add_section_formatter()
         self._add_url_formatter()
 
@@ -814,10 +826,9 @@ class AdfdParser(Parser):
         value = value.replace('\n', '<br>')
         return '<blockquote><p>%s%s</p></blockquote>\n' % (value, cite)
 
-    def _add_meta_formatter(self):
-        self.add_formatter(
-            'meta', self._render_quote, transform_newlines=False,
-            strip=True, swallow_trailing_newline=True)
+    def _add_removals(self):
+        for removal in ['meta', 'mod']:
+            self.add_simple_formatter(removal, '')
 
     # noinspection PyUnusedLocal
     @staticmethod
