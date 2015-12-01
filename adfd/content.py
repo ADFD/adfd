@@ -29,11 +29,14 @@ def finalize(structure):
 
 
 def make_navigation_links(structure):
-    l = []
+    outer = []
     for topicIds, relPath in structure:
+        inner = []
         for topicId in topicIds:
-            l.append(TopicFinalizer(topicId, relPath).structuralRepresentation)
-    return l
+            sr = TopicFinalizer(topicId, relPath).structuralRepresentation
+            inner.append(sr)
+        outer.append((inner, relPath))
+    return outer
 
 
 class TopicPreparator(object):
@@ -112,7 +115,7 @@ class TopicFinalizer(object):
         slug = '/%s/' % (self.md.slug)
         if self.relPath:
             slug = '/%s%s' % (self.relPath, slug)
-        return tuple([slug, self.md.linktext])
+        return (slug, self.md.linktext)
 
 
 class Metadata(object):
