@@ -177,8 +177,8 @@ class Metadata(object):
             if not line.strip():
                 continue
 
-            log.debug('export_all "%s"', line)
             key, value = line[3:].split(': ', 1)
+            log.debug('%s -> %s from "%s"', key, value, line)
             self.update(key, value)
 
     def populate_from_kwargs(self, kwargs):

@@ -3,9 +3,10 @@ import sys
 
 from plumbum import cli
 
+from adfd import conf, cst
 from adfd.db.export import export
 from adfd.db.phpbb_classes import *
-from adfd.utils import get_config_info
+from adfd.utils import get_obj_info
 
 
 class AdfdDb(cli.Application):
@@ -79,7 +80,7 @@ class AdfdDbExport(cli.Application):
 @AdfdDb.subcommand("status")
 class AdfdDbStatus(cli.Application):
     def main(self):
-        print(get_config_info())
+        print(get_obj_info([cst, conf]))
 
 
 def main():
