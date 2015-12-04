@@ -28,7 +28,8 @@ class Finalizer(object):
 
     @classmethod
     def finalize(cls, structure, pathPrefix=''):
-        for relPath, item in structure:
+        for weight, (relPath, item) in enumerate(structure):
+            print(weight)
             print(relPath, type(relPath))
             print(item, type(item))
             print()
@@ -39,7 +40,7 @@ class Finalizer(object):
                     relPath = "%s/%s" % (pathPrefix, relPath)
                 for topicId in item:
                     log.info('finalize %s at %s', topicId, relPath)
-                    TopicFinalizer(topicId, relPath).process()
+                    TopicFinalizer(topicId, relPath, weight).process()
 
 
 def make_navigation_links(structure):
@@ -110,13 +111,15 @@ class TopicPreparator(object):
 
 
 class TopicFinalizer(object):
-    def __init__(self, topicId, relPath='.'):
+    def __init__(self, topicId, relPath='.', weight=0):
         self.relPath = slugify_path(relPath)
+        self.order = weight
         topicId = ("%05d" % (topicId))
         self.cntPath = PATH.CNT_PREPARED / (topicId + EXT.BBCODE)
         self.content = ContentGrabber(self.cntPath).grab()
         mdSrcPath = PATH.CNT_PREPARED / (topicId + EXT.META)
-        self.md = Metadata(mdSrcPath)
+        kwargs = dict(relPath=relPath, weight=weight)
+        self.md = Metadata(mdSrcPath, kwargs=kwargs)
         self.htmlDstPath = PATH.CNT_FINAL / self.relPath / (topicId + EXT.HTML)
         self.mdDstPath = PATH.CNT_FINAL / self.relPath / (topicId + EXT.META)
 
@@ -138,19 +141,21 @@ class Metadata(object):
     def __init__(self, path=None, kwargs=None, text=None):
         """WARNING: all public attributes are written as meta data"""
         self._path = path
-        self.author = None
-        self.title = None
-        self.slug = None
-        self.linktext = None
-        self.authorId = None
-        self.lastUpdate = None
-        self.postDate = None
-        self.topicId = None
-        self.postId = None
         self.allAuthors = None
-        self.useTitles = None
+        self.author = None
+        self.authorId = None
         self.excludePosts = None
         self.includePosts = None
+        self.lastUpdate = None
+        self.linktext = None
+        self.weight = None
+        self.postId = None
+        self.postDate = None
+        self.relPath = None
+        self.slug = None
+        self.title = None
+        self.topicId = None
+        self.useTitles = None
         self.populate_from_file(path)
         self.populate_from_kwargs(kwargs)
         self.populate_from_text(text)
@@ -226,7 +231,7 @@ class Metadata(object):
 
     def update(self, key, value):
         log.debug('self.%s = %s', key, value)
-        setattr(self, key.strip(), value.strip())
+        setattr(self, key.strip(), str(value).strip())
 
     def dump(self, path=None):
         path = path or self._path

@@ -73,6 +73,8 @@ class METADATA(object):
         'title',
         'slug',
         'linktext',
+        'relPath',
+        'weight',
     ]
     """can be overridden by metadata in post content"""
     ATTRIBUTES = OVERRIDABLES + [
