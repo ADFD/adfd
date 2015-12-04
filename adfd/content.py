@@ -20,12 +20,26 @@ def prepare(containerPath):
         TopicPreparator(path).prepare()
 
 
-def finalize(structure):
-    PATH.CNT_FINAL.delete()
-    for topicIds, relPath in structure:
-        for topicId in topicIds:
-            log.info('finalize %s at %s', topicId, relPath)
-            TopicFinalizer(topicId, relPath).process()
+class Finalizer(object):
+    FINAL_DESTINATION_PATH = PATH.CNT_FINAL
+
+    def __init__(self):
+        self.FINAL_DESTINATION_PATH.delete()
+
+    @classmethod
+    def finalize(cls, structure, pathPrefix=''):
+        for relPath, item in structure:
+            print(relPath, type(relPath))
+            print(item, type(item))
+            print()
+            if isinstance(item, tuple):
+                cls.finalize(item, relPath)
+            else:
+                if pathPrefix:
+                    relPath = "%s/%s" % (pathPrefix, relPath)
+                for topicId in item:
+                    log.info('finalize %s at %s', topicId, relPath)
+                    TopicFinalizer(topicId, relPath).process()
 
 
 def make_navigation_links(structure):

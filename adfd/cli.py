@@ -6,7 +6,8 @@ from plumbum import cli, LocalPath
 
 from adfd import cst, conf
 from adfd.bbcode import AdfdParser
-from adfd.content import TopicFinalizer, TopicNotFound, prepare, finalize
+from adfd.content import TopicFinalizer, TopicNotFound, prepare, Finalizer
+from adfd.db.export import export
 from adfd.utils import get_obj_info
 
 
@@ -17,11 +18,18 @@ class AdfdCnt(cli.Application):
         logging.root.setLevel(level)
 
 
+@AdfdCnt.subcommand("export")
+class AdfdDbExport(cli.Application):
+    """export topics from db"""
+    def main(self):
+        export(conf.EXPORT.FORUM_IDS, conf.EXPORT.TOPIC_IDS)
+
+
 @AdfdCnt.subcommand("finalize")
 class AdfdCntFinalize(cli.Application):
     """finalize prepared articles and create structure"""
     def main(self):
-        finalize(conf.STRUCTURE)
+        Finalizer().finalize(conf.STRUCTURE)
 
 
 @AdfdCnt.subcommand("prepare")

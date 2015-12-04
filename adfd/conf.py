@@ -18,12 +18,14 @@ class EXPORT(object):
     """export single topics"""
 
 STRUCTURE = [
-
-    ([10694], '.'),
-    ([9913, 9910, 853], 'Absetzen'),
-    ([9241, 10046, 933], 'Hintergründe'),
-    ([689, 893], 'Info'),
-    ([10068], 'BBcode'),
+    ('.', [10694]),
+    ('Absetzen', [9913, 9910, 853]),
+    ('Hintergründe', (
+        ('Geschichte', [9241, 10046, 933]),
+        ('Steckbriefe', [9738, 9735, 9733, 9732, 9731])
+    )),
+    ('Info', [689, 893]),
+    ('BBcode', [10068]),
 ]
 """structure of the site from a list of topicIds mapped to a relPath
 

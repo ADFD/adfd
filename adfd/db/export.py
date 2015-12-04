@@ -1,7 +1,6 @@
 # coding=utf-8
 import logging
 
-from adfd import conf
 from adfd.cst import EXT
 from adfd.conf import PATH
 from adfd.db.phpbb_classes import Forum, TopicDoesNotExist, Topic
@@ -11,16 +10,15 @@ from adfd.utils import dump_contents
 log = logging.getLogger(__name__)
 
 
-def export():
-    allTopics = []
-    for id in conf.EXPORT.TOPIC_IDS:
-        try:
-            allTopics.append(Topic(id))
-        except TopicDoesNotExist:
-            log.warning('kwargs %s are broken', str(id))
-    for forumId in conf.EXPORT.FORUM_IDS:
-        allTopics.extend(Forum(forumId).topics)
-    TopicsExporter(allTopics).export_all()
+def export(forumIds=None, topicIds=None):
+    allTopicIds = []
+    for forumId in forumIds or []:
+        forumTopicIds = Forum(forumId).topicIds
+        allTopicIds.extend(forumTopicIds)
+        log.info("export topics from forum %s: %s", forumId, forumTopicIds)
+    if topicIds:
+        allTopicIds.extend(topicIds)
+    TopicsExporter(allTopicIds).export_all()
 
 
 class TopicsExporter(object):
@@ -29,9 +27,14 @@ class TopicsExporter(object):
     SUMMARY_PATH = PATH.CNT_RAW / 'summary.txt'
     """keep a list of topics and their imported posts as text"""
 
-    def __init__(self, topics):
-        self.topics = topics
+    def __init__(self, topicIds):
+        self.topics = []
         """:type: list of Topic"""
+        for topicId in topicIds:
+            try:
+                self.topics.append(Topic(topicId))
+            except TopicDoesNotExist:
+                log.warning('topic %s is broken', topicId)
         self.allPaths = [self.SUMMARY_PATH]
         """list of all written paths at end of import (purely for logging)"""
 

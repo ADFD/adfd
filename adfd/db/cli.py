@@ -71,12 +71,6 @@ class AdfdDbPost(cli.Application):
             print(post.content)
 
 
-@AdfdDb.subcommand("export")
-class AdfdDbExport(cli.Application):
-    def main(self):
-        export()
-
-
 @AdfdDb.subcommand("status")
 class AdfdDbStatus(cli.Application):
     def main(self):
