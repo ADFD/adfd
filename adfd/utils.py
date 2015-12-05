@@ -22,6 +22,12 @@ def get_paths(containerPath, ext=None, content=None):
     return paths
 
 
+def id2filename(id_):
+    if isinstance(id_, str):
+        id_ = int(id_)
+    return "%05d" % (id_)
+
+
 def date_from_timestamp(timestamp):
     return datetime.fromtimestamp(timestamp).strftime(METADATA.DATE_FORMAT)
 
@@ -158,7 +164,8 @@ SIMPLE_OBJECTS = [str, list, tuple, dict, set, int, float]
 
 
 def obj_attr(obj, hideString='', filterMethods=True, filterPrivate=True,
-             sanitize=False, excludeAttrs=None, indent=0, objName=""):
+             sanitize=False, excludeAttrs=None, indent=0, objName="",
+             terminalSize=100):
     try:
         if any(isinstance(obj, t) for t in SIMPLE_OBJECTS):
             return ("[%s] %s = %s" %
@@ -166,7 +173,7 @@ def obj_attr(obj, hideString='', filterMethods=True, filterPrivate=True,
 
         return _obj_attr(
             obj, hideString, filterMethods, filterPrivate,
-            sanitize, excludeAttrs, indent, objName)
+            sanitize, excludeAttrs, indent, objName, terminalSize)
 
     except:
         msg = "problems calling obj_attr"
@@ -174,9 +181,8 @@ def obj_attr(obj, hideString='', filterMethods=True, filterPrivate=True,
         return msg
 
 
-def _obj_attr(obj, hideString='', filterMethods=True, filterPrivate=True,
-              sanitize=False, excludeAttrs=None, indent=0, objName="",
-              terminalSize=120):
+def _obj_attr(obj, hideString, filterMethods, filterPrivate,
+              sanitize, excludeAttrs, indent, objName, terminalSize):
     """show attributes of any object - generic representation of objects"""
     excludeAttrs = excludeAttrs or []
     names = dir(obj)
