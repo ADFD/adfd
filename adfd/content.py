@@ -73,12 +73,12 @@ class TopicPreparator(object):
         * add missing data and write back
         * return merged metadata newest to oldest (first post wins)
 
-        :returns: Metadata
+        :returns: PageMetadata
         """
-        md = Metadata()
+        md = PageMetadata()
         allAuthors = set()
         for path in reversed(paths):
-            tmpMd = Metadata(path)
+            tmpMd = PageMetadata(path)
             allAuthors.add(tmpMd.author)
             if not tmpMd.slug:
                 tmpMd.slug = slugify(tmpMd.title or 'no title')
@@ -101,7 +101,7 @@ class TopicFinalizer(object):
         kwargs = dict(relPath=relPath, weight=weight,
                       relFilePath=relHtmlDstPathName)
         mdSrcPath = PATH.CNT_PREPARED / (topicId + EXT.META)
-        self.md = Metadata(mdSrcPath, kwargs=kwargs)
+        self.md = PageMetadata(mdSrcPath, kwargs=kwargs)
         self.htmlDstPath = PATH.CNT_FINAL / relHtmlDstPathName
         self.mdDstPath = PATH.CNT_FINAL / self.slugPath / (topicId + EXT.META)
 
@@ -114,7 +114,7 @@ class TopicFinalizer(object):
         return ContentGrabber(self.cntPath).grab()
 
 
-class Metadata(object):
+class PageMetadata(object):
     META_RE = re.compile(r'\[meta\](.*)\[/meta\]', re.MULTILINE | re.DOTALL)
 
     def __init__(self, path=None, kwargs=None, text=None):

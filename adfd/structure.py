@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 from plumbum import LocalPath
 
-from adfd.content import Metadata
+from adfd.content import PageMetadata
 from adfd.cst import EXT
 
 
@@ -25,7 +25,7 @@ class Structure(object):
     def create_page_map(cls, rootPath):
         pages = OrderedDict()
         for path in rootPath.walk(lambda n: n.endswith(EXT.META)):
-            md = Metadata(path=path)
+            md = PageMetadata(path=path)
             curDict = None
             for part in md.relPath.split('/'):
                 if part not in pages:

@@ -4,7 +4,7 @@ import re
 
 from cached_property import cached_property
 
-from adfd.content import Metadata
+from adfd.content import PageMetadata
 from adfd.db.utils import DbWrapper
 from adfd.utils import slugify, date_from_timestamp
 
@@ -98,7 +98,7 @@ class Post(object):
         self.topicId = self.dbp.topic_id
         self.rawText = self.dbp.post_text
         self._postTime = self.dbp.post_edit_time or self.dbp.post_time
-        self.md = Metadata(kwargs=dict(
+        self.md = PageMetadata(kwargs=dict(
             slug=self.slug,
             title=self.subject,
             author=self.username,
