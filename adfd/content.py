@@ -4,6 +4,8 @@ from collections import OrderedDict
 
 import re
 
+from cached_property import cached_property
+
 from adfd.bbcode import AdfdParser
 from adfd.conf import METADATA, PATH, BBCODE
 from adfd.cst import EXT
@@ -41,17 +43,6 @@ class Finalizer(object):
                 for topicId in item:
                     log.info('finalize %s at %s', topicId, relPath)
                     TopicFinalizer(topicId, relPath, weight).process()
-
-
-def make_navigation_links(structure):
-    outer = []
-    for topicIds, relPath in structure:
-        inner = []
-        for topicId in topicIds:
-            sr = TopicFinalizer(topicId, relPath).structuralRepresentation
-            inner.append(sr)
-        outer.append((inner, relPath))
-    return outer
 
 
 class TopicPreparator(object):
@@ -111,28 +102,28 @@ class TopicPreparator(object):
 
 
 class TopicFinalizer(object):
-    def __init__(self, topicId, relPath='.', weight=0):
-        self.relPath = slugify_path(relPath)
+    def __init__(self, topicId, relPath='', weight=0):
+        self.slugPath = slugify_path(relPath)
         self.order = weight
         topicId = ("%05d" % (topicId))
         self.cntPath = PATH.CNT_PREPARED / (topicId + EXT.BBCODE)
-        self.content = ContentGrabber(self.cntPath).grab()
+        relHtmlDstPathName = topicId + EXT.HTML
+        if self.slugPath:
+            relHtmlDstPathName = "%s/%s" % (self.slugPath, relHtmlDstPathName)
+        kwargs = dict(relPath=relPath, weight=weight,
+                      relFilePath=relHtmlDstPathName)
         mdSrcPath = PATH.CNT_PREPARED / (topicId + EXT.META)
-        kwargs = dict(relPath=relPath, weight=weight)
         self.md = Metadata(mdSrcPath, kwargs=kwargs)
-        self.htmlDstPath = PATH.CNT_FINAL / self.relPath / (topicId + EXT.HTML)
-        self.mdDstPath = PATH.CNT_FINAL / self.relPath / (topicId + EXT.META)
+        self.htmlDstPath = PATH.CNT_FINAL / relHtmlDstPathName
+        self.mdDstPath = PATH.CNT_FINAL / self.slugPath / (topicId + EXT.META)
 
     def process(self):
         dump_contents(self.htmlDstPath, (AdfdParser().to_html(self.content)))
         self.md.dump(self.mdDstPath)
 
-    @property
-    def structuralRepresentation(self):
-        slug = '/%s/' % (self.md.slug)
-        if self.relPath:
-            slug = '/%s%s' % (self.relPath, slug)
-        return (slug, self.md.linktext)
+    @cached_property
+    def content(self):
+        return ContentGrabber(self.cntPath).grab()
 
 
 class Metadata(object):
@@ -152,6 +143,7 @@ class Metadata(object):
         self.postId = None
         self.postDate = None
         self.relPath = None
+        self.relFilePath = None
         self.slug = None
         self.title = None
         self.topicId = None

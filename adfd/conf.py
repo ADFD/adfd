@@ -74,6 +74,7 @@ class METADATA(object):
         'slug',
         'linktext',
         'relPath',
+        'relFilePath',
         'weight',
     ]
     """can be overridden by metadata in post content"""
