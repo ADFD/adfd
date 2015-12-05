@@ -1,13 +1,14 @@
 import logging
-import pprint
 import webbrowser
 
 from plumbum import cli, LocalPath
 
 from adfd import cst, conf
 from adfd.bbcode import AdfdParser
-from adfd.content import TopicFinalizer, TopicNotFound, prepare, Finalizer
+from adfd.conf import PATH
+from adfd.content import TopicFinalizer, TopicNotFound, prepare, finalize
 from adfd.db.export import export
+from adfd.structure import Structure
 from adfd.utils import get_obj_info
 
 
@@ -25,25 +26,22 @@ class AdfdDbExport(cli.Application):
         export(conf.EXPORT.FORUM_IDS, conf.EXPORT.TOPIC_IDS)
 
 
-@AdfdCnt.subcommand("finalize")
-class AdfdCntFinalize(cli.Application):
-    """finalize prepared articles and create structure"""
-    def main(self):
-        Finalizer().finalize(conf.STRUCTURE)
-
-
 @AdfdCnt.subcommand("prepare")
 class AdfdCntPrepare(cli.Application):
     """prepare imported articles for final transformation"""
     def main(self):
-        prepare(conf.PATH.CNT_RAW)
+        PATH.CNT_PREPARED.delete()
+        prepare(conf.PATH.CNT_RAW, PATH.CNT_PREPARED)
 
 
-@AdfdCnt.subcommand("structure")
-class AdfdCntStructure(cli.Application):
-    """prepare imported articles for final transformation"""
+@AdfdCnt.subcommand("finalize")
+class AdfdCntFinalize(cli.Application):
+    """finalize prepared articles and create structure"""
     def main(self):
-        pprint.pprint(conf.STRUCTURE)
+        PATH.CNT_FINAL.delete()
+        finalize(conf.STRUCTURE)
+        s = Structure(PATH.CNT_FINAL, PATH.STRUCTURE)
+        s.dump_structure()
 
 
 @AdfdCnt.subcommand("conf")

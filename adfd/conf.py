@@ -1,6 +1,6 @@
 import plumbum
 
-from adfd.cst import CONTENT_ROOT, DIR
+from adfd.cst import CONTENT_ROOT, DIR, PAGE
 
 
 class EXPORT(object):
@@ -18,7 +18,7 @@ class EXPORT(object):
     """export single topics"""
 
 STRUCTURE = [
-    ('.', [10694]),
+    (PAGE.ROOT, [10694]),
     ('Absetzen', [9913, 9910, 853]),
     ('Hintergründe', (
         ('Geschichte', [9241, 10046, 933]),
@@ -34,7 +34,7 @@ The topic ids used here must have been exported to RAW
 
 
 class PATH(object):
-    PROJECT = plumbum.LocalPath(__file__).up().up(2) / 'adfd'
+    PROJECT = plumbum.LocalPath(__file__).dirname.up()
     TEST_DATA = PROJECT / 'adfd' / 'tests' / 'data'
     CONTENT = CONTENT_ROOT
     CNT_RAW = CONTENT / DIR.RAW
@@ -48,6 +48,8 @@ class PATH(object):
     """prepared in a file pair - contents as bbcode in one file + metadata"""
     CNT_FINAL = CONTENT / DIR.FINAL
     """the final structure that makes the website"""
+    STRUCTURE = CNT_FINAL / 'structure.json'
+    """json containing the page structure for menu generation"""
 
 
 class METADATA(object):
@@ -100,3 +102,7 @@ class METADATA(object):
 
 class BBCODE(object):
     TITLE_PATTERN = '[h2]%s[/h2]\n'
+
+
+if __name__ == '__main__':
+    print(PATH.PROJECT)

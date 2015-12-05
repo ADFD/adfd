@@ -15,40 +15,28 @@ from adfd.utils import (
 log = logging.getLogger(__name__)
 
 
-def prepare(containerPath):
-    PATH.CNT_PREPARED.delete()
-    for path in [p for p in containerPath.list() if p.isdir()]:
+def prepare(srcPath, dstPath):
+    for path in [p for p in srcPath.list() if p.isdir()]:
         log.info('prepare %s', path)
-        TopicPreparator(path).prepare()
+        TopicPreparator(path, dstPath).prepare()
 
 
-class Finalizer(object):
-    FINAL_DESTINATION_PATH = PATH.CNT_FINAL
-
-    def __init__(self):
-        self.FINAL_DESTINATION_PATH.delete()
-
-    @classmethod
-    def finalize(cls, structure, pathPrefix=''):
-        for weight, (relPath, item) in enumerate(structure):
-            print(weight)
-            print(relPath, type(relPath))
-            print(item, type(item))
-            print()
-            if isinstance(item, tuple):
-                cls.finalize(item, relPath)
-            else:
-                if pathPrefix:
-                    relPath = "%s/%s" % (pathPrefix, relPath)
-                for topicId in item:
-                    log.info('finalize %s at %s', topicId, relPath)
-                    TopicFinalizer(topicId, relPath, weight).process()
+def finalize(structure, pathPrefix=''):
+    for weight, (relPath, item) in enumerate(structure):
+        if isinstance(item, tuple):
+            finalize(item, relPath)
+        else:
+            if pathPrefix and pathPrefix != 'root':
+                relPath = "%s/%s" % (pathPrefix, relPath)
+            for topicId in item:
+                log.info('finalize %s at %s', topicId, relPath)
+                TopicFinalizer(topicId, relPath, weight).process()
 
 
 class TopicPreparator(object):
     """Take exported files of a topic and prepare them for HTML conversion"""
 
-    def __init__(self, path):
+    def __init__(self, path, dstPath):
         self.path = path
         self.cntSrcPaths = get_paths(self.path, EXT.BBCODE)
         if not self.cntSrcPaths:
@@ -57,8 +45,8 @@ class TopicPreparator(object):
         self.mdSrcPaths = get_paths(self.path, EXT.META)
         self.md = self.prepare_metadata(self.mdSrcPaths)
         filename = '%05d' % (int(self.md.topicId))
-        self.cntDstPath = PATH.CNT_PREPARED / (filename + EXT.BBCODE)
-        self.mdDstPath = PATH.CNT_PREPARED / (filename + EXT.META)
+        self.cntDstPath = dstPath / (filename + EXT.BBCODE)
+        self.mdDstPath = dstPath / (filename + EXT.META)
 
     def __repr__(self):
         return '<%s %s>' % (self.__class__.__name__, self.path)
