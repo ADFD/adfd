@@ -114,28 +114,12 @@ class TopicFinalizer(object):
         return ContentGrabber(self.cntPath).grab()
 
 
-class PageMetadata(object):
+class Metadata(object):
     META_RE = re.compile(r'\[meta\](.*)\[/meta\]', re.MULTILINE | re.DOTALL)
 
     def __init__(self, path=None, kwargs=None, text=None):
         """WARNING: all public attributes are written as meta data"""
         self._path = path
-        self.allAuthors = None
-        self.author = None
-        self.authorId = None
-        self.excludePosts = None
-        self.includePosts = None
-        self.lastUpdate = None
-        self.linktext = None
-        self.weight = None
-        self.postId = None
-        self.postDate = None
-        self.relPath = None
-        self.relFilePath = None
-        self.slug = None
-        self.title = None
-        self.topicId = None
-        self.useTitles = None
         self.populate_from_file(path)
         self.populate_from_kwargs(kwargs)
         self.populate_from_text(text)
@@ -219,6 +203,27 @@ class PageMetadata(object):
             raise PathMissing(self.asFileContents)
 
         dump_contents(path, self.asFileContents)
+
+
+class PageMetadata(Metadata):
+    def __init__(self, path=None, kwargs=None, text=None):
+        self.allAuthors = None
+        self.author = None
+        self.authorId = None
+        self.excludePosts = None
+        self.includePosts = None
+        self.lastUpdate = None
+        self.linktext = None
+        self.weight = None
+        self.postId = None
+        self.postDate = None
+        self.relPath = None
+        self.relFilePath = None
+        self.slug = None
+        self.title = None
+        self.topicId = None
+        self.useTitles = None
+        super().__init__(path, kwargs, text)
 
 
 class TopicNotFound(Exception):
