@@ -4,8 +4,7 @@ import logging
 from adfd.cst import EXT
 from adfd.conf import PATH
 from adfd.db.phpbb_classes import Forum, TopicDoesNotExist, Topic
-from adfd.utils import dump_contents
-
+from adfd.utils import dump_contents, id2filename
 
 log = logging.getLogger(__name__)
 
@@ -47,13 +46,13 @@ class TopicsExporter(object):
 
     def _export_topic(self, topic):
         out = ["%s: %s" % (topic.id, topic.subject)]
-        topicPath = PATH.CNT_RAW / ("%05d" % (topic.id))
+        topicPath = PATH.CNT_RAW / id2filename(topic.id)
         log.info('%s -> %s', topic.id, topicPath)
         for post in topic.posts:
             current = "%s" % (post.subject)
             log.debug("export: %s", current)
             out.append("    " + current)
-            contentPath = topicPath / (post.filename + EXT.BBCODE)
+            contentPath = topicPath / (post.filename + EXT.IN)
             dump_contents(contentPath, post.content)
             metadataPath = topicPath / (post.filename + EXT.META)
             dump_contents(metadataPath, post.md.asFileContents)

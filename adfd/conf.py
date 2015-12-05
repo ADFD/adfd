@@ -1,6 +1,6 @@
 import plumbum
 
-from adfd.cst import CONTENT_ROOT, DIR, PAGE
+from adfd.cst import _CONTENT_ROOT, DIR, PAGE
 
 
 class EXPORT(object):
@@ -16,6 +16,7 @@ class EXPORT(object):
         10068,
     ]
     """export single topics"""
+
 
 STRUCTURE = [
     (PAGE.ROOT, [10694]),
@@ -36,7 +37,7 @@ The topic ids used here must have been exported to RAW
 class PATH(object):
     PROJECT = plumbum.LocalPath(__file__).dirname.up()
     TEST_DATA = PROJECT / 'adfd' / 'tests' / 'data'
-    CONTENT = CONTENT_ROOT
+    CONTENT = _CONTENT_ROOT
     CNT_RAW = CONTENT / DIR.RAW
     """exported bbcode like it looks when edited - each posts in a single file.
 
@@ -48,6 +49,7 @@ class PATH(object):
     """prepared in a file pair - contents as bbcode in one file + metadata"""
     CNT_FINAL = CONTENT / DIR.FINAL
     """the final structure that makes the website"""
+    # FIXME obsolete
     STRUCTURE = CNT_FINAL / 'structure.json'
     """json containing the page structure for menu generation"""
 

@@ -10,7 +10,8 @@ from adfd.bbcode import AdfdParser
 from adfd.conf import METADATA, PATH, BBCODE
 from adfd.cst import EXT
 from adfd.utils import (
-    dump_contents, ContentGrabber, get_paths, slugify, slugify_path)
+    dump_contents, ContentGrabber, get_paths, slugify, slugify_path,
+    id2filename)
 
 log = logging.getLogger(__name__)
 
@@ -38,14 +39,14 @@ class TopicPreparator(object):
 
     def __init__(self, path, dstPath):
         self.path = path
-        self.cntSrcPaths = get_paths(self.path, EXT.BBCODE)
+        self.cntSrcPaths = get_paths(self.path, EXT.IN)
         if not self.cntSrcPaths:
             raise TopicNotFound(self.path)
 
         self.mdSrcPaths = get_paths(self.path, EXT.META)
         self.md = self.prepare_metadata(self.mdSrcPaths)
-        filename = '%05d' % (int(self.md.topicId))
-        self.cntDstPath = dstPath / (filename + EXT.BBCODE)
+        filename = id2filename(self.md.topicId)
+        self.cntDstPath = dstPath / (filename + EXT.IN)
         self.mdDstPath = dstPath / (filename + EXT.META)
 
     def __repr__(self):
@@ -93,9 +94,9 @@ class TopicFinalizer(object):
     def __init__(self, topicId, relPath='', weight=0):
         self.slugPath = slugify_path(relPath)
         self.order = weight
-        topicId = ("%05d" % (topicId))
-        self.cntPath = PATH.CNT_PREPARED / (topicId + EXT.BBCODE)
-        relHtmlDstPathName = topicId + EXT.HTML
+        topicId = id2filename(topicId)
+        self.cntPath = PATH.CNT_PREPARED / (topicId + EXT.IN)
+        relHtmlDstPathName = topicId + EXT.OUT
         if self.slugPath:
             relHtmlDstPathName = "%s/%s" % (self.slugPath, relHtmlDstPathName)
         kwargs = dict(relPath=relPath, weight=weight,
@@ -125,7 +126,7 @@ class Metadata(object):
         self.populate_from_text(text)
 
     def __repr__(self):
-        return self.asFileContents
+        return str(self.asDict)
 
     @property
     def asFileContents(self):
@@ -203,6 +204,14 @@ class Metadata(object):
             raise PathMissing(self.asFileContents)
 
         dump_contents(path, self.asFileContents)
+
+
+class CategoryMetadata(Metadata):
+    def __init__(self, path=None, kwargs=None, text=None):
+        self.name = None
+        self.weight = None
+        self.mainTopicId = None
+        super().__init__(path, kwargs, text)
 
 
 class PageMetadata(Metadata):

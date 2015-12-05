@@ -12,13 +12,13 @@ except ImportError:
 DB_URL = _dbUrl + '?charset=utf8'
 """Important! See: http://goo.gl/rGuQey"""
 
-CONTENT_ROOT = plumbum.LocalPath(_contentRoot)
+_CONTENT_ROOT = plumbum.LocalPath(_contentRoot)
 
 
 class EXT(object):
-    BBCODE = '.bbcode'
+    IN = '.bbcode'
+    OUT = '.html'
     META = '.meta'
-    HTML = '.html'
 
 
 class DIR(object):
@@ -26,6 +26,10 @@ class DIR(object):
     PREPARED = 'prepared'
     FINAL = 'final'
     """the resulting html"""
+
+
+class NAME(object):
+    CATEGORY = 'category'
 
 
 class PAGE(object):
