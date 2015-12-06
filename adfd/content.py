@@ -34,7 +34,6 @@ def finalize(structure, pathPrefix=''):
         else:
             for topicWeight, topicId in enumerate(rest):
                 log.info('finalize %s at %s', topicId, relPath)
-                # name, mainTopicId = nameMainTopic
                 TopicFinalizer(topicId, relPath, topicWeight).finalize()
 
 
