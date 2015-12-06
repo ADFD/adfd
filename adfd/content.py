@@ -85,9 +85,6 @@ class TopicPreparator(object):
         for path in reversed(paths):
             tmpMd = PageMetadata(path)
             allAuthors.add(tmpMd.author)
-            if not tmpMd.slug:
-                tmpMd.slug = slugify(tmpMd.title or 'no title')
-            tmpMd.linktext = tmpMd.linktext or tmpMd.title
             tmpMd.dump()
             md.populate_from_kwargs(tmpMd.asDict)
         md.allAuthors = ",".join(allAuthors)
@@ -182,14 +179,14 @@ class Metadata(object):
 
             key, value = line[3:].split(': ', 1)
             log.debug('%s -> %s from "%s"', key, value, line)
-            self.update(key, value)
+            self.update(key.strip(), value.strip())
 
     def populate_from_kwargs(self, kwargs):
         if not kwargs:
             return
 
         for key, value in kwargs.items():
-            self.update(key, value)
+            self.update(key, str(value))
 
     def populate_from_text(self, text):
         if not text:
@@ -211,7 +208,7 @@ class Metadata(object):
             if self.OVERRIDABLES and key not in self.OVERRIDABLES:
                 raise NotOverridable('key')
 
-            self.update(key, value)
+            self.update(key, value.strip())
 
     def update(self, key, value):
         key = key.strip()

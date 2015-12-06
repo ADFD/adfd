@@ -99,14 +99,13 @@ class Post(object):
         self.rawText = self.dbp.post_text
         self._postTime = self.dbp.post_edit_time or self.dbp.post_time
         self.md = PageMetadata(kwargs=dict(
-            slug=self.slug,
             title=self.subject,
             author=self.username,
-            authorId=str(self.dbp.poster_id),
-            lastUpdate=str(self.lastUpdate),
-            postDate=str(date_from_timestamp(self.dbp.post_time)),
-            topicId=str(self.topicId),
-            postId=str(self.id)))
+            authorId=self.dbp.poster_id,
+            lastUpdate=self.lastUpdate,
+            postDate=date_from_timestamp(self.dbp.post_time),
+            topicId=self.topicId,
+            postId=self.id))
 
     def __repr__(self):
         return ("<%s %s (%s)>" %
