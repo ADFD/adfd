@@ -20,21 +20,20 @@ def prepare(srcPath, dstPath):
 
 
 def finalize(structure, pathPrefix=''):
-    for cWeight, (nameMainTopic, rest) in enumerate(structure):
-        log.info("%s | %s", nameMainTopic, rest)
+    for cWeight, (nameMainTopic, rest) in enumerate(structure, start=1):
         name, mainTopicId = nameMainTopic
-        if pathPrefix and name:
+        relPath = name
+        if pathPrefix:
             relPath = "%s/%s" % (pathPrefix, name)
-        else:
-            relPath = name
+        log.info('main topic in "%s" is %s', relPath, mainTopicId)
         TopicFinalizer(mainTopicId, relPath, isMain=True).finalize()
         dump_cat_md(name, relPath, mainTopicId=mainTopicId, weight=cWeight)
         if isinstance(rest, tuple):
             finalize(rest, name)
         else:
-            for topicWeight, topicId in enumerate(rest):
-                log.info('finalize %s at %s', topicId, relPath)
-                TopicFinalizer(topicId, relPath, topicWeight).finalize()
+            for tWeight, topicId in enumerate(rest, start=1):
+                log.info('topic %s in %s is "%s"', tWeight, relPath, topicId)
+                TopicFinalizer(topicId, relPath, tWeight).finalize()
 
 
 class TopicPreparator(object):
