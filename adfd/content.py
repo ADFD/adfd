@@ -27,6 +27,7 @@ def finalize(structure, pathPrefix=''):
             relPath = "%s/%s" % (pathPrefix, name)
         else:
             relPath = name
+        TopicFinalizer(mainTopicId, relPath, isMain=True).finalize()
         dump_cat_md(name, relPath, mainTopicId=mainTopicId, weight=cWeight)
         if isinstance(rest, tuple):
             finalize(rest, name)
@@ -101,23 +102,21 @@ def dump_cat_md(name, relPath, **kwargs):
 class TopicFinalizer(object):
     PARSEFUNC = PARSE.FUNC
 
-    def __init__(self, topicId, relPath='', weight=0):
+    def __init__(self, topicId, relPath='', weight=0, isMain=False):
         self.slugPath = slugify_path(relPath)
         topicId = id2name(topicId)
         self.cntPath = PATH.CNT_PREPARED / (topicId + EXT.IN)
-        relHtmlDstPathName = topicId + EXT.OUT
+        if isMain:
+            relPath = 'main' + EXT.OUT
+        else:
+            relPath = "%02d-%s" % (weight, topicId + EXT.OUT)
         if self.slugPath:
-            relHtmlDstPathName = "%s/%s" % (self.slugPath, relHtmlDstPathName)
-        kwargs = dict(relPath=relPath, weight=weight,
-                      relFilePath=relHtmlDstPathName)
-        mdSrcPath = PATH.CNT_PREPARED / (topicId + EXT.META)
-        self.md = PageMetadata(mdSrcPath, kwargs=kwargs)
-        self.htmlDstPath = PATH.CNT_FINAL / relHtmlDstPathName
+            relPath = "%s/%s" % (self.slugPath, relPath)
+        self.htmlDstPath = PATH.CNT_FINAL / relPath
         self.mdDstPath = PATH.CNT_FINAL / self.slugPath / (topicId + EXT.META)
 
     def finalize(self):
         dump_contents(self.htmlDstPath, self.outContent)
-        self.md.dump(self.mdDstPath)
 
     @cached_property
     def inContent(self):
@@ -224,7 +223,7 @@ class Metadata(object):
 
 
 class CategoryMetadata(Metadata):
-    # ATTRIBUTES = METADATA.CATGORY.ATTRIBUTES
+    ATTRIBUTES = METADATA.CATEGORY.ATTRIBUTES
 
     def __init__(self, path=None, kwargs=None, text=None):
         self.name = None

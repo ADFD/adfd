@@ -5,8 +5,7 @@ from cached_property import cached_property
 from adfd.conf import PATH
 from adfd.content import PageMetadata, CategoryMetadata
 from adfd.cst import EXT, NAME
-from adfd.utils import ContentGrabber, id2name, obj_attr
-
+from adfd.utils import ContentGrabber, id2name, obj_attr, slugify
 
 log = logging.getLogger(__name__)
 
@@ -22,9 +21,10 @@ class Category(object):
 
     def __init__(self, name):
         self.name = name
+        self.cleanName = slugify(self.name)
 
     @cached_property
-    def mainTopic(self):
+    def mainPage(self):
         return Page(self.md.mainTopicId)
 
     @cached_property
@@ -34,7 +34,7 @@ class Category(object):
     @cached_property
     def path(self):
         for path in self.ROOT.walk():
-            if path.isdir() and self.name in path:
+            if path.isdir() and self.cleanName in path:
                 return path
 
 
@@ -42,6 +42,8 @@ class Page(object):
     ROOT = PATH.CNT_FINAL
 
     def __init__(self, topicId):
+        if isinstance(topicId, str):
+            topicId = int(topicId)
         self.topicId = topicId
         self.name = id2name(self.topicId)
         self.cntPath = self.catPath / (self.name + EXT.OUT)
@@ -71,5 +73,7 @@ class Page(object):
 
 
 if __name__ == '__main__':
-    p = Page(10694)
+    p = Category('Hintergründe')
     print(obj_attr(p))
+    # p = Page(10694)
+    # print(obj_attr(p))
