@@ -113,9 +113,12 @@ class TopicFinalizer(object):
 
     def finalize(self):
         dump_contents(self.htmlDstPath, self.outContent)
+        self.md.dump(self.mdDstPath)
+
+    @cached_property
+    def md(self):
         mdSrcPath = (PATH.CNT_PREPARED / self.name).with_suffix(EXT.META)
-        md = PageMetadata(mdSrcPath, kwargs=self.mdKwargs)
-        md.dump(self.mdDstPath)
+        return PageMetadata(mdSrcPath, kwargs=self.mdKwargs)
 
     @cached_property
     def inContent(self):
