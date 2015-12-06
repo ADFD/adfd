@@ -112,11 +112,10 @@ class TopicFinalizer(object):
             relPath = "%02d-%s" % (weight, topicId + EXT.OUT)
         if self.slugPath:
             relPath = "%s/%s" % (self.slugPath, relPath)
-        self.htmlDstPath = PATH.CNT_FINAL / relPath
-        self.mdDstPath = PATH.CNT_FINAL / self.slugPath / (topicId + EXT.META)
+        self.dstPath = PATH.CNT_FINAL / relPath
 
     def finalize(self):
-        dump_contents(self.htmlDstPath, self.outContent)
+        dump_contents(self.dstPath, self.outContent)
 
     @cached_property
     def inContent(self):
