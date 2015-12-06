@@ -1,46 +1,20 @@
-import json
 import logging
-from collections import OrderedDict
 
 from cached_property import cached_property
-from plumbum import LocalPath
 
 from adfd.conf import PATH
 from adfd.content import PageMetadata, CategoryMetadata
 from adfd.cst import EXT, NAME
-from adfd.utils import ContentGrabber, id2filename, obj_attr
+from adfd.utils import ContentGrabber, id2name, obj_attr
+
 
 log = logging.getLogger(__name__)
 
 
-class Structure(object):
-    """fetch structure from meta data in finalized files"""
-    def __init__(self, rootPath, structureDstPath):
-        self.rootPath = LocalPath(rootPath)
-        self.structureDstPath = structureDstPath
-
-    def dump_structure(self):
-        pageMap = self.create_page_map(self.rootPath)
-        self.jsonify_structure(pageMap)
-
-    @classmethod
-    def create_page_map(cls, rootPath):
-        pages = OrderedDict()
-        for path in rootPath.walk(lambda n: n.endswith(EXT.META)):
-            md = PageMetadata(path=path)
-            curDict = None
-            for part in md.relPath.split('/'):
-                if part not in pages:
-                    pages[part] = OrderedDict()
-                curDict = pages[part]
-            # noinspection PyUnboundLocalVariable
-            curDict[part] = md.relFilePath
-        return pages
-
-    def jsonify_structure(self, pageMap):
-        log.debug(str(pageMap))
-        with open(self.structureDstPath, 'w') as fp:
-            json.dump(pageMap, fp)
+class WRAP(object):
+    MAIN = '<ul class="dropdown menu" data-dropdown-menu>\n%s\n</ul>\n'
+    SUB = '<li><a>%s</a><ul class="menu"><ul class="menu">\n%s\n</ul></li>\n'
+    ELEM = '<li><a href="%s">%s</a></li>\n'
 
 
 class Category(object):
@@ -69,32 +43,31 @@ class Page(object):
 
     def __init__(self, topicId):
         self.topicId = topicId
+        self.name = id2name(self.topicId)
+        self.cntPath = self.catPath / (self.name + EXT.OUT)
+        self.pageMdPath = self.catPath / (self.name + EXT.META)
+        self.catMdPath = self.catPath / (NAME.CATEGORY + EXT.META)
 
     @cached_property
-    def name(self):
-        return id2filename(self.topicId)
-
-    @cached_property
-    def contentPath(self):
-        return LocalPath(self._partialPathName + EXT.OUT)
-
-    @cached_property
-    def mdPath(self):
-        return LocalPath(self._partialPathName + EXT.META)
-
-    @cached_property
-    def _partialPathName(self):
+    def catPath(self):
+        """path to the folder all articles of this category live in"""
         for path in self.ROOT.walk():
             if self.name in path:
-                return LocalPath(path.rpartition('.')[0])
+                return path.dirname
 
     @cached_property
     def content(self):
-        ContentGrabber(self.contentPath)
+        return ContentGrabber(self.cntPath).grab()
 
     @cached_property
-    def md(self):
-        return PageMetadata(self.mdPath)
+    def pageMd(self):
+        """metadata of this page"""
+        return PageMetadata(self.pageMdPath)
+
+    @property
+    def catMd(self):
+        """metadata of this category"""
+        return CategoryMetadata(self.catMdPath)
 
 
 if __name__ == '__main__':

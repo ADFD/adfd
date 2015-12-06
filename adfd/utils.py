@@ -22,7 +22,7 @@ def get_paths(containerPath, ext=None, content=None):
     return paths
 
 
-def id2filename(id_):
+def id2name(id_):
     if isinstance(id_, str):
         id_ = int(id_)
     return "%05d" % (id_)

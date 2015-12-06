@@ -9,7 +9,7 @@ from adfd.conf import METADATA, PATH, STRUCTURE, PARSE
 from adfd.cst import EXT, NAME
 from adfd.utils import (
     dump_contents, ContentGrabber, get_paths, slugify, slugify_path,
-    id2filename)
+    id2name)
 
 log = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class TopicPreparator(object):
 
         self.mdSrcPaths = get_paths(self.path, EXT.META)
         self.md = self.prepare_metadata(self.mdSrcPaths)
-        filename = id2filename(self.md.topicId)
+        filename = id2name(self.md.topicId)
         self.cntDstPath = dstPath / (filename + EXT.IN)
         self.mdDstPath = dstPath / (filename + EXT.META)
 
@@ -107,7 +107,7 @@ class TopicFinalizer(object):
 
     def __init__(self, topicId, relPath='', weight=0):
         self.slugPath = slugify_path(relPath)
-        topicId = id2filename(topicId)
+        topicId = id2name(topicId)
         self.cntPath = PATH.CNT_PREPARED / (topicId + EXT.IN)
         relHtmlDstPathName = topicId + EXT.OUT
         if self.slugPath:
