@@ -8,8 +8,7 @@ from cached_property import cached_property
 from adfd.conf import METADATA, PATH, STRUCTURE, PARSE
 from adfd.cst import EXT, NAME
 from adfd.utils import (
-    dump_contents, ContentGrabber, get_paths, slugify, slugify_path,
-    id2name)
+    dump_contents, ContentGrabber, get_paths, slugify_path, id2name)
 
 log = logging.getLogger(__name__)
 
