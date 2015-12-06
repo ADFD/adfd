@@ -246,13 +246,9 @@ class PageMetadata(Metadata):
         self.excludePosts = None
         self.includePosts = None
         self.lastUpdate = None
-        self.linktext = None
         self.weight = None
         self.postId = None
         self.postDate = None
-        self.relPath = None
-        self.relFilePath = None
-        self.slug = None
         self.title = None
         self.topicId = None
         self.useTitles = None
