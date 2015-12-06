@@ -165,7 +165,7 @@ SIMPLE_OBJECTS = [str, list, tuple, dict, set, int, float]
 
 def obj_attr(obj, hideString='', filterMethods=True, filterPrivate=True,
              sanitize=False, excludeAttrs=None, indent=0, objName="",
-             terminalSize=100):
+             terminalSize=100, maxLen=250):
     try:
         if any(isinstance(obj, t) for t in SIMPLE_OBJECTS):
             return ("[%s] %s = %s" %
@@ -173,7 +173,7 @@ def obj_attr(obj, hideString='', filterMethods=True, filterPrivate=True,
 
         return _obj_attr(
             obj, hideString, filterMethods, filterPrivate,
-            sanitize, excludeAttrs, indent, objName, terminalSize)
+            sanitize, excludeAttrs, indent, objName, terminalSize, maxLen)
 
     except:
         msg = "problems calling obj_attr"
@@ -182,7 +182,7 @@ def obj_attr(obj, hideString='', filterMethods=True, filterPrivate=True,
 
 
 def _obj_attr(obj, hideString, filterMethods, filterPrivate,
-              sanitize, excludeAttrs, indent, objName, terminalSize):
+              sanitize, excludeAttrs, indent, objName, terminalSize, maxLen):
     """show attributes of any object - generic representation of objects"""
     excludeAttrs = excludeAttrs or []
     names = dir(obj)
@@ -215,6 +215,8 @@ def _obj_attr(obj, hideString, filterMethods, filterPrivate,
                     value = "<<func>>"
             else:
                 value = str(attr).replace("\n", "\n|  ")
+                if len(value) > maxLen:
+                    value = value[:maxLen] + '[...]'
             out.append((name, attrType.__name__, value))
         except AssertionError as e:
             out.append(("[A] %s" % (name), e.__class__.__name__, e))
