@@ -102,22 +102,25 @@ class TopicFinalizer(object):
 
     def __init__(self, topicId, relPath='', weight=0, isIndex=False):
         self.slugPath = slugify_path(relPath)
-        topicId = id2name(topicId)
-        self.cntPath = PATH.CNT_PREPARED / (topicId + EXT.IN)
-        if isIndex:
-            relPath = 'index' + EXT.OUT
-        else:
-            relPath = "%02d-%s" % (weight, topicId + EXT.OUT)
+        self.name = id2name(topicId)
+        self.dstName = 'index' if isIndex else self.name
+        self.mdKwargs = dict(weight=weight)
+        dstPath = PATH.CNT_FINAL
         if self.slugPath:
-            relPath = "%s/%s" % (self.slugPath, relPath)
-        self.dstPath = PATH.CNT_FINAL / relPath
+            dstPath /= self.slugPath
+        self.htmlDstPath = (dstPath / self.dstName).with_suffix(EXT.OUT)
+        self.mdDstPath = (dstPath / self.dstName).with_suffix(EXT.META)
 
     def finalize(self):
-        dump_contents(self.dstPath, self.outContent)
+        dump_contents(self.htmlDstPath, self.outContent)
+        mdSrcPath = (PATH.CNT_PREPARED / self.name).with_suffix(EXT.META)
+        md = PageMetadata(mdSrcPath, kwargs=self.mdKwargs)
+        md.dump(self.mdDstPath)
 
     @cached_property
     def inContent(self):
-        return ContentGrabber(self.cntPath).grab()
+        srcPath = (PATH.CNT_PREPARED / self.name).with_suffix(EXT.IN)
+        return ContentGrabber(srcPath).grab()
 
     @cached_property
     def outContent(self):
