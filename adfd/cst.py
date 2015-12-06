@@ -9,8 +9,10 @@ except ImportError:
     _contentRoot = tempfile.gettempdir()
 
 
-DB_URL = _dbUrl + '?charset=utf8'
-"""Important! See: http://goo.gl/rGuQey"""
+DB_URL = _dbUrl
+# If you don't provide encoding, I will. See: http://goo.gl/rGuQey
+if 'charset' not in DB_URL:
+    DB_URL += '?charset=utf8'
 
 _CONTENT_ROOT = plumbum.LocalPath(_contentRoot)
 
@@ -23,9 +25,11 @@ class EXT(object):
 
 class DIR(object):
     RAW = 'raw'
+    """folders containing topics one file per post + metadata for each post"""
     PREPARED = 'prepared'
+    """merged single file raw articles and merged single file metadata"""
     FINAL = 'final'
-    """the resulting html"""
+    """rendered and structured result with additional category metadata"""
 
 
 class NAME(object):
