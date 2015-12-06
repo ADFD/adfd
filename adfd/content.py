@@ -26,7 +26,7 @@ def finalize(structure, pathPrefix=''):
         if pathPrefix:
             relPath = "%s/%s" % (pathPrefix, name)
         log.info('main topic in "%s" is %s', relPath, mainTopicId)
-        TopicFinalizer(mainTopicId, relPath, isMain=True).finalize()
+        TopicFinalizer(mainTopicId, relPath, isIndex=True).finalize()
         dump_cat_md(name, relPath, mainTopicId=mainTopicId, weight=cWeight)
         if isinstance(rest, tuple):
             finalize(rest, name)
@@ -100,12 +100,12 @@ def dump_cat_md(name, relPath, **kwargs):
 class TopicFinalizer(object):
     PARSEFUNC = PARSE.FUNC
 
-    def __init__(self, topicId, relPath='', weight=0, isMain=False):
+    def __init__(self, topicId, relPath='', weight=0, isIndex=False):
         self.slugPath = slugify_path(relPath)
         topicId = id2name(topicId)
         self.cntPath = PATH.CNT_PREPARED / (topicId + EXT.IN)
-        if isMain:
-            relPath = 'main' + EXT.OUT
+        if isIndex:
+            relPath = 'index' + EXT.OUT
         else:
             relPath = "%02d-%s" % (weight, topicId + EXT.OUT)
         if self.slugPath:
