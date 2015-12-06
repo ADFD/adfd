@@ -21,13 +21,13 @@ class EXPORT(object):
 
 STRUCTURE = [
     (('', 10694), []),
-    (('Absetzen', 68), [9913, 9910, 853]),
-    (('Hintergründe', 68), (
-        (('Geschichte', 68), [9241, 10046, 933]),
-        (('Steckbriefe', 68), [9738, 9735, 9733, 9732, 9731])
+    (('Absetzen', 10694), [9913, 9910, 853]),
+    (('Hintergründe', 10694), (
+        (('Geschichte', 10694), [9241, 10046, 933]),
+        (('Steckbriefe', 10694), [9738, 9735, 9733, 9732, 9731])
     )),
-    (('Info', 68), [689, 893]),
-    (('BBcode', 68), [10068]),
+    (('Info', 10694), [689, 893]),
+    (('BBcode', 10694), [10068]),
 ]
 """structure of the site from a list of topicIds mapped to a relPath
 
