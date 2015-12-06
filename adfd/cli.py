@@ -4,11 +4,8 @@ import webbrowser
 from plumbum import cli, LocalPath
 
 from adfd import cst, conf
-from adfd.bbcode import AdfdParser
-from adfd.conf import PATH
 from adfd.content import TopicFinalizer, TopicNotFound, prepare, finalize
 from adfd.db.export import export
-from adfd.structure import Structure
 from adfd.utils import get_obj_info
 
 
@@ -30,18 +27,16 @@ class AdfdDbExport(cli.Application):
 class AdfdCntPrepare(cli.Application):
     """prepare imported articles for final transformation"""
     def main(self):
-        PATH.CNT_PREPARED.delete()
-        prepare(conf.PATH.CNT_RAW, PATH.CNT_PREPARED)
+        conf.PATH.CNT_PREPARED.delete()
+        prepare(conf.PATH.CNT_RAW, conf.PATH.CNT_PREPARED)
 
 
 @AdfdCnt.subcommand("finalize")
 class AdfdCntFinalize(cli.Application):
     """finalize prepared articles and create structure"""
     def main(self):
-        PATH.CNT_FINAL.delete()
+        conf.PATH.CNT_FINAL.delete()
         finalize(conf.STRUCTURE)
-        s = Structure(PATH.CNT_FINAL, PATH.STRUCTURE)
-        s.dump_structure()
 
 
 @AdfdCnt.subcommand("conf")
@@ -52,7 +47,7 @@ class AdfdCntConf(cli.Application):
 
 @AdfdCnt.subcommand("article")
 class AdfdCntArticle(cli.Application):
-    outType = cli.SwitchAttr(["out-type"], default='raw')
+    output = cli.SwitchAttr(['o', 'output'], default='in')
     refresh = cli.Flag(["refresh"], default=True)
 
     def main(self, identifier):
@@ -63,11 +58,11 @@ class AdfdCntArticle(cli.Application):
             return 1
 
         print(article.md.asFileContents)
-        if self.outType == 'raw':
-            print(article.content)
-        elif self.outType == 'html':
-            html = AdfdParser().to_html(data=article.content)
-            self._open_html_in_webbrowser(html)
+        if self.output == 'in':
+            print(article.inContent)
+        elif self.output == 'out':
+            out = article.outContent
+            self._open_html_in_webbrowser(out)
 
     def _open_html_in_webbrowser(self, html):
         path = LocalPath("/tmp/adfd-html-out.html")
@@ -78,5 +73,6 @@ class AdfdCntArticle(cli.Application):
 
 
 def main():
-    logging.basicConfig(level=logging.WARNING)
+    fmt = '%(module)s.%(funcName)s:%(lineno)d %(levelname)s: %(message)s'
+    logging.basicConfig(level=logging.INFO, format=fmt)
     AdfdCnt.run()
