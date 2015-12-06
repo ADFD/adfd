@@ -38,7 +38,7 @@ class TestArticle(object):
         p = TopicPreparator(srcPath / '00001', dstPath)
         p.prepare()
         a = TopicFinalizer(1)
-        assert a.content == (
+        assert a.inContent == (
             "söme text from first pöst\n\n\nsome text from second post\n")
         assert isinstance(a.md, PageMetadata)
 

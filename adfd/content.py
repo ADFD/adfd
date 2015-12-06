@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 import logging
-from collections import OrderedDict
-
 import re
+from collections import OrderedDict
 
 from cached_property import cached_property
 
-from adfd.bbcode import AdfdParser
-from adfd.conf import METADATA, PATH, BBCODE
-from adfd.cst import EXT
+from adfd.conf import METADATA, PATH, STRUCTURE, PARSE
+from adfd.cst import EXT, NAME
 from adfd.utils import (
     dump_contents, ContentGrabber, get_paths, slugify, slugify_path,
     id2filename)
@@ -23,15 +21,21 @@ def prepare(srcPath, dstPath):
 
 
 def finalize(structure, pathPrefix=''):
-    for weight, (relPath, item) in enumerate(structure):
-        if isinstance(item, tuple):
-            finalize(item, relPath)
+    for cWeight, (nameMainTopic, rest) in enumerate(structure):
+        log.info("%s | %s", nameMainTopic, rest)
+        name, mainTopicId = nameMainTopic
+        if pathPrefix and name:
+            relPath = "%s/%s" % (pathPrefix, name)
         else:
-            if pathPrefix and pathPrefix != 'root':
-                relPath = "%s/%s" % (pathPrefix, relPath)
-            for topicId in item:
+            relPath = name
+        dump_cat_md(name, relPath, mainTopicId=mainTopicId, weight=cWeight)
+        if isinstance(rest, tuple):
+            finalize(rest, name)
+        else:
+            for topicWeight, topicId in enumerate(rest):
                 log.info('finalize %s at %s', topicId, relPath)
-                TopicFinalizer(topicId, relPath, weight).process()
+                # name, mainTopicId = nameMainTopic
+                TopicFinalizer(topicId, relPath, topicWeight).finalize()
 
 
 class TopicPreparator(object):
@@ -59,7 +63,7 @@ class TopicPreparator(object):
         for path in self.cntSrcPaths:
             content = ''
             if self.md.useTitles:
-                content += BBCODE.TITLE_PATTERN % (self.md.title)
+                content += PARSE.TITLE_PATTERN % (self.md.title)
             content += ContentGrabber(path).grab()
             contents.append(content)
         return "\n\n".join(contents)
@@ -90,10 +94,19 @@ class TopicPreparator(object):
         return md
 
 
+def dump_cat_md(name, relPath, **kwargs):
+    name = name
+    relPath = slugify_path(relPath)
+    kwargs.update(name=name)
+    path = PATH.CNT_FINAL / relPath / (NAME.CATEGORY + EXT.META)
+    CategoryMetadata(kwargs=kwargs).dump(path)
+
+
 class TopicFinalizer(object):
+    PARSEFUNC = PARSE.FUNC
+
     def __init__(self, topicId, relPath='', weight=0):
         self.slugPath = slugify_path(relPath)
-        self.order = weight
         topicId = id2filename(topicId)
         self.cntPath = PATH.CNT_PREPARED / (topicId + EXT.IN)
         relHtmlDstPathName = topicId + EXT.OUT
@@ -106,16 +119,22 @@ class TopicFinalizer(object):
         self.htmlDstPath = PATH.CNT_FINAL / relHtmlDstPathName
         self.mdDstPath = PATH.CNT_FINAL / self.slugPath / (topicId + EXT.META)
 
-    def process(self):
-        dump_contents(self.htmlDstPath, (AdfdParser().to_html(self.content)))
+    def finalize(self):
+        dump_contents(self.htmlDstPath, self.outContent)
         self.md.dump(self.mdDstPath)
 
     @cached_property
-    def content(self):
+    def inContent(self):
         return ContentGrabber(self.cntPath).grab()
+
+    @cached_property
+    def outContent(self):
+        return self.PARSEFUNC(self.inContent)
 
 
 class Metadata(object):
+    ATTRIBUTES = None
+    OVERRIDABLES = None
     META_RE = re.compile(r'\[meta\](.*)\[/meta\]', re.MULTILINE | re.DOTALL)
 
     def __init__(self, path=None, kwargs=None, text=None):
@@ -140,7 +159,7 @@ class Metadata(object):
             if name.startswith('_'):
                 continue
 
-            if name not in METADATA.ATTRIBUTES:
+            if self.ATTRIBUTES and name not in self.ATTRIBUTES:
                 raise NotAnAttribute(name)
 
             attr = getattr(self, name)
@@ -189,14 +208,16 @@ class Metadata(object):
 
             key, value = line.split(':', maxsplit=1)
             key = key.strip()
-            if key not in METADATA.OVERRIDABLES:
+            if self.OVERRIDABLES and key not in self.OVERRIDABLES:
                 raise NotOverridable('key')
 
             self.update(key, value)
 
     def update(self, key, value):
-        log.debug('self.%s = %s', key, value)
-        setattr(self, key.strip(), str(value).strip())
+        key = key.strip()
+        value = str(value).strip()
+        log.debug('%s: %s -> %s', self.__class__.__name__, key, value)
+        setattr(self, key, value)
 
     def dump(self, path=None):
         path = path or self._path
@@ -207,6 +228,8 @@ class Metadata(object):
 
 
 class CategoryMetadata(Metadata):
+    # ATTRIBUTES = METADATA.CATGORY.ATTRIBUTES
+
     def __init__(self, path=None, kwargs=None, text=None):
         self.name = None
         self.weight = None
@@ -215,6 +238,9 @@ class CategoryMetadata(Metadata):
 
 
 class PageMetadata(Metadata):
+    ATTRIBUTES = METADATA.PAGE.ATTRIBUTES
+    OVERRIDABLES = METADATA.PAGE.OVERRIDABLES
+
     def __init__(self, path=None, kwargs=None, text=None):
         self.allAuthors = None
         self.author = None
@@ -249,3 +275,6 @@ class NotAnAttribute(Exception):
 
 class NotOverridable(Exception):
     """raise if a key mustn't be overriden (e.g. postId)"""
+
+if __name__ == '__main__':
+    finalize(STRUCTURE, '')

@@ -1,6 +1,7 @@
 import plumbum
 
-from adfd.cst import _CONTENT_ROOT, DIR, PAGE
+from adfd.bbcode import AdfdParser
+from adfd.cst import _CONTENT_ROOT, DIR
 
 
 class EXPORT(object):
@@ -19,14 +20,14 @@ class EXPORT(object):
 
 
 STRUCTURE = [
-    (PAGE.ROOT, [10694]),
-    ('Absetzen', [9913, 9910, 853]),
-    ('Hintergründe', (
-        ('Geschichte', [9241, 10046, 933]),
-        ('Steckbriefe', [9738, 9735, 9733, 9732, 9731])
+    (('', 10694), []),
+    (('Absetzen', 68), [9913, 9910, 853]),
+    (('Hintergründe', 68), (
+        (('Geschichte', 68), [9241, 10046, 933]),
+        (('Steckbriefe', 68), [9738, 9735, 9733, 9732, 9731])
     )),
-    ('Info', [689, 893]),
-    ('BBcode', [10068]),
+    (('Info', 68), [689, 893]),
+    (('BBcode', 68), [10068]),
 ]
 """structure of the site from a list of topicIds mapped to a relPath
 
@@ -71,40 +72,44 @@ class METADATA(object):
 
         <span style="display: none;">[meta]{TEXT}[/meta]</span>
     """
+    class CATEGORY(object):
+        ATTRIBUTES = [
+            'name',
+            'mainTopicId',
+            'weight'
+        ]
 
-    OVERRIDABLES = [
-        'author',
-        'title',
-        'slug',
-        'linktext',
-        'relPath',
-        'relFilePath',
-        'weight',
-    ]
-    """can be overridden by metadata in post content"""
-    ATTRIBUTES = OVERRIDABLES + [
-        'authorId',
-        'lastUpdate',
-        'postDate',
-        'topicId',
-        'postId',
+    class PAGE(object):
+        OVERRIDABLES = [
+            'author',
+            'title',
+            'slug',
+            'linktext',
+            'relPath',
+            'relFilePath',
+            'weight',
+        ]
+        """can be overridden by metadata in post content"""
+        ATTRIBUTES = OVERRIDABLES + [
+            'authorId',
+            'lastUpdate',
+            'postDate',
+            'topicId',
+            'postId',
 
-        'allAuthors',
-        'useTitles',
-        'excludePosts',
-        'includePosts',
+            'allAuthors',
+            'useTitles',
+            'excludePosts',
+            'includePosts',
 
-        'relPath',
-    ]
-    """all allowed attributes in use, prevents shooting self in foot"""
+            'relPath',
+        ]
+        """all allowed attributes in use, prevents shooting self in foot"""
 
     DATE_FORMAT = '%d.%m.%Y'
     """this format will be used for human readable dates in meta data"""
 
 
-class BBCODE(object):
+class PARSE(object):
+    FUNC = AdfdParser().to_html
     TITLE_PATTERN = '[h2]%s[/h2]\n'
-
-
-if __name__ == '__main__':
-    print(PATH.PROJECT)
