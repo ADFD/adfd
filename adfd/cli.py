@@ -20,6 +20,7 @@ class AdfdCnt(cli.Application):
 class AdfdDbExport(cli.Application):
     """export topics from db"""
     def main(self):
+        conf.PATH.CNT_RAW.delete()
         export(conf.EXPORT.FORUM_IDS, conf.EXPORT.TOPIC_IDS)
 
 
