@@ -8,7 +8,7 @@ from cached_property import cached_property
 from adfd.conf import METADATA, PATH, STRUCTURE, PARSE
 from adfd.cst import EXT, NAME
 from adfd.utils import (
-    dump_contents, ContentGrabber, get_paths, slugify_path, id2name)
+    dump_contents, ContentGrabber, get_paths, slugify_path, id2name, slugify)
 
 log = logging.getLogger(__name__)
 
@@ -20,6 +20,12 @@ def prepare(srcPath, dstPath):
 
 
 def finalize(structure, pathPrefix=''):
+    def dump_cat_md(name, relPath, **kwargs):
+        relPath = slugify_path(relPath)
+        kwargs.update(name=name)
+        path = (PATH.CNT_FINAL / relPath / NAME.CATEGORY).with_suffix(EXT.META)
+        CategoryMetadata(kwargs=kwargs).dump(path)
+
     for cWeight, (nameMainTopic, rest) in enumerate(structure, start=1):
         name, mainTopicId = nameMainTopic
         relPath = name
@@ -89,27 +95,21 @@ class TopicPreparator(object):
         return md
 
 
-def dump_cat_md(name, relPath, **kwargs):
-    name = name
-    relPath = slugify_path(relPath)
-    kwargs.update(name=name)
-    path = PATH.CNT_FINAL / relPath / (NAME.CATEGORY + EXT.META)
-    CategoryMetadata(kwargs=kwargs).dump(path)
-
-
 class TopicFinalizer(object):
     PARSEFUNC = PARSE.FUNC
+    DST_PATH = PATH.CNT_FINAL
 
     def __init__(self, topicId, relPath='', weight=0, isIndex=False):
+        self.topicIdName = id2name(topicId)
         self.slugPath = slugify_path(relPath)
-        self.name = id2name(topicId)
-        self.dstName = 'index' if isIndex else self.name
         self.mdKwargs = dict(weight=weight)
-        dstPath = PATH.CNT_FINAL
+        dstPath = self.DST_PATH
         if self.slugPath:
             dstPath /= self.slugPath
-        self.htmlDstPath = (dstPath / self.dstName).with_suffix(EXT.OUT)
-        self.mdDstPath = (dstPath / self.dstName).with_suffix(EXT.META)
+        if not isIndex:
+            dstPath /= slugify(self.md.title)
+        self.htmlDstPath = (dstPath / NAME.INDEX).with_suffix(EXT.OUT)
+        self.mdDstPath = (dstPath / NAME.PAGE).with_suffix(EXT.META)
 
     def finalize(self):
         dump_contents(self.htmlDstPath, self.outContent)
@@ -117,12 +117,12 @@ class TopicFinalizer(object):
 
     @cached_property
     def md(self):
-        mdSrcPath = (PATH.CNT_PREPARED / self.name).with_suffix(EXT.META)
+        mdSrcPath = (PATH.CNT_PREPARED / self.topicIdName).with_suffix(EXT.META)
         return PageMetadata(mdSrcPath, kwargs=self.mdKwargs)
 
     @cached_property
     def inContent(self):
-        srcPath = (PATH.CNT_PREPARED / self.name).with_suffix(EXT.IN)
+        srcPath = (PATH.CNT_PREPARED / self.topicIdName).with_suffix(EXT.IN)
         return ContentGrabber(srcPath).grab()
 
     @cached_property

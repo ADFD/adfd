@@ -34,6 +34,8 @@ class DIR(object):
 
 class NAME(object):
     CATEGORY = 'category'
+    INDEX = 'index'
+    PAGE = 'page'
 
 
 class PAGE(object):
