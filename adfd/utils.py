@@ -8,7 +8,7 @@ from types import FunctionType, MethodType
 from plumbum import LocalPath
 
 from adfd.bbcode import AdfdParser
-from adfd.conf import METADATA
+from adfd.conf import METADATA, PATH
 
 log = logging.getLogger(__name__)
 
@@ -217,6 +217,7 @@ def _obj_attr(obj, hideString, filterMethods, filterPrivate,
                 value = str(attr).replace("\n", "\n|  ")
                 if len(value) > maxLen:
                     value = value[:maxLen] + '[...]'
+            value = value.replace(PATH.CONTENT + '/', '[P]')
             out.append((name, attrType.__name__, value))
         except AssertionError as e:
             out.append(("[A] %s" % (name), e.__class__.__name__, e))

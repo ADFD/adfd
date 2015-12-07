@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 from cached_property import cached_property
 
-from adfd.conf import METADATA, PATH, STRUCTURE, PARSE
+from adfd.conf import METADATA, PATH, PARSE
 from adfd.cst import EXT, NAME
 from adfd.utils import (
     dump_contents, ContentGrabber, get_paths, slugify_path, id2name, slugify)
@@ -32,7 +32,7 @@ def finalize(structure, pathPrefix=''):
         if pathPrefix:
             relPath = "%s/%s" % (pathPrefix, name)
         log.info('main topic in "%s" is %s', relPath, mainTopicId)
-        TopicFinalizer(mainTopicId, relPath, isIndex=True).finalize()
+        TopicFinalizer(mainTopicId, relPath, isCategory=True).finalize()
         dump_cat_md(name, relPath, mainTopicId=mainTopicId, weight=cWeight)
         if isinstance(rest, tuple):
             finalize(rest, name)
@@ -99,14 +99,14 @@ class TopicFinalizer(object):
     PARSEFUNC = PARSE.FUNC
     DST_PATH = PATH.CNT_FINAL
 
-    def __init__(self, topicId, relPath='', weight=0, isIndex=False):
+    def __init__(self, topicId, relPath='', weight=0, isCategory=False):
         self.topicIdName = id2name(topicId)
         self.slugPath = slugify_path(relPath)
         self.mdKwargs = dict(weight=weight)
         dstPath = self.DST_PATH
         if self.slugPath:
             dstPath /= self.slugPath
-        if not isIndex:
+        if not isCategory:
             dstPath /= slugify(self.md.title)
         self.htmlDstPath = (dstPath / NAME.INDEX).with_suffix(EXT.OUT)
         self.mdDstPath = (dstPath / NAME.PAGE).with_suffix(EXT.META)
@@ -269,6 +269,3 @@ class NotAnAttribute(Exception):
 
 class NotOverridable(Exception):
     """raise if a key mustn't be overriden (e.g. postId)"""
-
-if __name__ == '__main__':
-    finalize(STRUCTURE, '')
