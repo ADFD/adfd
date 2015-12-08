@@ -35,7 +35,7 @@ def finalize(structure, pathPrefix=''):
         TopicFinalizer(mainTopicId, relPath, isCategory=True).finalize()
         dump_cat_md(name, relPath, mainTopicId=mainTopicId, weight=cWeight)
         if isinstance(rest, tuple):
-            finalize(rest, name)
+            finalize(rest, relPath)
         else:
             for tWeight, topicId in enumerate(rest, start=1):
                 log.info('topic %s in %s is "%s"', tWeight, relPath, topicId)
