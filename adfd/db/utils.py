@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 
 
 def generate_schema(writeToFile="schema.py"):
-    # todo use https://github.com/google/yapf to format file
+    # if you are bored: use https://github.com/google/yapf to format file
     engine = create_engine(cst.DB_URL)
     meta = MetaData()
     meta.reflect(bind=engine)
