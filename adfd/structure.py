@@ -50,20 +50,17 @@ class Container(object):
         return self.isValidContainer and not self.isCategory
 
     def find_categories(self):
-        categories = []
-        for path in self.basePath.list():
-            if Container(path).isCategory:
-                categories.append(Category(path=path))
-        return sorted(categories)
+        return self._find_elems('isCategory', Category)
 
     def find_pages(self):
-        pages = []
+        return self._find_elems('isPage', Page)
+
+    def _find_elems(self, checkAttr, Klass):
+        elems = []
         for path in self.basePath.list():
-            log.info(path)
-            log.info(Container(path).isPage)
-            if Container(path).isPage:
-                pages.append(Page(path=path))
-        return sorted(pages)
+            if getattr(Container(path), checkAttr):
+                elems.append(Klass(path=path))
+        return sorted(elems)
 
 
 class Category(Container):
