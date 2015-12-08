@@ -11,12 +11,6 @@ from adfd.utils import ContentGrabber, obj_attr
 log = logging.getLogger(__name__)
 
 
-class WRAP(object):
-    MAIN = '<ul class="dropdown menu" data-dropdown-menu>\n%s\n</ul>\n'
-    SUB = '<li><a>%s</a><ul class="menu"><ul class="menu">\n%s\n</ul></li>\n'
-    ELEM = '<li><a href="%s">%s</a></li>\n'
-
-
 @total_ordering
 class Container(object):
     ROOT = PATH.CNT_FINAL
@@ -109,18 +103,28 @@ class PageNotFound(Exception):
     pass
 
 
-def traverse_site(element=Category(), depth=1):
-    def indent():
-        print(' ' * 4 * depth, end='')
+class WRAP(object):
+    MAIN = '<ul class="dropdown menu" data-dropdown-menu>\n%s\n</ul>\n'
+    SUB = '<li><a>%s</a><ul class="menu"><ul class="menu">\n%s\n</ul></li>\n'
+    ELEM = '<li><a href="%s">%s</a></li>\n'
 
-    for category in element.find_categories():
-        indent()
-        print('cat:', category.md.name, 'mainPage:',
-              category.mainPage.md.title)
-        traverse_site(category, depth + 1)
+
+def traverse_site(element=Category(), depth=1):
+    def prindent(text):
+        print(' ' * 4 * depth, text)
+
+    if depth == 1:
+        prindent('<ul class="dropdown menu">')
+    else:
+        prindent('<ul class="menu">')
+    depth += 1
+    for cat in element.find_categories():
+        prindent('<a>%s</a>' % (cat.name))
+        traverse_site(cat, depth=depth)
     for page in element.find_pages():
-        indent()
-        print('page:', page.md.title)
+        prindent('<li><a href="#">%s</a></li>' % (page.name))
+    depth -= 1
+    prindent('</ul>')
 
 
 if __name__ == '__main__':
