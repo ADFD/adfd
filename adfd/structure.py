@@ -128,6 +128,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.WARNING)
     traverse_site()
 
+    # fixme turn this into tests ...
     exit()
     c = Container('hintergruende/geschichte')
     print(c.isCategory)
