@@ -19,9 +19,6 @@ class PATH(object):
     """prepared in a file pair - contents as bbcode in one file + metadata"""
     CNT_FINAL = CONTENT / DIR.FINAL
     """the final structure that makes the website"""
-    # FIXME obsolete
-    STRUCTURE = CNT_FINAL / 'structure.json'
-    """json containing the page structure for menu generation"""
 
 
 class METADATA(object):
