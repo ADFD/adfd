@@ -11,6 +11,14 @@ from adfd.utils import ContentGrabber, obj_attr
 log = logging.getLogger(__name__)
 
 
+class CatDesc(object):
+    """describe a category and it's contents"""
+    def __init__(self, name, mainTopicId, contents):
+        self.name = name
+        self.mainTopicId = mainTopicId
+        self.contents = contents
+
+
 @total_ordering
 class Container(object):
     ROOT = PATH.CNT_FINAL

@@ -1,10 +1,4 @@
-class CatDesc(object):
-    """describe a category and it's contents"""
-    def __init__(self, name, mainTopicId, contents):
-        self.name = name
-        self.mainTopicId = mainTopicId
-        self.contents = contents
-
+from adfd.structure import CatDesc
 
 absetzen = CatDesc('Absetzen', 10694, [9913, 9910, 853])
 steckbriefe = CatDesc('Steckbriefe', 10694, [9738, 9735, 9733, 9732, 9731])

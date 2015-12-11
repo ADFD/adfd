@@ -4,7 +4,6 @@ import logging
 from adfd.conf import PATH
 from adfd.cst import EXT
 from adfd.db.phpbb_classes import Forum, TopicDoesNotExist, Topic
-from adfd.site_description import CatDesc
 from adfd.utils import dump_contents, id2name
 
 
@@ -24,11 +23,10 @@ class ExportManager(object):
         """export topics from a site description"""
         self.allTopicIds.add(siteDescription.mainTopicId)
         for content in siteDescription.contents:
-            if isinstance(content, CatDesc):
-                self.harvest_topics_from_site_description(content)
-            else:
-                assert isinstance(content, int), content
+            if isinstance(content, int):
                 self.allTopicIds.add(content)
+            else:
+                self.harvest_topics_from_site_description(content)
 
     def export(self):
         TopicsExporter(self.allTopicIds).export_all()
