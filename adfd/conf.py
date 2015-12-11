@@ -4,42 +4,6 @@ from adfd.bbcode import AdfdParser
 from adfd.cst import _CONTENT_ROOT, DIR
 
 
-class EXPORT(object):
-    """what is configured here is eported as raw posts"""
-    FORUM_IDS = [
-        6,    # Hintergrundinformationen über Psychopharmaka
-        19,   # Hilfen zum Absetzen von Psychopharmaka
-        54,   # Webseite: Inhalt
-    ]
-    """export whole forums"""
-
-    TOPIC_IDS = [
-        10068,
-    ]
-    """export single topics"""
-
-
-STRUCTURE = [
-    (('', 10694), []),
-    (('Absetzen', 10694), [9913, 9910, 853]),
-    (('Hintergründe', 10694), (
-        (('Stäckbriefe', 10694), [9738, 9735, 9733, 9732, 9731]),
-        (('Geschichte', 10694), [9241, 10046, 933]),
-        (('Blörb', 10694), (
-            (('Stäckbriefe', 10694), [9738, 9735, 9733, 9732, 9731]),
-            (('Geschichte', 10694), [9241, 10046, 933]),
-
-        )),
-    )),
-    (('Info', 10694), [689, 893]),
-    (('BBcode', 10694), [10068]),
-]
-"""structure of the site from a list of topicIds mapped to a relPath
-
-The topic ids used here must have been exported to RAW
-"""
-
-
 class PATH(object):
     PROJECT = plumbum.LocalPath(__file__).dirname.up()
     TEST_DATA = PROJECT / 'adfd' / 'tests' / 'data'

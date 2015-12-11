@@ -19,27 +19,35 @@ def prepare(srcPath, dstPath):
         TopicPreparator(path, dstPath).prepare()
 
 
-def finalize(structure, pathPrefix=''):
-    def dump_cat_md(name, relPath, **kwargs):
+class Finalizator(object):
+    def __init__(self, structure):
+        self.structure = structure
+
+    def finalize(self):
+        self._finalize(self.structure, '')
+
+    def _finalize(self, desc, pathPrefix, weight=1):
+        relPath = desc.name
+        if pathPrefix:
+            relPath = "%s/%s" % (pathPrefix, desc.name)
+        log.info('main topic in "%s" is %s', relPath, desc.mainTopicId)
+        TopicFinalizer(desc.mainTopicId, relPath, isCategory=True).finalize()
+        self.dump_cat_md(desc.name, relPath,
+                         mainTopicId=desc.mainTopicId, weight=weight)
+        if isinstance(desc.contents, tuple):
+            for dsc in desc.contents:
+                self._finalize(dsc, relPath, weight + 1)
+        else:
+            assert isinstance(desc.contents, list), desc.contents
+            for tWeight, topicId in enumerate(desc.contents, start=1):
+                log.info('topic %s in %s is "%s"', tWeight, relPath, topicId)
+                TopicFinalizer(topicId, relPath, tWeight).finalize()
+
+    def dump_cat_md(self, name, relPath, **kwargs):
         relPath = slugify_path(relPath)
         kwargs.update(name=name)
         path = (PATH.CNT_FINAL / relPath / NAME.CATEGORY).with_suffix(EXT.META)
         CategoryMetadata(kwargs=kwargs).dump(path)
-
-    for cWeight, (nameMainTopic, rest) in enumerate(structure, start=1):
-        name, mainTopicId = nameMainTopic
-        relPath = name
-        if pathPrefix:
-            relPath = "%s/%s" % (pathPrefix, name)
-        log.info('main topic in "%s" is %s', relPath, mainTopicId)
-        TopicFinalizer(mainTopicId, relPath, isCategory=True).finalize()
-        dump_cat_md(name, relPath, mainTopicId=mainTopicId, weight=cWeight)
-        if isinstance(rest, tuple):
-            finalize(rest, relPath)
-        else:
-            for tWeight, topicId in enumerate(rest, start=1):
-                log.info('topic %s in %s is "%s"', tWeight, relPath, topicId)
-                TopicFinalizer(topicId, relPath, tWeight).finalize()
 
 
 class TopicPreparator(object):
@@ -103,6 +111,7 @@ class TopicFinalizer(object):
         self.topicIdName = id2name(topicId)
         self.slugPath = slugify_path(relPath)
         self.mdKwargs = dict(weight=weight)
+        assert self.md.exists, self.md._path
         dstPath = self.DST_PATH
         if self.slugPath:
             dstPath /= self.slugPath
@@ -117,8 +126,8 @@ class TopicFinalizer(object):
 
     @cached_property
     def md(self):
-        mdSrcPath = (PATH.CNT_PREPARED / self.topicIdName).with_suffix(EXT.META)
-        return PageMetadata(mdSrcPath, kwargs=self.mdKwargs)
+        path = (PATH.CNT_PREPARED / self.topicIdName).with_suffix(EXT.META)
+        return PageMetadata(path, kwargs=self.mdKwargs)
 
     @cached_property
     def inContent(self):
@@ -144,6 +153,10 @@ class Metadata(object):
 
     def __repr__(self):
         return str(self.asDict)
+
+    @property
+    def exists(self):
+        return self._path and self._path.exists()
 
     @property
     def asFileContents(self):

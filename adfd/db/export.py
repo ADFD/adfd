@@ -1,23 +1,37 @@
 # coding=utf-8
 import logging
 
-from adfd.cst import EXT
 from adfd.conf import PATH
+from adfd.cst import EXT
 from adfd.db.phpbb_classes import Forum, TopicDoesNotExist, Topic
+from adfd.site_description import CatDesc
 from adfd.utils import dump_contents, id2name
+
 
 log = logging.getLogger(__name__)
 
 
-def export(forumIds=None, topicIds=None):
-    allTopicIds = []
-    for forumId in forumIds or []:
-        forumTopicIds = Forum(forumId).topicIds
-        allTopicIds.extend(forumTopicIds)
-        log.info("export topics from forum %s: %s", forumId, forumTopicIds)
-    if topicIds:
-        allTopicIds.extend(topicIds)
-    TopicsExporter(allTopicIds).export_all()
+class ExportManager(object):
+    def __init__(self, topicIds=None, forumIds=None, siteDescription=None):
+        self.allTopicIds = set(topicIds or [])
+        if forumIds:
+            for forumId in forumIds:
+                self.allTopicIds | set(Forum(forumId).topicIds)
+        if siteDescription:
+            self.harvest_topics_from_site_description(siteDescription)
+
+    def harvest_topics_from_site_description(self, siteDescription):
+        """export topics from a site description"""
+        self.allTopicIds.add(siteDescription.mainTopicId)
+        for content in siteDescription.contents:
+            if isinstance(content, CatDesc):
+                self.harvest_topics_from_site_description(content)
+            else:
+                assert isinstance(content, int), content
+                self.allTopicIds.add(content)
+
+    def export(self):
+        TopicsExporter(self.allTopicIds).export_all()
 
 
 class TopicsExporter(object):

@@ -4,9 +4,12 @@ import webbrowser
 from plumbum import cli, LocalPath
 
 from adfd import cst, conf
-from adfd.content import TopicFinalizer, TopicNotFound, prepare, finalize
-from adfd.db.export import export
+from adfd.content import TopicFinalizer, TopicNotFound, prepare, Finalizator
+from adfd.db.export import ExportManager
+from adfd.site_description import SITE_DESCRIPTION
 from adfd.utils import get_obj_info
+
+log = logging.getLogger(__name__)
 
 
 class AdfdCnt(cli.Application):
@@ -21,7 +24,8 @@ class AdfdDbExport(cli.Application):
     """export topics from db"""
     def main(self):
         conf.PATH.CNT_RAW.delete()
-        export(conf.EXPORT.FORUM_IDS, conf.EXPORT.TOPIC_IDS)
+        # forumIds = [6, 19, 54, 56]
+        ExportManager(siteDescription=SITE_DESCRIPTION).export()
 
 
 @AdfdCnt.subcommand("prepare")
@@ -37,7 +41,7 @@ class AdfdCntFinalize(cli.Application):
     """finalize prepared articles and create structure"""
     def main(self):
         conf.PATH.CNT_FINAL.delete()
-        finalize(conf.STRUCTURE)
+        Finalizator(SITE_DESCRIPTION).finalize()
 
 
 @AdfdCnt.subcommand("conf")
