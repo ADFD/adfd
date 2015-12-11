@@ -151,7 +151,6 @@ if __name__ == '__main__':
     # print(c.find_categories())
     # print(c.find_pages())
     # print(obj_attr(p))
-    # print(get_structure(STRUCTURE))
     # p = Page(path=LocalPath('bbcode'))
     # p = Page(path=LocalPath('bbcode/spezielle-bbcode-formatierungen'))
     # print(obj_attr(p))
