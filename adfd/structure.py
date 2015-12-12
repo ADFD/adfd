@@ -113,7 +113,7 @@ class PageNotFound(Exception):
 class Navigator:
     GLOBAL = ('<ul class="dropdown menu" data-dropdown-menu>', '</ul>')
     MAIN = ('<ul class="menu">', '</ul>')
-    STIT = ('<a>', '</a>')
+    CAT = ('<a href="%s">%s', '</a>')
     SUB = ('<ul class="menu">', '</ul>')
     ELEM = ('<li><a href="%s">%s', '</a></li>')
     TOGGLE = ('<li>', '<li style="text-decoration: underline;">')
@@ -147,7 +147,8 @@ class Navigator:
         self.add_elem(self.GLOBAL[0] if self.depth == 1 else self.MAIN[0])
         self.depth += 1
         for cat in element.find_categories():
-            self.add_elem('%s%s%s' % (self.STIT[0], cat.name, self.STIT[0]))
+            elem = self.CAT[0] % (cat.relPath, cat.name)
+            self.add_elem('%s%s' % (elem, self.CAT[1]))
             self._add_elems(cat)
         for page in element.find_pages():
             elem = self.ELEM[0] % (page.relPath, page.name)
