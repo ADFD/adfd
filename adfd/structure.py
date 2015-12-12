@@ -152,7 +152,6 @@ class Navigator:
         for page in element.find_pages():
             elem = self.ELEM[0] % (page.relPath, page.name)
             self.add_elem('%s%s' % (elem, self.ELEM[1]))
-            self.add_elem('<li><a href="#">%s</a></li>' % (page.name))
         self.depth -= 1
         self.add_elem(self.GLOBAL[1] if self.depth == 1 else self.MAIN[1])
 
