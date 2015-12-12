@@ -111,40 +111,58 @@ class PageNotFound(Exception):
 
 
 class Navigator:
-    MAIN = ('<ul class="dropdown menu" data-dropdown-menu>', '</ul>')
+    GLOBAL = ('<ul class="dropdown menu" data-dropdown-menu>', '</ul>')
+    MAIN = ('<ul class="menu">', '</ul>')
     STIT = ('<a>', '</a>')
     SUB = ('<ul class="menu">', '</ul>')
     ELEM = ('<li><a href="%s">%s', '</a></li>')
+    TOGGLE = ('<li>', '<li style="text-decoration: underline;">')
 
     def __init__(self, root=Category()):
         self.root = root
         self.depth = 1
+        self._elems = []
+        self.navigation = ''
 
-    def traverse(self):
-        self._traverse(self.root)
+    @property
+    def elems(self):
+        if not self._elems:
+            self._add_elems(self.root)
+        return self._elems
 
-    def _traverse(self, element):
-        if self.depth == 1:
-            self.prindent(self.MAIN[0])
-        else:
-            self.prindent('<ul class="menu">')
+    def get_navigation(self, activeRelPath):
+        assert 'index' not in activeRelPath, activeRelPath
+        modifiedElems = []
+        for elem in self.elems:
+            if activeRelPath not in elem:
+                modifiedElems.append(elem)
+            else:
+                modifiedElems.append(self.get_toggled_elem(elem))
+        return "\n".join(modifiedElems)
+
+    def get_toggled_elem(self, elem):
+        return elem.replace(self.TOGGLE[0], self.TOGGLE[1])
+
+    def _add_elems(self, element):
+        self.add_elem(self.GLOBAL[0] if self.depth == 1 else self.MAIN[0])
         self.depth += 1
         for cat in element.find_categories():
-            self.prindent('%s%s%s' % (self.STIT[0], cat.name, self.STIT[0]))
-            self._traverse(cat)
+            self.add_elem('%s%s%s' % (self.STIT[0], cat.name, self.STIT[0]))
+            self._add_elems(cat)
         for page in element.find_pages():
             elem = self.ELEM[0] % (page.relPath, page.name)
-            self.prindent('%s%s' % (elem, self.ELEM[1]))
-            self.prindent('<li><a href="#">%s</a></li>' % (page.name))
+            self.add_elem('%s%s' % (elem, self.ELEM[1]))
+            self.add_elem('<li><a href="#">%s</a></li>' % (page.name))
         self.depth -= 1
-        self.prindent(self.MAIN[1])
+        self.add_elem(self.GLOBAL[1] if self.depth == 1 else self.MAIN[1])
 
-    def prindent(self, text):
-        print(' ' * 4 * self.depth, text)
+    def add_elem(self, text):
+        self._elems.append('%s%s' % (' ' * 4 * self.depth, text))
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.WARNING)
-    Navigator().traverse()
+    print(Navigator().get_navigation(
+            '/bbcode/spezielle-bbcode-formatierungen'))
 
     # fixme turn this into tests ...
     exit()
