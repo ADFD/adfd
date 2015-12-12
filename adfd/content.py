@@ -35,8 +35,8 @@ class Finalizator(object):
         self.dump_cat_md(desc.name, relPath,
                          mainTopicId=desc.mainTopicId, weight=weight)
         if isinstance(desc.contents, tuple):
-            for dsc in desc.contents:
-                self._finalize(dsc, relPath, weight + 1)
+            for idx, dsc in enumerate(desc.contents, start=1):
+                self._finalize(dsc, relPath, weight + idx)
         else:
             assert isinstance(desc.contents, list), desc.contents
             for tWeight, topicId in enumerate(desc.contents, start=1):
