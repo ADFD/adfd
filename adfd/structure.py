@@ -25,6 +25,7 @@ class Container(object):
 
     def __init__(self, path):
         self.basePath = self.ROOT / path
+        self.relPath = str(self.basePath).split(self.ROOT)[-1]
 
     def __repr__(self):
         return "%s" % (obj_attr(self))
@@ -108,33 +109,41 @@ class PageNotFound(Exception):
     pass
 
 
-class WRAP(object):
-    MAIN = '<ul class="dropdown menu" data-dropdown-menu>\n%s\n</ul>\n'
-    SUB = '<li><a>%s</a><ul class="menu"><ul class="menu">\n%s\n</ul></li>\n'
-    ELEM = '<li><a href="%s">%s</a></li>\n'
+class Navigator:
+    MAIN = ('<ul class="dropdown menu" data-dropdown-menu>', '</ul>')
+    STIT = ('<a>', '</a>')
+    SUB = ('<ul class="menu">', '</ul>')
+    ELEM = ('<li><a href="%s">%s', '</a></li>')
 
+    def __init__(self, root=Category()):
+        self.root = root
+        self.depth = 1
 
-def traverse_site(element=Category(), depth=1):
-    def prindent(text):
-        print(' ' * 4 * depth, text)
+    def traverse(self):
+        self._traverse(self.root)
 
-    if depth == 1:
-        prindent('<ul class="dropdown menu">')
-    else:
-        prindent('<ul class="menu">')
-    depth += 1
-    for cat in element.find_categories():
-        prindent('<a>%s</a>' % (cat.name))
-        traverse_site(cat, depth=depth)
-    for page in element.find_pages():
-        prindent('<li><a href="#">%s</a></li>' % (page.name))
-    depth -= 1
-    prindent('</ul>')
+    def _traverse(self, element):
+        if self.depth == 1:
+            self.prindent(self.MAIN[0])
+        else:
+            self.prindent('<ul class="menu">')
+        self.depth += 1
+        for cat in element.find_categories():
+            self.prindent('%s%s%s' % (self.STIT[0], cat.name, self.STIT[0]))
+            self._traverse(cat)
+        for page in element.find_pages():
+            elem = self.ELEM[0] % (page.relPath, page.name)
+            self.prindent('%s%s' % (elem, self.ELEM[1]))
+            self.prindent('<li><a href="#">%s</a></li>' % (page.name))
+        self.depth -= 1
+        self.prindent(self.MAIN[1])
 
+    def prindent(self, text):
+        print(' ' * 4 * self.depth, text)
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.WARNING)
-    traverse_site()
+    Navigator().traverse()
 
     # fixme turn this into tests ...
     exit()
