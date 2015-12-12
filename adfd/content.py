@@ -117,8 +117,9 @@ class TopicFinalizer(object):
             dstPath /= self.slugPath
         if not isCategory:
             dstPath /= slugify(self.md.title)
-        self.htmlDstPath = (dstPath / NAME.INDEX).with_suffix(EXT.OUT)
-        self.mdDstPath = (dstPath / NAME.PAGE).with_suffix(EXT.META)
+        dstPath /= NAME.INDEX
+        self.htmlDstPath = dstPath.with_suffix(EXT.OUT)
+        self.mdDstPath = dstPath.with_suffix(EXT.META)
 
     def finalize(self):
         dump_contents(self.htmlDstPath, self.outContent)

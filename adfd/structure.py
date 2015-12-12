@@ -93,8 +93,9 @@ class Page(Container):
     def __init__(self, path):
         self.basePath = self.ROOT / path
         super().__init__(self.basePath)
-        self.cntPath = (self.basePath / NAME.INDEX).with_suffix(EXT.OUT)
-        self.pageMdPath = (self.basePath / NAME.PAGE).with_suffix(EXT.META)
+        idxPath = self.basePath / NAME.INDEX
+        self.cntPath = idxPath.with_suffix(EXT.OUT)
+        self.pageMdPath = idxPath.with_suffix(EXT.META)
 
     @cached_property
     def content(self):
