@@ -110,6 +110,9 @@ class PageNotFound(Exception):
     pass
 
 
+# todo make sure that all links are generated with url_for in templates
+# see http://pythonhosted.org/Frozen-Flask/#finding-urls
+# or write an http://pythonhosted.org/Frozen-Flask/#url-generators
 class Navigator:
     GLOBAL = ('<ul class="menu vertical medium-horizontal" '
               'data-responsive-menu="drilldown medium-dropdown">', '</ul>')
