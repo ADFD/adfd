@@ -20,7 +20,7 @@ class ExportManager(object):
             self.harvest_topics_from_site_description(siteDescription)
 
     def harvest_topics_from_site_description(self, siteDescription):
-        """export topics from a site description"""
+        """collect all topics from a site description"""
         self.allTopicIds.add(siteDescription.mainTopicId)
         for content in siteDescription.contents:
             if isinstance(content, int):
