@@ -4,7 +4,6 @@ import sys
 from plumbum import cli
 
 from adfd import conf, cst
-from adfd.db.export import export
 from adfd.db.phpbb_classes import *
 from adfd.utils import get_obj_info
 
