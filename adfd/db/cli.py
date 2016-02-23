@@ -12,26 +12,26 @@ class AdfdDb(cli.Application):
     pass
 
 
-@AdfdDb.subcommand("forum")
+@AdfdDb.subcommand('forum')
 class AdfdDbForum(cli.Application):
     def main(self, forumId):
         try:
             forum = Forum(forumId)
         except ForumDoesNotExist:
-            print("forum with id %s does not exist" % (forumId))
+            print('forum with id %s does not exist' % (forumId))
             return 1
 
         except ForumIsEmpty:
-            print("forum with id %s is empty" % (forumId))
+            print('forum with id %s is empty' % (forumId))
             return 1
 
-        print("Forum %s: %s" % (forum.id, forum.name))
-        print("topics:", forum.topicIds)
+        print('Forum %s: %s' % (forum.id, forum.name))
+        print('topics:', forum.topicIds)
 
 
-@AdfdDb.subcommand("topic")
+@AdfdDb.subcommand('topic')
 class AdfdDbTopic(cli.Application):
-    @cli.switch("-t", cli.Set("raw", "editable", case_sensitive=False))
+    @cli.switch('-t', cli.Set('raw', 'editable', case_sensitive=False))
     def contentType(self, contentType):
         self.contentType = contentType
 
@@ -39,38 +39,41 @@ class AdfdDbTopic(cli.Application):
         try:
             topic = Topic(topicId)
         except TopicDoesNotExist:
-            print("topic with id %s does not exist" % (topicId))
+            print('topic with id %s does not exist' % (topicId))
             return 1
 
-        print("%s (%s)" % (topic.id, topic.subject))
-        print("ids:", topic.postIds)
+        print('%s (%s)' % (topic.id, topic.subject))
+        print('ids:', topic.postIds)
         if self.contentType == 'raw':
-            print("\n\n --##--\n\n".join([p.rawText for p in topic.posts]))
+            print('\n\n --##--\n\n'.join([p.rawText for p in topic.posts]))
         if self.contentType == 'editable':
-            print("\n\n --##--\n\n".join([p.content for p in topic.posts]))
+            print('\n\n --##--\n\n'.join([p.content for p in topic.posts]))
 
 
-@AdfdDb.subcommand("post")
+@AdfdDb.subcommand('post')
 class AdfdDbPost(cli.Application):
-    @cli.switch("-t", cli.Set("raw", "editable", case_sensitive=False))
-    def contentType(self, contentType):
+    contentType = 'html'
+
+    @cli.switch('-t', cli.Set('html', 'raw', case_sensitive=False))
+    def _contentType(self, contentType):
         self.contentType = contentType
 
     def main(self, postId):
         try:
             post = Post(postId)
         except PostDoesNotExist:
-            print("post with id %s does not exist" % (postId))
+            print('post with id %s does not exist' % (postId))
             return 1
 
-        print("%s by %s (%s)" % (post.subject, post.id, post.username))
+        print('"%s" by %s (%s) - format %s' %
+              (post.subject, post.username, post.id, self.contentType))
         if self.contentType == 'raw':
             print(post.rawText)
-        elif self.outType == 'html':
+        elif self.contentType == 'html':
             print(post.content)
 
 
-@AdfdDb.subcommand("status")
+@AdfdDb.subcommand('status')
 class AdfdDbStatus(cli.Application):
     def main(self):
         print(get_obj_info([cst, conf]))
