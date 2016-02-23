@@ -3,3 +3,5 @@ sqlalchemy
 cached-property
 plumbum
 translitcodec
+typogrify
+pyphen
