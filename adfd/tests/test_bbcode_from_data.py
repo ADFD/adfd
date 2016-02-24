@@ -1,9 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+import logging
 
 import pytest
 
 from adfd.bbcode import AdfdParser, _urlRegex
+
+log = logging.getLogger(__name__)
+
 
 KITCHEN_SINK = (
     ('<http://foo.com/bla_bla>',
@@ -138,11 +140,14 @@ QUOTES = [
 ]
 
 
-class TestAdfdParser(object):
+class TestAdfdParser:
     parser = AdfdParser()
 
     @pytest.mark.parametrize(('src', 'expected'), KITCHEN_SINK)
     def test_format(self, src, expected):
+        # Escaping is done in right place as well if Token is used
+        log.warning('Token class not used here, do extra esacping')
+        self.parser.escape_html = True
         tokens = self.parser.tokenize(src)
         result = self.parser._format_tokens(tokens, None).strip()
         assert result == expected

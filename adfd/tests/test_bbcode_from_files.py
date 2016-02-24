@@ -3,7 +3,7 @@ import pytest
 from adfd.utils import DataGrabber, PairTester
 
 
-class TestAdfdParser:
+class TestFromDataAcceptance:
     ACCEPTANCE_PAIRS = DataGrabber('acceptance').get_pairs()
     TRANSFORM_PAIRS = DataGrabber('transform').get_pairs()
 
@@ -16,3 +16,10 @@ class TestAdfdParser:
         if fName in ['nested-quotes.bbcode']:
             pytest.xfail('nested quuotes is tricky and of qquestionable use')
         PairTester.test_pairs(fName, src, exp)
+
+
+# fixme provide directory with fakefiles, when stable
+# class TestPage:
+#     def test_metadata(self):
+#         p = Page(689)
+#         print(obj_attr(p))
