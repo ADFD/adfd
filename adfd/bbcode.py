@@ -27,8 +27,7 @@ class TagOptions:
     replace_links = True
     """URLs should be replaced with link markup inside this tag"""
     replace_cosmetic = True
-    """cosmetic replacements (elipses, dashes, etc.)
-    should be performed inside this tag"""
+    """perform cosmetic replacements (elipses, dashes, etc.) in tag"""
     strip = False
     """leading and trailing whitespace should be stripped inside tag"""
     swallow_trailing_newline = False
