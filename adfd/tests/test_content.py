@@ -1,6 +1,6 @@
 import logging
-import pytest
 
+import pytest
 from plumbum import LocalPath
 
 from adfd import cst
@@ -26,15 +26,14 @@ def fakePaths(request):
     return fakeRawPath, fakeDstPath
 
 
-class TestPreparator(object):
+class TestPreparator:
     def test_preparation(self, fakePaths):
         prepare(*fakePaths)
 
 
-class TestArticle(object):
+class TestArticle:
     def test_topic_id_path(self, fakePaths):
         srcPath, dstPath = fakePaths
-
         p = TopicPreparator(srcPath / '00001', dstPath)
         p.prepare()
         a = TopicFinalizer(1)
@@ -51,7 +50,7 @@ class TestArticle(object):
         assert a.md.slug == 'soeme-snassy-taetle'
 
 
-class TestMetadata(object):
+class TestMetadata:
     def test_populate_from_text(self):
         text = 'bla\n[meta]title: supertitle[/meta]\nblubb'
         md = PageMetadata(text=text)
