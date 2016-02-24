@@ -104,21 +104,21 @@ class Parser:
     TOKEN_DATA = 'data'
 
     def __init__(
-            self, newline='\n', normalize_newlines=True,
+            self, newline='\n', normalizeNewlines=True,
             escapeHtml=False, replaceLinks=True,
-            replaceCosmetic=True, tag_opener='[', tag_closer=']',
-            linker=None, linker_takes_context=False, drop_unrecognized=False):
-        self.tag_opener = tag_opener
-        self.tag_closer = tag_closer
+            replaceCosmetic=True, tagOpener='[', tagCloser=']',
+            linker=None, linkerTakesContext=False, dropUnrecognized=False):
+        self.tagOpener = tagOpener
+        self.tagCloser = tagCloser
         self.newline = newline
-        self.normalize_newlines = normalize_newlines
+        self.normalizeNewlines = normalizeNewlines
         self.recognized_tags = {}
-        self.drop_unrecognized = drop_unrecognized
+        self.dropUnrecognized = dropUnrecognized
         self.escapeHtml = escapeHtml
         self.replaceCosmetic = replaceCosmetic
         self.replaceLinks = replaceLinks
         self.linker = linker
-        self.linker_takes_context = linker_takes_context
+        self.linkerTakesContext = linkerTakesContext
 
     def add_formatter(self, tagName, render_func, **kwargs):
         """ Install render function for specified tag name.
@@ -256,12 +256,12 @@ class Parser:
         parse any options and return a tuple of the form:
             (valid, tagName, closer, options)
         """
-        if ((not tag.startswith(self.tag_opener)) or
-                (not tag.endswith(self.tag_closer)) or
+        if ((not tag.startswith(self.tagOpener)) or
+                (not tag.endswith(self.tagCloser)) or
                 ('\n' in tag) or ('\r' in tag)):
             return (False, tag, False, None)
 
-        tagName = tag[len(self.tag_opener):-len(self.tag_closer)].strip()
+        tagName = tag[len(self.tagOpener):-len(self.tagCloser)].strip()
         if not tagName:
             return (False, tag, False, None)
 
@@ -293,11 +293,11 @@ class Parser:
                 elif in_quote == ch:
                     in_quote = False
             if (not in_quote and
-                    data[i:i + len(self.tag_opener)] == self.tag_opener):
+                    data[i:i + len(self.tagOpener)] == self.tagOpener):
                 return i, False
             if (not in_quote and
-                    data[i:i + len(self.tag_closer)] == self.tag_closer):
-                return i + len(self.tag_closer), True
+                    data[i:i + len(self.tagCloser)] == self.tagCloser):
+                return i + len(self.tagCloser), True
         return len(data), False
 
     def tokenize(self, data):
@@ -315,12 +315,12 @@ class Parser:
             token_text
                 The original token text
         """
-        if self.normalize_newlines:
+        if self.normalizeNewlines:
             data = data.replace('\r\n', '\n').replace('\r', '\n')
         pos = 0
         tokens = []
         while pos < len(data):
-            start = data.find(self.tag_opener, pos)
+            start = data.find(self.tagOpener, pos)
             if start >= pos:
                 # Check if there was data between this start and the last end
                 if start > pos:
@@ -343,10 +343,10 @@ class Parser:
                         else:
                             tokens.append(
                                 (self.TOKEN_TAG_START, tagName, opts, tag))
-                    elif (valid and self.drop_unrecognized and
+                    elif (valid and self.dropUnrecognized and
                           tagName not in self.recognized_tags):
                         # If we found a valid (but unrecognized) tag and
-                        # self.drop_unrecognized is True, just drop it
+                        # self.dropUnrecognized is True, just drop it
                         pass
                     else:
                         tokens.extend(self._newline_tokenize(tag))
@@ -414,12 +414,12 @@ class Parser:
 
         Turns out using a callback function is actually faster than using
         backrefs, plus this lets us provide a hook for user customization.
-        linker_takes_context=True means that the linker gets passed context
+        linkerTakesContext=True means that the linker gets passed context
         like a standard format function.
         """
         url = match.group(0)
         if self.linker:
-            if self.linker_takes_context:
+            if self.linkerTakesContext:
                 return self.linker(url, context)
             else:
                 return self.linker(url)

@@ -191,7 +191,7 @@ class TestAdfdParser:
                                    strip_newlines=True)
         assert result == 'hello world -- []'
         parser = AdfdParser(
-            tag_opener='<', tag_closer='>', drop_unrecognized=True)
+            tagOpener='<', tagCloser='>', dropUnrecognized=True)
         result = parser.strip(
             '<div class="test"><b>hello</b> <i>world</i><img src="test.jpg" '
             '/></div>')
@@ -211,7 +211,7 @@ class TestAdfdParser:
         assert s == ('hello <a href="www.apple.com" '
                      'target="_blank">www.apple.com</a> world')
         # Test contextual linker
-        p = AdfdParser(linker=_contextual_link, linker_takes_context=True)
+        p = AdfdParser(linker=_contextual_link, linkerTakesContext=True)
         s = p._format_tokens(p.tokenize(
             'hello www.apple.com world'), None, substitution="oh hai")
         assert s == ('hello <a href="www.apple.com" '
