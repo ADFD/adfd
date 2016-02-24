@@ -19,7 +19,7 @@ def prepare(srcPath, dstPath):
         TopicPreparator(path, dstPath).prepare()
 
 
-class Finalizator(object):
+class Finalizator:
     def __init__(self, structure):
         self.structure = structure
 
@@ -50,7 +50,7 @@ class Finalizator(object):
         CategoryMetadata(kwargs=kwargs).dump(path)
 
 
-class TopicPreparator(object):
+class TopicPreparator:
     """Take exported files of a topic and prepare them for HTML conversion"""
 
     def __init__(self, path, dstPath):
@@ -103,16 +103,13 @@ class TopicPreparator(object):
         return md
 
 
-class TopicFinalizer(object):
-    PARSEFUNC = PARSE.FUNC
-    DST_PATH = PATH.CNT_FINAL
-
+class TopicFinalizer:
     def __init__(self, topicId, relPath='', weight=0, isCategory=False):
         self.topicIdName = id2name(topicId)
         self.slugPath = slugify_path(relPath)
         self.mdKwargs = dict(weight=weight)
         assert self.md.exists, self.md._path
-        dstPath = self.DST_PATH
+        dstPath = PATH.CNT_FINAL
         if self.slugPath:
             dstPath /= self.slugPath
         if not isCategory:
@@ -137,10 +134,10 @@ class TopicFinalizer(object):
 
     @cached_property
     def outContent(self):
-        return self.PARSEFUNC(self.inContent)
+        return PARSE.FUNC(self.inContent)
 
 
-class Metadata(object):
+class Metadata:
     ATTRIBUTES = None
     OVERRIDABLES = None
     META_RE = re.compile(r'\[meta\](.*)\[/meta\]', re.MULTILINE | re.DOTALL)
