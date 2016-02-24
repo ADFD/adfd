@@ -564,6 +564,17 @@ class Chunk:
     def __repr__(self):
         return " ".join([str(c) for c in self.tokens])
 
+    def modify(self):
+        """this innocent method is the reason why we have chunks"""
+        if self.isEmpty:
+            return
+
+        if self.chunkType == self.PARAGRAPH:
+            startToken = Token(Parser.TOKEN_TAG_START, 'p', None, '[p]')
+            endToken = Token(Parser.TOKEN_TAG_END, 'p', None, '[/p]')
+            self.tokens.insert(0, startToken)
+            self.tokens.append(endToken)
+
     @cached_property
     def tokensAsTuples(self):
         return [t.asTuple for t in self.tokens]
@@ -585,17 +596,6 @@ class Chunk:
         for token in self.tokens:
             if not token.isNewline:
                 return False
-
-    def modify(self):
-        """this innocent method is the reason why we have chunks"""
-        if self.isEmpty:
-            return
-
-        if self.chunkType == self.PARAGRAPH:
-            startToken = Token(Parser.TOKEN_TAG_START, 'p', None, '[p]')
-            endToken = Token(Parser.TOKEN_TAG_END, 'p', None, '[/p]')
-            self.tokens.insert(0, startToken)
-            self.tokens.append(endToken)
 
 
 class Chunkman:
