@@ -4,7 +4,7 @@ from adfd.bbcode import AdfdParser
 from adfd.cst import _CONTENT_ROOT, DIR
 
 
-class PATH(object):
+class PATH:
     PROJECT = plumbum.LocalPath(__file__).dirname.up()
     TEST_DATA = PROJECT / 'adfd' / 'tests' / 'data'
     CONTENT = _CONTENT_ROOT
@@ -21,7 +21,7 @@ class PATH(object):
     """the final structure that makes the website"""
 
 
-class METADATA(object):
+class METADATA:
     """settings for the accompanying meta data used by the web generator
 
     For overriding this directly from post contents the bbcode tag
@@ -38,14 +38,14 @@ class METADATA(object):
 
         <span style="display: none;">[meta]{TEXT}[/meta]</span>
     """
-    class CATEGORY(object):
+    class CATEGORY:
         ATTRIBUTES = [
             'name',
             'mainTopicId',
             'weight'
         ]
 
-    class PAGE(object):
+    class PAGE:
         OVERRIDABLES = [
             'author',
             'title',
@@ -76,6 +76,7 @@ class METADATA(object):
     """this format will be used for human readable dates in meta data"""
 
 
-class PARSE(object):
+class PARSE:
     FUNC = AdfdParser().to_html
+    PYPHEN_LANG = 'de_de'
     TITLE_PATTERN = '[h2]%s[/h2]\n'
