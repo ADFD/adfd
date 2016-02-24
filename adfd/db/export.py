@@ -10,7 +10,7 @@ from adfd.utils import dump_contents, id2name
 log = logging.getLogger(__name__)
 
 
-class ExportManager(object):
+class ExportManager:
     def __init__(self, topicIds=None, forumIds=None, siteDescription=None):
         self.allTopicIds = set(topicIds or [])
         if forumIds:
@@ -32,7 +32,7 @@ class ExportManager(object):
         TopicsExporter(self.allTopicIds).export_all()
 
 
-class TopicsExporter(object):
+class TopicsExporter:
     """root of all content for the website"""
 
     SUMMARY_PATH = PATH.CNT_RAW / 'summary.txt'

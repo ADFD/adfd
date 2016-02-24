@@ -14,8 +14,8 @@ Some ideas:
 """
 import logging
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 from adfd.db.utils import get_db_session
@@ -25,7 +25,7 @@ from adfd.utils import obj_attr
 log = logging.getLogger(__name__)
 
 
-class DataFetcher(object):
+class DataFetcher:
     DB_SESSION = get_db_session()
 
     def __init__(
@@ -79,7 +79,7 @@ class DataFetcher(object):
         return ", ".join(self.columnNames)
 
 
-class StatsPlotter(object):
+class StatsPlotter:
     def __init__(self, series, xlabel=u"Zeit", ylabel=u"Beiträge"):
         # self.series = series
         self.xlabel = xlabel

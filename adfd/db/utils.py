@@ -40,7 +40,7 @@ def get_db_session():
     return Session()
 
 
-class DbWrapper(object):
+class DbWrapper:
     """very simple wrapper that can fetch the little that's needed atm"""
     DB_SESSION = get_db_session()
 

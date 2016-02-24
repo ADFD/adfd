@@ -22,7 +22,7 @@ __all__ = [
 ]
 
 
-class Forum(object):
+class Forum:
     def __init__(self, forumId):
         self.id = forumId
         self.db = DbWrapper()
@@ -55,7 +55,7 @@ class ForumIsEmpty(Exception):
     """raised if the forum contains no topics"""
 
 
-class Topic(object):
+class Topic:
     """This has a bit of flexibility to make it possible to filter posts."""
 
     def __init__(self, topicId):
@@ -87,7 +87,7 @@ class TopicDoesNotExist(Exception):
     """raised if the topic contains no posts"""
 
 
-class Post(object):
+class Post:
     def __init__(self, postId):
         self.id = postId
         self.db = DbWrapper()
