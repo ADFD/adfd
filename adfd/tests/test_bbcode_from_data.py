@@ -148,7 +148,7 @@ class TestAdfdParser:
     def test_format(self, src, expected):
         # Escaping is done in right place as well if Token is used
         log.warning('Token class not used here, do extra esacping')
-        self.parser.escape_html = True
+        self.parser.escapeHtml = True
         tokens = self.parser.tokenize(src)
         result = self.parser._format_tokens(tokens, None).strip()
         assert result == expected

@@ -10,31 +10,31 @@ from adfd.utils import Replacer
 
 
 class TagOptions:
-    tag_name = None
+    tagName = None
     """name of the tag - all lowercase"""
-    newline_closes = False
+    newlineCloses = False
     """a newline should automatically close this tag"""
-    same_tag_closes = False
+    sameTagCloses = False
     """another start of the same tag should close this tag"""
     standalone = False
     """this tag does not have a closing tag"""
-    render_embedded = True
+    renderEmbedded = True
     """tags should be rendered inside this tag"""
-    transform_newlines = True
+    transformNewlines = True
     """newlines should be converted to markup"""
-    escape_html = True
+    escapeHtml = True
     """HTML characters (<, >, and &) should be escaped inside this tag"""
-    replace_links = True
+    replaceLinks = True
     """URLs should be replaced with link markup inside this tag"""
-    replace_cosmetic = True
+    replaceCosmetic = True
     """perform cosmetic replacements (elipses, dashes, etc.) in tag"""
     strip = False
     """leading and trailing whitespace should be stripped inside tag"""
-    swallow_trailing_newline = False
+    swallowTrailingNewline = False
     """tag should swallow first trailing newline (i.e. for block elements)"""
 
-    def __init__(self, tag_name, **kwargs):
-        self.tag_name = tag_name
+    def __init__(self, tagName, **kwargs):
+        self.tagName = tagName
         for attr, value in list(kwargs.items()):
             setattr(self, attr, bool(value))
 
@@ -105,8 +105,8 @@ class Parser:
 
     def __init__(
             self, newline='\n', normalize_newlines=True,
-            escape_html=False, replace_links=True,
-            replace_cosmetic=True, tag_opener='[', tag_closer=']',
+            escapeHtml=False, replaceLinks=True,
+            replaceCosmetic=True, tag_opener='[', tag_closer=']',
             linker=None, linker_takes_context=False, drop_unrecognized=False):
         self.tag_opener = tag_opener
         self.tag_closer = tag_closer
@@ -114,26 +114,26 @@ class Parser:
         self.normalize_newlines = normalize_newlines
         self.recognized_tags = {}
         self.drop_unrecognized = drop_unrecognized
-        self.escape_html = escape_html
-        self.replace_cosmetic = replace_cosmetic
-        self.replace_links = replace_links
+        self.escapeHtml = escapeHtml
+        self.replaceCosmetic = replaceCosmetic
+        self.replaceLinks = replaceLinks
         self.linker = linker
         self.linker_takes_context = linker_takes_context
 
-    def add_formatter(self, tag_name, render_func, **kwargs):
+    def add_formatter(self, tagName, render_func, **kwargs):
         """ Install render function for specified tag name.
 
         The render function should have the following signature:
 
-            def render(tag_name, value, options, parent, context)
+            def render(tagName, value, options, parent, context)
 
         The arguments are as follows:
 
-            tag_name
+            tagName
                 The name of the tag being rendered.
             value
                 context between start and end tags (None for standalone tags).
-                Depends on render_embedded tag option whether this has
+                Depends on renderEmbedded tag option whether this has
                 been rendered.
             options
                 A dictionary of options specified on the opening tag.
@@ -143,10 +143,10 @@ class Parser:
             context
                 The keyword argument dictionary passed into the format call.
         """
-        options = TagOptions(tag_name.strip().lower(), **kwargs)
-        self.recognized_tags[options.tag_name] = (render_func, options)
+        options = TagOptions(tagName.strip().lower(), **kwargs)
+        self.recognized_tags[options.tagName] = (render_func, options)
 
-    def add_simple_formatter(self, tag_name, format_string, **kwargs):
+    def add_simple_formatter(self, tagName, format_string, **kwargs):
         """Install a formatter.
 
         Takes the tag options dictionary, puts a value key in it
@@ -159,7 +159,7 @@ class Parser:
                 fmt.update(options)
             fmt.update({'value': value})
             return format_string % fmt
-        self.add_formatter(tag_name, _render, **kwargs)
+        self.add_formatter(tagName, _render, **kwargs)
 
     def _newline_tokenize(self, data):
         """
@@ -180,7 +180,7 @@ class Parser:
         """Parse options out of given a tag string.
 
         This function will parse any options and return a tuple of
-        (tag_name, options_dict).
+        (tagName, options_dict).
 
         Options may be quoted in order to preserve spaces, and free-standing
         options are allowed. The tag name itself may also serve as an option
@@ -188,9 +188,9 @@ class Parser:
         sign. Here are some examples:
 
             quote author="Dan Watson"
-                tag_name=quote, options={'author': 'Dan Watson'}
+                tagName=quote, options={'author': 'Dan Watson'}
             url="http://test.com/s.php?a=bcd efg" popup
-                tag_name=url, options={
+                tagName=url, options={
                     'url': 'http://test.com/s.php?a=bcd efg', 'popup': ''}
         """
         name = None
@@ -254,26 +254,26 @@ class Parser:
         """
         Given a tag string (characters enclosed by []), this function will
         parse any options and return a tuple of the form:
-            (valid, tag_name, closer, options)
+            (valid, tagName, closer, options)
         """
         if ((not tag.startswith(self.tag_opener)) or
                 (not tag.endswith(self.tag_closer)) or
                 ('\n' in tag) or ('\r' in tag)):
             return (False, tag, False, None)
 
-        tag_name = tag[len(self.tag_opener):-len(self.tag_closer)].strip()
-        if not tag_name:
+        tagName = tag[len(self.tag_opener):-len(self.tag_closer)].strip()
+        if not tagName:
             return (False, tag, False, None)
 
         closer = False
         opts = {}
-        if tag_name[0] == '/':
-            tag_name = tag_name[1:]
+        if tagName[0] == '/':
+            tagName = tagName[1:]
             closer = True
         # Parse options inside the opening tag, if needed.
-        if (('=' in tag_name) or (' ' in tag_name)) and not closer:
-            tag_name, opts = self._parse_opts(tag_name)
-        return (True, tag_name.strip().lower(), closer, opts)
+        if (('=' in tagName) or (' ' in tagName)) and not closer:
+            tagName, opts = self._parse_opts(tagName)
+        return (True, tagName.strip().lower(), closer, opts)
 
     def _tag_extent(self, data, start):
         """Find extent of a tag.
@@ -304,11 +304,11 @@ class Parser:
         """
         Tokenizes the given string. A token is a 4-tuple of the form:
 
-            (token_type, tag_name, tag_options, token_text)
+            (token_type, tagName, tag_options, token_text)
 
             token_type
                 TOKEN_TAG_START, TOKEN_TAG_END, TOKEN_NEWLINE or TOKEN_DATA
-            tag_name
+            tagName
                 The name of the tag if token_type=TOKEN_TAG_*, otherwise None
             tag_options
                 dict of options specified for TOKEN_TAG_START, otherwise None
@@ -333,18 +333,18 @@ class Parser:
                 end, found_close = self._tag_extent(data, start)
                 if found_close:
                     tag = data[start:end]
-                    valid, tag_name, closer, opts = self._parse_tag(tag)
+                    valid, tagName, closer, opts = self._parse_tag(tag)
                     # Make sure this is a well-formed, recognized tag,
                     # otherwise it's just data
-                    if valid and tag_name in self.recognized_tags:
+                    if valid and tagName in self.recognized_tags:
                         if closer:
                             tokens.append(
-                                (self.TOKEN_TAG_END, tag_name, None, tag))
+                                (self.TOKEN_TAG_END, tagName, None, tag))
                         else:
                             tokens.append(
-                                (self.TOKEN_TAG_START, tag_name, opts, tag))
+                                (self.TOKEN_TAG_START, tagName, opts, tag))
                     elif (valid and self.drop_unrecognized and
-                          tag_name not in self.recognized_tags):
+                          tagName not in self.recognized_tags):
                         # If we found a valid (but unrecognized) tag and
                         # self.drop_unrecognized is True, just drop it
                         pass
@@ -376,32 +376,32 @@ class Parser:
         embed_count = 0
         block_count = 0
         while pos < len(tokens):
-            token_type, tag_name, tag_opts, token_text = tokens[pos]
-            if (tag.newline_closes and token_type in
+            token_type, tagName, tag_opts, token_text = tokens[pos]
+            if (tag.newlineCloses and token_type in
                     (self.TOKEN_TAG_START, self.TOKEN_TAG_END)):
                 # If we're finding the closing token for a tag that is
                 # closed by newlines, but there is an embedded tag that
                 # doesn't transform newlines (i.e. a code tag that keeps
                 # newlines intact), we need to skip over that.
-                inner_tag = self.recognized_tags[tag_name][1]
-                if not inner_tag.transform_newlines:
+                inner_tag = self.recognized_tags[tagName][1]
+                if not inner_tag.transformNewlines:
                     if token_type == self.TOKEN_TAG_START:
                         block_count += 1
                     else:
                         block_count -= 1
-            if (token_type == self.TOKEN_NEWLINE and tag.newline_closes and
+            if (token_type == self.TOKEN_NEWLINE and tag.newlineCloses and
                     block_count == 0):
                 # If for some crazy reason there are embedded tags that
                 # both close on newline, the first newline will automatically
                 # close all those nested tags.
                 return pos, True
             elif (token_type == self.TOKEN_TAG_START and
-                  tag_name == tag.tag_name):
-                if tag.same_tag_closes:
+                  tagName == tag.tagName):
+                if tag.sameTagCloses:
                     return pos, False
-                if tag.render_embedded:
+                if tag.renderEmbedded:
                     embed_count += 1
-            elif token_type == self.TOKEN_TAG_END and tag_name == tag.tag_name:
+            elif token_type == self.TOKEN_TAG_END and tagName == tag.tagName:
                 if embed_count > 0:
                     embed_count -= 1
                 else:
@@ -430,14 +430,14 @@ class Parser:
             # Escape quotes to avoid XSS, let the browser escape the rest.
             return '<a href="%s">%s</a>' % (href.replace('"', '%22'), url)
 
-    def _transform(self, data, escape_html, replace_links, replace_cosmetic,
+    def _transform(self, data, escapeHtml, replaceLinks, replaceCosmetic,
                    **context):
         """Transforms the input string based on the options specified.
 
         Takes into account if option is enabled globally for this parser.
         """
         url_matches = {}
-        if self.replace_links and replace_links:
+        if self.replaceLinks and replaceLinks:
             # If we're replacing links in the text (i.e. not those in [url]
             # tags) then we need to be careful to pull them out before doing
             # any escaping or cosmetic replacement.
@@ -458,9 +458,9 @@ class Parser:
                 # len(data[:start] + token), but start will work, because the
                 # token itself won't match as a URL.
                 pos = start
-        if self.escape_html and escape_html:
+        if self.escapeHtml and escapeHtml:
             data = Replacer.replace(data, Replacer.HTML_ESCAPE)
-        if self.replace_cosmetic and replace_cosmetic:
+        if self.replaceCosmetic and replaceCosmetic:
             data = Replacer.replace(data, Replacer.COSMETIC)
         # Now put the replaced links back in the text.
         for token, replacement in url_matches.items():
@@ -471,12 +471,12 @@ class Parser:
         idx = 0
         formatted = []
         while idx < len(tokens):
-            token_type, tag_name, tag_opts, token_text = tokens[idx]
+            token_type, tagName, tag_opts, token_text = tokens[idx]
             if token_type == self.TOKEN_TAG_START:
-                render_func, tag = self.recognized_tags[tag_name]
+                render_func, tag = self.recognized_tags[tagName]
                 if tag.standalone:
                     formatted.append(
-                        render_func(tag_name, None, tag_opts, parent, context))
+                        render_func(tagName, None, tag_opts, parent, context))
                 else:
                     # First, find the extent of this tag's tokens.
                     # noinspection PyTypeChecker
@@ -487,27 +487,27 @@ class Parser:
                     # (after grabbing the subtokens).
                     if not consume:
                         end -= 1
-                    if tag.render_embedded:
+                    if tag.renderEmbedded:
                         # This tag renders embedded tags, simply recurse.
                         inner = self._format_tokens(subtokens, tag, **context)
                     else:
                         # Otherwise, just concatenate all the token text.
                         inner = self._transform(
                             ''.join([t[3] for t in subtokens]),
-                            tag.escape_html, tag.replace_links,
-                            tag.replace_cosmetic, **context)
+                            tag.escapeHtml, tag.replaceLinks,
+                            tag.replaceCosmetic, **context)
                     # Strip and replace newlines, if necessary.
                     if tag.strip:
                         inner = inner.strip()
-                    if tag.transform_newlines:
+                    if tag.transformNewlines:
                         inner = inner.replace('\n', self.newline)
                     # Append the rendered contents.
                     formatted.append(
-                        render_func(tag_name, inner, tag_opts,
+                        render_func(tagName, inner, tag_opts,
                                     parent, context))
                     # If the tag should swallow the first trailing newline,
                     # check the token after the closing token.
-                    if tag.swallow_trailing_newline:
+                    if tag.swallowTrailingNewline:
                         next_pos = end + 1
                         if (next_pos < len(tokens) and
                                 tokens[next_pos][0] == self.TOKEN_NEWLINE):
@@ -520,12 +520,12 @@ class Parser:
                 formatted.append(self.newline if parent is None
                                  else token_text)
             elif token_type == self.TOKEN_DATA:
-                escape = (self.escape_html if parent is None else
-                          parent.escape_html)
-                links = (self.replace_links if parent is None
-                         else parent.replace_links)
-                cosmetic = (self.replace_cosmetic if parent is None
-                            else parent.replace_cosmetic)
+                escape = (self.escapeHtml if parent is None else
+                          parent.escapeHtml)
+                links = (self.replaceLinks if parent is None
+                         else parent.replaceLinks)
+                cosmetic = (self.replaceCosmetic if parent is None
+                            else parent.replaceCosmetic)
                 formatted.append(
                     self._transform(token_text, escape, links,
                                     cosmetic, **context))
@@ -538,7 +538,7 @@ class Parser:
         Using the same tokenization as the formatter.
         """
         text = []
-        for token_type, tag_name, tag_opts, token_text in self.tokenize(data):
+        for token_type, tagName, tag_opts, token_text in self.tokenize(data):
             if token_type == self.TOKEN_DATA:
                 text.append(token_text)
             elif token_type == self.TOKEN_NEWLINE and not strip_newlines:
@@ -712,8 +712,8 @@ class AdfdParser(Parser):
             'center', '<div style="text-align:center;">%(value)s</div>\n')
 
         self.add_simple_formatter(
-            'code', '<code>%(value)s</code>\n', render_embedded=False,
-            transform_newlines=False, swallow_trailing_newline=True)
+            'code', '<code>%(value)s</code>\n', renderEmbedded=False,
+            transformNewlines=False, swallowTrailingNewline=True)
         self.add_simple_formatter('hr', '<hr>\n', standalone=True)
         self.add_simple_formatter('i', '<em>%(value)s</em>')
         self.add_simple_formatter('p', '<p>%(value)s</p>\n')
@@ -735,7 +735,7 @@ class AdfdParser(Parser):
 
     def _add_bbvideo_formatter(self):
         self.add_formatter('BBvideo', self._render_bbvideo,
-                           replace_links=False, replace_cosmetic=False)
+                           replaceLinks=False, replaceCosmetic=False)
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -766,8 +766,8 @@ class AdfdParser(Parser):
 
     def _add_img_formatter(self):
         self.add_formatter(
-            'img', self._render_img, replace_links=False,
-            replace_cosmetic=False)
+            'img', self._render_img, replaceLinks=False,
+            replaceCosmetic=False)
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -780,13 +780,13 @@ class AdfdParser(Parser):
 
     def _add_list_formatter(self):
         self.add_formatter(
-            'list', self._render_list, transform_newlines=False,
-            strip=True, swallow_trailing_newline=True)
-        # Make sure transform_newlines = False for [*], so [code]
+            'list', self._render_list, transformNewlines=False,
+            strip=True, swallowTrailingNewline=True)
+        # Make sure transformNewlines = False for [*], so [code]
         # tags can be embedded without transformation.
         self.add_simple_formatter(
-            '*', '<li>%(value)s</li>', newline_closes=True,
-            transform_newlines=False, same_tag_closes=True, strip=True)
+            '*', '<li>%(value)s</li>', newlineCloses=True,
+            transformNewlines=False, sameTagCloses=True, strip=True)
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -810,8 +810,8 @@ class AdfdParser(Parser):
 
     def _add_quote_formatter(self):
         self.add_formatter(
-            'quote', self._render_quote, transform_newlines=False,
-            strip=True, swallow_trailing_newline=True)
+            'quote', self._render_quote, transformNewlines=False,
+            strip=True, swallowTrailingNewline=True)
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -833,8 +833,8 @@ class AdfdParser(Parser):
 
     def _add_section_formatter(self):
         self.add_formatter(
-            'section', self._render_section, transform_newlines=False,
-            strip=True, swallow_trailing_newline=True)
+            'section', self._render_section, transformNewlines=False,
+            strip=True, swallowTrailingNewline=True)
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -842,8 +842,8 @@ class AdfdParser(Parser):
         return '<section>%s</section>' % (value)
 
     def _add_url_formatter(self):
-        self.add_formatter('url', self._render_url, replace_links=False,
-                           replace_cosmetic=False)
+        self.add_formatter('url', self._render_url, replaceLinks=False,
+                           replaceCosmetic=False)
 
     # noinspection PyUnusedLocal
     @staticmethod
