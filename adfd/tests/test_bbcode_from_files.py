@@ -3,7 +3,7 @@ import pytest
 from adfd.utils import DataGrabber, PairTester
 
 
-class TestAdfdParser(object):
+class TestAdfdParser:
     ACCEPTANCE_PAIRS = DataGrabber('acceptance').get_pairs()
     TRANSFORM_PAIRS = DataGrabber('transform').get_pairs()
 
