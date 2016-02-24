@@ -554,8 +554,6 @@ class Chunk:
     QUOTE = 'quote'
     LIST = 'list'
     TYPES = [HEADER, PARAGRAPH, QUOTE, LIST]
-    P_START_TOKEN = Token(Parser.TOKEN_TAG_START, 'p', None, '[p]')
-    P_END_TOKEN = Token(Parser.TOKEN_TAG_END, 'p', None, '[/p]')
 
     def __init__(self, tokens, chunkType):
         self.tokens = tokens
@@ -594,8 +592,10 @@ class Chunk:
             return
 
         if self.chunkType == self.PARAGRAPH:
-            self.tokens.insert(0, self.P_START_TOKEN)
-            self.tokens.append(self.P_END_TOKEN)
+            startToken = Token(Parser.TOKEN_TAG_START, 'p', None, '[p]')
+            endToken = Token(Parser.TOKEN_TAG_END, 'p', None, '[/p]')
+            self.tokens.insert(0, startToken)
+            self.tokens.append(endToken)
 
 
 class Chunkman:
