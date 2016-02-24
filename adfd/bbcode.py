@@ -40,6 +40,64 @@ class TagOptions:
             setattr(self, attr, bool(value))
 
 
+class Token:
+    @staticmethod
+    def _escape_html(text):
+        return Replacer.replace(text, Replacer.HTML_ESCAPE)
+
+    # fixme likely not needed
+    @staticmethod
+    def _untypogrify(text):
+        def untypogrify_char(c):
+            return '"' if c in ['“', '„'] else c
+
+        return ''.join([untypogrify_char(c) for c in text])
+
+    @staticmethod
+    def _hyphenate(text, hyphen='&shy;'):
+        py = Pyphen(lang=PARSE.PYPHEN_LANG)
+        words = text.split(' ')
+        return ' '.join([py.inserted(word, hyphen=hyphen) for word in words])
+
+    TEXT_TRANSFORMERS = [
+        _escape_html, amp, smartypants, initial_quotes, widont, _hyphenate]
+
+    def __init__(self, *args):
+        self.type, self.tag, self.options, self._text = args
+        self.isOpener = self.type == Parser.TOKEN_TAG_START
+        self.isCloser = self.type == Parser.TOKEN_TAG_END
+        self.isHeaderStart = self.isOpener and re.match("h\d", self.tag)
+        self.isQuoteStart = self.isOpener and self.tag == "quote"
+        self.isQuoteEnd = self.isCloser and self.tag == "quote"
+        self.isListStart = self.isOpener and self.tag == "list"
+        self.isListEnd = self.isCloser and self.tag == "list"
+        self.isNewline = self.type == Parser.TOKEN_NEWLINE
+
+    def __str__(self):
+        return self.__repr__()
+
+    def __repr__(self):
+        if self.tag:
+            return "<%s%s>" % ('/' if self.isCloser else '', self.tag)
+
+        return "<%s>" % (self.text)
+
+    @property
+    def asTuple(self):
+        return (self.type, self.tag, self.options, self.text)
+
+    @cached_property
+    def text(self):
+        """enhance text with hyphenation and typogrification"""
+        if not self._text:
+            return self._text
+
+        modifiedText = self._text
+        for transformer in self.TEXT_TRANSFORMERS:
+            modifiedText = transformer(modifiedText)
+        return modifiedText
+
+
 class Parser:
     TOKEN_TAG_START = 'start'
     TOKEN_TAG_END = 'end'
@@ -489,66 +547,8 @@ class Parser:
         return ''.join(text)
 
 
-def _escape_html(text):
-    return Replacer.replace(text, Replacer.HTML_ESCAPE)
-
-
-# fixme likely not needed
-def _untypogrify(text):
-    def untypogrify_char(c):
-        return '"' if c in ['“', '„'] else c
-
-    return ''.join([untypogrify_char(c) for c in text])
-
-
-def _hyphenate(text, hyphen='&shy;'):
-    py = Pyphen(lang=PARSE.PYPHEN_LANG)
-    words = text.split(' ')
-    return ' '.join([py.inserted(word, hyphen=hyphen) for word in words])
-
-
-class Token:
-    TEXT_TRANSFORMERS = [
-        _escape_html, amp, smartypants, initial_quotes, widont, _hyphenate]
-
-    def __init__(self, *args):
-        self.type, self.tag, self.options, self._text = args
-        self.isOpener = self.type == Parser.TOKEN_TAG_START
-        self.isCloser = self.type == Parser.TOKEN_TAG_END
-        self.isHeaderStart = self.isOpener and re.match("h\d", self.tag)
-        self.isQuoteStart = self.isOpener and self.tag == "quote"
-        self.isQuoteEnd = self.isCloser and self.tag == "quote"
-        self.isListStart = self.isOpener and self.tag == "list"
-        self.isListEnd = self.isCloser and self.tag == "list"
-        self.isNewline = self.type == Parser.TOKEN_NEWLINE
-
-    def __str__(self):
-        return self.__repr__()
-
-    def __repr__(self):
-        if self.tag:
-            return "<%s%s>" % ('/' if self.isCloser else '', self.tag)
-
-        return "<%s>" % (self.text)
-
-    @property
-    def asTuple(self):
-        return (self.type, self.tag, self.options, self.text)
-
-    @cached_property
-    def text(self):
-        """enhance text with hyphenation and typogrification"""
-        if not self._text:
-            return self._text
-
-        modifiedText = self._text
-        for transformer in self.TEXT_TRANSFORMERS:
-            modifiedText = transformer(modifiedText)
-        return modifiedText
-
-
 class Chunk:
-    """modify token groups to fix missing formatting in forum articles"""
+    """Forms token groups to fix missing formatting in forum articles"""
     HEADER = 'header'
     PARAGRAPH = 'paragraph'
     QUOTE = 'quote'
@@ -599,7 +599,7 @@ class Chunk:
 
 
 class Chunkman:
-    """create token groups specific to forum articles for preparation"""
+    """create chunks specific to forum articles for preparation"""
     def __init__(self, tokens):
         self.tokens = [Token(*t) for t in tokens]
         self._chunks = []
