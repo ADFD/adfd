@@ -1,3 +1,5 @@
+import re
+
 import plumbum
 
 from adfd.cst import _CONTENT_ROOT, DIR
@@ -79,3 +81,23 @@ class PARSE:
     FUNC = None
     PYPHEN_LANG = 'de_de'
     TITLE_PATTERN = '[h2]%s[/h2]\n'
+
+
+class RE:
+    URL = re.compile(
+        r'(?im)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)'
+        r'(?:[^\s()<>]+|\([^\s()<>]+\))'
+        r'+(?:\([^\s()<>]+\)|[^\s`!()\[\]{};:\'".,<>?]))')
+    """
+    from http://daringfireball.net/2010/07/improved_regex_for_matching_urls
+    Only support one level of parentheses - was failing on some URLs.
+    See http://www.regular-expressions.info/catastrophic.html
+    """
+    DOMAIN = re.compile(
+        r'(?im)(?:www\d{0,3}[.]|[a-z0-9.\-]+[.]'
+        r'(?:com|net|org|edu|biz|gov|mil|info|io|name|me|tv|us|uk|mobi))')
+    """
+    For the URL tag, try to be smart about when to append a missing http://.
+    If the given link looks like a domain, add a http:// in front of it,
+    otherwise leave it alone (be a relative path, a filename, etc.).
+    """

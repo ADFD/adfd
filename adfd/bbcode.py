@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import itertools
 import re
 
@@ -6,51 +5,8 @@ from cached_property import cached_property
 from pyphen import Pyphen
 from typogrify.filters import amp, smartypants, initial_quotes, widont
 
-from adfd.conf import PARSE
-
-_urlRegex = re.compile(
-    r'(?im)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)'
-    r'(?:[^\s()<>]+|\([^\s()<>]+\))'
-    r'+(?:\([^\s()<>]+\)|[^\s`!()\[\]{};:\'".,<>?]))')
-"""
-from http://daringfireball.net/2010/07/improved_regex_for_matching_urls
-Only support one level of parentheses - was failing on some URLs.
-See http://www.regular-expressions.info/catastrophic.html
-"""
-
-_domainRegex = re.compile(
-    r'(?im)(?:www\d{0,3}[.]|[a-z0-9.\-]+[.]'
-    r'(?:com|net|org|edu|biz|gov|mil|info|io|name|me|tv|us|uk|mobi))')
-"""
-For the URL tag, try to be smart about when to append a missing http://.
-If the given link looks like a domain, add a http:// in front of it,
-otherwise leave it alone (since it may be a relative path, a filename, etc).
-"""
-
-
-def _replace(data, replacements):
-    """
-    Given a list of 2-tuples (find, repl) this function performs all
-    replacements on the input and returns the result.
-    """
-    for find, repl in replacements:
-        data = data.replace(find, repl)
-    return data
-
-REPLACE_ESCAPE = (
-    ('&', '&amp;'),
-    ('<', '&lt;'),
-    ('>', '&gt;'),
-    ('"', '&quot;'),
-    ("'", '&#39;'))
-
-REPLACE_COSMETIC = (
-    ('---', '&mdash;'),
-    ('--', '&ndash;'),
-    ('...', '&#8230;'),
-    ('(c)', '&copy;'),
-    ('(reg)', '&reg;'),
-    ('(tm)', '&trade;'))
+from adfd.conf import PARSE, RE
+from adfd.utils import Replacer
 
 
 class TagOptions:
@@ -430,9 +386,10 @@ class Parser:
             # any escaping or cosmetic replacement.
             pos = 0
             while True:
-                match = _urlRegex.search(data, pos)
+                match = RE.URL.search(data, pos)
                 if not match:
                     break
+
                 # Replace any link with a token that we can substitute back
                 # in after replacements.
                 token = '{{ bbcode-link-%s }}' % len(url_matches)
@@ -445,9 +402,9 @@ class Parser:
                 # token itself won't match as a URL.
                 pos = start
         if self.escape_html and escape_html:
-            data = _replace(data, REPLACE_ESCAPE)
+            data = Replacer.replace(data, Replacer.HTML_ESCAPE)
         if self.replace_cosmetic and replace_cosmetic:
-            data = _replace(data, REPLACE_COSMETIC)
+            data = Replacer.replace(data, Replacer.COSMETIC)
         # Now put the replaced links back in the text.
         for token, replacement in url_matches.items():
             data = data.replace(token, replacement)
@@ -472,7 +429,7 @@ class Parser:
                     # If the end tag should not be consumed, back up one
                     # (after grabbing the subtokens).
                     if not consume:
-                        end = end - 1
+                        end -= 1
                     if tag.render_embedded:
                         # This tag renders embedded tags, simply recurse.
                         inner = self._format_tokens(subtokens, tag, **context)
@@ -533,7 +490,7 @@ class Parser:
 
 
 def _escape_html(text):
-    return _replace(text, REPLACE_ESCAPE)
+    return Replacer.replace(text, Replacer.HTML_ESCAPE)
 
 
 # fixme likely not needed
@@ -818,7 +775,7 @@ class AdfdParser(Parser):
     def _render_img(name, value, options, parent, context):
         href = value
         # Only add http:// if it looks like it starts with a domain name.
-        if '://' not in href and _domainRegex.match(href):
+        if '://' not in href and RE.DOMAIN.match(href):
             href = 'http://' + href
         return '<img src="%s">' % (href.replace('"', '%22'))
 
@@ -894,7 +851,7 @@ class AdfdParser(Parser):
     def _render_url(name, value, options, parent, context):
         if options and 'url' in options:
             # Option values are not escaped for HTML output.
-            href = _replace(options['url'], REPLACE_ESCAPE)
+            href = Replacer.replace(options['url'], Replacer.HTML_ESCAPE)
         else:
             href = value
         # Completely ignore javascript: and data: "links".
@@ -903,6 +860,6 @@ class AdfdParser(Parser):
             return ''
 
         # Only add http:// if it looks like it starts with a domain name.
-        if '://' not in href and _domainRegex.match(href):
+        if '://' not in href and RE.DOMAIN.match(href):
             href = 'http://' + href
         return '<a href="%s">%s</a>' % (href.replace('"', '%22'), value)

@@ -5,10 +5,8 @@ import re
 from datetime import datetime
 from types import FunctionType, MethodType
 
-import pytest
 from plumbum import LocalPath
 
-from adfd.bbcode import AdfdParser, Token
 from adfd.conf import METADATA, PATH
 
 log = logging.getLogger(__name__)
@@ -127,36 +125,6 @@ class DataGrabber(ContentGrabber):
             contents.append((fName, src, exp))
             idx += 2
         return contents
-
-
-class PairTester:
-    _parser = AdfdParser()
-
-    @classmethod
-    def test_pairs(cls, fName, src, exp):
-        exp = exp.strip()
-        if not exp:
-            pytest.xfail(reason='no expectation for %s' % (fName))
-        log.info("file under test is %s", fName)
-        oldTransFormers = Token.TEXT_TRANSFORMERS
-        Token.TEXT_TRANSFORMERS = []
-        log.debug('testing parser without Token() text transformations')
-        try:
-            html = cls._parser.to_html(src)
-            print("\n## RESULT ##")
-            print(html)
-            print("\n## EXPECTED ##")
-            print(exp)
-            refPath = DataGrabber.DATA_PATH / ('%s.html' % (fName[:-7]))
-            try:
-                assert html == exp
-                refPath.delete()
-            except AssertionError:
-                with open(str(refPath), 'w') as f:
-                    f.write(html)
-                raise
-        finally:
-            Token.TEXT_TRANSFORMERS = oldTransFormers
 
 
 _specialAttrNames = [
@@ -282,6 +250,32 @@ def get_obj_info(objects):
         out.append(obj_attr(obj, objName=name))
     return '\n'.join(out)
 
+
+class Replacer:
+    HTML_ESCAPE = (
+        ('&', '&amp;'),
+        ('<', '&lt;'),
+        ('>', '&gt;'),
+        ('"', '&quot;'),
+        ("'", '&#39;'))
+
+    COSMETIC = (
+        ('---', '&mdash;'),
+        ('--', '&ndash;'),
+        ('...', '&#8230;'),
+        ('(c)', '&copy;'),
+        ('(reg)', '&reg;'),
+        ('(tm)', '&trade;'))
+
+    @staticmethod
+    def replace(data, replacements):
+        """
+        Given a list of 2-tuples (find, repl) this function performs all
+        replacements on the input and returns the result.
+        """
+        for find, repl in replacements:
+            data = data.replace(find, repl)
+        return data
 
 # todo remove, when it's blatantly obvious that I don't need it
 # class Git:

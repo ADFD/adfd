@@ -2,7 +2,8 @@ import logging
 
 import pytest
 
-from adfd.bbcode import AdfdParser, _urlRegex
+from adfd.bbcode import AdfdParser
+from adfd.conf import RE
 
 log = logging.getLogger(__name__)
 
@@ -155,7 +156,7 @@ class TestAdfdParser:
     @pytest.mark.parametrize('link', LINKS)
     def test_url(self, link):
         link = link.strip()
-        num = len(_urlRegex.findall(link))
+        num = len(RE.URL.findall(link))
         assert num == 1, 'Found %d links in "%s"' % (num, link)
 
     @pytest.mark.parametrize(('src', 'expected'), QUOTES)
