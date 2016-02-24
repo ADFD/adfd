@@ -11,7 +11,7 @@ from adfd.utils import ContentGrabber, obj_attr
 log = logging.getLogger(__name__)
 
 
-class CatDesc(object):
+class CatDesc:
     """describe a category and it's contents"""
     def __init__(self, name, mainTopicId, contents):
         self.name = name
@@ -20,7 +20,7 @@ class CatDesc(object):
 
 
 @total_ordering
-class Container(object):
+class Container:
     ROOT = PATH.CNT_FINAL
 
     def __init__(self, path):
@@ -120,7 +120,7 @@ class Navigator:
     CAT = ('<a href="%s">%s', '</a>')
     SUB = ('<li class="has-submenu">', '</li>')
     ELEM = ('<li><a href="%s">%s', '</a></li>')
-    TOGGLE = ('<li>', '<li style="text-decoration: underline;">')
+    TOGGLE = ('<li>', '<li style="text-weight: bold;">')
 
     def __init__(self, root=Category()):
         self.root = root
