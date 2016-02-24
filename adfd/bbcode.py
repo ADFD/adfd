@@ -1,12 +1,14 @@
 import itertools
+import logging
 import re
 
 from cached_property import cached_property
-from pyphen import Pyphen
-from typogrify.filters import amp, smartypants, initial_quotes, widont
+from typogrify.filters import typogrify
 
-from adfd.conf import PARSE, RE
-from adfd.utils import Replacer
+from adfd.conf import RE
+from adfd.utils import Replacer, hyphenate
+
+log = logging.getLogger(__name__)
 
 
 class TagOptions:
@@ -40,37 +42,31 @@ class TagOptions:
 
 
 class Token:
-    @staticmethod
-    def _escape_html(text):
-        return Replacer.replace(text, Replacer.HTML_ESCAPE)
-
-    # fixme likely not needed
-    @staticmethod
-    def _untypogrify(text):
-        def untypogrify_char(c):
-            return '"' if c in ['“', '„'] else c
-
-        return ''.join([untypogrify_char(c) for c in text])
-
-    @staticmethod
-    def _hyphenate(text, hyphen='&shy;'):
-        py = Pyphen(lang=PARSE.PYPHEN_LANG)
-        words = text.split(' ')
-        return ' '.join([py.inserted(word, hyphen=hyphen) for word in words])
-
-    TEXT_TRANSFORMERS = [
-        _escape_html, amp, smartypants, initial_quotes, widont, _hyphenate]
+    """
+    type
+        TAG_START, TAG_END, NEWLINE or DATA
+    tag
+        The name of the tag if token_type=TAG_*, otherwise None
+    options
+        dict of options specified for TAG_START, otherwise None
+    text
+        The original token text
+    """
+    TAG_START = 'start'
+    TAG_END = 'end'
+    NEWLINE = 'newline'
+    DATA = 'data'
 
     def __init__(self, *args):
-        self.type, self.tag, self.options, self._text = args
-        self.isOpener = self.type == Parser.TOKEN_TAG_START
-        self.isCloser = self.type == Parser.TOKEN_TAG_END
+        self.type, self.tag, self.options, self.text = args
+        self.isOpener = self.type == Token.TAG_START
+        self.isCloser = self.type == Token.TAG_END
         self.isHeaderStart = self.isOpener and re.match("h\d", self.tag)
         self.isQuoteStart = self.isOpener and self.tag == "quote"
         self.isQuoteEnd = self.isCloser and self.tag == "quote"
         self.isListStart = self.isOpener and self.tag == "list"
         self.isListEnd = self.isCloser and self.tag == "list"
-        self.isNewline = self.type == Parser.TOKEN_NEWLINE
+        self.isNewline = self.type == Token.NEWLINE
 
     def __str__(self):
         return self.__repr__()
@@ -85,28 +81,14 @@ class Token:
     def asTuple(self):
         return (self.type, self.tag, self.options, self.text)
 
-    @cached_property
-    def text(self):
-        """enhance text with hyphenation and typogrification"""
-        if not self._text:
-            return self._text
-
-        modifiedText = self._text
-        for transformer in self.TEXT_TRANSFORMERS:
-            modifiedText = transformer(modifiedText)
-        return modifiedText
-
 
 class Parser:
-    TOKEN_TAG_START = 'start'
-    TOKEN_TAG_END = 'end'
-    TOKEN_NEWLINE = 'newline'
-    TOKEN_DATA = 'data'
-
+    # fixme typogrify does not do the right thing yet and hyphenate screws up
     def __init__(
             self, newline='\n', normalizeNewlines=True,
-            escapeHtml=False, replaceLinks=True,
-            replaceCosmetic=True, tagOpener='[', tagCloser=']',
+            escapeHtml=True, typogrify=False, hyphenate=False,
+            replaceLinks=True, replaceCosmetic=True,
+            tagOpener='[', tagCloser=']',
             linker=None, linkerTakesContext=False, dropUnrecognized=False):
         self.tagOpener = tagOpener
         self.tagCloser = tagCloser
@@ -115,6 +97,8 @@ class Parser:
         self.recognized_tags = {}
         self.dropUnrecognized = dropUnrecognized
         self.escapeHtml = escapeHtml
+        self.typogrify = typogrify
+        self.hyphenate = hyphenate
         self.replaceCosmetic = replaceCosmetic
         self.replaceLinks = replaceLinks
         self.linker = linker
@@ -162,18 +146,21 @@ class Parser:
         self.add_formatter(tagName, _render, **kwargs)
 
     def _newline_tokenize(self, data):
-        """
-        Given a string that does not contain any tags, this function will
-        return a list of NEWLINE and DATA tokens such that if you concatenate
-        their data, you will have the original string.
+        """Create a list of NEWLINE and DATA tokens.
+
+        If you concatenate their data, you will have the original string.
+
+        :type data: str
+        :returns: list of Token
         """
         parts = data.split('\n')
         tokens = []
+        """:type: list of Token"""
         for num, part in enumerate(parts):
             if part:
-                tokens.append((self.TOKEN_DATA, None, None, part))
+                tokens.append(Token(*(Token.DATA, None, None, part)))
             if num < (len(parts) - 1):
-                tokens.append((self.TOKEN_NEWLINE, None, None, '\n'))
+                tokens.append(Token(*(Token.NEWLINE, None, None, '\n')))
         return tokens
 
     def _parse_opts(self, data):
@@ -301,31 +288,20 @@ class Parser:
         return len(data), False
 
     def tokenize(self, data):
-        """
-        Tokenizes the given string. A token is a 4-tuple of the form:
-
-            (token_type, tagName, tag_options, token_text)
-
-            token_type
-                TOKEN_TAG_START, TOKEN_TAG_END, TOKEN_NEWLINE or TOKEN_DATA
-            tagName
-                The name of the tag if token_type=TOKEN_TAG_*, otherwise None
-            tag_options
-                dict of options specified for TOKEN_TAG_START, otherwise None
-            token_text
-                The original token text
+        """Create list of tokens from original data
+        :returns: list of Token
         """
         if self.normalizeNewlines:
             data = data.replace('\r\n', '\n').replace('\r', '\n')
         pos = 0
         tokens = []
+        """:type: list of Token"""
         while pos < len(data):
             start = data.find(self.tagOpener, pos)
             if start >= pos:
                 # Check if there was data between this start and the last end
                 if start > pos:
-                    tl = self._newline_tokenize(data[pos:start])
-                    tokens.extend(tl)
+                    tokens.extend(self._newline_tokenize(data[pos:start]))
                     # noinspection PyUnusedLocal
                     pos = start
 
@@ -338,11 +314,11 @@ class Parser:
                     # otherwise it's just data
                     if valid and tagName in self.recognized_tags:
                         if closer:
-                            tokens.append(
-                                (self.TOKEN_TAG_END, tagName, None, tag))
+                            args = (Token.TAG_END, tagName, None, tag)
+                            tokens.append(Token(*args))
                         else:
-                            tokens.append(
-                                (self.TOKEN_TAG_START, tagName, opts, tag))
+                            args = (Token.TAG_START, tagName, opts, tag)
+                            tokens.append(Token(*args))
                     elif (valid and self.dropUnrecognized and
                           tagName not in self.recognized_tags):
                         # If we found a valid (but unrecognized) tag and
@@ -358,12 +334,11 @@ class Parser:
                 # No more tags left to parse.
                 break
         if pos < len(data):
-            tl = self._newline_tokenize(data[pos:])
-            tokens.extend(tl)
+            tokens.extend(self._newline_tokenize(data[pos:]))
         return tokens
 
-    def _find_closing_token(self, tag, tokens, pos):
-        """find the position of the closing token.
+    def _find_closer(self, tag, tokens, pos):
+        """Find position of closing token.
 
         Given the current tag options, a list of tokens, and the current
         position in the token list, this function will find the position of the
@@ -373,41 +348,43 @@ class Parser:
         consume), where consume should indicate whether the ending token
         should be consumed or not.
         """
-        embed_count = 0
-        block_count = 0
+        embedCount = 0
+        blockCount = 0
         while pos < len(tokens):
-            token_type, tagName, tag_opts, token_text = tokens[pos]
-            if (tag.newlineCloses and token_type in
-                    (self.TOKEN_TAG_START, self.TOKEN_TAG_END)):
+            token = tokens[pos]
+            """:type: Token"""
+            if (tag.newlineCloses and token.type in
+                    (Token.TAG_START, Token.TAG_END)):
                 # If we're finding the closing token for a tag that is
                 # closed by newlines, but there is an embedded tag that
                 # doesn't transform newlines (i.e. a code tag that keeps
                 # newlines intact), we need to skip over that.
-                inner_tag = self.recognized_tags[tagName][1]
-                if not inner_tag.transformNewlines:
-                    if token_type == self.TOKEN_TAG_START:
-                        block_count += 1
+                innerTag = self.recognized_tags[token.tag][1]
+                if not innerTag.transformNewlines:
+                    if token.type == Token.TAG_START:
+                        blockCount += 1
                     else:
-                        block_count -= 1
-            if (token_type == self.TOKEN_NEWLINE and tag.newlineCloses and
-                    block_count == 0):
+                        blockCount -= 1
+            if (token.type == Token.NEWLINE and tag.newlineCloses and
+                    blockCount == 0):
                 # If for some crazy reason there are embedded tags that
                 # both close on newline, the first newline will automatically
                 # close all those nested tags.
                 return pos, True
-            elif (token_type == self.TOKEN_TAG_START and
-                  tagName == tag.tagName):
+            elif token.type == Token.TAG_START and token.tag == tag.tagName:
                 if tag.sameTagCloses:
                     return pos, False
+
                 if tag.renderEmbedded:
-                    embed_count += 1
-            elif token_type == self.TOKEN_TAG_END and tagName == tag.tagName:
-                if embed_count > 0:
-                    embed_count -= 1
+                    embedCount += 1
+            elif token.type == Token.TAG_END and token.tag == tag.tagName:
+                if embedCount > 0:
+                    embedCount -= 1
                 else:
                     return pos, True
+
             pos += 1
-        return pos, True
+        return (pos, True)
 
     def _link_replace(self, match, **context):
         """Callback for re.sub to replace link text with markup.
@@ -430,12 +407,13 @@ class Parser:
             # Escape quotes to avoid XSS, let the browser escape the rest.
             return '<a href="%s">%s</a>' % (href.replace('"', '%22'), url)
 
-    def _transform(self, data, escapeHtml, replaceLinks, replaceCosmetic,
+    def _transform(self, tokens, escapeHtml, replaceLinks, replaceCosmetic,
                    **context):
         """Transforms the input string based on the options specified.
 
         Takes into account if option is enabled globally for this parser.
         """
+        text = ''.join([t.text for t in tokens])
         url_matches = {}
         if self.replaceLinks and replaceLinks:
             # If we're replacing links in the text (i.e. not those in [url]
@@ -443,7 +421,7 @@ class Parser:
             # any escaping or cosmetic replacement.
             pos = 0
             while True:
-                match = RE.URL.search(data, pos)
+                match = RE.URL.search(text, pos)
                 if not match:
                     break
 
@@ -453,35 +431,44 @@ class Parser:
                 url_matches[token] = self._link_replace(match, **context)
                 # noinspection PyUnresolvedReferences
                 start, end = match.span()
-                data = data[:start] + token + data[end:]
+                text = text[:start] + token + text[end:]
                 # To be perfectly accurate, this should probably be
-                # len(data[:start] + token), but start will work, because the
+                # len(text[:start] + token), but start will work, because the
                 # token itself won't match as a URL.
                 pos = start
         if self.escapeHtml and escapeHtml:
-            data = Replacer.replace(data, Replacer.HTML_ESCAPE)
+            text = Replacer.replace(text, Replacer.HTML_ESCAPE)
         if self.replaceCosmetic and replaceCosmetic:
-            data = Replacer.replace(data, Replacer.COSMETIC)
+            text = Replacer.replace(text, Replacer.COSMETIC)
+        if self.hyphenate:
+            log.warning('BEFORE HYPHENATE\n%s' % (text))
+            text = hyphenate(text)
+            log.warning('AFTER HYPHENATE\n%s' % (text))
+        if self.typogrify:
+            log.warning('BEFORE TYPOGRFIY\n%s' % (text))
+            text = typogrify(text)
+            log.warning('AFTER TYPOGRIFY\n%s' % (text))
+
         # Now put the replaced links back in the text.
         for token, replacement in url_matches.items():
-            data = data.replace(token, replacement)
-        return data
+            text = text.replace(token, replacement)
+        return text
 
     def _format_tokens(self, tokens, parent, **context):
+        out = []
         idx = 0
-        formatted = []
         while idx < len(tokens):
-            token_type, tagName, tag_opts, token_text = tokens[idx]
-            if token_type == self.TOKEN_TAG_START:
-                render_func, tag = self.recognized_tags[tagName]
+            token = tokens[idx]
+            """:type: Token"""
+            if token.type == Token.TAG_START:
+                fn, tag = self.recognized_tags[token.tag]
                 if tag.standalone:
-                    formatted.append(
-                        render_func(tagName, None, tag_opts, parent, context))
+                    ret = fn(token.tag, None, token.options, parent, context)
+                    out.append(ret)
                 else:
                     # First, find the extent of this tag's tokens.
                     # noinspection PyTypeChecker
-                    end, consume = self._find_closing_token(
-                        tag, tokens, idx + 1)
+                    end, consume = self._find_closer(tag, tokens, idx + 1)
                     subtokens = tokens[idx + 1:end]
                     # If the end tag should not be consumed, back up one
                     # (after grabbing the subtokens).
@@ -493,8 +480,7 @@ class Parser:
                     else:
                         # Otherwise, just concatenate all the token text.
                         inner = self._transform(
-                            ''.join([t[3] for t in subtokens]),
-                            tag.escapeHtml, tag.replaceLinks,
+                            subtokens, tag.escapeHtml, tag.replaceLinks,
                             tag.replaceCosmetic, **context)
                     # Strip and replace newlines, if necessary.
                     if tag.strip:
@@ -502,35 +488,33 @@ class Parser:
                     if tag.transformNewlines:
                         inner = inner.replace('\n', self.newline)
                     # Append the rendered contents.
-                    formatted.append(
-                        render_func(tagName, inner, tag_opts,
-                                    parent, context))
+                    ret = fn(token.tag, inner, token.options, parent, context)
+                    out.append(ret)
                     # If the tag should swallow the first trailing newline,
                     # check the token after the closing token.
                     if tag.swallowTrailingNewline:
-                        next_pos = end + 1
-                        if (next_pos < len(tokens) and
-                                tokens[next_pos][0] == self.TOKEN_NEWLINE):
-                            end = next_pos
+                        nextPos = end + 1
+                        if (nextPos < len(tokens) and
+                                tokens[nextPos].type == Token.NEWLINE):
+                            end = nextPos
                     # Skip to the end tag.
                     idx = end
-            elif token_type == self.TOKEN_NEWLINE:
+            elif token.type == Token.NEWLINE:
                 # If this is a top-level newline, replace it. Otherwise,
                 # it will be replaced (if necessary) by the code above.
-                formatted.append(self.newline if parent is None
-                                 else token_text)
-            elif token_type == self.TOKEN_DATA:
+                out.append(self.newline if parent is None else token.text)
+            elif token.type == Token.DATA:
                 escape = (self.escapeHtml if parent is None else
                           parent.escapeHtml)
                 links = (self.replaceLinks if parent is None
                          else parent.replaceLinks)
                 cosmetic = (self.replaceCosmetic if parent is None
                             else parent.replaceCosmetic)
-                formatted.append(
-                    self._transform(token_text, escape, links,
-                                    cosmetic, **context))
+                ret = self._transform(
+                    [token], escape, links, cosmetic, **context)
+                out.append(ret)
             idx += 1
-        return ''.join(formatted)
+        return ''.join(out)
 
     def strip(self, data, strip_newlines=False):
         """Strip out any tags from the input text.
@@ -538,11 +522,11 @@ class Parser:
         Using the same tokenization as the formatter.
         """
         text = []
-        for token_type, tagName, tag_opts, token_text in self.tokenize(data):
-            if token_type == self.TOKEN_DATA:
-                text.append(token_text)
-            elif token_type == self.TOKEN_NEWLINE and not strip_newlines:
-                text.append(token_text)
+        for token in self.tokenize(data):
+            if token.type == Token.DATA:
+                text.append(token.text)
+            elif token.type == Token.NEWLINE and not strip_newlines:
+                text.append(token.text)
         return ''.join(text)
 
 
@@ -555,6 +539,10 @@ class Chunk:
     TYPES = [HEADER, PARAGRAPH, QUOTE, LIST]
 
     def __init__(self, tokens, chunkType):
+        """
+        :type tokens: list Token
+        :param chunkType: one of Chunk.TYPES
+        """
         self.tokens = tokens
         self.chunkType = chunkType
         self.clean()
@@ -562,21 +550,6 @@ class Chunk:
 
     def __repr__(self):
         return " ".join([str(c) for c in self.tokens])
-
-    def modify(self):
-        """this innocent method is the reason why we have chunks"""
-        if self.isEmpty:
-            return
-
-        if self.chunkType == self.PARAGRAPH:
-            startToken = Token(Parser.TOKEN_TAG_START, 'p', None, '[p]')
-            endToken = Token(Parser.TOKEN_TAG_END, 'p', None, '[/p]')
-            self.tokens.insert(0, startToken)
-            self.tokens.append(endToken)
-
-    @cached_property
-    def tokensAsTuples(self):
-        return [t.asTuple for t in self.tokens]
 
     def clean(self):
         """remove newlines at beginning and end of chunk"""
@@ -586,6 +559,17 @@ class Chunk:
                     self.tokens.pop(idx)
             except IndexError:
                 pass
+
+    def modify(self):
+        """This innocent method is the reason why we have chunks"""
+        if self.isEmpty:
+            return
+
+        if self.chunkType == self.PARAGRAPH:
+            startToken = Token(Token.TAG_START, 'p', None, '[p]')
+            endToken = Token(Token.TAG_END, 'p', None, '[/p]')
+            self.tokens.insert(0, startToken)
+            self.tokens.append(endToken)
 
     @cached_property
     def isEmpty(self):
@@ -600,12 +584,16 @@ class Chunk:
 class Chunkman:
     """create chunks specific to forum articles for preparation"""
     def __init__(self, tokens):
-        self.tokens = [Token(*t) for t in tokens]
+        """
+
+        :type tokens: list of Token
+        """
+        self.tokens = tokens
         self._chunks = []
 
     @cached_property
     def flattened(self):
-        return list(itertools.chain(*[c.tokensAsTuples for c in self.chunks]))
+        return list(itertools.chain(*[chunk.tokens for chunk in self.chunks]))
 
     @cached_property
     def chunks(self):

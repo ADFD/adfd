@@ -142,19 +142,16 @@ QUOTES = [
 
 
 class TestAdfdParser:
-    parser = AdfdParser()
+    parser = AdfdParser(typogrify=False, hyphenate=False)
 
     @pytest.mark.parametrize(('src', 'expected'), KITCHEN_SINK)
     def test_format(self, src, expected):
-        # Escaping is done in right place as well if Token is used
-        log.warning('Token class not used here, do extra esacping')
-        self.parser.escapeHtml = True
         tokens = self.parser.tokenize(src)
         result = self.parser._format_tokens(tokens, None).strip()
         assert result == expected
 
     @pytest.mark.parametrize('link', LINKS)
-    def test_url(self, link):
+    def test_links(self, link):
         link = link.strip()
         num = len(RE.URL.findall(link))
         assert num == 1, 'Found %d links in "%s"' % (num, link)
@@ -191,6 +188,7 @@ class TestAdfdParser:
                                    strip_newlines=True)
         assert result == 'hello world -- []'
         parser = AdfdParser(
+            typogrify=False, hyphenate=False,
             tagOpener='<', tagCloser='>', dropUnrecognized=True)
         result = parser.strip(
             '<div class="test"><b>hello</b> <i>world</i><img src="test.jpg" '
@@ -206,12 +204,13 @@ class TestAdfdParser:
             return _contextual_link(url, {"substitution": url})
 
         # Test noncontextual linker
-        p = AdfdParser(linker=_link)
+        p = AdfdParser(typogrify=False, hyphenate=False, linker=_link)
         s = p._format_tokens(p.tokenize('hello www.apple.com world'), None)
         assert s == ('hello <a href="www.apple.com" '
                      'target="_blank">www.apple.com</a> world')
         # Test contextual linker
-        p = AdfdParser(linker=_contextual_link, linkerTakesContext=True)
+        p = AdfdParser(typogrify=False, hyphenate=False,
+                       linker=_contextual_link, linkerTakesContext=True)
         s = p._format_tokens(p.tokenize(
             'hello www.apple.com world'), None, substitution="oh hai")
         assert s == ('hello <a href="www.apple.com" '

@@ -52,7 +52,7 @@ class AdfdCntConf(cli.Application):
 
 @AdfdCnt.subcommand("article")
 class AdfdCntArticle(cli.Application):
-    output = cli.SwitchAttr(['o', 'output'], default='in')
+    output = cli.SwitchAttr(['o', 'output'], default='out')
     refresh = cli.Flag(["refresh"], default=True)
 
     def main(self, identifier):
@@ -63,11 +63,11 @@ class AdfdCntArticle(cli.Application):
             return 1
 
         print(article.md.asFileContents)
-        if self.output == 'in':
-            print(article.inContent)
-        elif self.output == 'out':
+        if self.output == 'out':
             out = article.outContent
             self._open_html_in_webbrowser(out)
+        elif self.output == 'in':
+            print(article.inContent)
 
     def _open_html_in_webbrowser(self, html):
         path = LocalPath("/tmp/adfd-html-out.html")

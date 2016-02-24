@@ -6,10 +6,29 @@ from datetime import datetime
 from types import FunctionType, MethodType
 
 from plumbum import LocalPath
+from pyphen import Pyphen
 
-from adfd.conf import METADATA, PATH
+from adfd.conf import METADATA, PATH, PARSE
 
 log = logging.getLogger(__name__)
+
+
+def escape_html(text):
+    return Replacer.replace(text, Replacer.HTML_ESCAPE)
+
+
+# fixme likely not needed
+def untypogrify(text):
+    def untypogrify_char(c):
+        return '"' if c in ['“', '„'] else c
+
+    return ''.join([untypogrify_char(c) for c in text])
+
+
+def hyphenate(text, hyphen='&shy;'):
+    py = Pyphen(lang=PARSE.PYPHEN_LANG)
+    words = text.split(' ')
+    return ' '.join([py.inserted(word, hyphen=hyphen) for word in words])
 
 
 def get_paths(containerPath, ext=None, content=None):
