@@ -657,46 +657,46 @@ class Chunkman:
 
         :rtype: list of list of TransformableChunk
         """
-        curentTokens = []
+        currentTokens = []
         idx = 0
         while idx < len(self.tokens):
             token = self.tokens[idx]
             if token.isHeaderStart:
-                curentTokens = self.flush(curentTokens)
+                currentTokens = self.flush(currentTokens)
                 newIdx = idx + 3
                 self.flush(self.tokens[idx:newIdx], Chunk.HEADER)
                 idx = newIdx
                 continue
 
             if token.isQuoteStart:
-                self.flush(curentTokens)
+                self.flush(currentTokens)
                 sIdx = idx
                 while not token.isQuoteEnd:
                     idx += 1
                     token = self.tokens[idx]
                 idx += 1
-                curentTokens = self.flush(self.tokens[sIdx:idx], Chunk.QUOTE)
+                currentTokens = self.flush(self.tokens[sIdx:idx], Chunk.QUOTE)
                 continue
 
             if token.isListStart:
-                self.flush(curentTokens)
+                self.flush(currentTokens)
                 sIdx = idx
                 while not token.isListEnd:
                     idx += 1
                     token = self.tokens[idx]
                 idx += 1
-                curentTokens = self.flush(self.tokens[sIdx:idx], Chunk.LIST)
+                currentTokens = self.flush(self.tokens[sIdx:idx], Chunk.LIST)
                 continue
 
             if self.is_block_change(self.tokens, idx):
-                curentTokens = self.flush(curentTokens)
+                currentTokens = self.flush(currentTokens)
                 idx += 1
                 continue
 
-            curentTokens.append(token)
+            currentTokens.append(token)
             idx += 1
 
-        self.flush(curentTokens)
+        self.flush(currentTokens)
         return self._chunks
 
     def flush(self, tokens, chunkType=Chunk.PARAGRAPH):
