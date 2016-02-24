@@ -17,13 +17,13 @@ if 'charset' not in DB_URL:
 _CONTENT_ROOT = plumbum.LocalPath(_contentRoot)
 
 
-class EXT(object):
+class EXT:
     IN = '.bbcode'
     OUT = '.html'
     META = '.meta'
 
 
-class DIR(object):
+class DIR:
     RAW = 'raw'
     """folders containing topics one file per post + metadata for each post"""
     PREPARED = 'prepared'
@@ -32,11 +32,11 @@ class DIR(object):
     """rendered and structured result with additional category metadata"""
 
 
-class NAME(object):
+class NAME:
     CATEGORY = 'category'
     INDEX = 'index'
     PAGE = 'page'
 
 
-class PAGE(object):
+class PAGE:
     ROOT = 'root'
