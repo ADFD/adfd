@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 from cached_property import cached_property
 
+from adfd.bbcode import AdfdParser
 from adfd.conf import METADATA, PATH, PARSE
 from adfd.cst import EXT, NAME
 from adfd.utils import (
@@ -134,7 +135,8 @@ class TopicFinalizer:
 
     @cached_property
     def outContent(self):
-        return PARSE.FUNC(self.inContent)
+        parse_func = PARSE.FUNC or AdfdParser().to_html
+        return parse_func(self.inContent)
 
 
 class Metadata:

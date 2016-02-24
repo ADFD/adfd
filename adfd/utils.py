@@ -5,9 +5,10 @@ import re
 from datetime import datetime
 from types import FunctionType, MethodType
 
+import pytest
 from plumbum import LocalPath
 
-from adfd.bbcode import AdfdParser
+from adfd.bbcode import AdfdParser, Token
 from adfd.conf import METADATA, PATH
 
 log = logging.getLogger(__name__)
@@ -32,7 +33,7 @@ def date_from_timestamp(timestamp):
     return datetime.fromtimestamp(timestamp).strftime(METADATA.DATE_FORMAT)
 
 
-class _Slugification(object):
+class _Slugification:
     """Turn sentences into slugs to be used in filenames and URLs"""
     SEP = '-'
 
@@ -57,7 +58,7 @@ def slugify_path(relPath):
     return "/".join([slugify(s) for s in relPath.split('/')])
 
 
-class ContentGrabber(object):
+class ContentGrabber:
     def __init__(self, absPath=None, relPath='.'):
         if absPath:
             self.rootPath = absPath
@@ -128,30 +129,34 @@ class DataGrabber(ContentGrabber):
         return contents
 
 
-class PairTester(object):
+class PairTester:
     _parser = AdfdParser()
 
     @classmethod
     def test_pairs(cls, fName, src, exp):
-        import pytest
-
         exp = exp.strip()
         if not exp:
             pytest.xfail(reason='no expectation for %s' % (fName))
-        print(fName)
-        html = cls._parser.to_html(src)
-        print("\n## RESULT ##")
-        print(html)
-        print("\n## EXPECTED ##")
-        print(exp)
-        refPath = DataGrabber.DATA_PATH / ('%s.html' % (fName[:-7]))
+        log.info("file under test is %s", fName)
+        oldTransFormers = Token.TEXT_TRANSFORMERS
+        Token.TEXT_TRANSFORMERS = []
+        log.debug('testing parser without Token() text transformations')
         try:
-            assert html == exp
-            refPath.delete()
-        except AssertionError:
-            with open(str(refPath), 'w') as f:
-                f.write(html)
-            raise
+            html = cls._parser.to_html(src)
+            print("\n## RESULT ##")
+            print(html)
+            print("\n## EXPECTED ##")
+            print(exp)
+            refPath = DataGrabber.DATA_PATH / ('%s.html' % (fName[:-7]))
+            try:
+                assert html == exp
+                refPath.delete()
+            except AssertionError:
+                with open(str(refPath), 'w') as f:
+                    f.write(html)
+                raise
+        finally:
+            Token.TEXT_TRANSFORMERS = oldTransFormers
 
 
 _specialAttrNames = [
@@ -279,7 +284,7 @@ def get_obj_info(objects):
 
 
 # todo remove, when it's blatantly obvious that I don't need it
-# class Git(object):
+# class Git:
 #     def __init__(self, path):
 #         self.path = path
 #

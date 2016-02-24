@@ -1,6 +1,5 @@
 import plumbum
 
-from adfd.bbcode import AdfdParser
 from adfd.cst import _CONTENT_ROOT, DIR
 
 
@@ -77,6 +76,6 @@ class METADATA:
 
 
 class PARSE:
-    FUNC = AdfdParser().to_html
+    FUNC = None
     PYPHEN_LANG = 'de_de'
     TITLE_PATTERN = '[h2]%s[/h2]\n'

@@ -3,6 +3,10 @@ import itertools
 import re
 
 from cached_property import cached_property
+from pyphen import Pyphen
+from typogrify.filters import amp, smartypants, initial_quotes, widont
+
+from adfd.conf import PARSE
 
 _urlRegex = re.compile(
     r'(?im)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)'
@@ -49,7 +53,7 @@ REPLACE_COSMETIC = (
     ('(tm)', '&trade;'))
 
 
-class TagOptions (object):
+class TagOptions:
     tag_name = None
     """name of the tag - all lowercase"""
     newline_closes = False
@@ -80,7 +84,7 @@ class TagOptions (object):
             setattr(self, attr, bool(value))
 
 
-class Parser (object):
+class Parser:
     TOKEN_TAG_START = 'start'
     TOKEN_TAG_END = 'end'
     TOKEN_NEWLINE = 'newline'
@@ -88,7 +92,7 @@ class Parser (object):
 
     def __init__(
             self, newline='\n', normalize_newlines=True,
-            escape_html=True, replace_links=True,
+            escape_html=False, replace_links=True,
             replace_cosmetic=True, tag_opener='[', tag_closer=']',
             linker=None, linker_takes_context=False, drop_unrecognized=False):
         self.tag_opener = tag_opener
@@ -309,6 +313,7 @@ class Parser (object):
                 if start > pos:
                     tl = self._newline_tokenize(data[pos:start])
                     tokens.extend(tl)
+                    # noinspection PyUnusedLocal
                     pos = start
 
                 # Find the extent of this tag, if it's ever closed.
@@ -432,6 +437,7 @@ class Parser (object):
                 # in after replacements.
                 token = '{{ bbcode-link-%s }}' % len(url_matches)
                 url_matches[token] = self._link_replace(match, **context)
+                # noinspection PyUnresolvedReferences
                 start, end = match.span()
                 data = data[:start] + token + data[end:]
                 # To be perfectly accurate, this should probably be
@@ -526,11 +532,30 @@ class Parser (object):
         return ''.join(text)
 
 
-class Token(object):
+def _escape_html(text):
+    return _replace(text, REPLACE_ESCAPE)
+
+
+# fixme likely not needed
+def _untypogrify(text):
+    def untypogrify_char(c):
+        return '"' if c in ['“', '„'] else c
+
+    return ''.join([untypogrify_char(c) for c in text])
+
+
+def _hyphenate(text, hyphen='&shy;'):
+    py = Pyphen(lang=PARSE.PYPHEN_LANG)
+    words = text.split(' ')
+    return ' '.join([py.inserted(word, hyphen=hyphen) for word in words])
+
+
+class Token:
+    TEXT_TRANSFORMERS = [
+        _escape_html, amp, smartypants, initial_quotes, widont, _hyphenate]
+
     def __init__(self, *args):
-        self.asTuple = args
-        self.type, self.tag, self.options, text = self.asTuple
-        self.text = text.strip() if text else ''
+        self.type, self.tag, self.options, self._text = args
         self.isOpener = self.type == Parser.TOKEN_TAG_START
         self.isCloser = self.type == Parser.TOKEN_TAG_END
         self.isHeaderStart = self.isOpener and re.match("h\d", self.tag)
@@ -540,17 +565,32 @@ class Token(object):
         self.isListEnd = self.isCloser and self.tag == "list"
         self.isNewline = self.type == Parser.TOKEN_NEWLINE
 
+    def __str__(self):
+        return self.__repr__()
+
     def __repr__(self):
         if self.tag:
             return "<%s%s>" % ('/' if self.isCloser else '', self.tag)
 
         return "<%s>" % (self.text)
 
-    def __str__(self):
-        return self.__repr__()
+    @property
+    def asTuple(self):
+        return (self.type, self.tag, self.options, self.text)
+
+    @cached_property
+    def text(self):
+        """enhance text with hyphenation and typogrification"""
+        if not self._text:
+            return self._text
+
+        modifiedText = self._text
+        for transformer in self.TEXT_TRANSFORMERS:
+            modifiedText = transformer(modifiedText)
+        return modifiedText
 
 
-class Chunk(object):
+class Chunk:
     """modify token groups to fix missing formatting in forum articles"""
     HEADER = 'header'
     PARAGRAPH = 'paragraph'
@@ -601,7 +641,7 @@ class Chunk(object):
             self.tokens.append(self.P_END_TOKEN)
 
 
-class Chunkman(object):
+class Chunkman:
     """create token groups specific to forum articles for preparation"""
     def __init__(self, tokens):
         self.tokens = [Token(*t) for t in tokens]
