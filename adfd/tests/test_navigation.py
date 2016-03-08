@@ -8,8 +8,16 @@ log = logging.getLogger(__name__)
 
 class TestNavigator:
     def test_elems(self):
-        print(Navigator().get_navigation(
-                '/bbcode/spezielle-bbcode-formatierungen'))
+        navi = Navigator()
+        print("\n###\n".join(navi.elems))
+        assert 0
+
+    def test_active_element(self):
+        navi = Navigator()
+        navigation = navi.generate_navigation(
+            '/bbcode/spezielle-bbcode-formatierungen')
+        print(navigation)
+        assert 0
 
 
 class TestContainer:
