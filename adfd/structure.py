@@ -164,29 +164,3 @@ class Navigator:
 
     def add_elem(self, text):
         self._elems.append('%s%s' % (' ' * 4 * self.depth, text))
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.WARNING)
-    print(Navigator().get_navigation(
-            '/bbcode/spezielle-bbcode-formatierungen'))
-
-    # fixme turn this into tests ...
-    exit()
-    c = Container('hintergruende/geschichte')
-    print(c.isCategory)
-    print(c.isPage)
-    # print(c.find_categories())
-    for cat in c.find_categories():
-        print(cat.name, cat.md.weight)
-    for cat in c.find_pages():
-        print(cat.name, cat.md.weight)
-
-        # print(c.isPage)
-    # print(c.find_categories())
-    # print(c.find_pages())
-    # print(obj_attr(p))
-    # p = Page(path=LocalPath('bbcode'))
-    # p = Page(path=LocalPath('bbcode/spezielle-bbcode-formatierungen'))
-    # print(obj_attr(p))
-    # print(obj_attr(p, excludeAttrs=['content']))
-    # print(obj_attr(p2, excludeAttrs=['content']))
