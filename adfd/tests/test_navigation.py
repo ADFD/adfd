@@ -9,15 +9,16 @@ log = logging.getLogger(__name__)
 class TestNavigator:
     def test_elems(self):
         navi = Navigator()
-        print("\n###\n".join(navi.elems))
-        assert 0
+        assert navi.elems
+        assert navi.allUrls
 
     def test_active_element(self):
         navi = Navigator()
         navigation = navi.generate_navigation(
             '/bbcode/spezielle-bbcode-formatierungen')
-        print(navigation)
-        assert 0
+        assert ('<li style="text-weight: bold;">'
+                '<a href="/bbcode/spezielle-bbcode-formatierungen">'
+                'Spezielle BBCode Formatierungen</a></li>') in navigation
 
 
 class TestContainer:
