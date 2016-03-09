@@ -110,9 +110,6 @@ class PageNotFound(Exception):
     pass
 
 
-# todo make sure that all links are generated with url_for in templates
-# see http://pythonhosted.org/Frozen-Flask/#finding-urls
-# or write an http://pythonhosted.org/Frozen-Flask/#url-generators
 class Navigator:
     GLOBAL = ('<ul class="menu vertical medium-horizontal" '
               'data-responsive-menu="drilldown medium-dropdown">', '</ul>')
@@ -128,21 +125,34 @@ class Navigator:
         self._elems = []
         self.navigation = ''
 
+    def generate_navigation(self, activeRelPath):
+        assert 'index' not in activeRelPath, activeRelPath
+        modifiedElems = []
+        for elem in self.elems:
+            if activeRelPath in elem:
+                modifiedElems.append(self.get_toggled_elem(elem))
+            else:
+                modifiedElems.append(elem)
+        return "\n".join(modifiedElems)
+
+    @cached_property
+    def allUrls(self):
+        allUrls = []
+
+        def _gather_urls(element):
+            for cat in element.find_categories():
+                _gather_urls(cat)
+            for page in element.find_pages():
+                allUrls.append(page.relPath)
+
+        _gather_urls(self.root)
+        return allUrls
+
     @property
     def elems(self):
         if not self._elems:
             self._add_elems(self.root)
         return self._elems
-
-    def get_navigation(self, activeRelPath):
-        assert 'index' not in activeRelPath, activeRelPath
-        modifiedElems = []
-        for elem in self.elems:
-            if activeRelPath not in elem:
-                modifiedElems.append(elem)
-            else:
-                modifiedElems.append(self.get_toggled_elem(elem))
-        return "\n".join(modifiedElems)
 
     def get_toggled_elem(self, elem):
         return elem.replace(self.TOGGLE[0], self.TOGGLE[1])
