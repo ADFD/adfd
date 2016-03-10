@@ -83,10 +83,9 @@ class Token:
 
 
 class Parser:
-    # fixme typogrify does not do the right thing yet and hyphenate screws up
     def __init__(
             self, newline='\n', normalizeNewlines=True,
-            escapeHtml=True, typogrify=False, hyphenate=False,
+            escapeHtml=True, hyphenate=False,
             replaceLinks=True, replaceCosmetic=True,
             tagOpener='[', tagCloser=']',
             linker=None, linkerTakesContext=False, dropUnrecognized=False):
@@ -441,14 +440,7 @@ class Parser:
         if self.replaceCosmetic and replaceCosmetic:
             text = Replacer.replace(text, Replacer.COSMETIC)
         if self.hyphenate:
-            log.warning('BEFORE HYPHENATE\n%s' % (text))
             text = hyphenate(text)
-            log.warning('AFTER HYPHENATE\n%s' % (text))
-        if self.typogrify:
-            log.warning('BEFORE TYPOGRFIY\n%s' % (text))
-            text = typogrify(text)
-            log.warning('AFTER TYPOGRIFY\n%s' % (text))
-
         # Now put the replaced links back in the text.
         for token, replacement in url_matches.items():
             text = text.replace(token, replacement)
@@ -679,6 +671,8 @@ class AdfdParser(Parser):
             tokens = Chunkman(self.tokenize(data)).flattened
         assert tokens
         html = self._format_tokens(tokens, parent=None, **context).strip()
+        if self.typogrify:
+            html = typogrify(html)
         return self.cleanup(html)
 
     def cleanup(self, text):
