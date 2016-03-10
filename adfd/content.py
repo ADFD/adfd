@@ -135,7 +135,8 @@ class TopicFinalizer:
 
     @cached_property
     def outContent(self):
-        parse_func = PARSE.FUNC or AdfdParser().to_html
+        parse_func = PARSE.FUNC or AdfdParser(
+            hyphenate=False, typogrify=False).to_html
         return parse_func(self.inContent)
 
 
