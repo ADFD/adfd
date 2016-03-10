@@ -1,19 +1,34 @@
 import logging
 
-from adfd.structure import Navigator, Container
+import pytest
 
+from adfd.structure import Navigator, Container, Category
+from adfd.utils import DataGrabber
 
 log = logging.getLogger(__name__)
 
 
+@pytest.fixture
+def fakePath(request):
+    oldRoot = Container.ROOT
+    fakePath = DataGrabber.DATA_PATH / 'fake_final'
+    Container.ROOT = fakePath
+
+    def finalizer():
+        Container.ROOT = oldRoot
+
+    request.addfinalizer(finalizer)
+    return fakePath
+
+
 class TestNavigator:
-    def test_elems(self):
-        navi = Navigator()
+    def test_elems(self, fakePath):
+        navi = Navigator(root=Category(fakePath))
         assert navi.elems
         assert navi.allUrls
 
-    def test_active_element(self):
-        navi = Navigator()
+    def test_active_element(self, fakePath):
+        navi = Navigator(root=Category(fakePath))
         navigation = navi.generate_navigation(
             '/bbcode/spezielle-bbcode-formatierungen')
         assert ('<li style="text-weight: bold;">'
