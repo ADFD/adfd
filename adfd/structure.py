@@ -151,26 +151,26 @@ class Navigator:
     @property
     def elems(self):
         if not self._elems:
-            self._add_elems(self.root)
+            self._recursive_add_elems(self.root)
         return self._elems
 
     def get_toggled_elem(self, elem):
         return elem.replace(self.TOGGLE[0], self.TOGGLE[1])
 
-    def _add_elems(self, element):
-        self.add_elem(self.GLOBAL[0] if self.depth == 1 else self.MAIN[0])
+    def _recursive_add_elems(self, element):
+        self._add_elem(self.GLOBAL[0] if self.depth == 1 else self.MAIN[0])
         self.depth += 1
         for cat in element.find_categories():
-            self.add_elem(self.SUB[0])
+            self._add_elem(self.SUB[0])
             elem = self.CAT[0] % (cat.relPath, cat.name)
-            self.add_elem('%s%s' % (elem, self.CAT[1]))
-            self._add_elems(cat)
-            self.add_elem(self.SUB[1])
+            self._add_elem('%s%s' % (elem, self.CAT[1]))
+            self._recursive_add_elems(cat)
+            self._add_elem(self.SUB[1])
         for page in element.find_pages():
             elem = self.ELEM[0] % (page.relPath, page.name)
-            self.add_elem('%s%s' % (elem, self.ELEM[1]))
+            self._add_elem('%s%s' % (elem, self.ELEM[1]))
         self.depth -= 1
-        self.add_elem(self.GLOBAL[1] if self.depth == 1 else self.MAIN[1])
+        self._add_elem(self.GLOBAL[1] if self.depth == 1 else self.MAIN[1])
 
-    def add_elem(self, text):
+    def _add_elem(self, text):
         self._elems.append('%s%s' % (' ' * 4 * self.depth, text))
