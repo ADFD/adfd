@@ -111,7 +111,7 @@ class PageNotFound(Exception):
 
 
 class Navigator:
-    GLOBAL = ('<ul class="menu vertical medium-horizontal" '
+    GLOBAL = ('<ul class="vertical medium-horizontal menu" '
               'data-responsive-menu="drilldown medium-dropdown">', '</ul>')
     MAIN = ('<ul class="submenu menu vertical" data-submenu>', '</ul>')
     CAT = ('<a href="%s">%s', '</a>')
@@ -141,6 +141,7 @@ class Navigator:
 
         def _gather_urls(element):
             for cat in element.find_categories():
+                allUrls.append(cat.relPath)
                 _gather_urls(cat)
             for page in element.find_pages():
                 allUrls.append(page.relPath)
