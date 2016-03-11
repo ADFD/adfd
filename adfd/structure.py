@@ -149,6 +149,32 @@ class Navigator:
         _gather_urls(self.root)
         return allUrls
 
+    @cached_property
+    def outline(self):
+        out = []
+
+        def rep(text, id_, relPath, depth):
+            def indented(text, depth):
+                return '[color=#E1EBF2]%s[/color]%s' % ('.' * 4 * depth, text)
+
+            txt = (
+                "[url=http://adfd.org/austausch/viewtopic.php?t=%s]%s[/url]"
+                " [url=http://adfd.org/privat/neu%s](x)[/url]" %
+                (id_, text, relPath))
+            return indented(txt, depth)
+
+        def _create_outline(element, depth=0):
+            for cat in element.find_categories():
+                r = rep(cat.name, cat.md.mainTopicId, cat.relPath, depth)
+                out.append(r)
+                _create_outline(cat, depth=depth + 1)
+            for page in element.find_pages():
+                r = rep(page.name, page.md.topicId, page.relPath, depth)
+                out.append(r)
+
+        _create_outline(self.root)
+        return "\n".join(out)
+
     @property
     def elems(self):
         if not self._elems:
