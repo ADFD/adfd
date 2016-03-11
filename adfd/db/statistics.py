@@ -19,8 +19,6 @@ import numpy as np
 import pandas as pd
 
 from adfd.db.utils import get_db_session
-from adfd.utils import obj_attr
-
 
 log = logging.getLogger(__name__)
 
@@ -118,10 +116,11 @@ class StatsPlotter:
 
 def series_stats():
     df = DataFetcher()
-    df.set_time_range(start='2015/01/01', end='2015/10/30')
+    df.set_time_range(start='2009/01/01', end='2016/02/28')
     sp = StatsPlotter(df.get_series())
     sp.save('teststats')
-    obj_attr(sp.series)
+    print("saved to teststats.png")
+    # print(obj_attr(sp.series))
 
 
 if __name__ == '__main__':
