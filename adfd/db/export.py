@@ -9,13 +9,13 @@ from adfd.utils import dump_contents, id2name
 log = logging.getLogger(__name__)
 
 
-class TopicsExporter:
-    """root of all content for the website"""
+class RawTopicsExporter:
+    """Read all given topics from DB into raw file"""
 
     def __init__(self, topicIds=None, siteDescription=None):
         self.allTopicIds = set(topicIds or [])
         if siteDescription:
-            self.harvest_topics_recursive(siteDescription)
+            self._harvest_topics_recursive(siteDescription)
 
         self.topics = []
         """:type: list of Topic"""
@@ -25,17 +25,17 @@ class TopicsExporter:
             except TopicDoesNotExist:
                 log.warning('topic %s is broken', topicId)
 
-    def harvest_topics_recursive(self, content):
+    def export(self):
+        for topic in self.topics:
+            self._export_topic(topic)
+
+    def _harvest_topics_recursive(self, content):
         self.allTopicIds.add(content.mainTopicId)
         for content in content.contents:
             if isinstance(content, int):
                 self.allTopicIds.add(content)
             else:
-                self.harvest_topics_recursive(content)
-
-    def export_all(self):
-        for topic in self.topics:
-            self._export_topic(topic)
+                self._harvest_topics_recursive(content)
 
     def _export_topic(self, topic):
         out = ["%s: %s" % (topic.id, topic.subject)]

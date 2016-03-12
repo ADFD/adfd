@@ -149,12 +149,12 @@ class ContentWrangler:
 
     @staticmethod
     def export():
-        from adfd.db.export import TopicsExporter
+        from adfd.db.export import RawTopicsExporter
         from adfd.site_description import SITE_DESCRIPTION
 
         PATH.CNT_RAW.delete()
         log.debug('use db at %s', DB_URL)
-        TopicsExporter(siteDescription=SITE_DESCRIPTION).export_all()
+        RawTopicsExporter(siteDescription=SITE_DESCRIPTION).export()
 
     @staticmethod
     def prepare():
