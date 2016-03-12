@@ -1,7 +1,7 @@
 import logging
 import os
 
-from plumbum import SshMachine, LocalPath, local
+from plumbum import SshMachine, local
 
 from adfd.db.local_settings import DB
 
@@ -13,8 +13,7 @@ class DbSynchronizer:
         self.db = db
         self.sm = SshMachine(self.db.SSH_HOST)
         self.dumpName = self.db.NAME + '.dump'
-        self.dumpDstPath = (
-            LocalPath(__file__).up(4) / 'db-backup' / 'dumps' / self.dumpName)
+        self.dumpDstPath = self.db.DUMP_PATH / self.dumpName
 
     def __del__(self):
         self.sm.close()
