@@ -1,35 +1,12 @@
-# coding=utf-8
 import logging
 
 from adfd.conf import PATH
 from adfd.cst import EXT
-from adfd.db.phpbb_classes import Forum, TopicDoesNotExist, Topic
+from adfd.db.phpbb_classes import TopicDoesNotExist, Topic
 from adfd.utils import dump_contents, id2name
 
 
 log = logging.getLogger(__name__)
-
-
-class ExportManager:
-    def __init__(self, topicIds=None, forumIds=None, siteDescription=None):
-        self.allTopicIds = set(topicIds or [])
-        if forumIds:
-            for forumId in forumIds:
-                self.allTopicIds | set(Forum(forumId).topicIds)
-        if siteDescription:
-            self.harvest_topics_from_site_description(siteDescription)
-
-    def harvest_topics_from_site_description(self, siteDescription):
-        """collect all topics from a site description"""
-        self.allTopicIds.add(siteDescription.mainTopicId)
-        for content in siteDescription.contents:
-            if isinstance(content, int):
-                self.allTopicIds.add(content)
-            else:
-                self.harvest_topics_from_site_description(content)
-
-    def export(self):
-        TopicsExporter(self.allTopicIds).export_all()
 
 
 class TopicsExporter:
@@ -38,16 +15,28 @@ class TopicsExporter:
     SUMMARY_PATH = PATH.CNT_RAW / 'summary.txt'
     """keep a list of topics and their imported posts as text"""
 
-    def __init__(self, topicIds):
+    def __init__(self, topicIds=None, siteDescription=None):
+        self.allTopicIds = set(topicIds or [])
+        if siteDescription:
+            self.harvest_topics_recursive(siteDescription)
+
         self.topics = []
         """:type: list of Topic"""
-        for topicId in topicIds:
+        for topicId in self.allTopicIds:
             try:
                 self.topics.append(Topic(topicId))
             except TopicDoesNotExist:
                 log.warning('topic %s is broken', topicId)
         self.allPaths = [self.SUMMARY_PATH]
         """list of all written paths at end of import (purely for logging)"""
+
+    def harvest_topics_recursive(self, content):
+        self.allTopicIds.add(content.mainTopicId)
+        for content in content.contents:
+            if isinstance(content, int):
+                self.allTopicIds.add(content)
+            else:
+                self.harvest_topics_recursive(content)
 
     def export_all(self):
         out = []
