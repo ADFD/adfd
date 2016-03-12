@@ -112,12 +112,10 @@ class TopicPreparator:
         :returns: PageMetadata
         """
         md = PageMetadata()
-        allAuthors = set()
         for path in reversed(paths):
             tmpMd = PageMetadata(path)
             tmpMd.dump()
             md.populate_from_kwargs(tmpMd.asDict)
-        md.allAuthors = ",".join(allAuthors)
         return md
 
 

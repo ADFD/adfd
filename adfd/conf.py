@@ -48,7 +48,7 @@ class METADATA:
 
     class PAGE:
         OVERRIDABLES = [
-            'author',
+            'allAuthors',
             'title',
             'slug',
             'linktext',
@@ -58,13 +58,13 @@ class METADATA:
         ]
         """can be overridden by metadata in post content"""
         ATTRIBUTES = OVERRIDABLES + [
+            'author',
             'authorId',
             'lastUpdate',
             'postDate',
             'topicId',
             'postId',
 
-            'allAuthors',
             'useTitles',
             'excludePosts',
             'includePosts',

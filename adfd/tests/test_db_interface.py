@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from adfd.db.lib import RawTopicsExporter
+from adfd.db.export import RawTopicsExporter
 from adfd.db.phpbb_classes import Topic
 
 
