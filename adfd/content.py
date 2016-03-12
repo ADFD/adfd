@@ -104,8 +104,7 @@ class TopicPreparator:
         dump_contents(self.cntDstPath, self.content)
         self.mergedMd.dump(self.mdDstPath)
 
-    @staticmethod
-    def merge_metadata(paths):
+    def merge_metadata(self, paths):
         """
         * add missing data and write back
         * return merged metadata newest to oldest (first post wins)
@@ -116,7 +115,8 @@ class TopicPreparator:
         allAuthors = set()
         for path in reversed(paths):
             tmpMd = PageMetadata(path)
-            allAuthors.add(tmpMd.author)
+            if not self.post_is_excluded(tmpMd.postId):
+                allAuthors.add(tmpMd.author)
             tmpMd.dump()
             md.populate_from_kwargs(tmpMd.asDict)
         md.allAuthors = ",".join(allAuthors)
