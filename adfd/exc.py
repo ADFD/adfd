@@ -28,3 +28,7 @@ class NotAnAttribute(Exception):
 
 class NotOverridable(Exception):
     """raise if a key mustn't be overriden (e.g. postId)"""
+
+
+class MutuallyExclusiveMetadata(Exception):
+    """raise if two metadata values are set that are mutually exclusive"""

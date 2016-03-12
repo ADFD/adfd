@@ -6,7 +6,7 @@ from cached_property import cached_property
 from adfd.bbcode import AdfdParser
 from adfd.conf import PATH, PARSE
 from adfd.cst import EXT, NAME, DB_URL
-from adfd.exc import TopicNotFound
+from adfd.exc import *
 from adfd.metadata import CategoryMetadata, PageMetadata
 from adfd.utils import (
     dump_contents, ContentGrabber, get_paths, slugify_path, id2name, slugify)
@@ -45,6 +45,12 @@ class ContentWrangler:
         GlobalFinalizer.finalize(SITE_DESCRIPTION)
 
 
+class RawPost:
+    def __init__(self, path):
+        self.content = ContentGrabber(path).grab()
+        self.md = PageMetadata(path.with_suffix(EXT.META))
+
+
 class TopicPreparator:
     """Take exported files of a topic and prepare them for HTML conversion"""
 
@@ -54,9 +60,11 @@ class TopicPreparator:
         if not self.cntSrcPaths:
             raise TopicNotFound(self.path)
 
-        self.mdSrcPaths = get_paths(self.path, EXT.META)
-        self.md = self.prepare_metadata(self.mdSrcPaths)
-        filename = id2name(self.md.topicId)
+        self.mergedMd = self.merge_metadata(get_paths(self.path, EXT.META))
+        if self.mergedMd.includePosts and self.mergedMd.excludePosts:
+            raise MutuallyExclusiveMetadata('either include or exclude posts')
+
+        filename = id2name(self.mergedMd.topicId)
         self.cntDstPath = dstPath / (filename + EXT.IN)
         self.mdDstPath = dstPath / (filename + EXT.META)
 
@@ -68,19 +76,36 @@ class TopicPreparator:
         """merge contents from topic files into one file"""
         contents = []
         for path in self.cntSrcPaths:
+            rawPost = RawPost(path)
+            if self.post_is_excluded(rawPost.md.postId):
+                continue
+
             content = ''
-            if self.md.useTitles:
-                content += PARSE.TITLE_PATTERN % (self.md.title)
-            content += ContentGrabber(path).grab()
-            contents.append(content)
+            if self.mergedMd.useTitles:
+                content += PARSE.TITLE_PATTERN % (self.mergedMd.title)
+            contents.append(rawPost.content)
         return "\n\n".join(contents)
+
+    def post_is_excluded(self, postId):
+        def posts_to_ints(posts):
+            return [int(p) for p in posts.split(',')]
+
+        if self.mergedMd.includePosts:
+            if postId not in posts_to_ints(self.mergedMd.includePosts):
+                log.info("post %s is not explicitly included", postId)
+                return True
+
+        if self.mergedMd.excludePosts:
+            if postId not in posts_to_ints(self.mergedMd.excludePosts):
+                log.info("post %s is not explicitly excluded", postId)
+                return True
 
     def prepare(self):
         dump_contents(self.cntDstPath, self.content)
-        self.md.dump(self.mdDstPath)
+        self.mergedMd.dump(self.mdDstPath)
 
     @staticmethod
-    def prepare_metadata(paths):
+    def merge_metadata(paths):
         """
         * add missing data and write back
         * return merged metadata newest to oldest (first post wins)

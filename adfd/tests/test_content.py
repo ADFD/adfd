@@ -33,15 +33,31 @@ class TestPreparator:
         prepare_topics(*fakePaths)
 
 
-class TestArticle:
+class TestFinalize:
     def test_topic_id_path(self, fakePaths):
         srcPath, dstPath = fakePaths
         p = TopicPreparator(srcPath / '00001', dstPath)
         p.prepare()
         a = TopicFinalizer(1)
+        assert isinstance(a.md, PageMetadata)
         assert a.inContent == (
             "söme text from first pöst\n\n\nsome text from second post\n")
+
+    def test_exclude_posts(self, fakePaths):
+        srcPath, dstPath = fakePaths
+        p = TopicPreparator(srcPath / '00002', dstPath)
+        p.prepare()
+        a = TopicFinalizer(2)
         assert isinstance(a.md, PageMetadata)
+        assert 'as it is excluded' not in a.inContent
+
+    def test_include_posts(self, fakePaths):
+        srcPath, dstPath = fakePaths
+        p = TopicPreparator(srcPath / '00003', dstPath)
+        p.prepare()
+        a = TopicFinalizer(3)
+        assert isinstance(a.md, PageMetadata)
+        assert 'as it is excluded' not in a.inContent
 
     def test_slug_transliteration(self, fakePaths):
         srcPath, dstPath = fakePaths
