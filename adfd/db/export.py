@@ -38,15 +38,12 @@ class RawTopicsExporter:
                 self._harvest_topics_recursive(content)
 
     def _export_topic(self, topic):
-        out = ["%s: %s" % (topic.id, topic.subject)]
         topicPath = PATH.CNT_RAW / id2name(topic.id)
         log.info('%s -> %s', topic.id, topicPath)
         for post in topic.posts:
             current = "%s" % (post.subject)
             log.debug("export: %s", current)
-            out.append("    " + current)
             contentPath = topicPath / (post.filename + EXT.IN)
             dump_contents(contentPath, post.content)
             metadataPath = topicPath / (post.filename + EXT.META)
             dump_contents(metadataPath, post.md.asFileContents)
-        return out
