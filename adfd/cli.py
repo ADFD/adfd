@@ -21,21 +21,21 @@ class AdfdCnt(cli.Application):
 class AdfdDbExport(cli.Application):
     """export topics from db"""
     def main(self):
-        ContentWrangler.export()
+        ContentWrangler.export_topics_from_db()
 
 
 @AdfdCnt.subcommand("prepare")
 class AdfdCntPrepare(cli.Application):
     """prepare imported articles for final transformation"""
     def main(self):
-        ContentWrangler.prepare()
+        ContentWrangler.prepare_topics()
 
 
 @AdfdCnt.subcommand("finalize")
 class AdfdCntFinalize(cli.Application):
     """finalize prepared articles and create structure"""
     def main(self):
-        ContentWrangler.finalize()
+        ContentWrangler.finalize_articles()
 
 
 @AdfdCnt.subcommand("do-all")

@@ -5,7 +5,8 @@ from plumbum import LocalPath
 
 from adfd import cst
 from adfd.conf import PATH
-from adfd.content import TopicFinalizer, PageMetadata, prepare, TopicPreparator
+from adfd.content import (
+    TopicFinalizer, PageMetadata, prepare_topics, TopicPreparator)
 
 log = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ def fakePaths(request):
 
 class TestPreparator:
     def test_preparation(self, fakePaths):
-        prepare(*fakePaths)
+        prepare_topics(*fakePaths)
 
 
 class TestArticle:
