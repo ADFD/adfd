@@ -11,44 +11,38 @@ from adfd.metadata import CategoryMetadata, PageMetadata
 from adfd.utils import (
     dump_contents, ContentGrabber, get_paths, slugify_path, id2name, slugify)
 
+
 log = logging.getLogger(__name__)
 
 
-class GlobalFinalizer:
+class ContentWrangler:
+    """Thin wrapper with housekeeping to do the whole dance"""
     @classmethod
-    def finalize(cls, siteDescription):
-        cls._finalize_recursive(siteDescription)
-
-    @classmethod
-    def _finalize_recursive(cls, desc, pathPrefix='', weight=1):
-        relPath = desc.name
-        if pathPrefix:
-            relPath = "%s/%s" % (pathPrefix, desc.name)
-        log.info('main topic in "%s" is %s', relPath, desc.mainTopicId)
-        TopicFinalizer(desc.mainTopicId, relPath, isCategory=True).finalize()
-        cls.dump_cat_md(desc.name, relPath,
-                        mainTopicId=desc.mainTopicId, weight=weight)
-        if isinstance(desc.contents, tuple):
-            for idx, dsc in enumerate(desc.contents, start=1):
-                cls._finalize_recursive(dsc, relPath, weight + idx)
-        else:
-            assert isinstance(desc.contents, list), desc.contents
-            for tWeight, topicId in enumerate(desc.contents, start=1):
-                log.info('topic %s in %s is "%s"', tWeight, relPath, topicId)
-                TopicFinalizer(topicId, relPath, tWeight).finalize()
+    def wrangle_content(cls):
+        cls.export_topics_from_db()
+        cls.prepare_topics()
+        cls.finalize_articles()
 
     @staticmethod
-    def dump_cat_md(name, relPath, **kwargs):
-        relPath = slugify_path(relPath)
-        kwargs.update(name=name)
-        path = (PATH.CNT_FINAL / relPath / NAME.CATEGORY).with_suffix(EXT.META)
-        CategoryMetadata(kwargs=kwargs).dump(path)
+    def export_topics_from_db():
+        from adfd.db.export import RawTopicsExporter
+        from adfd.site_description import SITE_DESCRIPTION
 
+        PATH.CNT_RAW.delete()
+        log.debug('use db at %s', DB_URL)
+        RawTopicsExporter(siteDescription=SITE_DESCRIPTION).export()
 
-def prepare_topics(srcPath, dstPath):
-    for path in [p for p in srcPath.list() if p.isdir()]:
-        log.info('prepare %s', path)
-        TopicPreparator(path, dstPath).prepare()
+    @staticmethod
+    def prepare_topics():
+        PATH.CNT_PREPARED.delete()
+        prepare_topics(PATH.CNT_RAW, PATH.CNT_PREPARED)
+
+    @staticmethod
+    def finalize_articles():
+        from adfd.site_description import SITE_DESCRIPTION
+
+        PATH.CNT_FINAL.delete()
+        GlobalFinalizer.finalize(SITE_DESCRIPTION)
 
 
 class TopicPreparator:
@@ -140,30 +134,39 @@ class TopicFinalizer:
         return parse_func(self.inContent)
 
 
-class ContentWrangler:
+class GlobalFinalizer:
+    """After all this mangling and wrangling dumpt the final results"""
     @classmethod
-    def wrangle(cls):
-        cls.export_topics_from_db()
-        cls.prepare_topics()
-        cls.finalize_articles()
+    def finalize(cls, siteDescription):
+        cls._finalize_recursive(siteDescription)
+
+    @classmethod
+    def _finalize_recursive(cls, desc, pathPrefix='', weight=1):
+        relPath = desc.name
+        if pathPrefix:
+            relPath = "%s/%s" % (pathPrefix, desc.name)
+        log.info('main topic in "%s" is %s', relPath, desc.mainTopicId)
+        TopicFinalizer(desc.mainTopicId, relPath, isCategory=True).finalize()
+        cls.dump_cat_md(desc.name, relPath,
+                        mainTopicId=desc.mainTopicId, weight=weight)
+        if isinstance(desc.contents, tuple):
+            for idx, dsc in enumerate(desc.contents, start=1):
+                cls._finalize_recursive(dsc, relPath, weight + idx)
+        else:
+            assert isinstance(desc.contents, list), desc.contents
+            for tWeight, topicId in enumerate(desc.contents, start=1):
+                log.info('topic %s in %s is "%s"', tWeight, relPath, topicId)
+                TopicFinalizer(topicId, relPath, tWeight).finalize()
 
     @staticmethod
-    def export_topics_from_db():
-        from adfd.db.export import RawTopicsExporter
-        from adfd.site_description import SITE_DESCRIPTION
+    def dump_cat_md(name, relPath, **kwargs):
+        relPath = slugify_path(relPath)
+        kwargs.update(name=name)
+        path = (PATH.CNT_FINAL / relPath / NAME.CATEGORY).with_suffix(EXT.META)
+        CategoryMetadata(kwargs=kwargs).dump(path)
 
-        PATH.CNT_RAW.delete()
-        log.debug('use db at %s', DB_URL)
-        RawTopicsExporter(siteDescription=SITE_DESCRIPTION).export()
 
-    @staticmethod
-    def prepare_topics():
-        PATH.CNT_PREPARED.delete()
-        prepare_topics(PATH.CNT_RAW, PATH.CNT_PREPARED)
-
-    @staticmethod
-    def finalize_articles():
-        from adfd.site_description import SITE_DESCRIPTION
-
-        PATH.CNT_FINAL.delete()
-        GlobalFinalizer.finalize(SITE_DESCRIPTION)
+def prepare_topics(srcPath, dstPath):
+    for path in [p for p in srcPath.list() if p.isdir()]:
+        log.info('prepare %s', path)
+        TopicPreparator(path, dstPath).prepare()

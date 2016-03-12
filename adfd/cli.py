@@ -43,7 +43,7 @@ class AdfdCntFinalize(cli.Application):
 class AdfdCntFinalize(cli.Application):
     """export, prepare, finalize"""
     def main(self):
-        ContentWrangler.wrangle()
+        ContentWrangler.wrangle_content()
 
 
 @AdfdCnt.subcommand("conf")
