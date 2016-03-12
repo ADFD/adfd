@@ -18,7 +18,7 @@ class DbSynchronizer:
     def __del__(self):
         self.sm.close()
 
-    def sync_db(self):
+    def sync(self):
         self.dump()
         self.fetch()
         self.prepare_local_db()
@@ -66,4 +66,4 @@ class DbSynchronizer:
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    DbSynchronizer().sync_db()
+    DbSynchronizer().sync()
