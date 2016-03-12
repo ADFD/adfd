@@ -53,22 +53,24 @@ class AdfdCntConf(cli.Application):
 
 @AdfdCnt.subcommand("article")
 class AdfdCntArticle(cli.Application):
-    output = cli.SwitchAttr(['o', 'output'], default='out')
-    refresh = cli.Flag(["refresh"], default=True)
+    browse = cli.Flag(
+        ['b', 'browse'], help="if given: open output in webbrowser")
 
     def main(self, identifier):
         try:
             article = TopicFinalizer(int(identifier))
         except TopicNotFound as e:
-            print(e)
+            log.error(e)
             return 1
 
-        print(article.md.asFileContents)
-        if self.output == 'out':
-            out = article.outContent
-            self._open_html_in_webbrowser(out)
-        elif self.output == 'in':
-            print(article.inContent)
+        print("Article <%s>\n%s" % (identifier, article.md.asFileContents))
+        print("#" * 120)
+        print(article.inContent)
+        print("#" * 120)
+        print(article.outContent)
+        print("#" * 120)
+        if self.browse:
+            self._open_html_in_webbrowser(article.outContent)
 
     def _open_html_in_webbrowser(self, html):
         path = LocalPath("/tmp/adfd-html-out.html")
