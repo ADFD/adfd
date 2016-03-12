@@ -1,0 +1,82 @@
+{
+  "contentType": "application/gliffy+json",
+  "version": "1.1",
+  "metadata": {
+    "title": "untitled",
+    "revision": 0,
+    "exportBorder": false
+  },
+  "embeddedResources": {
+    "index": 0,
+    "resources": []
+  },
+  "stage": {
+    "objects": [
+      {
+        "x": 90,
+        "y": 50,
+        "rotation": 0,
+        "id": 7,
+        "uid": "com.gliffy.shape.basic.basic_v2.default.cylinder",
+        "width": 160,
+        "height": 160,
+        "lockAspectRatio": true,
+        "lockShape": false,
+        "order": 7,
+        "graphic": {
+          "type": "Shape",
+          "Shape": {
+            "tid": "com.gliffy.stencil.cylinder.basic_v2",
+            "strokeWidth": 2,
+            "strokeColor": "#3399FF",
+            "fillColor": "#FFFFFF",
+            "gradient": true,
+            "dropShadow": false,
+            "state": 0,
+            "shadowX": 0,
+            "shadowY": 0,
+            "opacity": 1
+          }
+        },
+        "children": [],
+        "linkMap": []
+      }
+    ],
+    "background": "#FFFFFF",
+    "width": 250,
+    "height": 210,
+    "maxWidth": 5000,
+    "maxHeight": 5000,
+    "nodeIndex": 11,
+    "autoFit": true,
+    "exportBorder": false,
+    "gridOn": true,
+    "snapToGrid": true,
+    "drawingGuidesOn": true,
+    "pageBreaksOn": false,
+    "printGridOn": false,
+    "printPaper": "LETTER",
+    "printShrinkToFit": false,
+    "printPortrait": true,
+    "shapeStyles": {
+      "com.gliffy.shape.basic.basic_v1.default": {
+        "fill": "#FFFFFF",
+        "stroke": "#333333",
+        "strokeWidth": 2
+      },
+      "com.gliffy.shape.sitemap.sitemap_v1.default": {
+        "fill": "#6699CC",
+        "stroke": "#666666",
+        "strokeWidth": 2
+      },
+      "com.gliffy.shape.basic.basic_v2.default": {
+        "fill": "#FFFFFF",
+        "stroke": "#3399FF",
+        "gradient": true
+      }
+    },
+    "lineStyles": {},
+    "textStyles": {},
+    "themeData": null
+  }
+}

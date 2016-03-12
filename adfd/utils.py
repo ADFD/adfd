@@ -295,25 +295,3 @@ class Replacer:
         for find, repl in replacements:
             data = data.replace(find, repl)
         return data
-
-# todo remove, when it's blatantly obvious that I don't need it
-# class Git:
-#     def __init__(self, path):
-#         self.path = path
-#
-#     def _git_add_files(self):
-#         cmd = ['git', 'add', '--all', '.']
-#         try:
-#             subprocess.check_output(cmd, cwd=str(self.path))
-#         except subprocess.CalledProcessError:
-#             pass
-#
-#     def _git_prune_orphans(self):
-#         for p in self.TOPICS_PATH.walk():
-#             if not p.isdir() and not any(ap == p for ap in self.allPaths):
-#                 log.warning("removing %s", p)
-#                 cmd = ['git', 'rm', '-f', str(p)]
-#                 try:
-#                     subprocess.check_output(cmd, cwd=str(self.TOPICS_PATH))
-#                 except subprocess.CalledProcessError:
-#                     p.delete()

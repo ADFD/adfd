@@ -9,4 +9,5 @@ output/*
 
 *.bbcode.html
 local_settings.py
+*.dump
 content/*

@@ -4,28 +4,10 @@ import webbrowser
 from plumbum import cli, LocalPath
 
 from adfd import cst, conf
-from adfd.content import TopicFinalizer, TopicNotFound, prepare, Finalizator
-from adfd.db.export import ExportManager
-from adfd.site_description import SITE_DESCRIPTION
+from adfd.content import TopicFinalizer, TopicNotFound, ContentWrangler
 from adfd.utils import get_obj_info
 
 log = logging.getLogger(__name__)
-
-
-def _export():
-    conf.PATH.CNT_RAW.delete()
-    log.debug('use db at %s', cst.DB_URL)
-    ExportManager(siteDescription=SITE_DESCRIPTION).export()
-
-
-def _prepare():
-    conf.PATH.CNT_PREPARED.delete()
-    prepare(conf.PATH.CNT_RAW, conf.PATH.CNT_PREPARED)
-
-
-def _finalize():
-    conf.PATH.CNT_FINAL.delete()
-    Finalizator(SITE_DESCRIPTION).finalize()
 
 
 class AdfdCnt(cli.Application):
@@ -39,30 +21,28 @@ class AdfdCnt(cli.Application):
 class AdfdDbExport(cli.Application):
     """export topics from db"""
     def main(self):
-        _export()
+        ContentWrangler.export()
 
 
 @AdfdCnt.subcommand("prepare")
 class AdfdCntPrepare(cli.Application):
     """prepare imported articles for final transformation"""
     def main(self):
-        _prepare()
+        ContentWrangler.prepare()
 
 
 @AdfdCnt.subcommand("finalize")
 class AdfdCntFinalize(cli.Application):
     """finalize prepared articles and create structure"""
     def main(self):
-        _finalize()
+        ContentWrangler.finalize()
 
 
 @AdfdCnt.subcommand("do-all")
 class AdfdCntFinalize(cli.Application):
     """export, prepare, finalize"""
     def main(self):
-        _export()
-        _prepare()
-        _finalize()
+        ContentWrangler.wrangle()
 
 
 @AdfdCnt.subcommand("conf")

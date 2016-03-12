@@ -7,7 +7,7 @@ from cached_property import cached_property
 
 from adfd.bbcode import AdfdParser
 from adfd.conf import METADATA, PATH, PARSE
-from adfd.cst import EXT, NAME
+from adfd.cst import EXT, NAME, DB_URL
 from adfd.utils import (
     dump_contents, ContentGrabber, get_paths, slugify_path, id2name, slugify)
 
@@ -138,6 +138,35 @@ class TopicFinalizer:
         parse_func = PARSE.FUNC or AdfdParser(
             hyphenate=False, typogrify=False).to_html
         return parse_func(self.inContent)
+
+
+class ContentWrangler:
+    @classmethod
+    def wrangle(cls):
+        cls.export()
+        cls.prepare()
+        cls.finalize()
+
+    @staticmethod
+    def export():
+        from adfd.db.export import ExportManager
+        from adfd.site_description import SITE_DESCRIPTION
+
+        PATH.CNT_RAW.delete()
+        log.debug('use db at %s', DB_URL)
+        ExportManager(siteDescription=SITE_DESCRIPTION).export()
+
+    @staticmethod
+    def prepare():
+        PATH.CNT_PREPARED.delete()
+        prepare(PATH.CNT_RAW, PATH.CNT_PREPARED)
+
+    @staticmethod
+    def finalize():
+        from adfd.site_description import SITE_DESCRIPTION
+
+        PATH.CNT_FINAL.delete()
+        Finalizator(SITE_DESCRIPTION).finalize()
 
 
 class Metadata:
