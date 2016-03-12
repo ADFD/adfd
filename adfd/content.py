@@ -149,7 +149,7 @@ class ContentWrangler:
 
     @staticmethod
     def export():
-        from adfd.db.export import RawTopicsExporter
+        from adfd.db.lib import RawTopicsExporter
         from adfd.site_description import SITE_DESCRIPTION
 
         PATH.CNT_RAW.delete()

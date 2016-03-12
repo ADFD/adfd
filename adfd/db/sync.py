@@ -13,7 +13,8 @@ class DbSynchronizer:
         self.db = db
         self.sm = SshMachine(self.db.SSH_HOST)
         self.dumpName = self.db.NAME + '.dump'
-        self.localDumpPath = LocalPath(__file__).up() / self.dumpName
+        self.dumpDstPath = (
+            LocalPath(__file__).up(4) / 'db-backup' / 'dumps' / self.dumpName)
 
     def __del__(self):
         self.sm.close()
@@ -31,8 +32,8 @@ class DbSynchronizer:
             self.db.NAME, '--result-file=%s' % (self.dumpName))
 
     def fetch(self):
-        log.info('fetch %s -> %s', self.dumpName, self.localDumpPath)
-        self.sm.download(self.sm.path(self.dumpName), self.localDumpPath)
+        log.info('fetch %s -> %s', self.dumpName, self.dumpDstPath)
+        self.sm.download(self.sm.path(self.dumpName), self.dumpDstPath)
 
     def prepare_local_db(self):
         log.info('prepare local db privileges')
@@ -47,10 +48,10 @@ class DbSynchronizer:
         local['mysql']('-uroot', '-e', "; ".join(cmds))
 
     def load_local_dump(self):
-        log.info('load local dump from %s', self.localDumpPath)
+        log.info('load local dump from %s', self.dumpDstPath)
         os.system(
             "mysql %s %s %s < %s" %
-            (self.argUser, self.argPw, self.db.NAME, self.localDumpPath))
+            (self.argUser, self.argPw, self.db.NAME, self.dumpDstPath))
         # piping does not work!?
         # local['mysql'](
         #     self.argUser, '-plar', self.db.NAME) < self.localDumpPath

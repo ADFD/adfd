@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from adfd.db.utils import get_db_session
+from adfd.db.lib import get_db_session
 
 
 log = logging.getLogger(__name__)
