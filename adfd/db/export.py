@@ -12,9 +12,6 @@ log = logging.getLogger(__name__)
 class TopicsExporter:
     """root of all content for the website"""
 
-    SUMMARY_PATH = PATH.CNT_RAW / 'summary.txt'
-    """keep a list of topics and their imported posts as text"""
-
     def __init__(self, topicIds=None, siteDescription=None):
         self.allTopicIds = set(topicIds or [])
         if siteDescription:
@@ -27,8 +24,6 @@ class TopicsExporter:
                 self.topics.append(Topic(topicId))
             except TopicDoesNotExist:
                 log.warning('topic %s is broken', topicId)
-        self.allPaths = [self.SUMMARY_PATH]
-        """list of all written paths at end of import (purely for logging)"""
 
     def harvest_topics_recursive(self, content):
         self.allTopicIds.add(content.mainTopicId)
@@ -39,11 +34,8 @@ class TopicsExporter:
                 self.harvest_topics_recursive(content)
 
     def export_all(self):
-        out = []
         for topic in self.topics:
-            out.extend(self._export_topic(topic))
-        log.info('%s files, %s topics', len(self.allPaths), len(self.topics))
-        dump_contents(self.SUMMARY_PATH, "\n".join(out))
+            self._export_topic(topic)
 
     def _export_topic(self, topic):
         out = ["%s: %s" % (topic.id, topic.subject)]
@@ -57,5 +49,4 @@ class TopicsExporter:
             dump_contents(contentPath, post.content)
             metadataPath = topicPath / (post.filename + EXT.META)
             dump_contents(metadataPath, post.md.asFileContents)
-            self.allPaths.extend([contentPath, metadataPath])
         return out
