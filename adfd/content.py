@@ -115,8 +115,6 @@ class TopicPreparator:
         allAuthors = set()
         for path in reversed(paths):
             tmpMd = PageMetadata(path)
-            if not self.post_is_excluded(tmpMd.postId):
-                allAuthors.add(tmpMd.author)
             tmpMd.dump()
             md.populate_from_kwargs(tmpMd.asDict)
         md.allAuthors = ",".join(allAuthors)
