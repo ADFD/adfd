@@ -5,8 +5,9 @@ from plumbum import LocalPath
 
 from adfd import cst
 from adfd.conf import PATH
-from adfd.content import (
-    TopicFinalizer, PageMetadata, prepare_topics, TopicPreparator)
+from adfd.content import TopicFinalizer, prepare_topics, TopicPreparator
+from adfd.metadata import PageMetadata
+
 
 log = logging.getLogger(__name__)
 

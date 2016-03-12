@@ -5,6 +5,7 @@ from plumbum import cli
 
 from adfd import conf, cst
 from adfd.db.phpbb_classes import *
+from adfd.exc import *
 from adfd.utils import get_obj_info
 
 

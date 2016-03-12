@@ -4,7 +4,8 @@ import webbrowser
 from plumbum import cli, LocalPath
 
 from adfd import cst, conf
-from adfd.content import TopicFinalizer, TopicNotFound, ContentWrangler
+from adfd.content import TopicFinalizer, ContentWrangler
+from adfd.exc import TopicNotFound
 from adfd.utils import get_obj_info
 
 log = logging.getLogger(__name__)

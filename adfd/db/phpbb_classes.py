@@ -4,8 +4,9 @@ import re
 
 from cached_property import cached_property
 
-from adfd.content import PageMetadata
 from adfd.db.lib import DbWrapper
+from adfd.exc import *
+from adfd.metadata import PageMetadata
 from adfd.utils import slugify, date_from_timestamp
 
 log = logging.getLogger(__name__)
@@ -13,12 +14,8 @@ log = logging.getLogger(__name__)
 
 __all__ = [
     'Forum',
-    'ForumDoesNotExist',
-    'ForumIsEmpty',
     'Topic',
-    'TopicDoesNotExist',
     'Post',
-    'PostDoesNotExist',
 ]
 
 
@@ -47,14 +44,6 @@ class Forum:
                 continue
 
 
-class ForumDoesNotExist(Exception):
-    """raised if the forum contains no topics"""
-
-
-class ForumIsEmpty(Exception):
-    """raised if the forum contains no topics"""
-
-
 class Topic:
     """This has a bit of flexibility to make it possible to filter posts."""
 
@@ -81,10 +70,6 @@ class Topic:
             raise TopicDoesNotExist(str(topicId))
 
         return ids
-
-
-class TopicDoesNotExist(Exception):
-    """raised if the topic contains no posts"""
 
 
 class Post:
@@ -175,7 +160,3 @@ class Post:
         while "\n\n\n" in text:
             text = text.replace("\n\n\n", "\n\n")
         return text
-
-
-class PostDoesNotExist(Exception):
-    """raised if a post with the given ID does not exist"""
