@@ -1,36 +1,44 @@
 """
-[b]Über uns[/b](ADFD - Geschichte, Aufbau, Ziele)
-   - Geschichte
-   - Ziele
-   - Lexikon
+[i]Startseite[/i] http://adfd.org/austausch/viewtopic.php?f=54&t=11221
 
-[b]Psychopharmaka[/b](Risiken und Nebenwirkungen)
 
+[b]Über uns[/b] http://www.adfd.org/austausch/viewtopic.php?f=54&t=11220
+   - Geschichte des ADFD http://adfd.org/austausch/viewtopic.php?f=54&t=11223
+   - Das ADFD-Team http://adfd.org/austausch/viewtopic.php?f=54&t=11222
+
+[b]Psychopharmaka[/b] http://adfd.org/austausch/viewtopic.php?f=54&t=11224
+
+     - Differentialdiagnose der Depression http://www.adfd.org/austausch/viewtopic.php?f=6&t=9736
     - 10 Mythen über Psychopharmaka (Götzsche) http://www.adfd.org/austausch/viewtopic.php?f=6&t=10055
-           *Mythos Serotonin (Text von Dr. Healy)
+            *Mythos Serotonin http://www.adfd.org/austausch/viewtopic.php?f=6&t=9799
+            *Johanna Moncrieff: Der Mythos der chemischen Heilung http://adfd.org/austausch/viewtopic.php?f=6&t=11133
 
     - 13 Gründe Psychopharmaka-kritisch zu sein http://www.adfd.org/austausch/viewtopic.php?f=6&t=8507
 
-    - Abhängig von Psychopharmaka? (u.a. Diskussion des Abhängigkeitsbegriffs)
+
+    - Risiken und Nebenwirkungen  http://adfd.org/austausch/viewtopic.php?f=54&t=11225
+           *Gebrauchs- vs Fachinformation
+           *Das Serotonin-Syndrom
+           *Antidepressiva und Schwangerschaft http://www.adfd.org/austausch/viewtopic.php?f=6&t=8676
+           *Johanniskraut
+
+    - Lexikon http://adfd.org/austausch/viewtopic.php?f=54&t=10387
+   - Medikamentensteckbriefe http://adfd.org/austausch/viewtopic.php?f=54&t=10920
+
+[b]Absetzen[/b] http://adfd.org/austausch/viewtopic.php?f=54&t=11226
+
+   - Abhängig von Psychopharmaka? (u.a. Diskussion des Abhängigkeitsbegriffs)
            *Antidepressiva-Einnahme und Entzug http://www.adfd.org/austausch/viewtopic.php?f=6&t=8621
            *Rezeptorenbelegung http://www.adfd.org/austausch/viewtopic.php?f=19&t=8829
-           *Johanna Moncrieff: Der Mythos der chemischen Heilung http://adfd.org/austausch/viewtopic.php?f=6&t=11133
+           *Antidepressiva-Absetzsyndrom http://www.adfd.org/austausch/viewtopic.php?f=6&t=9724
 
-    - Antidepressiva und Schwangerschaft http://www.adfd.org/austausch/viewtopic.php?f=6&t=8676
-    - Differenzialdiagnose der Depression http://www.adfd.org/austausch/viewtopic.php?f=6&t=9736
-    - Antidepressiva-Absetzsyndrom http://www.adfd.org/austausch/viewtopic.php?f=6&t=9724
-    - Das Serotonin-Syndrom
-    - Gebrauchs- vs Fachinformation
-    - Johanniskraut
-
-[b]Absetzen[/b]
 
    - Allgemeine Tipps und Hinweise
          *FAQ Absetzen http://www.adfd.org/austausch/viewtopic.php?f=19&t=9913
           *Wasserlösemethode http://www.adfd.org/austausch/viewtopic.php?f=16&t=7936
            *Kügelchenmethode http://www.adfd.org/austausch/viewtopic.php?f=19&t=8897
 
-   - Antidepressiva Absetzen
+   - Antidepressiva absetzen
           * Infopaket http://www.adfd.org/austausch/viewtopic.php?f=19&t=853
           * SSRI-Absetzsyndrom http://www.adfd.org/austausch/viewtopic.php?f=6&t=9724
 
@@ -45,14 +53,12 @@
           *Entzugssymptome bei Neuroleptika http://www.adfd.org/austausch/viewtopic.php?f=19&t=8022
           *Niederpotente Neuroleptika (Peter Lehmann) http://www.adfd.org/austausch/viewtopic.php?f=32&t=11137
 
-   - Medikamentensteckbriefe
-
    - Weitere Absetzinformationen (u Leitschriften) http://www.adfd.org/austausch/viewtopic.php?f=19&t=10199
 
 [b]Hilfe beim Entzug [/b]
 
    - Umgang mit Entzugssymptomen
-          *Checkliste Entzugssymptome http://www.antidepressiva-absetzen.de/Stufe_3.html
+          *Checkliste Entzugssymptome http://www.adfd.org/austausch/viewtopic.php?f=54&t=11218
           * Entzug oder Grunderkrankung? http://www.adfd.org/austausch/viewtopic.php?f=19&t=9345
           *Symptomtrigger http://www.adfd.org/austausch/viewtopic.php?f=19&t=6442
           * Was tun gegen Entzugssymptome http://www.adfd.org/austausch/viewtopic.php?f=15&t=7663
@@ -92,8 +98,9 @@
 [b]Medienberichte und Publikationen[/b]
   - Artikel
   - Dokumentationen
+  - empfehlenswerte Websites http://adfd.org/austausch/viewtopic.php?f=54&t=10932
   - Literaturtipps
-  - wiss. Publikationen
+  - wiss. Publikationen http://adfd.org/austausch/viewtopic.php?f=54&t=10870
 
 ------------------------------------------------------------------------------
 
