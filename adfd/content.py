@@ -49,6 +49,7 @@ class RawPost:
     def __init__(self, path):
         self.content = ContentGrabber(path).grab()
         self.md = PageMetadata(path.with_suffix(EXT.META))
+        self.postId = int(self.md.postId)
 
 
 class TopicPreparator:
@@ -60,7 +61,8 @@ class TopicPreparator:
         if not self.cntSrcPaths:
             raise TopicNotFound(self.path)
 
-        self.mergedMd = self.merge_metadata(get_paths(self.path, EXT.META))
+        self.rawPosts = [RawPost(path) for path in self.cntSrcPaths]
+        self.mergedMd = self.merge_metadata()
         if self.mergedMd.includePosts and self.mergedMd.excludePosts:
             raise MutuallyExclusiveMetadata('either include or exclude posts')
 
@@ -75,9 +77,8 @@ class TopicPreparator:
     def content(self):
         """merge contents from topic files into one file"""
         contents = []
-        for path in self.cntSrcPaths:
-            rawPost = RawPost(path)
-            if self.post_is_excluded(rawPost.md.postId):
+        for rawPost in self.rawPosts:
+            if self.post_is_excluded(rawPost.postId):
                 continue
 
             content = ''
@@ -87,24 +88,24 @@ class TopicPreparator:
         return "\n\n".join(contents)
 
     def post_is_excluded(self, postId):
-        def posts_to_ints(posts):
+        def str_to_ints(posts):
             return [int(p) for p in posts.split(',')]
 
         if self.mergedMd.includePosts:
-            if postId not in posts_to_ints(self.mergedMd.includePosts):
+            if postId not in str_to_ints(self.mergedMd.includePosts):
                 log.info("post %s is not explicitly included", postId)
                 return True
 
         if self.mergedMd.excludePosts:
-            if postId not in posts_to_ints(self.mergedMd.excludePosts):
-                log.info("post %s is not explicitly excluded", postId)
+            if postId in str_to_ints(self.mergedMd.excludePosts):
+                log.info("post %s is explicitly excluded", postId)
                 return True
 
     def prepare(self):
         dump_contents(self.cntDstPath, self.content)
         self.mergedMd.dump(self.mdDstPath)
 
-    def merge_metadata(self, paths):
+    def merge_metadata(self):
         """
         * add missing data and write back
         * return merged metadata newest to oldest (first post wins)
@@ -112,10 +113,11 @@ class TopicPreparator:
         :returns: PageMetadata
         """
         md = PageMetadata()
-        for path in reversed(paths):
-            tmpMd = PageMetadata(path)
-            tmpMd.dump()
-            md.populate_from_kwargs(tmpMd.asDict)
+        for rawPost in reversed(self.rawPosts):
+            assert isinstance(rawPost, RawPost)
+            rawPost.md.populate_from_text(rawPost.content)
+            rawPost.md.dump()
+            md.populate_from_kwargs(rawPost.md.asDict)
         return md
 
 
@@ -151,7 +153,7 @@ class TopicFinalizer:
     @cached_property
     def outContent(self):
         parse_func = PARSE.FUNC or AdfdParser(
-            hyphenate=False, typogrify=False).to_html
+            hyphenate=True, typogrify=False).to_html
         return parse_func(self.inContent)
 
 

@@ -90,7 +90,7 @@ class Metadata:
             key, value = line.split(':', maxsplit=1)
             key = key.strip()
             if self.OVERRIDABLES and key not in self.OVERRIDABLES:
-                raise NotOverridable('key')
+                raise NotOverridable('%s in %s' % (key, self._path))
 
             self.update(key, value.strip())
 

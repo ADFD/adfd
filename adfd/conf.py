@@ -49,11 +49,13 @@ class METADATA:
     class PAGE:
         OVERRIDABLES = [
             'allAuthors',
-            'title',
-            'slug',
+            'excludePosts',
+            'includePosts',
             'linktext',
-            'relPath',
             'relFilePath',
+            'relPath',
+            'slug',
+            'title',
             'weight',
         ]
         """can be overridden by metadata in post content"""
@@ -66,8 +68,6 @@ class METADATA:
             'postId',
 
             'useTitles',
-            'excludePosts',
-            'includePosts',
 
             'relPath',
         ]
