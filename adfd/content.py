@@ -160,7 +160,7 @@ class TopicFinalizer:
 
 
 class GlobalFinalizer:
-    """After all this mangling and wrangling dumpt the final results"""
+    """After all this mangling and wrangling dump the final results"""
     @classmethod
     def finalize(cls, siteDescription):
         cls._finalize_recursive(siteDescription)
@@ -174,14 +174,12 @@ class GlobalFinalizer:
         TopicFinalizer(desc.mainTopicId, relPath, isCategory=True).finalize()
         cls.dump_cat_md(desc.name, relPath,
                         mainTopicId=desc.mainTopicId, weight=weight)
-        if isinstance(desc.contents, tuple):
-            for idx, dsc in enumerate(desc.contents, start=1):
-                cls._finalize_recursive(dsc, relPath, weight + idx)
-        else:
-            assert isinstance(desc.contents, list), desc.contents
-            for tWeight, topicId in enumerate(desc.contents, start=1):
-                log.info('topic %s in %s is "%s"', tWeight, relPath, topicId)
-                TopicFinalizer(topicId, relPath, tWeight).finalize()
+        for idx, elem in enumerate(desc.contents, start=1):
+            if isinstance(elem, int):
+                log.info('topic %s in %s is "%s"', idx, relPath, elem)
+                TopicFinalizer(elem, relPath, idx).finalize()
+            else:
+                cls._finalize_recursive(elem, relPath, weight + idx)
 
     @staticmethod
     def dump_cat_md(name, relPath, **kwargs):
