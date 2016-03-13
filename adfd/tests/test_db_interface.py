@@ -2,8 +2,7 @@ import os
 
 import pytest
 
-from adfd.db.export import RawTopicsExporter
-from adfd.db.phpbb_classes import Topic
+from adfd.db.export import export_topics
 
 
 def is_running_in_ci():
@@ -19,4 +18,4 @@ def is_running_in_ci():
 @pytest.mark.skipif("is_running_in_ci()")
 def test_topic_export():
     # if this runs through everything is considered fine
-    RawTopicsExporter([Topic(68)]).export()
+    export_topics([68])

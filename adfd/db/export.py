@@ -6,41 +6,40 @@ from adfd.exc import TopicDoesNotExist
 from adfd.utils import id2name, dump_contents
 
 
-class RawTopicsExporter:
-    """Read all given topics from DB into raw file"""
+def harvest_topic_ids(siteDescription):
+    allTopicIds = set()
 
-    def __init__(self, topicIds=None, siteDescription=None):
-        self.allTopicIds = set(topicIds or [])
-        if siteDescription:
-            self._harvest_topics_recursive(siteDescription)
-
-        self.topics = []
-        """:type: list of Topic"""
-        for topicId in self.allTopicIds:
-            try:
-                self.topics.append(Topic(topicId))
-            except TopicDoesNotExist:
-                log.warning('topic %s is broken', topicId)
-
-    def export(self):
-        for topic in self.topics:
-            self._export_topic(topic)
-
-    def _harvest_topics_recursive(self, content):
-        self.allTopicIds.add(content.mainTopicId)
+    def _harvest_topics_recursive(content):
+        allTopicIds.add(content.mainTopicId)
         for content in content.contents:
             if isinstance(content, int):
-                self.allTopicIds.add(content)
+                allTopicIds.add(content)
             else:
-                self._harvest_topics_recursive(content)
+                _harvest_topics_recursive(content)
 
-    def _export_topic(self, topic):
-        topicPath = PATH.CNT_RAW / id2name(topic.id)
-        log.info('%s -> %s', topic.id, topicPath)
-        for post in topic.posts:
-            current = "%s" % (post.subject)
-            log.debug("export: %s", current)
-            contentPath = topicPath / (post.filename + EXT.IN)
-            dump_contents(contentPath, post.content)
-            metadataPath = topicPath / (post.filename + EXT.META)
-            dump_contents(metadataPath, post.md.asFileContents)
+    _harvest_topics_recursive(siteDescription)
+    return allTopicIds
+
+
+def export_topics(topicIds):
+    topics = []
+    for topicId in topicIds:
+        try:
+            topics.append(Topic(topicId))
+        except TopicDoesNotExist:
+            log.warning('topic %s is broken', topicId)
+
+    for topic in topics:
+        export_topic(topic)
+
+
+def export_topic(topic):
+    topicPath = PATH.CNT_RAW / id2name(topic.id)
+    log.info('%s -> %s', topic.id, topicPath)
+    for post in topic.posts:
+        current = "%s" % (post.subject)
+        log.debug("export: %s", current)
+        contentPath = topicPath / (post.filename + EXT.IN)
+        dump_contents(contentPath, post.content)
+        metadataPath = topicPath / (post.filename + EXT.META)
+        dump_contents(metadataPath, post.md.asFileContents)
