@@ -57,11 +57,11 @@ class TopicPreparator:
 
     def __init__(self, path, dstPath):
         self.path = path
-        self.cntSrcPaths = get_paths(self.path, EXT.IN)
-        if not self.cntSrcPaths:
+        sourcePaths = get_paths(self.path, EXT.IN)
+        if not sourcePaths:
             raise TopicNotFound(self.path)
 
-        self.rawPosts = [RawPost(path) for path in self.cntSrcPaths]
+        self.rawPosts = [RawPost(path) for path in sourcePaths]
         self.mergedMd = self.merge_metadata()
         if self.mergedMd.includePosts and self.mergedMd.excludePosts:
             raise MutuallyExclusiveMetadata('either include or exclude posts')
@@ -91,6 +91,7 @@ class TopicPreparator:
         def str_to_ints(posts):
             return [int(p) for p in posts.split(',')]
 
+        assert isinstance(postId, int)
         if self.mergedMd.includePosts:
             if postId not in str_to_ints(self.mergedMd.includePosts):
                 log.info("post %s is not explicitly included", postId)
@@ -107,8 +108,8 @@ class TopicPreparator:
 
     def merge_metadata(self):
         """
-        * add missing data and write back
-        * return merged metadata newest to oldest (first post wins)
+        * merge in [meta] from content (and write back)
+        * merge metadata from all posts new -> old (oldest/first post wins)
 
         :returns: PageMetadata
         """
