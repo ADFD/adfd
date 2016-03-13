@@ -123,6 +123,7 @@ class TopicPreparator:
 
 
 class TopicFinalizer:
+    """Convert topic to final format (usually HTML)"""
     def __init__(self, topicId, relPath='', weight=0, isCategory=False):
         self.topicIdName = id2name(topicId)
         self.slugPath = slugify_path(relPath)
