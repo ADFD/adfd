@@ -37,7 +37,8 @@ class TestNavigator:
 
 
 class TestContainer:
-    def test_categroy(self):
+    # noinspection PyUnusedLocal
+    def test_categroy(self, fakePath):
         c = Container('hintergruende/geschichte')
         print(c.isCategory)
         print(c.isPage)
