@@ -22,8 +22,6 @@ Artefacts are in ``dist``
 
 ## Production build
 
-* CSS compression
-* JavaScript compression
-* Image compression
+Run CSS, JavaScript and Image compression::
 
     npm run build
