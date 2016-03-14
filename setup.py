@@ -1,7 +1,7 @@
 from setuptools import setup
 
 
-with open("requirements.txt") as f:
+with open('requirements.txt') as f:
     requirements = [l.strip() for l in f.readlines() if not l.startswith('#')]
 
 setup(
@@ -16,6 +16,9 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=requirements,
+    extras_require={
+        'STATS': ['matplotlib', 'numpy', 'pandas'],
+    },
     platforms='Unix',
     classifiers=[
         'Development Status :: 4 - Beta',
