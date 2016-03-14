@@ -1,0 +1,115 @@
+$font-weight-normal: normal;
+$font-weight-bold: bold;
+
+$font-family-sans-serif: $sansSerifFont, "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+$font-family-serif: $serifFont, Georgia, Cambria, "Times New Roman", Times, serif;
+$font-family-monospace: $monoSpaceFont, "Liberation Mono", Courier, monospace;
+
+
+$header-font-family: $font-family-sans-serif;
+$header-font-weight: $font-weight-bold;
+$header-font-style: normal;
+$header-font-color: $jet;
+$header-line-height: 1.4;
+$header-top-margin: .2rem;
+$header-bottom-margin: .5rem;
+$header-text-rendering: optimizeLegibility;
+
+$body-font-color: $jet;
+$body-font-family: $font-family-serif;
+$body-font-weight: $font-weight-normal;
+$body-font-style: normal;
+
+$elements-font-family: $font-family-sans-serif;
+
+$h1-font-size: rem-calc(44);
+$h2-font-size: rem-calc(37);
+$h3-font-size: rem-calc(27);
+$h4-font-size: rem-calc(23);
+$h5-font-size: rem-calc(18);
+$h6-font-size: 1rem;
+
+//We use these to control header size reduction on small screens
+$h1-font-reduction: rem-calc(10);
+$h2-font-reduction: rem-calc(10);
+$h3-font-reduction: rem-calc(5);
+$h4-font-reduction: rem-calc(5);
+$h5-font-reduction: 0;
+$h6-font-reduction: 0;
+
+//These control how subheaders are styled.
+$subheader-line-height: 1.4;
+$subheader-font-color: scale-color($header-font-color, $lightness: 35%);
+$subheader-font-weight: $font-weight-normal;
+$subheader-top-margin: .2rem;
+$subheader-bottom-margin: .5rem;
+
+//A general <small> styling
+$small-font-size: 60%;
+$small-font-color: scale-color($header-font-color, $lightness: 35%);
+
+$paragraph-font-family: inherit;
+$paragraph-font-weight: $font-weight-normal;
+$paragraph-font-size: 1rem;
+$paragraph-line-height: 1.6;
+$paragraph-margin-bottom: rem-calc(20);
+$paragraph-aside-font-size: rem-calc(14);
+$paragraph-aside-line-height: 1.35;
+$paragraph-aside-font-style: italic;
+$paragraph-text-rendering: optimizeLegibility;
+
+$code-color: $oil;
+$code-font-family: $font-family-monospace;
+$code-font-weight: $font-weight-normal;
+$code-background-color: $bg-color-dark;
+$code-border-size: 1px;
+$code-border-style: solid;
+$code-border-color: scale-color($code-background-color, $lightness: -10%);
+$code-padding: rem-calc(2) rem-calc(5) rem-calc(1);
+
+$anchor-text-decoration: none;
+$anchor-text-decoration-hover: none;
+$anchor-font-color: $primary-color;
+$anchor-font-color-hover: scale-color($anchor-font-color, $lightness: -14%);
+
+//$hr-border-width: 1px;
+//$hr-border-style: solid;
+//$hr-border-color: $bg-color-very-light;
+//$hr-margin: rem-calc(20);
+
+$list-font-family: $paragraph-font-family;
+$list-font-size: $paragraph-font-size;
+$list-line-height: $paragraph-line-height;
+$list-margin-bottom: $paragraph-margin-bottom;
+$list-style-position: outside;
+$list-side-margin: 1.1rem;
+$list-ordered-side-margin: 1.4rem;
+$list-side-margin-no-bullet: 0;
+$list-nested-margin: rem-calc(20);
+$definition-list-header-weight: $font-weight-bold;
+$definition-list-header-margin-bottom: .3rem;
+$definition-list-margin-bottom: rem-calc(12);
+
+$blockquote-font-color: scale-color($body-font-color, $lightness: 10%);
+$blockquote-padding: rem-calc(9 20 0 19);
+$blockquote-border: none; //1px solid $adfd-dark-red;
+$blockquote-cite-font-size: rem-calc(13);
+$blockquote-cite-font-color: $adfd-dark-red;
+$blockquote-cite-link-color: $blockquote-cite-font-color;
+
+$acronym-underline: 1px dotted $gainsboro;
+
+$microformat-padding: rem-calc(10 12);
+$microformat-margin: rem-calc(0 0 20 0);
+$microformat-border-width: 1px;
+$microformat-border-style: solid;
+$microformat-border-color: $gainsboro;
+$microformat-fullname-font-weight: $font-weight-bold;
+$microformat-fullname-font-size: rem-calc(15);
+$microformat-summary-font-weight: $font-weight-bold;
+$microformat-abbr-padding: rem-calc(0 1);
+$microformat-abbr-font-weight: $font-weight-bold;
+$microformat-abbr-font-decoration: none;
+
+$include-html-type-classes: $include-html-classes;
+$font-smoothing: antialiased;

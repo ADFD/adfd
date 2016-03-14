@@ -1,0 +1,185 @@
+@charset "utf-8";
+
+@import 'settings';
+//noinspection CssUnknownTarget
+@import 'foundation';
+//noinspection CssUnknownTarget
+@import 'motion-ui';
+
+@include foundation-global-styles;
+@include foundation-grid;
+// @include foundation-flex-grid;
+@include foundation-typography;
+@include foundation-button;
+@include foundation-forms;
+// @include foundation-range-input;
+@include foundation-accordion;
+@include foundation-accordion-menu;
+@include foundation-badge;
+@include foundation-breadcrumbs;
+@include foundation-button-group;
+@include foundation-callout;
+@include foundation-close-button;
+@include foundation-menu;
+@include foundation-menu-icon;
+@include foundation-drilldown-menu;
+@include foundation-dropdown;
+@include foundation-dropdown-menu;
+@include foundation-flex-video;
+@include foundation-label;
+@include foundation-media-object;
+@include foundation-off-canvas;
+@include foundation-orbit;
+@include foundation-pagination;
+@include foundation-progress-bar;
+// @include foundation-progress-element;
+// @include foundation-meter-element;
+@include foundation-slider;
+@include foundation-sticky;
+@include foundation-reveal;
+@include foundation-switch;
+@include foundation-table;
+@include foundation-tabs;
+@include foundation-thumbnail;
+@include foundation-title-bar;
+@include foundation-tooltip;
+@include foundation-top-bar;
+@include foundation-visibility-classes;
+@include foundation-float-classes;
+// @include foundation-flex-classes;
+
+@include motion-ui-transitions;
+@include motion-ui-animations;
+
+// ########################## CUSTOM MIXINS ###################################
+
+// Drop Caps: https://css-tricks.com/snippets/css/drop-caps/
+@mixin drop-caps() {
+  font-size: 5.4em;
+  line-height: 0.7;
+  margin-top: 0.1em;
+  /* One of the rare Firefox CSS bugs! Firefox is still applying the parent
+     paragraph’s line-height to the first letter, ignoring its much-larger
+     font size, while the other browsers are correctly applying a line-height
+     that corresponds with the letter’s font-size. */
+  float: left;
+  display: block;
+  margin-right: 0.05em;
+  margin-left: -0.1em;
+  color: $adfd-light-red;
+  text-transform: uppercase;
+}
+
+@mixin icon($txt, $size: rem-calc(13), $color: scale_color($adfd-light-red, $lightness: 20%)) {
+  font-family: "foundation-icons";
+  font-size: $size;
+  content: $txt;
+  color: $color;
+  padding-right: 0.3em;
+  //text-shadow: 2px 2px 2px rgb(255, 255, 255),0 0 0 rgb(0, 0, 0),1px 4px 6px rgb(255, 255, 255);
+}
+
+@mixin list-style($bullet: 'square', $color: $adfd-dark-blue) {
+  ul {
+      list-style: none;
+      padding:0;
+      margin:0;
+      li:before {
+          @include icon("\f1f6", $color: $color);
+      }
+  }
+
+  li {
+      padding-left: 1em;
+      text-indent: -.7em;
+  }
+}
+
+// ######################### SPECIAL STYLES ###################################
+
+aside {
+  border-left: 2px solid scale-color($adfd-dark-blue, $lightness: 0%); // $blockquote-border;
+  padding-right: 1em;
+  @include list-style;
+}
+
+article {
+  @include list-style;
+  background-color: scale-color($adfd-light-blue, $lightness: 40%);
+  border: 1px solid scale-color($adfd-dark-blue, $lightness: 0%); // $blockquote-border;
+  text-align: justify;
+  padding-top: 1em;
+  padding-right: 0.5em;
+  padding-bottom: 1em;
+  padding-left: 0.5em;
+  // fixme activate when articles start looking o.k.
+  //> p:first-letter {
+  //  @include drop-caps;
+  //}
+
+  //div, section {
+  //  margin-top: 1em;
+  //  margin-right: 0.5em;
+  //  margin-bottom: 1em;
+  //  margin-left: 0.5em;
+  //  > p:first-letter {
+  //    @include drop-caps;
+  //  }
+  //}
+  blockquote {
+    position: relative;
+    background-color: scale-color($adfd-light-blue, $lightness: 20%);
+    box-shadow: 0 0 1em $adfd-light-red;
+    p::before {
+      @include icon("\f12f");
+    }
+    .attribution::before {
+      @include icon("\f1fc");
+    }
+    .attribution {
+      text-align: right;
+    }
+  }
+  img {
+    display: block;
+    margin: 1em 0;
+  }
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+}
+
+footer {
+  hr {
+    border: 0;
+    height: 2px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+  }
+}
+
+pre code {
+  background-color: $bg-color-light;
+}
+
+.sub-nav {
+  background-color: $bg-color-medium;
+}
+
+
+// prevent FOUC. See: http://goo.gl/FQzR1L
+.no-js {
+  @include breakpoint(small only) {
+    .top-bar {
+      display: none;
+    }
+  }
+
+  @include breakpoint(medium) {
+    .title-bar {
+      display: none;
+    }
+  }
+}

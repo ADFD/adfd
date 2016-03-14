@@ -1,0 +1,45 @@
+<!doctype html>
+<html class="no-js" lang="de">
+<head>
+  <title>ADFD</title>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}"/>
+</head>
+<body>
+
+
+<div class="title-bar" data-responsive-toggle="main-menu" data-hide-for="medium">
+  <button class="menu-icon" type="button" data-toggle></button>
+  <div class="title-bar-title">Navigation</div>
+</div>
+
+<div class="top-bar" id="main-menu">
+  <div class="top-bar-left">
+    {{ navigation | safe }}
+  </div>
+  <div class="top-bar-right">
+    <ul class="dropdown menu" data-dropdown-menu>
+      <li class="menu-text">
+        <a href="/" title="Antidepressiva Forum Deutschland">
+          <img src="{{ url_for('static', filename='img/logo78x81.png') }}"/>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+{% block content %}{% endblock content %}
+
+<div class="footer">
+  <div class="row">
+    <div class="small-12 text-center">
+      ADFD
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

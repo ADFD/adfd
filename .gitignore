@@ -4,10 +4,10 @@ __pycache__
 *.cache/*
 
 .sass-cache/*
-.doit.db.*
-output/*
 
 *.bbcode.html
-local_settings.py
 *.dump
 content/*
+build/*
+
+local_settings.py

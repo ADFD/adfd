@@ -6,19 +6,17 @@ with open('requirements.txt') as f:
 
 setup(
     name='adfd-website-tools',
-    description='tools to generate content for the ADFD website',
+    description='tools to generate the ADFD website',
     version='0.5',
     license='BSD',
     author='Oliver Bestwalter',
     author_email='forenmaster@adfd.org',
     long_description='',
-    packages=['adfd'],
+    packages=['adfd', 'sitebuilder'],
     include_package_data=True,
     zip_safe=False,
     install_requires=requirements,
-    extras_require={
-        'STATS': ['matplotlib', 'numpy', 'pandas'],
-    },
+    extras_require={'STATS': ['matplotlib', 'numpy', 'pandas']},
     platforms='Unix',
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -32,5 +30,6 @@ setup(
     entry_points=dict(console_scripts=[
         'cnt=adfd.cli:main',
         'db=adfd.db.cli:main',
+        'sibu=sitebuilder.cli:main',
     ]),
 )

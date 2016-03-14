@@ -1,0 +1,41 @@
+$include-html-pricing-classes: $include-html-classes;
+
+$price-table-border: solid 1px $gainsboro;
+
+$price-table-margin-bottom: rem-calc(20);
+
+$price-title-bg: $bg-color-very-dark;
+$price-title-padding: rem-calc(15 20);
+$price-title-align: center;
+$price-title-color: $fg-color-very-light;
+$price-title-weight: $font-weight-normal;
+$price-title-size: rem-calc(16);
+$price-title-font-family: $elements-font-family;
+
+$price-money-bg: $bg-color-dark;
+$price-money-padding: rem-calc(15 20);
+$price-money-align: center;
+$price-money-color: $fg-color-medium;
+$price-money-weight: $font-weight-normal;
+$price-money-size: rem-calc(32);
+$price-money-font-family: $elements-font-family;
+
+$price-bg: $bg-color-very-light;
+$price-desc-color: $fg-color-dark;
+$price-desc-padding: rem-calc(15);
+$price-desc-align: center;
+$price-desc-font-size: rem-calc(12);
+$price-desc-weight: $font-weight-normal;
+$price-desc-line-height: 1.4;
+$price-desc-bottom-border: dotted 1px $gainsboro;
+
+$price-item-color: $oil;
+$price-item-padding: rem-calc(15);
+$price-item-align: center;
+$price-item-font-size: rem-calc(14);
+$price-item-weight: $font-weight-normal;
+$price-item-bottom-border: dotted 1px $gainsboro;
+
+$price-cta-bg: $bg-color-dark;
+$price-cta-align: center;
+$price-cta-padding: rem-calc(20 20 0);

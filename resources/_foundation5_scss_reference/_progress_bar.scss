@@ -1,0 +1,16 @@
+$include-html-media-classes: $include-html-classes;
+
+$progress-bar-height: rem-calc(25);
+$progress-bar-color: $bg-color-very-light;
+
+$progress-bar-border-color: scale-color($bg-color-very-light, $lightness: 20%);
+$progress-bar-border-size: 1px;
+$progress-bar-border-style: solid;
+$progress-bar-border-radius: $global-radius;
+
+$progress-bar-margin-bottom: rem-calc(10);
+
+$progress-meter-color: $bg-color-very-dark;
+$progress-meter-secondary-color: $fg-color-medium;
+$progress-meter-success-color: $success-color;
+$progress-meter-alert-color: $alert-color;
