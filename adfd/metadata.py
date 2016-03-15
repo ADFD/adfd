@@ -2,7 +2,7 @@ import logging
 import re
 from collections import OrderedDict
 
-from adfd.conf import METADATA
+from adfd.cst import METADATA
 from adfd.exc import PathMissing, NotAnAttribute, NotOverridable
 from adfd.utils import ContentGrabber, dump_contents, slugify
 

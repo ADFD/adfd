@@ -3,7 +3,7 @@ from functools import total_ordering
 
 from cached_property import cached_property
 
-from adfd.conf import PATH, EXT, NAME
+from adfd.cst import PATH, EXT, NAME
 from adfd.metadata import CategoryMetadata, PageMetadata
 from adfd.utils import ContentGrabber, obj_attr
 

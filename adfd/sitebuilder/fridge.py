@@ -3,7 +3,7 @@ import logging
 from flask.ext.frozen import Freezer
 from plumbum.machines import local
 
-from adfd.conf import PATH, TARGET
+from adfd.cst import PATH, TARGET
 from .lib import deploy
 from .views import app, navigator
 

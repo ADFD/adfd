@@ -3,7 +3,7 @@ import webbrowser
 
 from plumbum import cli, LocalPath
 
-from adfd import conf
+from adfd import cst
 from adfd.content import TopicFinalizer, ContentWrangler
 from adfd.exc import TopicNotFound
 from adfd.utils import get_obj_info
@@ -49,7 +49,7 @@ class AdfdCntFinalize(cli.Application):
 @AdfdCnt.subcommand("conf")
 class AdfdCntConf(cli.Application):
     def main(self):
-        print(get_obj_info([conf]))
+        print(get_obj_info([cst]))
 
 
 @AdfdCnt.subcommand("article")

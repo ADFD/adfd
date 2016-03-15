@@ -4,7 +4,7 @@ import socketserver
 
 from plumbum import cli, local
 
-from adfd.conf import PATH, APP, TARGET
+from adfd.cst import PATH, APP, TARGET
 from adfd.content import ContentWrangler
 from adfd.db.sync import DbSynchronizer
 from adfd.structure import Navigator

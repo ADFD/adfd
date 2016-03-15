@@ -3,7 +3,7 @@ import logging
 import pytest
 
 from adfd.bbcode import AdfdParser
-from adfd.conf import RE
+from adfd.cst import RE
 
 log = logging.getLogger(__name__)
 

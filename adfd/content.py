@@ -4,7 +4,7 @@ import logging
 from cached_property import cached_property
 
 from adfd.bbcode import AdfdParser
-from adfd.conf import PATH, PARSE, EXT, NAME
+from adfd.cst import PATH, PARSE, EXT, NAME
 from adfd.exc import *
 from adfd.metadata import CategoryMetadata, PageMetadata
 from adfd.utils import (

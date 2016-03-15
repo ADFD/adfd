@@ -8,7 +8,7 @@ from types import FunctionType, MethodType
 from plumbum import LocalPath
 from pyphen import Pyphen
 
-from adfd.conf import METADATA, PATH, PARSE
+from adfd.cst import METADATA, PATH, PARSE
 
 log = logging.getLogger(__name__)
 

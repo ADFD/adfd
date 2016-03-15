@@ -3,7 +3,7 @@ import logging
 import pytest
 from plumbum import LocalPath
 
-from adfd.conf import PATH, DIR
+from adfd.cst import PATH, DIR
 from adfd.content import TopicFinalizer, prepare_topics, TopicPreparator
 from adfd.metadata import PageMetadata
 

@@ -3,7 +3,7 @@ import sys
 
 from plumbum import cli
 
-from adfd import conf
+from adfd import cst
 from adfd.db.phpbb_classes import *
 from adfd.exc import *
 from adfd.utils import get_obj_info
@@ -77,7 +77,7 @@ class AdfdDbPost(cli.Application):
 @AdfdDb.subcommand('status')
 class AdfdDbStatus(cli.Application):
     def main(self):
-        print(get_obj_info([conf]))
+        print(get_obj_info([cst]))
 
 
 def main():

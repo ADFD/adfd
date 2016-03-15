@@ -4,7 +4,7 @@ from flask import render_template, send_from_directory, Flask
 from flask.ext.frozen import os
 from plumbum.machines import local
 
-from adfd.conf import PATH, EXT, APP
+from adfd.cst import PATH, EXT, APP
 from adfd.structure import Navigator
 from .lib import NoRenderAdfdMetadataFlatPages
 

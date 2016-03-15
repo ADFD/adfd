@@ -5,7 +5,7 @@ import re
 from cached_property import cached_property
 from typogrify.filters import typogrify
 
-from adfd.conf import RE
+from adfd.cst import RE
 from adfd.utils import Replacer, hyphenate
 
 log = logging.getLogger(__name__)
