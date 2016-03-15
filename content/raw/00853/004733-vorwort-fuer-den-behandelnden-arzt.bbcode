@@ -1,0 +1,13 @@
+[b]Vorwort für den behandelnden Arzt[/b]
+
+Dieses Dokument wurde Ihnen wahrscheinlich von einem Patienten überreicht, weil er oder sie Nebenwirkungen oder unerwartete Probleme während der Einnahme oder beim Absetzen eines SSRI erfahren hat. Mit Hilfe der Informationen in diesem Dokument hoffen wir, Ihnen nützliches Material in die Hand zu geben, von dem ausgehend Sie ein weiteres Vorgehen mit Ihrem Patienten planen können.
+
+Dr. David Healy MD FRCPsych (Direktor des North Wales Department of Psychological Medicine) und Dr. Charles Medawar von Social Audit UK forschen seit Jahren im Bereich der SSRI. Ihre Arbeiten geben Anlass zu der Vermutung, dass die Gefahren von SSRI vor allem in bezug auf ihr Abhängigkeitspotential stark unterschätzt werden. Gerade die SSRI mit kurzer Halbwertszeit führen bei vielen Patienten zu Problemen beim Absetzen. Diese Absetzsymptome werden leider oft als ein Wiederauftauchen der ursprünglichen Erkrankung interpretiert. Es wird davon ausgegangen, dass der Patient ohne die Medikamente nicht zurechtkommt. Dies stimmt nur insofern, als dass der Patient an Absetzsymptomen leidet, die bei einer Wiedereinnahme der Substanz innerhalb kurzer Zeit verschwinden. Wird diese Absetzsymptomatik nicht als solche erkannt sondern als Rückfall diagnostisiert, folgen oft jahrelange Einnahmen, begleitet von wiederholt fehlgeschlagenen Absetzversuchen (Lesen Sie dazu bitte auch [Link]Leide ich an Absetzsymptomen?).
+
+Sie finden im ersten Teil dieses Dokuments eine Sammlung von Texten und Auszügen aus verschiedenen Publikationen zum Thema Abhängigkeitspotential von SSRI. Vorangestellt ist ein Bericht von David Taylor, Chefpharmakologe im Maudsley Hospital, London, der selbst Erfahrungen mit SSRI gemacht hat. Obwohl der Schwerpunkt in diesem Informationspaket auf Seroxat® (Paroxetin) als dem meistverschriebenen Antidepressivum weltweit liegt, lässt sich aufgrund der ähnlichen Wirkungsweise aller SSRI annehmen, dass diese Problematik bei allen SSRI auftreten kann.
+
+Die Absetzpläne im zweiten Teil des Dokuments beruhen auf Erfahrungswerten und sollten natürlich an die individuelle Situation und Befindlichkeit Ihres Patienten angepasst werden.
+
+Wir wünschen Ihnen und Ihrem Patienten, dass das Absetzen des SSRI weitgehend reibungslos verläuft und möchten Sie bitten, Ihre Beopbachtungen den entsprechenden [Link]Meldestellen zukommen zu lassen, damit statistische Erkenntnisse über deren Häufigkeit gesammelt werden können.
+
+Ravensburg und Freiburg im September 2003, Linda Best und Oliver Walter

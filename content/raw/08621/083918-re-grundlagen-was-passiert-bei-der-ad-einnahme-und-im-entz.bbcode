@@ -1,0 +1,1 @@
+Das sollte bei jeden Psychiater dem Patienten ausgehändigt werden.Das der auch bescheid weiss ,weil bei denen gibts keine Absetzproblematik! :) Lg Markus!

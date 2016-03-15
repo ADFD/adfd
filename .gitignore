@@ -7,7 +7,6 @@ __pycache__
 
 *.bbcode.html
 *.dump
-content/*
 build/*
 
 local_settings.py
