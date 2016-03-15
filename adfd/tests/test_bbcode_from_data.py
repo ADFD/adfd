@@ -2,7 +2,7 @@ import logging
 
 import pytest
 
-from adfd.cnt.bbcode import AdfdParser
+from adfd.cnt.parse import AdfdParser
 from adfd.cst import RE
 
 log = logging.getLogger(__name__)

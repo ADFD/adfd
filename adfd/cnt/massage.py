@@ -3,7 +3,7 @@ import logging
 
 from cached_property import cached_property
 
-from adfd.cnt.bbcode import AdfdParser
+from adfd.cnt.parse import AdfdParser
 from adfd.cnt.metadata import CategoryMetadata, PageMetadata
 from adfd.cst import PATH, PARSE, EXT, NAME
 from adfd.exc import *
