@@ -6,9 +6,9 @@ with open('requirements.txt') as f:
 
 setup(
     name='adfd-website-tools',
-    description='tools to generate the ADFD website',
-    version='0.5',
-    license='BSD',
+    description='tools and content to generate the ADFD website',
+    version='0.8',
+    license='BSD and CC BY-NC-SA 4.0',
     author='Oliver Bestwalter',
     author_email='forenmaster@adfd.org',
     long_description='',
