@@ -140,7 +140,7 @@ class RE:
 
 class TARGET:
     class _Target:
-        def __init__(self, name, path, prefix=None):
+        def __init__(self, name, path, prefix):
             self.name = name
             self.path = path
             self.prefix = prefix
@@ -157,4 +157,5 @@ class TARGET:
         for target in cls.ALL:
             if name == target.name:
                 return target
+
         raise ValueError('target %s not found' % (name))
