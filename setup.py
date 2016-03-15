@@ -7,13 +7,19 @@ with open('requirements.txt') as f:
 setup(
     name='adfd',
     packages=['adfd'],
-    include_package_data=True,
-    zip_safe=False,
-    install_requires=requirements,
+    # pyparsing==2.1.0
+    install_requires=[
+        'cached-property==1.3.0',
+        'flask==0.10.1',
+        'flask-flatpages==0.6',
+        'frozen-flask==0.12',
+        'mysqlclient==1.3.7',
+        'plumbum==1.6.0',
+        'pyphen==0.9.4',
+        'sqlalchemy==1.0.10',
+        'translitcodec==0.4.0',
+        'typogrify==2.0.7',
+    ],
     # This works also in dev mode: pip install -e '.['stats']'
     extras_require={'stats': ['matplotlib', 'numpy', 'pandas']},
-    entry_points=dict(console_scripts=[
-        'cnt=adfd.cli:main',
-        'db=adfd.db.cli:main',
-        'sibu=adfd.sitebuilder.cli:main',
-    ]))
+    entry_points=dict(console_scripts=['adfd=adfd.cli:main']))
