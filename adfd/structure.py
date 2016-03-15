@@ -3,10 +3,10 @@ from functools import total_ordering
 
 from cached_property import cached_property
 
-from adfd.conf import PATH
-from adfd.cst import EXT, NAME
+from adfd.conf import PATH, EXT, NAME
 from adfd.metadata import CategoryMetadata, PageMetadata
 from adfd.utils import ContentGrabber, obj_attr
+
 
 log = logging.getLogger(__name__)
 

@@ -3,8 +3,7 @@ import logging
 import pytest
 from plumbum import LocalPath
 
-from adfd import cst
-from adfd.conf import PATH
+from adfd.conf import PATH, DIR
 from adfd.content import TopicFinalizer, prepare_topics, TopicPreparator
 from adfd.metadata import PageMetadata
 
@@ -15,8 +14,8 @@ log = logging.getLogger(__name__)
 @pytest.fixture()
 def fakePaths(request):
     fakePath = LocalPath(__file__).dirname / 'data' / 'content'
-    fakeRawPath = fakePath / cst.DIR.RAW
-    fakeDstPath = fakePath / cst.DIR.PREPARED
+    fakeRawPath = fakePath / DIR.RAW
+    fakeDstPath = fakePath / DIR.PREPARED
     oldPrepPath = PATH.CNT_PREPARED
     PATH.CNT_PREPARED = fakeDstPath
 

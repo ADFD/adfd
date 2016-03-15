@@ -2,40 +2,46 @@ import http.server
 import logging
 import socketserver
 
-from plumbum import cli, LocalPath, local
+from plumbum import cli, local
 
+from adfd.conf import PATH, APP, TARGET
 from adfd.content import ContentWrangler
 from adfd.db.sync import DbSynchronizer
 from adfd.structure import Navigator
-from sitebuilder.conf import APP, PATH, NAME, TARGET
-from sitebuilder.fridge import freeze
-from sitebuilder.lib import deploy
-from sitebuilder.views import run_devserver
+from .fridge import freeze
+from .lib import deploy
+from .views import run_devserver
+
 
 log = logging.getLogger(__name__)
 
 
 class Sibu(cli.Application):
     """All functions for the ADFD website"""
-    path = cli.SwitchAttr(['p', 'path'], default=PATH.PROJECT)
-
     def main(self):
-        self.projectPath = LocalPath(self.path)
         if not self.nested_command:
             self.nested_command = (SibuDev, ['sibu dev'])
 
 
-@Sibu.subcommand('remote-sync')
-class SibuSync(cli.Application):
+@Sibu.subcommand('sync-remote')
+class SibuSyncRemote(cli.Application):
     """Fetch remote dump und load dump to local db"""
     def main(self):
         DbSynchronizer().sync()
 
 
-@Sibu.subcommand('local-sync')
-class SibuUpdate(cli.Application):
+@Sibu.subcommand('sync-local')
+class SibuSyncLocal(cli.Application):
     """Update local content from local db contents"""
     def main(self):
+        ContentWrangler.wrangle_content()
+
+
+@Sibu.subcommand('sync')
+class SibuSync(cli.Application):
+    """sync all. remote DB -> local DB -> generate content"""
+    def main(self):
+        DbSynchronizer().sync()
         ContentWrangler.wrangle_content()
 
 
@@ -54,7 +60,7 @@ class SibuBuild(cli.Application):
 
     def main(self):
         target = TARGET.get(self.target)
-        freeze(self.parent.projectPath, target.prefix)
+        freeze(target.prefix)
 
 
 @Sibu.subcommand('deploy')
@@ -64,10 +70,9 @@ class SibuDeploy(cli.Application):
         ['t', 'target'], default='test', help="one of %s" % (TARGET.ALL))
 
     def main(self):
-        outputPath = self.parent.projectPath / NAME.OUTPUT
         target = TARGET.get(self.target)
-        freeze(self.parent.projectPath, target.prefix)
-        deploy(outputPath, target)
+        freeze(target.prefix)
+        deploy(PATH.OUTPUT, target)
 
 
 @Sibu.subcommand('outline')
@@ -82,9 +87,8 @@ class SibuOutline(cli.Application):
 class SibuServeFrozen(cli.Application):
     """Serve frozen web page locally"""
     def main(self):
-        outputPath = self.parent.projectPath / NAME.OUTPUT
-        log.info("serve '%s' at http://localhost:%s", outputPath, APP.PORT)
-        self.serve(outputPath)
+        log.info("serve '%s' at http://localhost:%s", PATH.OUTPUT, APP.PORT)
+        self.serve(PATH.OUTPUT)
 
     @staticmethod
     def serve(siteRoot):

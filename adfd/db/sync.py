@@ -3,17 +3,17 @@ import os
 
 from plumbum import SshMachine, local
 
-from adfd.db.local_settings import DB
+from adfd.secrets import DB
+
 
 log = logging.getLogger(__name__)
 
 
 class DbSynchronizer:
-    def __init__(self, db=DB):
-        self.db = db
-        self.sm = SshMachine(self.db.SSH_HOST)
-        self.dumpName = self.db.NAME + '.dump'
-        self.dumpDstPath = self.db.DUMP_PATH / self.dumpName
+    def __init__(self):
+        self.sm = SshMachine(DB._REMOTE_HOST)
+        self.dumpName = DB.NAME + '.dump'
+        self.dumpDstPath = DB.DUMP_PATH / self.dumpName
 
     def __del__(self):
         self.sm.close()
@@ -28,7 +28,7 @@ class DbSynchronizer:
         log.info('dump db')
         self.sm['mysqldump'](
             self.argUser, self.argPw,
-            self.db.NAME, '--result-file=%s' % (self.dumpName))
+            DB.NAME, '--result-file=%s' % (self.dumpName))
 
     def fetch(self):
         log.info('fetch %s -> %s', self.dumpName, self.dumpDstPath)
@@ -37,12 +37,12 @@ class DbSynchronizer:
     def prepare_local_db(self):
         log.info('prepare local db privileges')
         cmds = [
-            "DROP DATABASE IF EXISTS %s" % (self.db.NAME),
-            "CREATE DATABASE IF NOT EXISTS %s" % (self.db.NAME),
+            "DROP DATABASE IF EXISTS %s" % (DB.NAME),
+            "CREATE DATABASE IF NOT EXISTS %s" % (DB.NAME),
             ("GRANT USAGE ON *.* TO "
-             "%s@localhost IDENTIFIED BY '%s'" % (self.db.USER, self.db.PW)),
+             "%s@localhost IDENTIFIED BY '%s'" % (DB.USER, DB.PW)),
             ("GRANT ALL PRIVILEGES ON "
-             "%s.* TO %s@localhost" % (self.db.NAME, self.db.USER)),
+             "%s.* TO %s@localhost" % (DB.NAME, DB.USER)),
             "FLUSH PRIVILEGES"]
         local['mysql']('-uroot', '-e', "; ".join(cmds))
 
@@ -50,18 +50,18 @@ class DbSynchronizer:
         log.info('load local dump from %s', self.dumpDstPath)
         os.system(
             "mysql %s %s %s < %s" %
-            (self.argUser, self.argPw, self.db.NAME, self.dumpDstPath))
+            (self.argUser, self.argPw, DB.NAME, self.dumpDstPath))
         # piping does not work!?
         # local['mysql'](
-        #     self.argUser, '-plar', self.db.NAME) < self.localDumpPath
+        #     self.argUser, '-plar', DB.NAME) < self.localDumpPath
 
     @property
     def argUser(self):
-        return '-u%s' % (self.db.USER)
+        return '-u%s' % (DB.USER)
 
     @property
     def argPw(self):
-        return '-p%s' % (self.db.PW)
+        return '-p%s' % (DB.PW)
 
 
 if __name__ == '__main__':

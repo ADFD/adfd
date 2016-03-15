@@ -2,13 +2,49 @@ import re
 
 import plumbum
 
-from adfd.cst import DIR
+
+class APP:
+    PORT = 5000
+
+
+class EXT:
+    IN = '.bbcode'
+    OUT = '.html'
+    META = '.meta'
+
+
+class DIR:
+    RAW = 'raw'
+    """folders containing topics one file per post + metadata for each post"""
+    PREPARED = 'prepared'
+    """merged single file raw articles and merged single file metadata"""
+    FINAL = 'final'
+    """rendered and structured result with additional category metadata"""
+
+
+class NAME:
+    CATEGORY = 'category'
+    CONTENT = 'content'
+    FINAL = 'final'
+    INDEX = 'index'
+    NODE_PAGE = 'index'
+    NODE_PAGE_FILE = '%s%s' % (NODE_PAGE, EXT.OUT)
+    OUTPUT = 'build'
+    PAGE = 'page'
+    PAGES = 'pages'
+    ROOT = '/'
+
+
+class PARSE:
+    FUNC = None
+    PYPHEN_LANG = 'de_de'
+    TITLE_PATTERN = '[h2]%s[/h2]\n'
 
 
 class PATH:
     PROJECT = plumbum.LocalPath(__file__).dirname.up()
-    TEST_DATA = PROJECT / 'adfd' / 'tests' / 'data'
-    CONTENT = PROJECT / 'content'
+    OUTPUT = PROJECT / NAME.OUTPUT
+    CONTENT = PROJECT / NAME.CONTENT
     CNT_RAW = CONTENT / DIR.RAW
     """exported bbcode like it looks when edited - each posts in a single file.
 
@@ -20,6 +56,11 @@ class PATH:
     """prepared in a file pair - contents as bbcode in one file + metadata"""
     CNT_FINAL = CONTENT / DIR.FINAL
     """the final structure that makes the website"""
+
+    PAGES = CONTENT / NAME.FINAL
+    FRONTEND = PROJECT / 'foundation6'
+    STATIC = FRONTEND / 'dist' / 'assets'
+    TEMPLATES = FRONTEND / 'src' / 'templates'
 
 
 class METADATA:
@@ -77,12 +118,6 @@ class METADATA:
     """this format will be used for human readable dates in meta data"""
 
 
-class PARSE:
-    FUNC = None
-    PYPHEN_LANG = 'de_de'
-    TITLE_PATTERN = '[h2]%s[/h2]\n'
-
-
 class RE:
     URL = re.compile(
         r'(?im)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)'
@@ -101,3 +136,25 @@ class RE:
     If the given link looks like a domain, add a http:// in front of it,
     otherwise leave it alone (be a relative path, a filename, etc.).
     """
+
+
+class TARGET:
+    class _Target:
+        def __init__(self, name, path, prefix=None):
+            self.name = name
+            self.path = path
+            self.prefix = prefix
+
+        def __str__(self):
+            return self.name
+
+    TEST = _Target('test', 'mj13.de:./www/privat/neu', 'privat/neu')
+    LIVE = _Target('live', 'mj13.de:./www/inhalt', 'inhalt')
+    ALL = [TEST, LIVE]
+
+    @classmethod
+    def get(cls, name):
+        for target in cls.ALL:
+            if name == target.name:
+                return target
+        raise ValueError('target %s not found' % (name))

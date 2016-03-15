@@ -1,9 +1,12 @@
-from adfd.conf import PATH
-from adfd.content import log
-from adfd.cst import EXT
+import logging
+
+from adfd.conf import PATH, EXT
 from adfd.db.phpbb_classes import Topic
 from adfd.exc import TopicDoesNotExist
 from adfd.utils import id2name, dump_contents
+
+
+log = logging.getLogger(__name__)
 
 
 def harvest_topic_ids(siteDescription):

@@ -9,4 +9,4 @@ __pycache__
 *.dump
 build/*
 
-local_settings.py
+secrets.py

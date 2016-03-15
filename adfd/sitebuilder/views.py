@@ -4,9 +4,9 @@ from flask import render_template, send_from_directory, Flask
 from flask.ext.frozen import os
 from plumbum.machines import local
 
+from adfd.conf import PATH, EXT, APP
 from adfd.structure import Navigator
-from sitebuilder.conf import PATH, NAME, EXT, APP
-from sitebuilder.lib import NoRenderAdfdMetadataFlatPages
+from .lib import NoRenderAdfdMetadataFlatPages
 
 
 log = logging.getLogger(__name__)
@@ -29,17 +29,15 @@ navigator = Navigator()
 """":type: Navigator"""
 
 
-def config_app(appToCOnfig, pagesToConfig, projectPath=PATH.PROJECT):
-    outputPath = projectPath / NAME.OUTPUT
-    appToCOnfig.root_path = str(projectPath)
+def config_app(appToCOnfig, pagesToConfig):
+    appToCOnfig.root_path = str(PATH.PROJECT)
     appToCOnfig.config.update(
         DEBUG=True,
         FLATPAGES_ROOT=str(PATH.PAGES),
-        FLATPAGES_EXTENSION=EXT.CNT,
+        FLATPAGES_EXTENSION=EXT.OUT,
         FLATPAGES_AUTO_RELOAD=True,
-        FREEZER_DESTINATION=str(outputPath),
-        FREEZER_RELATIVE_URLS=True
-    )
+        FREEZER_DESTINATION=str(PATH.OUTPUT),
+        FREEZER_RELATIVE_URLS=True)
     pagesToConfig.init_app(app)
     return appToCOnfig
 

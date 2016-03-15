@@ -5,8 +5,7 @@ from plumbum import LocalPath, local
 from werkzeug.utils import cached_property
 
 from adfd.content import PageMetadata
-from sitebuilder.conf import EXT
-
+from adfd.conf import EXT
 
 log = logging.getLogger(__name__)
 

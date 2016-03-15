@@ -4,15 +4,20 @@ import logging
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import sessionmaker
 
-from adfd import cst
 from adfd.db.phpbb_schema import PhpbbTopic, PhpbbForum, PhpbbPost, PhpbbUser
 
 log = logging.getLogger(__name__)
 
+try:
+    from adfd.secrets import DB
+except ImportError:
+    DB = type('CST', tuple(), dict(URL='mysql://user:pw@localhost/dbname'))
+    log.error("secrets not found - using generic db url: %s", DB.URL)
+
 
 def generate_schema(writeToFile="schema.py"):
     # if you are bored: use https://github.com/google/yapf to format file
-    engine = create_engine(cst.DB_URL)
+    engine = create_engine(DB.URL)
     meta = MetaData()
     meta.reflect(bind=engine)
     imports = ("from sqlalchemy import Table\n"
@@ -34,7 +39,7 @@ def get_db_session():
     """":rtype: sqlalchemy.orm.session.Session"""
     logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
     Session = sessionmaker()
-    engine = create_engine(cst.DB_URL, echo=False)
+    engine = create_engine(DB.URL, echo=False)
     Session.configure(bind=engine)
     return Session()
 

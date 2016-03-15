@@ -12,11 +12,12 @@ setup(
     author='Oliver Bestwalter',
     author_email='forenmaster@adfd.org',
     long_description='',
-    packages=['adfd', 'sitebuilder'],
+    packages=['adfd'],
     include_package_data=True,
     zip_safe=False,
     install_requires=requirements,
-    extras_require={'STATS': ['matplotlib', 'numpy', 'pandas']},
+    # This works also in dev mode: pip install -e '.['stats']'
+    extras_require={'stats': ['matplotlib', 'numpy', 'pandas']},
     platforms='Unix',
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -30,6 +31,6 @@ setup(
     entry_points=dict(console_scripts=[
         'cnt=adfd.cli:main',
         'db=adfd.db.cli:main',
-        'sibu=sitebuilder.cli:main',
+        'sibu=adfd.sitebuilder.cli:main',
     ]),
 )

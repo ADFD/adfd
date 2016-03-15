@@ -4,8 +4,7 @@ import logging
 from cached_property import cached_property
 
 from adfd.bbcode import AdfdParser
-from adfd.conf import PATH, PARSE
-from adfd.cst import EXT, NAME, DB_URL
+from adfd.conf import PATH, PARSE, EXT, NAME
 from adfd.exc import *
 from adfd.metadata import CategoryMetadata, PageMetadata
 from adfd.utils import (
@@ -29,7 +28,6 @@ class ContentWrangler:
         from adfd.site_description import SITE_DESCRIPTION
 
         PATH.CNT_RAW.delete()
-        log.debug('use db at %s', DB_URL)
         export_topics(harvest_topic_ids(SITE_DESCRIPTION))
 
     @staticmethod
