@@ -4,7 +4,7 @@ from flask.ext.flatpages import FlatPages, Page
 from plumbum import LocalPath, local
 from werkzeug.utils import cached_property
 
-from adfd.content import PageMetadata
+from adfd.cnt.massage import PageMetadata
 from adfd.cst import EXT
 
 log = logging.getLogger(__name__)

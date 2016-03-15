@@ -3,9 +3,9 @@ import logging
 import pytest
 from plumbum import LocalPath
 
+from adfd.cnt.massage import TopicFinalizer, TopicPreparator
+from adfd.cnt.metadata import PageMetadata
 from adfd.cst import PATH, DIR
-from adfd.content import TopicFinalizer, prepare_topics, TopicPreparator
-from adfd.metadata import PageMetadata
 
 
 log = logging.getLogger(__name__)
@@ -25,11 +25,6 @@ def fakePaths(request):
 
     request.addfinalizer(finalizer)
     return fakeRawPath, fakeDstPath
-
-
-class TestPreparator:
-    def test_preparation(self, fakePaths):
-        prepare_topics(*fakePaths)
 
 
 class TestFinalize:

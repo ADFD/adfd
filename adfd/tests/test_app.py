@@ -1,6 +1,6 @@
 import pytest
 
-from adfd.sitebuilder.views import app
+from adfd.site.views import app
 
 
 @pytest.fixture

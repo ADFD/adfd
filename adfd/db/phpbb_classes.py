@@ -4,9 +4,9 @@ import re
 
 from cached_property import cached_property
 
+from adfd.cnt.metadata import PageMetadata
 from adfd.db.lib import DbWrapper
 from adfd.exc import *
-from adfd.metadata import PageMetadata
 from adfd.utils import slugify, date_from_timestamp
 
 log = logging.getLogger(__name__)

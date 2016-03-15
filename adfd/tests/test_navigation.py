@@ -2,7 +2,7 @@ import logging
 
 import pytest
 
-from adfd.structure import Navigator, Container, Category
+from adfd.site.structure import Navigator, Container, Category
 from adfd.utils import DataGrabber
 
 log = logging.getLogger(__name__)

@@ -1,4 +1,10 @@
-from adfd.structure import CatDesc
+class CatDesc:
+    """Describe a Website category and it's contents"""
+    def __init__(self, name, mainTopicId, contents):
+        self.name = name
+        self.mainTopicId = mainTopicId
+        self.contents = contents
+
 
 überUns = CatDesc('Über uns', 10694, [11220, 11223, 11222])
 

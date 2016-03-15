@@ -3,44 +3,15 @@ import logging
 
 from cached_property import cached_property
 
-from adfd.bbcode import AdfdParser
+from adfd.cnt.bbcode import AdfdParser
+from adfd.cnt.metadata import CategoryMetadata, PageMetadata
 from adfd.cst import PATH, PARSE, EXT, NAME
 from adfd.exc import *
-from adfd.metadata import CategoryMetadata, PageMetadata
 from adfd.utils import (
     dump_contents, ContentGrabber, get_paths, slugify_path, id2name, slugify)
 
 
 log = logging.getLogger(__name__)
-
-
-class ContentWrangler:
-    """Thin wrapper with housekeeping to do the whole dance"""
-    @classmethod
-    def wrangle_content(cls):
-        cls.export_topics_from_db()
-        cls.prepare_topics()
-        cls.finalize_articles()
-
-    @staticmethod
-    def export_topics_from_db():
-        from adfd.db.export import harvest_topic_ids, export_topics
-        from adfd.site_description import SITE_DESCRIPTION
-
-        PATH.CNT_RAW.delete()
-        export_topics(harvest_topic_ids(SITE_DESCRIPTION))
-
-    @staticmethod
-    def prepare_topics():
-        PATH.CNT_PREPARED.delete()
-        prepare_topics(PATH.CNT_RAW, PATH.CNT_PREPARED)
-
-    @staticmethod
-    def finalize_articles():
-        from adfd.site_description import SITE_DESCRIPTION
-
-        PATH.CNT_FINAL.delete()
-        GlobalFinalizer.finalize(SITE_DESCRIPTION)
 
 
 class RawPost:
@@ -185,9 +156,3 @@ class GlobalFinalizer:
         kwargs.update(name=name)
         path = (PATH.CNT_FINAL / relPath / NAME.CATEGORY).with_suffix(EXT.META)
         CategoryMetadata(kwargs=kwargs).dump(path)
-
-
-def prepare_topics(srcPath, dstPath):
-    for path in [p for p in srcPath.list() if p.isdir()]:
-        log.info('prepare %s', path)
-        TopicPreparator(path, dstPath).prepare()

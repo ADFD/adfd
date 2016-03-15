@@ -5,7 +5,7 @@ from flask.ext.frozen import os
 from plumbum.machines import local
 
 from adfd.cst import PATH, EXT, APP
-from adfd.structure import Navigator
+from adfd.site.structure import Navigator
 from .lib import NoRenderAdfdMetadataFlatPages
 
 

@@ -3,20 +3,11 @@ from functools import total_ordering
 
 from cached_property import cached_property
 
+from adfd.cnt.metadata import CategoryMetadata, PageMetadata
 from adfd.cst import PATH, EXT, NAME
-from adfd.metadata import CategoryMetadata, PageMetadata
 from adfd.utils import ContentGrabber, obj_attr
 
-
 log = logging.getLogger(__name__)
-
-
-class CatDesc:
-    """describe a category and it's contents"""
-    def __init__(self, name, mainTopicId, contents):
-        self.name = name
-        self.mainTopicId = mainTopicId
-        self.contents = contents
 
 
 @total_ordering
