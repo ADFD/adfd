@@ -58,9 +58,10 @@ class PATH:
     """the final structure that makes the website"""
 
     PAGES = CONTENT / NAME.FINAL
-    FRONTEND = PROJECT / 'foundation6'
-    STATIC = FRONTEND / 'dist' / 'assets'
-    TEMPLATES = FRONTEND / 'src' / 'templates'
+    SITE = PROJECT / 'adfd' / 'site'
+    TEMPLATES = SITE / 'templates'
+    FOUNDATION = SITE / 'foundation'
+    STATIC = FOUNDATION / 'dist' / 'assets'
 
 
 class METADATA:

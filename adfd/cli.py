@@ -6,11 +6,14 @@ from plumbum import cli, local
 
 from adfd.cnt.massage import GlobalFinalizer, TopicPreparator
 from adfd.cst import PATH, APP, TARGET
+from adfd.db.export import export_topics, harvest_topic_ids
 from adfd.db.sync import DbSynchronizer
 from adfd.site.fridge import freeze
 from adfd.site.lib import deploy
 from adfd.site.structure import Navigator
 from adfd.site.views import run_devserver
+from adfd.site_description import SITE_DESCRIPTION
+
 
 log = logging.getLogger(__name__)
 
@@ -25,9 +28,6 @@ class ContentWrangler:
 
     @staticmethod
     def export_topics_from_db():
-        from adfd.db.export import harvest_topic_ids, export_topics
-        from adfd.site_description import SITE_DESCRIPTION
-
         PATH.CNT_RAW.delete()
         export_topics(harvest_topic_ids(SITE_DESCRIPTION))
 
@@ -40,8 +40,6 @@ class ContentWrangler:
 
     @staticmethod
     def finalize_articles():
-        from adfd.site_description import SITE_DESCRIPTION
-
         PATH.CNT_FINAL.delete()
         GlobalFinalizer.finalize(SITE_DESCRIPTION)
 
