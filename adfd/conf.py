@@ -2,13 +2,13 @@ import re
 
 import plumbum
 
-from adfd.cst import _CONTENT_ROOT, DIR
+from adfd.cst import DIR
 
 
 class PATH:
     PROJECT = plumbum.LocalPath(__file__).dirname.up()
     TEST_DATA = PROJECT / 'adfd' / 'tests' / 'data'
-    CONTENT = _CONTENT_ROOT
+    CONTENT = PROJECT / 'content'
     CNT_RAW = CONTENT / DIR.RAW
     """exported bbcode like it looks when edited - each posts in a single file.
 

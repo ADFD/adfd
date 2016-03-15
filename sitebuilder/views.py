@@ -34,7 +34,7 @@ def config_app(appToCOnfig, pagesToConfig, projectPath=PATH.PROJECT):
     appToCOnfig.root_path = str(projectPath)
     appToCOnfig.config.update(
         DEBUG=True,
-        FLATPAGES_ROOT=NAME.PAGES,
+        FLATPAGES_ROOT=str(PATH.PAGES),
         FLATPAGES_EXTENSION=EXT.CNT,
         FLATPAGES_AUTO_RELOAD=True,
         FREEZER_DESTINATION=str(outputPath),
@@ -70,3 +70,7 @@ def run_devserver(projectPath=PATH.PROJECT, port=APP.PORT):
     with local.cwd(projectPath):
         log.info("serving on http://localhost:%s", port)
         app.run(port=port)
+
+
+if __name__ == '__main__':
+    run_devserver()

@@ -12,7 +12,9 @@ class EXT:
 
 class NAME:
     ROOT = '/'
+    CONTENT = 'content'
     PAGES = 'pages'
+    FINAL = 'final'
     OUTPUT = 'build'
     NODE_PAGE = 'index'
     NODE_PAGE_FILE = '%s%s' % (NODE_PAGE, EXT.CNT)
@@ -21,8 +23,8 @@ class NAME:
 class PATH:
     PROJECT = plumbum.LocalPath(__file__).dirname.up()
     OUTPUT = PROJECT / NAME.OUTPUT
-    CONTENT = PROJECT / NAME.PAGES  # symlink to exported content
-    PAGES = PROJECT / NAME.PAGES
+    CONTENT = PROJECT / NAME.CONTENT  # symlink to exported content
+    PAGES = CONTENT / NAME.FINAL
     FRONTEND = PROJECT / 'foundation6'
     STATIC = FRONTEND / 'dist' / 'assets'
     TEMPLATES = FRONTEND / 'src' / 'templates'

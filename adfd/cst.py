@@ -1,7 +1,5 @@
 import tempfile
 
-import plumbum
-
 try:
     from adfd.db.local_settings import _dbUrl, _contentRoot
 except ImportError:
@@ -13,8 +11,6 @@ DB_URL = _dbUrl
 # If you don't provide encoding, I will. See: http://goo.gl/rGuQey
 if 'charset' not in DB_URL:
     DB_URL += '?charset=utf8'
-
-_CONTENT_ROOT = plumbum.LocalPath(_contentRoot)
 
 
 class EXT:
