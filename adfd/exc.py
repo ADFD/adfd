@@ -1,34 +1,34 @@
 class PostDoesNotExist(Exception):
-    """raised if a post with the given ID does not exist"""
+    """A post with the given ID does not exist"""
 
 
 class TopicDoesNotExist(Exception):
-    """raised if the topic contains no posts"""
+    """A topic contains no posts"""
 
 
 class ForumDoesNotExist(Exception):
-    """raised if the forum contains no topics"""
+    """A forum does not exist"""
 
 
 class ForumIsEmpty(Exception):
-    """raised if the forum contains no topics"""
+    """A forum contains no topics"""
 
 
 class TopicNotFound(Exception):
-    """raise when the raw path of the topic is"""
+    """A raw path of the topic is not found"""
 
 
 class PathMissing(Exception):
-    """raise if trying to dump a file without knowing the path"""
+    """Trying to dump a file without knowing the path"""
 
 
 class NotAnAttribute(Exception):
-    """raise if a key is not an attribute"""
+    """A key is not an attribute"""
 
 
 class NotOverridable(Exception):
-    """raise if a key mustn't be overriden (e.g. postId)"""
+    """A key is not configured as overridable overriden (e.g. postId)"""
 
 
 class MutuallyExclusiveMetadata(Exception):
-    """raise if two metadata values are set that are mutually exclusive"""
+    """Two metadata values are set that are mutually exclusive"""
