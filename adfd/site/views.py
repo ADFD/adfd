@@ -6,7 +6,7 @@ from plumbum.machines import local
 
 from adfd.cst import PATH, EXT, APP
 from adfd.site.structure import Navigator
-from .lib import NoRenderAdfdMetadataFlatPages
+from adfd.site.lib import NoRenderAdfdMetadataFlatPages
 
 
 log = logging.getLogger(__name__)
