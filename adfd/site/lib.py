@@ -1,7 +1,7 @@
 import logging
 
 from flask.ext.flatpages import FlatPages, Page
-from plumbum import LocalPath, local
+from plumbum import LocalPath
 from werkzeug.utils import cached_property
 
 from adfd.cnt.massage import PageMetadata
@@ -27,17 +27,3 @@ class NoRenderAdfdMetadataFlatPages(FlatPages):
         assert meta.exists, meta._path
         meta.relPath = path  # FIXME is that used? Where?
         return NoRenderPageWithAdfdMetadata(path, meta, content, None)
-
-
-def deploy(outputPath, target):
-    """Synchronize static website contents with a remote target
-
-    :type outputPath: LocalPath or str
-    :type target: _Target
-    """
-    """sycnhronize static website with target"""
-    rsync = local['rsync']
-    args = ('-av', str(outputPath) + '/', target.path)
-    log.info('run rsync%s', args)
-    rsyncOutput = rsync(*args)
-    log.info("rsync result:\n%s", rsyncOutput)

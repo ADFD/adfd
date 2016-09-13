@@ -9,7 +9,6 @@ from adfd.cst import PATH, APP, TARGET
 from adfd.db.export import export_topics, harvest_topic_ids
 from adfd.db.sync import DbSynchronizer
 from adfd.site.fridge import freeze
-from adfd.site.lib import deploy
 from adfd.site.structure import Navigator
 from adfd.site.views import run_devserver
 from adfd.site_description import SITE_DESCRIPTION
@@ -100,7 +99,19 @@ class AdfdDeploy(cli.Application):
     def main(self):
         target = TARGET.get(self.target)
         freeze(target.prefix)
-        deploy(PATH.OUTPUT, target)
+        self.deploy(PATH.OUTPUT, target)
+
+    @staticmethod
+    def deploy(outputPath, target):
+        """Synchronize static website contents with a remote target
+
+        :type outputPath: LocalPath or str
+        :type target: _Target
+        """
+        args = ('-av', str(outputPath) + '/', target.path)
+        log.info('run rsync%s', args)
+        rsyncOutput = local['rsync'](*args)
+        log.info("rsync result:\n%s", rsyncOutput)
 
 
 @Adfd.subcommand('outline')
