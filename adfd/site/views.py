@@ -1,15 +1,37 @@
 import logging
 
+from adfd.cnt.metadata import PageMetadata
 from flask import render_template, send_from_directory, Flask
+from flask.ext.flatpages import FlatPages, Page
 from flask.ext.frozen import os
+from plumbum import LocalPath
 from plumbum.machines import local
+from werkzeug.utils import cached_property
 
 from adfd.cst import PATH, EXT, APP
 from adfd.site.structure import Navigator
-from adfd.site.lib import NoRenderAdfdMetadataFlatPages
 
 
 log = logging.getLogger(__name__)
+
+
+class NoRenderPageWithAdfdMetadata(Page):
+    @cached_property
+    def meta(self):
+        return self._meta
+
+    @cached_property
+    def html(self):
+        return self.body
+
+
+class NoRenderAdfdMetadataFlatPages(FlatPages):
+    def _parse(self, content, path):
+        mdPath = (LocalPath(self.root) / path).with_suffix(EXT.META)
+        meta = PageMetadata(path=mdPath)
+        assert meta.exists, meta._path
+        meta.relPath = path  # FIXME is that used? Where?
+        return NoRenderPageWithAdfdMetadata(path, meta, content, None)
 
 
 app = Flask(

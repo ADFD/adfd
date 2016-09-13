@@ -2,14 +2,14 @@ import http.server
 import logging
 import socketserver
 
+from flask.ext.frozen import Freezer
 from plumbum import cli, local
 
 from adfd.cnt.massage import GlobalFinalizer, TopicPreparator
 from adfd.cst import PATH, APP, TARGET
 from adfd.db.export import export_topics, harvest_topic_ids
 from adfd.db.sync import DbSynchronizer
-from adfd.site.lib import deploy
-from adfd.site.fridge import freeze
+from adfd.site.views import app, navigator
 from adfd.site.structure import Navigator
 from adfd.site.views import run_devserver
 from adfd.site_description import SITE_DESCRIPTION
@@ -88,7 +88,34 @@ class AdfdBuild(cli.Application):
 
     def main(self):
         target = TARGET.get(self.target)
-        freeze(target.prefix)
+        self.freeze(target.prefix)
+
+    @staticmethod
+    def freeze(pathPrefix=None):
+        """:param pathPrefix: for freezing when it's served not from root"""
+
+        def page():
+            for url in navigator.allUrls:
+                yield {'path': url}
+
+        log.info("freeze in: %s", PATH.PROJECT)
+        freezer = Freezer(app)
+        freezer.register_generator(page)
+
+        with local.cwd(PATH.PROJECT):
+            log.info("freezing %s", freezer)
+            seenUrls = freezer.freeze()
+            log.info("frozen urls are:\n%s", '\n'.join(seenUrls))
+        if pathPrefix:
+            for url in seenUrls:
+                if url.endswith('/'):
+                    filePath = PATH.OUTPUT / url[1:] / 'index.html'
+                    with open(filePath) as f:
+                        content = f.read()
+                        content = content.replace(
+                            'href="/', 'href="/%s/' % (pathPrefix))
+                    with open(filePath, 'w') as f:
+                        f.write(content)
 
 
 @Adfd.subcommand('deploy')
@@ -98,9 +125,7 @@ class AdfdDeploy(cli.Application):
         ['t', 'target'], default='test', help="one of %s" % (TARGET.ALL))
 
     def main(self):
-        target = TARGET.get(self.target)
-        freeze(target.prefix)
-        deploy(PATH.OUTPUT, target)
+        self.deploy(PATH.OUTPUT, TARGET.get(self.target))
 
 
 @Adfd.subcommand('outline')
