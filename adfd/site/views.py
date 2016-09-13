@@ -1,6 +1,5 @@
 import logging
 
-from adfd.cnt.metadata import PageMetadata
 from flask import render_template, send_from_directory, Flask
 from flask.ext.flatpages import FlatPages, Page
 from flask.ext.frozen import os
@@ -8,6 +7,7 @@ from plumbum import LocalPath
 from plumbum.machines import local
 from werkzeug.utils import cached_property
 
+from adfd.cnt.metadata import PageMetadata
 from adfd.cst import PATH, EXT, APP
 from adfd.site.structure import Navigator
 
@@ -47,10 +47,6 @@ pages = NoRenderAdfdMetadataFlatPages(app)
 """":type: FlatPages"""
 
 
-navigator = Navigator()
-"""":type: Navigator"""
-
-
 def config_app(appToCOnfig, pagesToConfig):
     appToCOnfig.root_path = str(PATH.PROJECT)
     appToCOnfig.config.update(
@@ -65,6 +61,10 @@ def config_app(appToCOnfig, pagesToConfig):
 
 
 config_app(app, pages)
+
+
+navigator = Navigator()
+"""":type: Navigator"""
 
 
 @app.route('/')
