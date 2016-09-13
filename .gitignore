@@ -9,4 +9,4 @@ __pycache__
 *.dump
 build/*
 
-secrets.py
+adfd/secrets.py
