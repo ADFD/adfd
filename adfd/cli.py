@@ -44,44 +44,44 @@ class ContentWrangler:
         GlobalFinalizer.finalize(SITE_DESCRIPTION)
 
 
-class Sibu(cli.Application):
+class Adfd(cli.Application):
     """All functions for the ADFD website"""
     def main(self):
         if not self.nested_command:
-            self.nested_command = (SibuDev, ['sibu dev'])
+            self.nested_command = (AdfdDev, ['adfd dev'])
 
 
-@Sibu.subcommand('sync-remote')
-class SibuSyncRemote(cli.Application):
+@Adfd.subcommand('sync-remote')
+class AdfdSyncRemote(cli.Application):
     """Fetch remote dump und load dump to local db"""
     def main(self):
         DbSynchronizer().sync()
 
 
-@Sibu.subcommand('sync-local')
-class SibuSyncLocal(cli.Application):
+@Adfd.subcommand('sync-local')
+class AdfdSyncLocal(cli.Application):
     """Update local content from local db contents"""
     def main(self):
         ContentWrangler.wrangle_content()
 
 
-@Sibu.subcommand('sync')
-class SibuSync(cli.Application):
+@Adfd.subcommand('sync')
+class AdfdSync(cli.Application):
     """sync all. remote DB -> local DB -> generate content"""
     def main(self):
         DbSynchronizer().sync()
         ContentWrangler.wrangle_content()
 
 
-@Sibu.subcommand('dev')
-class SibuDev(cli.Application):
+@Adfd.subcommand('dev')
+class AdfdDev(cli.Application):
     """Run local development server"""
     def main(self):
         run_devserver()
 
 
-@Sibu.subcommand('freeze')
-class SibuBuild(cli.Application):
+@Adfd.subcommand('freeze')
+class AdfdBuild(cli.Application):
     """Freeze website to static files"""
     target = cli.SwitchAttr(
         ['t', 'target'], default='test', help="one of %s" % (TARGET.ALL))
@@ -91,8 +91,8 @@ class SibuBuild(cli.Application):
         freeze(target.prefix)
 
 
-@Sibu.subcommand('deploy')
-class SibuDeploy(cli.Application):
+@Adfd.subcommand('deploy')
+class AdfdDeploy(cli.Application):
     """Deploy frozen web page to remote location"""
     target = cli.SwitchAttr(
         ['t', 'target'], default='test', help="one of %s" % (TARGET.ALL))
@@ -103,16 +103,16 @@ class SibuDeploy(cli.Application):
         deploy(PATH.OUTPUT, target)
 
 
-@Sibu.subcommand('outline')
-class SibuOutline(cli.Application):
+@Adfd.subcommand('outline')
+class AdfdOutline(cli.Application):
     """Generate web page outline in bbcode to post in forum"""
     def main(self):
         outline = Navigator().outline
         print(outline, end='\n\n')
 
 
-@Sibu.subcommand('serve-frozen')
-class SibuServeFrozen(cli.Application):
+@Adfd.subcommand('serve-frozen')
+class AdfdServeFrozen(cli.Application):
     """Serve frozen web page locally"""
     def main(self):
         log.info("serve '%s' at http://localhost:%s", PATH.OUTPUT, APP.PORT)
@@ -132,6 +132,6 @@ class SibuServeFrozen(cli.Application):
 def main():
     logging.basicConfig(level=logging.INFO)
     try:
-        Sibu.run()
+        Adfd.run()
     except KeyboardInterrupt:
         log.info('stopped by user')
