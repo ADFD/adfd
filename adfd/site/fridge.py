@@ -4,8 +4,8 @@ from flask.ext.frozen import Freezer
 from plumbum.machines import local
 
 from adfd.cst import PATH, TARGET
-from .lib import deploy
-from .views import app, navigator
+from adfd.site.lib import deploy
+from adfd.site.views import app, navigator
 
 
 log = logging.getLogger(__name__)
@@ -21,10 +21,7 @@ def page():
 
 
 def freeze(pathPrefix=None):
-    """
-
-    :param pathPrefix: for freezing when it's served not from root
-    """
+    """:param pathPrefix: for freezing when it's served not from root"""
     log.info("freeze in: %s", PATH.PROJECT)
     with local.cwd(PATH.PROJECT):
         log.info("freezing %s", freezer)

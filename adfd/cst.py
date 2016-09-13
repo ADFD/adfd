@@ -149,14 +149,19 @@ class TARGET:
         def __str__(self):
             return self.name
 
+        def __eq__(self, other):
+            return self.name == other.name
+
     TEST = _Target('test', 'mj13.de:./www/privat/neu', 'privat/neu')
     LIVE = _Target('live', 'mj13.de:./www/inhalt', 'inhalt')
     ALL = [TEST, LIVE]
 
     @classmethod
-    def get(cls, name):
+    def get(cls, wantedTarget):
         for target in cls.ALL:
-            if name == target.name:
+            if isinstance(wantedTarget, cls._Target):
+                wantedTarget = wantedTarget.name
+            if target.name == wantedTarget:
                 return target
 
-        raise ValueError('target %s not found' % (name))
+        raise ValueError('target %s not found' % (wantedTarget))
