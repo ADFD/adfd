@@ -435,12 +435,12 @@ class Parser:
                 # len(text[:start] + token), but start will work, because the
                 # token itself won't match as a URL.
                 pos = start
-        if self.hyphenate:
-            text = hyphenate(text)
         if self.escapeHtml and escapeHtml:
             text = Replacer.replace(text, Replacer.HTML_ESCAPE)
         if self.replaceCosmetic and replaceCosmetic:
             text = Replacer.replace(text, Replacer.COSMETIC)
+        if self.hyphenate:
+            text = hyphenate(text)
         # Now put the replaced links back in the text.
         for token, replacement in url_matches.items():
             text = text.replace(token, replacement)
