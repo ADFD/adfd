@@ -1,6 +1,16 @@
+import logging
 import re
 
 import plumbum
+
+log = logging.getLogger(__name__)
+
+try:
+    from adfd.secrets import DB
+    REMOTE_HOST = DB.REMOTE_HOST
+except ImportError:
+    REMOTE_HOST = "adfd.org"
+    log.error("use generic remote host %s", REMOTE_HOST)
 
 
 class APP:
@@ -152,8 +162,8 @@ class TARGET:
         def __eq__(self, other):
             return self.name == other.name
 
-    TEST = _Target('test', 'mj13.de:./www/privat/neu', 'privat/neu')
-    LIVE = _Target('live', 'mj13.de:./www/inhalt', 'inhalt')
+    TEST = _Target('test', '%s:./www/privat/neu' % REMOTE_HOST, 'privat/neu')
+    LIVE = _Target('live', '%s:./www/inhalt' % REMOTE_HOST, 'inhalt')
     ALL = [TEST, LIVE]
 
     @classmethod

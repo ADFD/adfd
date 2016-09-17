@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 class DbSynchronizer:
     def __init__(self):
-        self.sm = SshMachine(DB._REMOTE_HOST)
+        self.sm = SshMachine(DB.REMOTE_HOST)
         self.dumpName = DB.NAME + '.dump'
         self.dumpDstPath = DB.DUMP_PATH / self.dumpName
 
