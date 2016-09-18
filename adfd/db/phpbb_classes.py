@@ -93,8 +93,7 @@ class Post:
             postId=self.id))
 
     def __repr__(self):
-        return ("<%s %s (%s)>" %
-                (self.__class__.__name__, self.id, self.slug))
+        return "<%s %s (%s)>" % (self.__class__.__name__, self.id, self.slug)
 
     @cached_property
     def filename(self):
