@@ -62,8 +62,3 @@ class DbSynchronizer:
     @property
     def argPw(self):
         return '-p%s' % (DB.PW)
-
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    DbSynchronizer().sync()
