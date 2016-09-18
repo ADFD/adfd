@@ -4,7 +4,7 @@ Instead of reading the contents from prepared files I want to do it on the fly.
 
 ## Render Topic directly from DB
 
-* fetch topicId from slug
+* fetch topicId from site description
 * try to fetch topic directly from db (make Page object from it)
 * If fails: try to fetch topic from filesystem
 * somehow mark the topic as live view or from file visibly

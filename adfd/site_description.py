@@ -1,41 +1,70 @@
-class CatDesc:
-    """Describe a Website category and it's contents"""
-    def __init__(self, name, mainTopicId, contents):
-        self.name = name
-        self.mainTopicId = mainTopicId
-        self.contents = contents
+import yaml
+from collections import OrderedDict
+
+from plumbum import LocalPath
 
 
-überUns = CatDesc('Über uns', 10694, [11220, 11223, 11222])
+def ordered_load(stream, Loader=yaml.SafeLoader,
+                 object_pairs_hook=OrderedDict):
+    class OrderedLoader(Loader):
+        pass
 
-_ppMyth = CatDesc('Psychopharmaka Mythen', 10694, [10055, 9799, 11133])
-_risiko = CatDesc('Risiken und Nebenwirkungen', 11225, [8676])
-psychopharmaka = CatDesc(
-    'Psychopharmaka', 11224, [9736, _ppMyth, 8507, _risiko, 10387, 10920])
+    def construct_mapping(loader, node):
+        loader.flatten_mapping(node)
+        return object_pairs_hook(loader.construct_pairs(node))
 
-_ppAb = CatDesc('Abhängig von Psychopharmaka?', 10694, [8621, 8829, 9724])
-_abAllg = CatDesc('Allgemeine Tips und Hinweise', 10694, [9913, 7936, 8897])
-_abAds = CatDesc('Antidepressiva absetzen', 10694, [853, 9724])
-_abBen = CatDesc('Benzodiazepine absetzen', 10694, [2207, 3462, 4694])
-_ABnL = CatDesc('Neuroleptika absetzen', 10694, [8022, 11137])
-_AbWeit = CatDesc('Weitere Absetzinformationen', 10694, [10199])
-absetzen = CatDesc('Absetzen', 10694, [_ppAb, _abAllg, _abAds, _abBen, _ABnL])
-
-_entUm = CatDesc(
-    'Umgang mit Entzugssymptomen', 10694,
-    [11218, 9345, 6442, 7663, 9910, 9778])
-_entBeg = CatDesc(
-    'Umgang mit Begleit- und Folgeerkrankungen', 10694, [10848])
-_entHil = CatDesc('Psychosoziale Hilfen', 10694, [10007])
-entzug = CatDesc('Hilfe beim Entzug', 10694, [_entUm, _entBeg, _entHil])
+    # noinspection PyUnresolvedReferences
+    OrderedLoader.add_constructor(
+        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+        construct_mapping)
+    return yaml.load(stream, OrderedLoader)
 
 
-alternativen = CatDesc('Alternativen', 10694, [7721, 9941, 10940])
+HERE = LocalPath(__file__).dirname
+dsc = ordered_load(open(HERE / 'site_description.yml'))
+print(dsc)
 
-medien = CatDesc('Medienberichte und Publikationen', 10694, [10932, 10870])
-dev = CatDesc('[DEV]', 10694, [10068, 11217])
 
+class SiteDesc:
+    """Description of a site structure as a tree of descriptions
+    containing a list of descriptions and topic ids"""
+    rootKey = "home"
+    sep = "|"
 
-SITE_DESCRIPTION = CatDesc(
-    '', 11221,
-    [überUns, psychopharmaka, absetzen, entzug, alternativen, medien, dev])
+    def __init__(self, rootKey, value):
+        self.name, self.mainTopicId = self.get_data(rootKey)
+        self.contents = []
+        self.construct_description(value, self.contents)
+
+    def __repr__(self):
+        return (
+            "<%s: %s | %s -> %s>" % (
+                self.__class__.__name__, self.name,
+                self.mainTopicId, self.contents))
+
+    @classmethod
+    def get_data(cls, data):
+        sd = data.split("|")
+        if len(sd) > 2:
+            raise ValueError("Too many '%s' in %s" % (cls.sep, data))
+
+        title = sd[0].strip()
+        title = title if title.lower() != cls.rootKey else ""
+        mainTopicId = int(sd[1].strip()) if len(sd) == 2 else 0
+        return title, mainTopicId
+
+    @classmethod
+    def construct_description(cls, data, contents):
+        if isinstance(data, list):
+            for item in data:
+                cls.construct_description(item, contents)
+        elif isinstance(data, int):
+            contents.append(data)
+        else:
+            assert isinstance(data, OrderedDict), data
+            key = next(iter(data))
+            contents.append(SiteDesc(key, data[key]))
+
+rootKey = next(iter(dsc))
+SITE_DESCRIPTION = SiteDesc(rootKey, dsc[rootKey])
+print(SITE_DESCRIPTION)
