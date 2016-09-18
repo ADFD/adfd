@@ -39,8 +39,7 @@ def export_topic(topic):
     topicPath = PATH.CNT_RAW / id2name(topic.id)
     log.info('%s -> %s', topic.id, topicPath)
     for post in topic.posts:
-        current = "%s" % (post.subject)
-        log.debug("export: %s", current)
+        log.debug("export: %s", post.subject)
         contentPath = topicPath / (post.filename + EXT.IN)
         dump_contents(contentPath, post.content)
         metadataPath = topicPath / (post.filename + EXT.META)

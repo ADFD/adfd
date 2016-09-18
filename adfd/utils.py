@@ -104,7 +104,7 @@ class ContentGrabber:
 
 
 def dump_contents(path, contents):
-    log.debug('%s', path)
+    log.debug(path)
     path.dirname.mkdir()
     path.write(contents, encoding='utf8')
 

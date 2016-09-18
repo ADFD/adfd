@@ -8,6 +8,9 @@ from adfd.db.phpbb_schema import PhpbbTopic, PhpbbForum, PhpbbPost, PhpbbUser
 
 log = logging.getLogger(__name__)
 
+_DB_SESSION = None
+"""":type: sqlalchemy.orm.session.Session"""
+
 try:
     from adfd.secrets import DB
     URL = DB.URL
@@ -37,20 +40,23 @@ def generate_schema(writeToFile="schema.py"):
 
 
 def get_db_session():
-    """":rtype: sqlalchemy.orm.session.Session"""
+    if _DB_SESSION:
+        return _DB_SESSION
+
     logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
     Session = sessionmaker()
     engine = create_engine(URL, echo=False)
     Session.configure(bind=engine)
-    return Session()
+    global _DB_SESSION
+    _DB_SESSION = Session()
+    return _DB_SESSION
 
 
 class DbWrapper:
     """very simple wrapper that can fetch the little that's needed atm"""
-    DB_SESSION = get_db_session()
-
     def __init__(self):
-        self.query = self.DB_SESSION.query
+        self.session = get_db_session()
+        self.query = self.session.query
 
     def fetch_topic_ids_from_forum(self, forumId):
         """:rtype: list of int"""

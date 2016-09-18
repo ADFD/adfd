@@ -25,12 +25,11 @@ log = logging.getLogger(__name__)
 
 
 class DataFetcher:
-    DB_SESSION = get_db_session()
-
     def __init__(
             self, tableName='phpbb_posts',
             timeColumn='post_time', timeFmt='%Y/%m/%d',
             columnNames=('post_id', 'topic_id', 'poster_id', 'forum_id',)):
+        self.session = get_db_session()
         self.table = tableName
         self.timeColumn = timeColumn
         self.timeFmt = timeFmt
@@ -55,7 +54,7 @@ class DataFetcher:
         return self.data
 
     def fech_raw_data(self):
-        return self.DB_SESSION.execute(self.statement)
+        return self.session.execute(self.statement)
 
     @property
     def statement(self):
