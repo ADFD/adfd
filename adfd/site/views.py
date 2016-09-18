@@ -9,10 +9,20 @@ from werkzeug.utils import cached_property
 
 from adfd.cnt.metadata import PageMetadata
 from adfd.cst import PATH, EXT, APP
-from adfd.site.structure import Navigator
+from adfd.site.navigation import Navigator
 
 
 log = logging.getLogger(__name__)
+
+
+class FlatPagesWithDbAccess(FlatPages):
+    def get(self, path, default=None):
+        try:
+            topicId = int(path)
+            raise NotImplementedError()
+
+        except ValueError:
+            return super().get(path, default=None)
 
 
 class NoRenderPageWithAdfdMetadata(Page):
@@ -25,12 +35,11 @@ class NoRenderPageWithAdfdMetadata(Page):
         return self.body
 
 
-class NoRenderAdfdMetadataFlatPages(FlatPages):
+class NoRenderAdfdMetadataFlatPages(FlatPagesWithDbAccess):
     def _parse(self, content, path):
         mdPath = (LocalPath(self.root) / path).with_suffix(EXT.META)
         meta = PageMetadata(path=mdPath)
         assert meta.exists, meta._path
-        meta.relPath = path  # FIXME is that used? Where?
         return NoRenderPageWithAdfdMetadata(path, meta, content, None)
 
 
@@ -44,7 +53,7 @@ app = Flask(
 
 
 pages = NoRenderAdfdMetadataFlatPages(app)
-"""":type: FlatPages"""
+"""":type: NoRenderAdfdMetadataFlatPages"""
 
 
 def config_app(appToCOnfig, pagesToConfig):
@@ -90,7 +99,3 @@ def run_devserver(projectPath=PATH.PROJECT, port=APP.PORT):
     with local.cwd(projectPath):
         log.info("serving on http://localhost:%s", port)
         app.run(port=port)
-
-
-if __name__ == '__main__':
-    run_devserver()
