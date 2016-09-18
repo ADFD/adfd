@@ -76,6 +76,8 @@ def slugify_path(relPath):
 
 
 class ContentGrabber:
+    # TODO inject live content here from DB if possible
+    # make configurable via cnf object if DB should be tried
     def __init__(self, absPath=None, relPath='.'):
         if absPath:
             self.rootPath = absPath
@@ -108,7 +110,7 @@ def dump_contents(path, contents):
 
 
 class DataGrabber(ContentGrabber):
-    DATA_PATH = LocalPath(__file__).up() / 'tests' / 'data'
+    DATA_PATH = LocalPath(__file__).up(2) / 'tests' / 'data'
 
     def __init__(self, relPath='.', absPath=None):
         super(DataGrabber, self).__init__(relPath, absPath)
