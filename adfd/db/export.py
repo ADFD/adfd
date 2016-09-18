@@ -5,7 +5,6 @@ from adfd.db.phpbb_classes import Topic
 from adfd.exc import TopicDoesNotExist
 from adfd.utils import id2name, dump_contents
 
-
 log = logging.getLogger(__name__)
 
 

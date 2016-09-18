@@ -12,13 +12,6 @@ from adfd.utils import slugify, date_from_timestamp
 log = logging.getLogger(__name__)
 
 
-__all__ = [
-    'Forum',
-    'Topic',
-    'Post',
-]
-
-
 class Forum:
     def __init__(self, forumId):
         self.id = forumId
