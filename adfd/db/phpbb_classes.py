@@ -97,18 +97,26 @@ class Post:
                 (self.__class__.__name__, self.id, self.slug))
 
     @cached_property
-    def content(self):
-        content = self._preprocess(self.rawText, self.dbp.bbcode_uid)
-        content = self._fix_db_storage_patterns(content)
-        return self._fix_whitespace(content)
-
-    @cached_property
-    def slug(self):
-        return slugify(self.subject)
+    def filename(self):
+        filename = '%06d' % (self.id)
+        if self.slug:
+            filename += '-%s' % (self.slug)
+        return filename
 
     @cached_property
     def subject(self):
         return self._preprocess(self.dbp.post_subject)
+
+    @cached_property
+    def content(self):
+        content = self._preprocess(self.rawText, self.dbp.bbcode_uid)
+        content = self._fix_db_storage_patterns(content)
+        content = self._fix_whitespace(content)
+        return content
+
+    @cached_property
+    def slug(self):
+        return slugify(self.subject)
 
     @cached_property
     def username(self):
@@ -119,13 +127,6 @@ class Post:
     @cached_property
     def lastUpdate(self):
         return date_from_timestamp(self._postTime)
-
-    @cached_property
-    def filename(self):
-        filename = '%06d' % (self.id)
-        if self.slug:
-            filename += '-%s' % (self.slug)
-        return filename
 
     @staticmethod
     def _preprocess(text, bbcodeUid=None):
