@@ -26,7 +26,7 @@ class LinkInformer:
 
 if __name__ == '__main__':
     from adfd.db.export import harvest_topic_ids
-    from adfd.site_description import SITE_DESCRIPTION
+    from adfd.site.structure import get_structure
 
-    topicIds = harvest_topic_ids(SITE_DESCRIPTION)
+    topicIds = harvest_topic_ids(get_structure())
     print(topicIds)
