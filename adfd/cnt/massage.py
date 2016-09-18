@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import logging
 
 from cached_property import cached_property
