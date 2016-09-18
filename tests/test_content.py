@@ -59,7 +59,7 @@ class TestFinalize:
         p.prepare()
         a = TopicFinalizer(1)
         assert a.md.title == 'Söme snaßy Tätle'
-        assert a.md.slug == 'soeme-snassy-taetle'
+        assert 'soeme-snassy-taetle' in a.md.slug
 
 
 class TestMetadata:
