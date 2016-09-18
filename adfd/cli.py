@@ -9,10 +9,9 @@ from adfd.cnt.massage import GlobalFinalizer, TopicPreparator
 from adfd.cst import PATH, APP, TARGET
 from adfd.db.export import export_topics, harvest_topic_ids
 from adfd.db.sync import DbSynchronizer
-from adfd.site.views import app, navigator
-from adfd.site.structure import Navigator
-from adfd.site.views import run_devserver
-from adfd.site_description import SITE_DESCRIPTION
+from adfd.site.navigation import Navigator
+from adfd.site.structure import get_structure
+from adfd.site.views import app, navigator, run_devserver
 
 
 log = logging.getLogger(__name__)
@@ -29,7 +28,7 @@ class ContentWrangler:
     @staticmethod
     def export_topics_from_db():
         PATH.CNT_RAW.delete()
-        export_topics(harvest_topic_ids(SITE_DESCRIPTION))
+        export_topics(harvest_topic_ids(get_structure()))
 
     @staticmethod
     def prepare_topics():
@@ -41,7 +40,7 @@ class ContentWrangler:
     @staticmethod
     def finalize_articles():
         PATH.CNT_FINAL.delete()
-        GlobalFinalizer.finalize(SITE_DESCRIPTION)
+        GlobalFinalizer.finalize(get_structure())
 
 
 class Adfd(cli.Application):
