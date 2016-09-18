@@ -20,8 +20,6 @@ except ImportError:
     DUMP_PATH = "/dummy/dump/path"
     REMOTE_HOST = "dummy-host.de"
 
-log = logging.getLogger(__name__)
-
 
 class DbSynchronizer:
     def __init__(self):
