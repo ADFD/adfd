@@ -22,18 +22,8 @@ __all__ = [
 class Forum:
     def __init__(self, forumId):
         self.id = forumId
-        self.db = DbWrapper()
-        self.dbObject = self.db.fetch_forum(self.id)
-        if not self.dbObject:
-            raise ForumDoesNotExist(str(self.id))
 
-        self.topicIds = self.db.fetch_topic_ids_from_forum(self.id)
-        if not self.topicIds:
-            raise ForumIsEmpty(str(self.id))
-
-        self.name = self.dbObject.forum_name
-
-    @property
+    @cached_property
     def topics(self):
         for topicId in self.topicIds:
             try:
@@ -43,25 +33,57 @@ class Forum:
                 log.warning("topic %s is broken", topicId)
                 continue
 
+    @cached_property
+    def name(self):
+        return self.dbo.forum_name
+
+    @cached_property
+    def db(self):
+        return DbWrapper()
+
+    @cached_property
+    def topicIds(self):
+        ids = self.db.fetch_topic_ids_from_forum(self.id)
+        if not ids:
+            raise ForumIsEmpty(str(self.id))
+
+        return ids
+
+    @cached_property
+    def dbo(self):
+        dbo = self.db.fetch_forum(self.id)
+        if not dbo:
+            raise ForumDoesNotExist(str(self.id))
+
+        return dbo
+
 
 class Topic:
-    """This has a bit of flexibility to make it possible to filter posts."""
-
     def __init__(self, topicId):
-        self.postIds = self.fetch_post_ids(topicId)
-        self.firstPost = self.posts[0]
-        self.id = self.firstPost.topicId
-        self.subject = self.firstPost.subject
-        self.lastUpdate = self._get_last_update(self.posts)
+        self._originalId = topicId
+
+    @cached_property
+    def subject(self):
+        return self.firstPost.subject
+
+    @cached_property
+    def lastUpdate(self):
+        return self._get_last_update(self.posts)
 
     @cached_property
     def posts(self):
         """:rtype: list of Post"""
         return [Post(postId) for postId in self.postIds]
 
+    @cached_property
+    def id(self):
+        self.postIds = self.fetch_post_ids(self._originalId)
+        self.firstPost = self.posts[0]
+        return self.firstPost.topicId
+
     @classmethod
     def _get_last_update(cls, posts):
-        newestDate = sorted([p._postTime for p in posts], reverse=True)[0]
+        newestDate = sorted([p.postTime for p in posts], reverse=True)[0]
         return date_from_timestamp(newestDate)
 
     def fetch_post_ids(self, topicId):
@@ -75,15 +97,25 @@ class Topic:
 class Post:
     def __init__(self, postId):
         self.id = postId
-        self.db = DbWrapper()
-        self.dbp = self.db.fetch_post(self.id)
-        if not self.dbp:
-            raise PostDoesNotExist(str(self.id))
 
-        self.topicId = self.dbp.topic_id
-        self.rawText = self.dbp.post_text
-        self._postTime = self.dbp.post_edit_time or self.dbp.post_time
-        self.md = PageMetadata(kwargs=dict(
+    def __repr__(self):
+        return "<%s %s (%s)>" % (self.__class__.__name__, self.id, self.slug)
+
+    @cached_property
+    def topicId(self):
+        return self.dbp.topic_id
+
+    @cached_property
+    def rawText(self):
+        return self.dbp.post_text
+
+    @cached_property
+    def postTime(self):
+        return self.dbp.post_edit_time or self.dbp.post_time
+
+    @cached_property
+    def md(self):
+        return PageMetadata(kwargs=dict(
             title=self.subject,
             author=self.username,
             authorId=self.dbp.poster_id,
@@ -91,9 +123,6 @@ class Post:
             postDate=date_from_timestamp(self.dbp.post_time),
             topicId=self.topicId,
             postId=self.id))
-
-    def __repr__(self):
-        return "<%s %s (%s)>" % (self.__class__.__name__, self.id, self.slug)
 
     @cached_property
     def filename(self):
@@ -125,7 +154,7 @@ class Post:
 
     @cached_property
     def lastUpdate(self):
-        return date_from_timestamp(self._postTime)
+        return date_from_timestamp(self.postTime)
 
     @staticmethod
     def _preprocess(text, bbcodeUid=None):
@@ -160,3 +189,15 @@ class Post:
         while "\n\n\n" in text:
             text = text.replace("\n\n\n", "\n\n")
         return text
+
+    @cached_property
+    def db(self):
+        return DbWrapper()
+
+    @cached_property
+    def dbp(self):
+        dbp = self.db.fetch_post(self.id)
+        if not dbp:
+            raise PostDoesNotExist(str(self.id))
+
+        return dbp
