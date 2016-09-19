@@ -3,10 +3,10 @@ import logging
 import re
 
 from cached_property import cached_property
+from pyphen import Pyphen
 from typogrify.filters import typogrify
 
-from adfd.cst import RE
-from adfd.utils import Replacer, hyphenate
+from adfd.cst import RE, PARSE
 
 log = logging.getLogger(__name__)
 
@@ -271,6 +271,7 @@ class Parser:
         started before this one closed.
         """
         in_quote = False
+        # noinspection PyTypeChecker
         for i in range(start + 1, len(data)):
             ch = data[i]
             if ch in ('"', "'"):
@@ -844,3 +845,36 @@ class AdfdParser(Parser):
         if '://' not in href and RE.DOMAIN.match(href):
             href = 'http://' + href
         return '<a href="%s">%s</a>' % (href.replace('"', '%22'), value)
+
+
+class Replacer:
+    HTML_ESCAPE = (
+        ('&', '&amp;'),
+        ('<', '&lt;'),
+        ('>', '&gt;'),
+        ('"', '&quot;'),
+        ("'", '&#39;'))
+
+    COSMETIC = (
+        ('---', '&mdash;'),
+        ('--', '&ndash;'),
+        ('...', '&#8230;'),
+        ('(c)', '&copy;'),
+        ('(reg)', '&reg;'),
+        ('(tm)', '&trade;'))
+
+    @staticmethod
+    def replace(data, replacements):
+        """
+        Given a list of 2-tuples (find, repl) this function performs all
+        replacements on the input and returns the result.
+        """
+        for find, repl in replacements:
+            data = data.replace(find, repl)
+        return data
+
+
+def hyphenate(text, hyphen='&shy;'):
+    py = Pyphen(lang=PARSE.PYPHEN_LANG)
+    words = text.split(' ')
+    return ' '.join([py.inserted(word, hyphen=hyphen) for word in words])

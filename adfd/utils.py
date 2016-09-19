@@ -5,16 +5,10 @@ import re
 from datetime import datetime
 from types import FunctionType, MethodType
 
+from adfd.cst import METADATA, PATH
 from plumbum import LocalPath
-from pyphen import Pyphen
-
-from adfd.cst import METADATA, PATH, PARSE
 
 log = logging.getLogger(__name__)
-
-
-def escape_html(text):
-    return Replacer.replace(text, Replacer.HTML_ESCAPE)
 
 
 # fixme likely not needed
@@ -23,12 +17,6 @@ def untypogrify(text):
         return '"' if c in ['“', '„'] else c
 
     return ''.join([untypogrify_char(c) for c in text])
-
-
-def hyphenate(text, hyphen='&shy;'):
-    py = Pyphen(lang=PARSE.PYPHEN_LANG)
-    words = text.split(' ')
-    return ' '.join([py.inserted(word, hyphen=hyphen) for word in words])
 
 
 def get_paths(containerPath, ext=None, content=None):
@@ -270,30 +258,3 @@ def get_obj_info(objects):
     for name, obj in sorted([(k, v) for k, v in inf.items() if k.isupper()]):
         out.append(obj_attr(obj, objName=name))
     return '\n'.join(out)
-
-
-class Replacer:
-    HTML_ESCAPE = (
-        ('&', '&amp;'),
-        ('<', '&lt;'),
-        ('>', '&gt;'),
-        ('"', '&quot;'),
-        ("'", '&#39;'))
-
-    COSMETIC = (
-        ('---', '&mdash;'),
-        ('--', '&ndash;'),
-        ('...', '&#8230;'),
-        ('(c)', '&copy;'),
-        ('(reg)', '&reg;'),
-        ('(tm)', '&trade;'))
-
-    @staticmethod
-    def replace(data, replacements):
-        """
-        Given a list of 2-tuples (find, repl) this function performs all
-        replacements on the input and returns the result.
-        """
-        for find, repl in replacements:
-            data = data.replace(find, repl)
-        return data
