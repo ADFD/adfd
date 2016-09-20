@@ -132,7 +132,6 @@ class PageMetadata(Metadata):
         self.weight = None
         self.postId = None
         self.postDate = None
-        self.relPath = None  # set dynamically by web app
         self.title = None
         self.topicId = None
         self.useTitles = None
