@@ -32,15 +32,11 @@ def export_topics(topicIds):
             log.warning('topic %s is broken', topicId)
 
     for topic in topics:
-        export_topic(topic)
-
-
-def export_topic(topic):
-    topicPath = PATH.CNT_RAW / id2name(topic.id)
-    log.info('%s -> %s', topic.id, topicPath)
-    for post in topic.posts:
-        log.debug("export: %s", post.subject)
-        contentPath = topicPath / (post.filename + EXT.IN)
-        dump_contents(contentPath, post.content)
-        metadataPath = topicPath / (post.filename + EXT.META)
-        dump_contents(metadataPath, post.md.asFileContents)
+        topicPath = PATH.CNT_RAW / id2name(topic.id)
+        log.info('%s -> %s', topic.id, topicPath)
+        for post in topic.posts:
+            log.debug("export: %s", post.subject)
+            contentPath = topicPath / (post.filename + EXT.IN)
+            dump_contents(contentPath, post.content)
+            metadataPath = topicPath / (post.filename + EXT.META)
+            dump_contents(metadataPath, post.md.asFileContents)
