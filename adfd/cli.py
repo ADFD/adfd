@@ -2,45 +2,14 @@ import http.server
 import logging
 import socketserver
 
+from adfd.cst import PATH, APP, TARGET
+from adfd.db.sync import DbSynchronizer
+from adfd.site.navigation import Navigator
+from adfd.site.views import app, navigator, run_devserver
 from flask.ext.frozen import Freezer
 from plumbum import cli, local
 
-from adfd.cnt.massage import GlobalFinalizer, TopicPreparator
-from adfd.cst import PATH, APP, TARGET
-from adfd.db.export import export_topics, harvest_topic_ids
-from adfd.db.sync import DbSynchronizer
-from adfd.site.navigation import Navigator
-from adfd.site.structure import get_structure
-from adfd.site.views import app, navigator, run_devserver
-
-
 log = logging.getLogger(__name__)
-
-
-class ContentWrangler:
-    """Thin wrapper with housekeeping to do the whole dance"""
-    @classmethod
-    def wrangle_content(cls):
-        cls.export_topics_from_db()
-        cls.prepare_topics()
-        cls.finalize_articles()
-
-    @staticmethod
-    def export_topics_from_db():
-        PATH.CNT_RAW.delete()
-        export_topics(harvest_topic_ids(get_structure()))
-
-    @staticmethod
-    def prepare_topics():
-        PATH.CNT_PREPARED.delete()
-        for path in [p for p in PATH.CNT_RAW.list() if p.isdir()]:
-            log.info('prepare %s', path)
-            TopicPreparator(path, PATH.CNT_PREPARED).prepare()
-
-    @staticmethod
-    def finalize_articles():
-        PATH.CNT_FINAL.delete()
-        GlobalFinalizer.finalize(get_structure())
 
 
 class Adfd(cli.Application):
@@ -55,21 +24,6 @@ class AdfdSyncRemote(cli.Application):
     """Fetch remote dump und load dump to local db"""
     def main(self):
         DbSynchronizer().sync()
-
-
-@Adfd.subcommand('sync-local')
-class AdfdSyncLocal(cli.Application):
-    """Update local content from local db contents"""
-    def main(self):
-        ContentWrangler.wrangle_content()
-
-
-@Adfd.subcommand('sync')
-class AdfdSync(cli.Application):
-    """sync all. remote DB -> local DB -> generate content"""
-    def main(self):
-        DbSynchronizer().sync()
-        ContentWrangler.wrangle_content()
 
 
 @Adfd.subcommand('dev')
@@ -100,7 +54,6 @@ class AdfdBuild(cli.Application):
         log.info("freeze in: %s", PATH.PROJECT)
         freezer = Freezer(app)
         freezer.register_generator(page)
-
         with local.cwd(PATH.PROJECT):
             log.info("freezing %s", freezer)
             seenUrls = freezer.freeze()

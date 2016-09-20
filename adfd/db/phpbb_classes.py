@@ -2,6 +2,8 @@ import html
 import logging
 import re
 
+from adfd.cnt.parse import AdfdParser
+from adfd.cst import PARSE
 from cached_property import cached_property
 
 from adfd.cnt.metadata import PageMetadata
@@ -60,13 +62,40 @@ class Topic:
         return self.firstPost.subject
 
     @cached_property
+    def htmlContent(self):
+        return AdfdParser().to_html(self.content)
+
+    @cached_property
+    def content(self):
+        """merge contents from topic files into one file"""
+        contents = []
+        for post in self.posts:
+            if post.isExcluded:
+                continue
+
+            content = ''
+            if self.md.useTitles:
+                content += PARSE.TITLE_PATTERN % self.md.title
+            contents.append(post.content)
+        return "\n\n".join(contents)
+
+    @cached_property
     def lastUpdate(self):
         return self._get_last_update(self.posts)
 
     @cached_property
+    def md(self):
+        return self.firstPost.md
+
+    @cached_property
     def posts(self):
         """:rtype: list of Post"""
-        return [Post(postId) for postId in self.postIds]
+        posts = []
+        for postId in self.postIds:
+            post = Post(postId)
+            if not post.isExcluded:
+                posts.append(post)
+        return posts
 
     @cached_property
     def id(self):
@@ -108,7 +137,7 @@ class Post:
 
     @cached_property
     def md(self):
-        return PageMetadata(kwargs=dict(
+        md = PageMetadata(kwargs=dict(
             title=self.subject,
             author=self.username,
             authorId=self.dbp.poster_id,
@@ -116,6 +145,8 @@ class Post:
             postDate=date_from_timestamp(self.dbp.post_time),
             topicId=self.topicId,
             postId=self.id))
+        md.populate_from_text(self.content)
+        return md
 
     @cached_property
     def filename(self):
@@ -148,6 +179,10 @@ class Post:
     @cached_property
     def lastUpdate(self):
         return date_from_timestamp(self.postTime)
+
+    @cached_property
+    def isExcluded(self):
+        return self.md.isExcluded
 
     @staticmethod
     def _preprocess(text, bbcodeUid=None):

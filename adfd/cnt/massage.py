@@ -5,92 +5,14 @@ from cached_property import cached_property
 from adfd.cnt.parse import AdfdParser
 from adfd.cnt.metadata import CategoryMetadata, PageMetadata
 from adfd.cst import PATH, PARSE, EXT, NAME
-from adfd.exc import *
 from adfd.utils import (
-    dump_contents, ContentGrabber, get_paths, slugify_path, id2name, slugify)
+    dump_contents, ContentGrabber, slugify_path, id2name, slugify)
 
 
 log = logging.getLogger(__name__)
 
 
-class RawPost:
-    def __init__(self, path):
-        self.content = ContentGrabber(path).grab()
-        self.md = PageMetadata(path.with_suffix(EXT.META))
-        self.postId = int(self.md.postId)
-
-
-class TopicPreparator:
-    """Take exported files of a topic and prepare them for HTML conversion"""
-
-    def __init__(self, path, dstPath):
-        self.path = path
-        sourcePaths = get_paths(self.path, EXT.IN)
-        if not sourcePaths:
-            raise TopicNotFound(self.path)
-
-        self.rawPosts = [RawPost(path) for path in sourcePaths]
-        self.mergedMd = self.merge_metadata()
-        if self.mergedMd.includePosts and self.mergedMd.excludePosts:
-            raise MutuallyExclusiveMetadata('either include or exclude posts')
-
-        filename = id2name(self.mergedMd.topicId)
-        self.cntDstPath = dstPath / (filename + EXT.IN)
-        self.mdDstPath = dstPath / (filename + EXT.META)
-
-    def __repr__(self):
-        return '<%s %s>' % (self.__class__.__name__, self.path)
-
-    @property
-    def content(self):
-        """merge contents from topic files into one file"""
-        contents = []
-        for rawPost in self.rawPosts:
-            if self.post_is_excluded(rawPost.postId):
-                continue
-
-            content = ''
-            if self.mergedMd.useTitles:
-                content += PARSE.TITLE_PATTERN % (self.mergedMd.title)
-            contents.append(rawPost.content)
-        return "\n\n".join(contents)
-
-    def post_is_excluded(self, postId):
-        def str_to_ints(posts):
-            return [int(p) for p in posts.split(',')]
-
-        assert isinstance(postId, int)
-        if self.mergedMd.includePosts:
-            if postId not in str_to_ints(self.mergedMd.includePosts):
-                log.info("post %s is not explicitly included", postId)
-                return True
-
-        if self.mergedMd.excludePosts:
-            if postId in str_to_ints(self.mergedMd.excludePosts):
-                log.info("post %s is explicitly excluded", postId)
-                return True
-
-    def prepare(self):
-        dump_contents(self.cntDstPath, self.content)
-        self.mergedMd.dump(self.mdDstPath)
-
-    # FIXME move to db obj
-    def merge_metadata(self):
-        """
-        * merge in [meta] from content (and write back)
-        * merge metadata from all posts new -> old (oldest/first post wins)
-
-        :returns: PageMetadata
-        """
-        md = PageMetadata()
-        for rawPost in reversed(self.rawPosts):
-            assert isinstance(rawPost, RawPost)
-            rawPost.md.populate_from_text(rawPost.content)
-            rawPost.md.dump()
-            md.populate_from_kwargs(rawPost.md.asDict)
-        return md
-
-
+# FIXME obsolete - for reference
 class TopicFinalizer:
     """Convert topic to final format (usually HTML)"""
     def __init__(self, topicId, relPath='', weight=0, isCategory=False):
@@ -123,11 +45,11 @@ class TopicFinalizer:
 
     @cached_property
     def outContent(self):
-        parse_func = PARSE.FUNC or AdfdParser(
-            hyphenate=True, typogrify=False).to_html
-        return parse_func(self.inContent)
+        return AdfdParser(
+            hyphenate=False, typogrify=False).to_html(self.inContent)
 
 
+# FIXME make this fetch from SiteStructure (or throw away completely)
 class GlobalFinalizer:
     """After all this mangling and wrangling dump the final results"""
     @classmethod
@@ -140,13 +62,13 @@ class GlobalFinalizer:
         if pathPrefix:
             relPath = "%s/%s" % (pathPrefix, desc.name)
         log.info('main topic in "%s" is %s', relPath, desc.mainTopicId)
-        TopicFinalizer(desc.mainTopicId, relPath, isCategory=True).finalize()
         # TODO this has to be handled differently to also work in live view
         # e.g. fetch index from SiteDesc Class
         # a lot of stuff should actually move from files into SiteDesc
-        # SiteDesc could then be serialized into one file instead of having many
-        cls.dump_cat_md(desc.name, relPath,
-                        mainTopicId=desc.mainTopicId, weight=weight)
+        # SiteDesc could be serialized into one file instead of having many
+        # TopicFinalizer(desc.mainTopicId, relPath, isCategory=True).finalize()
+        # cls.dump_cat_md(desc.name, relPath,
+        #                 mainTopicId=desc.mainTopicId, weight=weight)
         for idx, elem in enumerate(desc.contents, start=1):
             if isinstance(elem, int):
                 log.info('topic %s in %s is "%s"', idx, relPath, elem)

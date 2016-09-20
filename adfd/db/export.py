@@ -23,6 +23,7 @@ def harvest_topic_ids(siteDescription):
     return allTopicIds
 
 
+# TODO obsolete soon
 def export_topics(topicIds):
     topics = []
     for topicId in topicIds:

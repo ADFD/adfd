@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 from adfd.cst import METADATA
 from adfd.exc import PathMissing, NotAnAttribute, NotOverridable
-from adfd.utils import ContentGrabber, dump_contents, slugify
+from adfd.utils import ContentGrabber, dump_contents
 
 log = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ class Metadata:
             key, value = line.split(':', maxsplit=1)
             key = key.strip()
             if self.OVERRIDABLES and key not in self.OVERRIDABLES:
-                raise NotOverridable('%s in %s' % (key, self._path))
+                raise NotOverridable('%s in %s' % (key, self))
 
             self.update(key, value.strip())
 
@@ -108,6 +108,7 @@ class Metadata:
         dump_contents(path, self.asFileContents)
 
 
+# FIXME where to put this? I guess best place is site description YAML
 class CategoryMetadata(Metadata):
     ATTRIBUTES = METADATA.CATEGORY.ATTRIBUTES
 
@@ -118,6 +119,7 @@ class CategoryMetadata(Metadata):
         super().__init__(path, kwargs, text)
 
 
+# FIXME this is a bit fuzzy still. There should be Post and Topic metadata
 class PageMetadata(Metadata):
     ATTRIBUTES = METADATA.PAGE.ATTRIBUTES
     OVERRIDABLES = METADATA.PAGE.OVERRIDABLES
@@ -126,17 +128,13 @@ class PageMetadata(Metadata):
         self.allAuthors = None
         self.author = None
         self.authorId = None
-        self.excludePosts = None
-        self.includePosts = None
+        self.isExcluded = False
         self.lastUpdate = None
-        self.weight = None
-        self.postId = None
         self.postDate = None
+        self.postId = None
+        self.slug = None
         self.title = None
         self.topicId = None
         self.useTitles = None
+        self.weight = None
         super().__init__(path, kwargs, text)
-
-    @property
-    def slug(self):
-        return slugify(self.title)

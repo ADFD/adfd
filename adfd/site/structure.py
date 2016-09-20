@@ -33,18 +33,28 @@ def ordered_load(stream, Loader=yaml.SafeLoader,
 
 
 # Todo Generate Navigation from this as well
+
 class Structure:
-    """Recursive description of a site structure"""
+    """Recursive description of a site structure
+
+    plan for navigation / structure hybrid
+
+    * when building site description also build a mapping viewPath -> topicId
+    * look up topic ID in FlatPagesWithDBAccess from path
+    * done
+    """
     rootKey = "home"
     sep = "|"
 
-    def __init__(self, rootKey, value):
-        self.name, self.mainTopicId = self.get_data(rootKey)
+    def __init__(self, rootKey, value, weight=1):
+        self.name, self.mainTopicId = self._parse(rootKey)
+        self.weight = weight
         self.contents = []
-        self._add_data(value, self.contents)
+        self._add_data(value, self.contents, weight)
 
     def __repr__(self):
-        return "<%s | %s -> %s>" % (self.name, self.mainTopicId, self.contents)
+        return ("<%s | %s -> %s (weight: %s)>" %
+                (self.name, self.mainTopicId, self.contents, self.weight))
 
     # FIXME makes not much sense here, move to navigation
     # @property
@@ -68,13 +78,13 @@ class Structure:
         mainTopicId = int(sd[1].strip()) if len(sd) == 2 else 0
         return title, mainTopicId
 
-    def _add_data(self, data, contents):
+    def _add_data(self, data, contents, weight):
         if isinstance(data, list):
-            for item in data:
-                self._add_data(item, contents)
+            for idx, item in enumerate(data, start=1):
+                self._add_data(item, contents, self.weight + idx)
         elif isinstance(data, int):
             contents.append(data)
         else:
             assert isinstance(data, OrderedDict), data
             key = next(iter(data))
-            contents.append(Structure(key, data[key], parent=self))
+            contents.append(Structure(key, data[key], weight))

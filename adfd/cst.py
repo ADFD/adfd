@@ -55,6 +55,7 @@ class PATH:
     PROJECT = plumbum.LocalPath(__file__).dirname.up()
     OUTPUT = PROJECT / NAME.OUTPUT
     CONTENT = PROJECT / NAME.CONTENT
+    # FIXME not necessary anymore soon
     CNT_RAW = CONTENT / DIR.RAW
     """exported bbcode like it looks when edited - each posts in a single file.
 
@@ -62,6 +63,7 @@ class PATH:
     as this is quite different from what one sees in the editor, but from
     an editors perspective that does not matter, so this is considered raw
     """
+    # FIXME not necessary anymore soon
     CNT_PREPARED = CONTENT / DIR.PREPARED
     """prepared in a file pair - contents as bbcode in one file + metadata"""
     CNT_FINAL = CONTENT / DIR.FINAL
@@ -101,8 +103,7 @@ class METADATA:
     class PAGE:
         OVERRIDABLES = [
             'allAuthors',
-            'excludePosts',
-            'includePosts',
+            'isExcluded',
             'linktext',
             'relFilePath',
             'relPath',

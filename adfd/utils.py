@@ -19,6 +19,7 @@ def untypogrify(text):
     return ''.join([untypogrify_char(c) for c in text])
 
 
+# FIXME hopefully obsolete after transition
 def get_paths(containerPath, ext=None, content=None):
     paths = sorted([p for p in containerPath.list()])
     if ext:
