@@ -74,6 +74,7 @@ class TopicPreparator:
         dump_contents(self.cntDstPath, self.content)
         self.mergedMd.dump(self.mdDstPath)
 
+    # FIXME move to db obj
     def merge_metadata(self):
         """
         * merge in [meta] from content (and write back)
@@ -140,6 +141,10 @@ class GlobalFinalizer:
             relPath = "%s/%s" % (pathPrefix, desc.name)
         log.info('main topic in "%s" is %s', relPath, desc.mainTopicId)
         TopicFinalizer(desc.mainTopicId, relPath, isCategory=True).finalize()
+        # TODO this has to be handled differently to also work in live view
+        # e.g. fetch index from SiteDesc Class
+        # a lot of stuff should actually move from files into SiteDesc
+        # SiteDesc could then be serialized into one file instead of having many
         cls.dump_cat_md(desc.name, relPath,
                         mainTopicId=desc.mainTopicId, weight=weight)
         for idx, elem in enumerate(desc.contents, start=1):

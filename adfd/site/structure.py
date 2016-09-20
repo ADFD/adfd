@@ -32,22 +32,33 @@ def ordered_load(stream, Loader=yaml.SafeLoader,
     return yaml.load(stream, OrderedLoader)
 
 
+# Todo Generate Navigation from this as well
 class Structure:
-    """Description of a site structure as a tree of descriptions
-    containing a list of descriptions and topic ids"""
+    """Recursive description of a site structure"""
     rootKey = "home"
     sep = "|"
 
     def __init__(self, rootKey, value):
         self.name, self.mainTopicId = self.get_data(rootKey)
         self.contents = []
-        self.construct_description(value, self.contents)
+        self._add_data(value, self.contents)
 
     def __repr__(self):
         return "<%s | %s -> %s>" % (self.name, self.mainTopicId, self.contents)
 
+    # FIXME makes not much sense here, move to navigation
+    # @property
+    # def breadcrumbs(self):
+    #     # TODO fetch titles
+    #     crumbs = [self.mainTopicId]
+    #     parent = self.parent
+    #     while parent:
+    #         crumbs.append(parent.mainTopicId)
+    #         parent = parent.parent
+    #     return list(reversed(crumbs))
+
     @classmethod
-    def get_data(cls, data):
+    def _parse(cls, data):
         sd = data.split("|")
         if len(sd) > 2:
             raise ValueError("Too many '%s' in %s" % (cls.sep, data))
@@ -57,14 +68,13 @@ class Structure:
         mainTopicId = int(sd[1].strip()) if len(sd) == 2 else 0
         return title, mainTopicId
 
-    @classmethod
-    def construct_description(cls, data, contents):
+    def _add_data(self, data, contents):
         if isinstance(data, list):
             for item in data:
-                cls.construct_description(item, contents)
+                self._add_data(item, contents)
         elif isinstance(data, int):
             contents.append(data)
         else:
             assert isinstance(data, OrderedDict), data
             key = next(iter(data))
-            contents.append(Structure(key, data[key]))
+            contents.append(Structure(key, data[key], parent=self))
