@@ -4,7 +4,6 @@ import socketserver
 
 from adfd.cst import PATH, APP, TARGET
 from adfd.db.sync import DbSynchronizer
-from adfd.site.navigation import Navigator
 from adfd.site.views import app, navigator, run_devserver
 from flask.ext.frozen import Freezer
 from plumbum import cli, local
@@ -37,7 +36,7 @@ class AdfdDev(cli.Application):
 class AdfdBuild(cli.Application):
     """Freeze website to static files"""
     target = cli.SwitchAttr(
-        ['t', 'target'], default='test', help="one of %s" % (TARGET.ALL))
+        ['t', 'target'], default='test', help="one of %s" % TARGET.ALL)
 
     def main(self):
         target = TARGET.get(self.target)
@@ -65,7 +64,7 @@ class AdfdBuild(cli.Application):
                     with open(filePath) as f:
                         content = f.read()
                         content = content.replace(
-                            'href="/', 'href="/%s/' % (pathPrefix))
+                            'href="/', 'href="/%s/' % pathPrefix)
                     with open(filePath, 'w') as f:
                         f.write(content)
 
@@ -74,18 +73,10 @@ class AdfdBuild(cli.Application):
 class AdfdDeploy(cli.Application):
     """Deploy frozen web page to remote location"""
     target = cli.SwitchAttr(
-        ['t', 'target'], default='test', help="one of %s" % (TARGET.ALL))
+        ['t', 'target'], default='test', help="one of %s" % TARGET.ALL)
 
     def main(self):
         self.deploy(PATH.OUTPUT, TARGET.get(self.target))
-
-
-@Adfd.subcommand('outline')
-class AdfdOutline(cli.Application):
-    """Generate web page outline in bbcode to post in forum"""
-    def main(self):
-        outline = Navigator().outline
-        print(outline, end='\n\n')
 
 
 @Adfd.subcommand('serve-frozen')

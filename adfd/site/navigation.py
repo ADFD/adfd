@@ -1,104 +1,73 @@
+import io
 import logging
-from functools import total_ordering
+import re
 
+from adfd.cst import METADATA
+from boltons.iterutils import remap
 from cached_property import cached_property
 
-from adfd.cnt.metadata import CategoryMetadata, PageMetadata
-from adfd.cst import PATH, EXT, NAME
-from adfd.utils import ContentGrabber, obj_attr
+from adfd.db.phpbb_classes import Topic
+from adfd.utils import slugify, ordered_yaml_load
+from plumbum import LocalPath
 
 log = logging.getLogger(__name__)
 
 
-@total_ordering
-class Container:
-    ROOT = PATH.CNT_FINAL
+class Node:
+    SPEC = "N"
 
-    def __init__(self, path):
-        self.basePath = self.ROOT / path
-        self.relPath = str(self.basePath).split(self.ROOT)[-1]
+    def __init__(self, topicId, name=None):
+        self.topicId = topicId
+        self.isHome = name == ''
+        self._name = name
 
     def __repr__(self):
-        return "%s" % (obj_attr(self))
+        return "<%s(%s)>" % (self.SPEC, self.name)
 
-    def __gt__(self, other):
-        return self.weight > other.weight
+    @cached_property
+    def html(self):
+        return self.topic.htmlContent
+
+    @cached_property
+    def link(self):
+        return "http://adfd.org/austausch/viewtopic.php?t=%s" % self.topic.id
 
     @cached_property
     def name(self):
-        try:
-            return self.md.name
-
-        except AttributeError:
-            return self.md.title
+        return self._name or self.topic.subject
 
     @cached_property
-    def weight(self):
-        return self.md.weight
+    def slug(self):
+        """:rtype: str"""
+        return slugify(self.name) if not self.isHome else ''
 
     @cached_property
-    def isValidContainer(self):
-        return self.basePath.isdir()
-
-    @cached_property
-    def isCategory(self):
-        catMetaPath = (self.basePath / NAME.CATEGORY).with_suffix(EXT.META)
-        return self.isValidContainer and catMetaPath.exists()
-
-    @cached_property
-    def isPage(self):
-        return self.isValidContainer and not self.isCategory
-
-    def find_categories(self):
-        return self._find_elems('isCategory', Category)
-
-    def find_pages(self):
-        return self._find_elems('isPage', Page)
-
-    def _find_elems(self, checkAttr, Klass):
-        elems = []
-        for path in self.basePath.list():
-            if getattr(Container(path), checkAttr):
-                elems.append(Klass(path=path))
-        return sorted(elems)
+    def topic(self):
+        """:rtype: adfd.db.phpbb_classes.Topic"""
+        return Topic(self.topicId)
 
 
-class Category(Container):
-    def __init__(self, path=''):
-        super().__init__(path)
+class CategoryNode(Node):
+    SPEC = "C"
 
-    def __repr__(self):
-        return "<%s %s>" % (self.__class__.__name__, self.md.name)
+    def __init__(self, data):
+        super().__init__(*self._parse(data))
 
-    @cached_property
-    def mainPage(self):
-        return Page(self.basePath)
+    @classmethod
+    def _parse(cls, data):
+        sep = "|"
+        sd = data.split(sep)
+        if len(sd) > 2:
+            raise ValueError("Too many '%s' in %s" % (sep, data))
 
-    @cached_property
-    def md(self):
-        path = (self.basePath / NAME.CATEGORY).with_suffix(EXT.META)
-        return CategoryMetadata(path)
-
-
-class Page(Container):
-    def __init__(self, path):
-        self.basePath = self.ROOT / path
-        super().__init__(self.basePath)
-        idxPath = self.basePath / NAME.INDEX
-        self.cntPath = idxPath.with_suffix(EXT.OUT)
-        self.pageMdPath = idxPath.with_suffix(EXT.META)
-
-    @cached_property
-    def content(self):
-        return ContentGrabber(self.cntPath).grab()
-
-    @cached_property
-    def md(self):
-        return PageMetadata(self.pageMdPath)
+        title = sd[0].strip()
+        title = title if title != "Home" else ""
+        mainTopicId = int(sd[1].strip()) if len(sd) == 2 else 0
+        return mainTopicId, title
 
 
-class PageNotFound(Exception):
-    pass
+class ArticleNode(Node):
+    SPEC = "A"
 
 
 class Navigator:
@@ -106,89 +75,87 @@ class Navigator:
               'data-responsive-menu="drilldown medium-dropdown">', '</ul>')
     MAIN = ('<ul class="submenu menu vertical" data-submenu>', '</ul>')
     CAT = ('<a href="%s">%s', '</a>')
+    CAT_ACT = ('<a style="text-weight: bold;" href="%s">%s', '</a>')
     SUB = ('<li class="has-submenu">', '</li>')
     ELEM = ('<li><a href="%s">%s', '</a></li>')
-    TOGGLE = ('<li>', '<li style="text-weight: bold;">')
+    ELEM_ACT = ('<li style="text-weight: bold;"><a href="%s">%s', '</a></li>')
 
-    def __init__(self, root=Category()):
-        self.root = root
+    pathNodeMap = {}
+
+    def __init__(self, yamlStructure):
+        self.structure = remap(yamlStructure, visit=self.create_nodes)
+        root = next(iter(self.structure))
+        self.pathNodeMap[""] = root
+        self.menu = self.structure[root]
         self.depth = 1
-        self._elems = []
-        self.navigation = ''
+        self.lastPath = ''
 
-    def generate_navigation(self, activeRelPath):
-        assert 'index' not in activeRelPath, activeRelPath
-        modifiedElems = []
-        for elem in self.elems:
-            if activeRelPath in elem:
-                modifiedElems.append(self.get_toggled_elem(elem))
-            else:
-                modifiedElems.append(elem)
-        return "\n".join(modifiedElems)
+    def get_navigation(self, newPath=""):
+        self._elems = []
+        self._recursive_add_elems(self.menu)
+        self.pathNodeMap[self.lastPath].isActive = False
+        self.pathNodeMap[newPath].isActive = True
+        self.lastPath = newPath
+        return "\n".join(self._elems)
 
     @cached_property
     def allUrls(self):
-        allUrls = []
-
-        def _gather_urls(element):
-            for cat in element.find_categories():
-                allUrls.append(cat.relPath)
-                _gather_urls(cat)
-            for page in element.find_pages():
-                allUrls.append(page.relPath)
-
-        _gather_urls(self.root)
-        return allUrls
+        if not hasattr(self, '_elems'):
+            self.get_navigation()
+        return list(self.pathNodeMap.keys())
 
     @cached_property
-    def outline(self):
-        out = []
+    def allTopics(self):
+        return list([n.topic for n in self.pathNodeMap.values()])
 
-        def rep(text, id_, relPath, depth):
-            def indented(text, depth):
-                return '[color=#E1EBF2]%s[/color]%s' % ('.' * 4 * depth, text)
-
-            txt = (
-                "[url=http://adfd.org/austausch/viewtopic.php?t=%s]%s[/url]"
-                " [url=http://adfd.org/privat/neu%s](x)[/url]" %
-                (id_, text, relPath))
-            return indented(txt, depth)
-
-        def _create_outline(element, depth=0):
-            for cat in element.find_categories():
-                r = rep(cat.name, cat.md.mainTopicId, cat.relPath, depth)
-                out.append(r)
-                _create_outline(cat, depth=depth + 1)
-            for page in element.find_pages():
-                r = rep(page.name, page.md.topicId, page.relPath, depth)
-                out.append(r)
-
-        _create_outline(self.root)
-        return "\n".join(out)
-
-    @property
-    def elems(self):
-        if not self._elems:
-            self._recursive_add_elems(self.root)
-        return self._elems
-
-    def get_toggled_elem(self, elem):
-        return elem.replace(self.TOGGLE[0], self.TOGGLE[1])
-
-    def _recursive_add_elems(self, element):
+    def _recursive_add_elems(self, node, prefix=''):
         self._add_elem(self.GLOBAL[0] if self.depth == 1 else self.MAIN[0])
         self.depth += 1
-        for cat in element.find_categories():
-            self._add_elem(self.SUB[0])
-            elem = self.CAT[0] % (cat.relPath, cat.name)
-            self._add_elem('%s%s' % (elem, self.CAT[1]))
-            self._recursive_add_elems(cat)
-            self._add_elem(self.SUB[1])
-        for page in element.find_pages():
-            elem = self.ELEM[0] % (page.relPath, page.name)
-            self._add_elem('%s%s' % (elem, self.ELEM[1]))
+        if isinstance(node, dict):
+            for category, val in node.items():
+                self._add_elem(self.SUB[0])
+                relPath = prefix + "/" + category.slug
+                if relPath not in self.pathNodeMap:
+                    self.pathNodeMap[relPath] = category
+                pattern = self.CAT_ACT if category.topic.isActive else self.CAT
+                elem = pattern[0] % (relPath, category.name)
+                self._add_elem('%s%s' % (elem, pattern[1]))
+                self._recursive_add_elems(val, prefix=relPath)
+                self._add_elem(self.SUB[1])
+        elif isinstance(node, list):
+            for e in node:
+                self._recursive_add_elems(e, prefix=prefix)
+        elif isinstance(node, Node):
+                relPath = prefix + "/" + node.slug
+                if relPath not in self.pathNodeMap:
+                    self.pathNodeMap[relPath] = node
+                pattern = self.ELEM_ACT if node.topic.isActive else self.ELEM
+                elem = pattern[0] % (relPath, node.name)
+                self._add_elem('%s%s' % (elem, pattern))
+        else:
+            raise Exception("%s" % (type(node)))
         self.depth -= 1
         self._add_elem(self.GLOBAL[1] if self.depth == 1 else self.MAIN[1])
 
     def _add_elem(self, text):
         self._elems.append('%s%s' % (' ' * 4 * self.depth, text))
+
+    @staticmethod
+    def create_nodes(_, key, value):
+        if isinstance(key, str):
+            key = CategoryNode(key)
+        elif isinstance(value, int):
+            value = ArticleNode(value)
+        return key, value
+
+
+def get_yaml_structure():
+    try:
+        topic = Topic(METADATA.STRUCTURE_TOPIC_ID)
+        regex = re.compile(r'\[code\](.*)\[/code\]', re.MULTILINE | re.DOTALL)
+        match = regex.search(topic.posts[0].content)
+        stream = io.StringIO(match.group(1))
+    except:
+        log.error("db access failed - fall back to file")
+        stream = open(LocalPath(__file__).dirname / 'structure.yml')
+    return ordered_yaml_load(stream=stream)

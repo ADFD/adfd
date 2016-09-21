@@ -9,8 +9,7 @@ from werkzeug.utils import cached_property
 
 from adfd.cnt.metadata import PageMetadata
 from adfd.cst import PATH, EXT, APP
-from adfd.site.navigation import Navigator
-
+from adfd.site.navigation import Navigator, get_yaml_structure
 
 log = logging.getLogger(__name__)
 
@@ -42,18 +41,15 @@ class NoRenderAdfdMetadataFlatPages(FlatPagesWithDbAccess):
         assert meta.exists, meta._path
         return NoRenderPageWithAdfdMetadata(path, meta, content, None)
 
-
 app = Flask(
-    __name__,
-    template_folder=PATH.TEMPLATES,
-    static_folder=PATH.STATIC,
+    __name__, template_folder=PATH.TEMPLATES, static_folder=PATH.STATIC,
     # static_url_path='/assets'
 )
-"""":type: Flask"""
-
 
 pages = NoRenderAdfdMetadataFlatPages(app)
-"""":type: NoRenderAdfdMetadataFlatPages"""
+
+# TODO breadcrumbs
+navigator = Navigator(get_yaml_structure())
 
 
 def config_app(appToCOnfig, pagesToConfig):
@@ -68,12 +64,7 @@ def config_app(appToCOnfig, pagesToConfig):
     pagesToConfig.init_app(app)
     return appToCOnfig
 
-
 config_app(app, pages)
-
-
-navigator = Navigator()
-"""":type: Navigator"""
 
 
 @app.route('/')
@@ -83,8 +74,8 @@ def page(path=''):
         if path.startswith(specialDir):
             return send_from_directory(specialDir, os.path.basename(path))
 
-    navigation = navigator.generate_navigation(path)
-    indexPath = 'index' if not path else "%s/index" % (path)
+    navigation = navigator.get_navigation(path)
+    indexPath = 'index' if not path else "%s/index" % path
     page = pages.get_or_404(indexPath)
     return render_template('page.html', page=page, navigation=navigation)
 

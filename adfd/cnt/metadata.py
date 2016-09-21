@@ -78,7 +78,6 @@ class Metadata:
 
         match = self.META_RE.search(text)
         if not match:
-            log.info('no overrides found in "%s"[...]', text[:20])
             return
 
         metaLines = match.group(1).split('\n')

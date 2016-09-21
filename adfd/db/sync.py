@@ -3,29 +3,16 @@ import os
 
 from plumbum import SshMachine, local
 
-log = logging.getLogger(__name__)
+from adfd.secrets import DB
 
-try:
-    from adfd.secrets import DB
-    NAME = DB.NAME
-    USER = DB.USER
-    PW = DB.PW
-    DUMP_PATH = DB.DUMP_PATH
-    REMOTE_HOST = DB.REMOTE_HOST
-except ImportError:
-    log.warning("no module with secrets found - using dummy values")
-    NAME = "dummyname"
-    USER = "dummyuser"
-    PW = "dummypassword"
-    DUMP_PATH = "/dummy/dump/path"
-    REMOTE_HOST = "dummy-host.de"
+log = logging.getLogger(__name__)
 
 
 class DbSynchronizer:
     def __init__(self):
-        self.sm = SshMachine(REMOTE_HOST)
-        self.dumpName = NAME + '.dump'
-        self.dumpDstPath = DUMP_PATH / self.dumpName
+        self.sm = SshMachine(DB.REMOTE_HOST)
+        self.dumpName = DB.NAME + '.dump'
+        self.dumpDstPath = DB.DUMP_PATH / self.dumpName
 
     def __del__(self):
         self.sm.close()
@@ -40,7 +27,7 @@ class DbSynchronizer:
         log.info('dump db')
         self.sm['mysqldump'](
             self.argUser, self.argPw,
-            NAME, '--result-file=%s' % (self.dumpName))
+            DB.NAME, '--result-file=%s' % self.dumpName)
 
     def fetch(self):
         log.info('fetch %s -> %s', self.dumpName, self.dumpDstPath)
@@ -49,12 +36,12 @@ class DbSynchronizer:
     def prepare_local_db(self):
         log.info('prepare local db privileges')
         cmds = [
-            "DROP DATABASE IF EXISTS %s" % (NAME),
-            "CREATE DATABASE IF NOT EXISTS %s" % (NAME),
+            "DROP DATABASE IF EXISTS %s" % DB.NAME,
+            "CREATE DATABASE IF NOT EXISTS %s" % DB.NAME,
             ("GRANT USAGE ON *.* TO %s@localhost IDENTIFIED BY '%s'" %
-             (USER, PW)),
+             (DB.USER, DB.PW)),
             ("GRANT ALL PRIVILEGES ON %s.* TO %s@localhost" %
-             (NAME, USER)),
+             (DB.NAME, DB.USER)),
             "FLUSH PRIVILEGES"]
         local['mysql']('-uroot', '-e', "; ".join(cmds))
 
@@ -62,15 +49,15 @@ class DbSynchronizer:
         log.info('load local dump from %s', self.dumpDstPath)
         os.system(
             "mysql %s %s %s < %s" %
-            (self.argUser, self.argPw, NAME, self.dumpDstPath))
+            (self.argUser, self.argPw, DB.NAME, self.dumpDstPath))
         # piping does not work!?
         # local['mysql'](
         #     self.argUser, '-plar', NAME) < self.localDumpPath
 
     @property
     def argUser(self):
-        return '-u%s' % (USER)
+        return '-u%s' % DB.USER
 
     @property
     def argPw(self):
-        return '-p%s' % (PW)
+        return '-p%s' % DB.PW

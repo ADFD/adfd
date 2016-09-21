@@ -2,9 +2,11 @@ import codecs
 import logging
 import os
 import re
+from collections import OrderedDict
 from datetime import datetime
 from types import FunctionType, MethodType
 
+import yaml
 from adfd.cst import METADATA, PATH
 from plumbum import LocalPath
 
@@ -32,7 +34,7 @@ def get_paths(containerPath, ext=None, content=None):
 def id2name(id_):
     if isinstance(id_, str):
         id_ = int(id_)
-    return "%05d" % (id_)
+    return "%05d" % id_
 
 
 def date_from_timestamp(timestamp):
@@ -170,7 +172,7 @@ def _obj_attr(obj, hideString, filterMethods, filterPrivate,
     excludeAttrs = excludeAttrs or []
     names = dir(obj)
     for specialObjectName in _specialAttrNames:
-        n = "__%s__" % (specialObjectName)
+        n = "__%s__" % specialObjectName
         if n in names:
             names.remove(n)
     if hideString:
@@ -203,13 +205,13 @@ def _obj_attr(obj, hideString, filterMethods, filterPrivate,
             value = value.replace(PATH.CONTENT + '/', '[P]')
             out.append((name, attrType.__name__, value))
         except AssertionError as e:
-            out.append(("[A] %s" % (name), e.__class__.__name__, e))
+            out.append(("[A] %s" % name, e.__class__.__name__, e))
 
         except Exception as e:
             out.append(
-                ("[E] %s" % (name), e.__class__.__name__, e))
+                ("[E] %s" % name, e.__class__.__name__, e))
     out = out or [(objName, str(type(obj)), repr(obj))]
-    boundTo = "'%s' " % (objName) if objName else ""
+    boundTo = "'%s' " % objName if objName else ""
     header = "|# %s%s (0x%X) #|" % (boundTo, type(obj).__name__, (id(obj)))
     numDashes = (terminalSize // 2) - len(header) // 2
     maxNameLen = max([len(name) for name in names])
@@ -235,7 +237,7 @@ def _prep_line(contentTuple, maxNameLen, maxTypeLen, terminalSize):
         value = str(value)
 
     if value.strip().startswith("| "):
-        return pattern % (value)
+        return pattern % value
 
     windowSize = terminalSize
     firstLineLength = len(pattern) - 7
@@ -246,7 +248,7 @@ def _prep_line(contentTuple, maxNameLen, maxTypeLen, terminalSize):
         if not curString:
             break
 
-        lines.append("\n|    %s" % (curString))
+        lines.append("\n|    %s" % curString)
         curPos += windowSize
     return "".join(lines)
 
@@ -259,3 +261,19 @@ def get_obj_info(objects):
     for name, obj in sorted([(k, v) for k, v in inf.items() if k.isupper()]):
         out.append(obj_attr(obj, objName=name))
     return '\n'.join(out)
+
+
+def ordered_yaml_load(
+        stream, Loader=yaml.SafeLoader, object_pairs_hook=OrderedDict):
+    class OrderedLoader(Loader):
+        pass
+
+    def construct_mapping(loader, node):
+        loader.flatten_mapping(node)
+        return object_pairs_hook(loader.construct_pairs(node))
+
+    # noinspection PyUnresolvedReferences
+    OrderedLoader.add_constructor(
+        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+        construct_mapping)
+    return yaml.load(stream, OrderedLoader)

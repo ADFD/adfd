@@ -3,14 +3,9 @@ import re
 
 import plumbum
 
-log = logging.getLogger(__name__)
+from adfd.secrets import DB
 
-try:
-    from adfd.secrets import DB
-    REMOTE_HOST = DB.REMOTE_HOST
-except ImportError:
-    REMOTE_HOST = "adfd.org"
-    log.error("use generic remote host %s", REMOTE_HOST)
+log = logging.getLogger(__name__)
 
 
 class APP:
@@ -129,6 +124,8 @@ class METADATA:
     DATE_FORMAT = '%d.%m.%Y'
     """this format will be used for human readable dates in meta data"""
 
+    STRUCTURE_TOPIC_ID = 12109
+
 
 class RE:
     URL = re.compile(
@@ -151,7 +148,7 @@ class RE:
 
 
 class TARGET:
-    class _Target:
+    class _T:
         def __init__(self, name, path, prefix):
             self.name = name
             self.path = path
@@ -163,16 +160,16 @@ class TARGET:
         def __eq__(self, other):
             return self.name == other.name
 
-    TEST = _Target('test', '%s:./www/privat/neu' % REMOTE_HOST, 'privat/neu')
-    LIVE = _Target('live', '%s:./www/inhalt' % REMOTE_HOST, 'inhalt')
+    TEST = _T('test', '%s:./www/privat/neu' % DB.REMOTE_HOST, 'privat/neu')
+    LIVE = _T('live', '%s:./www/inhalt' % DB.REMOTE_HOST, 'inhalt')
     ALL = [TEST, LIVE]
 
     @classmethod
     def get(cls, wantedTarget):
         for target in cls.ALL:
-            if isinstance(wantedTarget, cls._Target):
+            if isinstance(wantedTarget, cls._T):
                 wantedTarget = wantedTarget.name
             if target.name == wantedTarget:
                 return target
 
-        raise ValueError('target %s not found' % (wantedTarget))
+        raise ValueError('target %s not found' % wantedTarget)

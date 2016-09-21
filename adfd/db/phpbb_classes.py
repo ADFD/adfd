@@ -55,11 +55,19 @@ class Forum:
 
 class Topic:
     def __init__(self, topicId):
-        self._originalId = topicId
+        self.id = topicId
+        self.isActive = False
+
+    def __repr__(self):
+        return "<Topic(%s (%s))>" % (self.subject, self.id)
+
+    @cached_property
+    def slug(self):
+        return self.posts[0].slug
 
     @cached_property
     def subject(self):
-        return self.firstPost.subject
+        return self.posts[0].subject
 
     @cached_property
     def htmlContent(self):
@@ -81,11 +89,12 @@ class Topic:
 
     @cached_property
     def lastUpdate(self):
-        return self._get_last_update(self.posts)
+        newestDate = sorted([p.postTime for p in self.posts], reverse=True)[0]
+        return date_from_timestamp(newestDate)
 
     @cached_property
     def md(self):
-        return self.firstPost.md
+        return self.posts[0].md
 
     @cached_property
     def posts(self):
@@ -98,20 +107,10 @@ class Topic:
         return posts
 
     @cached_property
-    def id(self):
-        self.postIds = self.fetch_post_ids(self._originalId)
-        self.firstPost = self.posts[0]
-        return self.firstPost.topicId
-
-    @classmethod
-    def _get_last_update(cls, posts):
-        newestDate = sorted([p.postTime for p in posts], reverse=True)[0]
-        return date_from_timestamp(newestDate)
-
-    def fetch_post_ids(self, topicId):
-        ids = DbWrapper().fetch_post_ids_from_topic(topicId)
+    def postIds(self):
+        ids = DbWrapper().fetch_post_ids_from_topic(self.id)
         if not ids:
-            raise TopicDoesNotExist(str(topicId))
+            raise TopicDoesNotExist(str(self.id))
 
         return ids
 
@@ -150,9 +149,9 @@ class Post:
 
     @cached_property
     def filename(self):
-        filename = '%06d' % (self.id)
+        filename = '%06d' % self.id
         if self.slug:
-            filename += '-%s' % (self.slug)
+            filename += '-%s' % self.slug
         return filename
 
     @cached_property
@@ -187,7 +186,7 @@ class Post:
     @staticmethod
     def _preprocess(text, bbcodeUid=None):
         if bbcodeUid:
-            text = text.replace(':%s' % (bbcodeUid), '')
+            text = text.replace(':%s' % bbcodeUid, '')
         text = html.unescape(text)
         return text
 

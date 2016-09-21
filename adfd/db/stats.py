@@ -60,7 +60,7 @@ class DataFetcher:
     def statement(self):
         statement = self.select
         if self.where:
-            statement += " %s" % (self.where)
+            statement += " %s" % self.where
         return statement
 
     @property
@@ -111,7 +111,7 @@ class StatsPlotter:
         dpi = F.get_dpi()
         inches = F.get_size_inches()
         print(dpi * inches)
-        plt.savefig('%s.png' % (name))
+        plt.savefig('%s.png' % name)
 
 
 def series_stats():
