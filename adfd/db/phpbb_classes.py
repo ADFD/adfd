@@ -70,7 +70,7 @@ class Topic:
         return self.posts[0].subject
 
     @cached_property
-    def htmlContent(self):
+    def html(self):
         return AdfdParser().to_html(self.content)
 
     @cached_property

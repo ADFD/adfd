@@ -10,6 +10,7 @@
 <body>
 
 
+{% if navigation %}
 <div class="title-bar" data-responsive-toggle="main-menu" data-hide-for="medium">
   <button class="menu-icon" type="button" data-toggle></button>
   <div class="title-bar-title">Navigation</div>
@@ -29,6 +30,7 @@
     </ul>
   </div>
 </div>
+{% endif %}
 
 {% block content %}{% endblock content %}
 

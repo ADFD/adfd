@@ -24,7 +24,7 @@ class Node:
 
     @cached_property
     def html(self):
-        return self.topic.htmlContent
+        return self.topic.html
 
     @cached_property
     def link(self):
