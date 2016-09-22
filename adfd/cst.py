@@ -124,7 +124,11 @@ class METADATA:
     DATE_FORMAT = '%d.%m.%Y'
     """this format will be used for human readable dates in meta data"""
 
+
+class SITE:
     STRUCTURE_TOPIC_ID = 12109
+    STRUCTURE_PATH = PATH.SITE / "structure.yml"
+    USE_FILE = True
 
 
 class RE:

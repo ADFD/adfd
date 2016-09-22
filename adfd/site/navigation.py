@@ -2,13 +2,11 @@ import io
 import logging
 import re
 
-from adfd.cst import METADATA
-from boltons.iterutils import remap
-from cached_property import cached_property
-
+from adfd.cst import SITE
 from adfd.db.phpbb_classes import Topic
 from adfd.utils import slugify, ordered_yaml_load
-from plumbum import LocalPath
+from boltons.iterutils import remap
+from cached_property import cached_property
 
 log = logging.getLogger(__name__)
 
@@ -118,8 +116,8 @@ class Navigator:
                 if relPath not in self.pathNodeMap:
                     self.pathNodeMap[relPath] = category
                 pattern = self.CAT_ACT if category.topic.isActive else self.CAT
-                elem = pattern[0] % (relPath, category.name)
-                self._add_elem('%s%s' % (elem, pattern[1]))
+                text = pattern[0] % (relPath, category.name) + pattern[1]
+                self._add_elem(text)
                 self._recursive_add_elems(val, prefix=relPath)
                 self._add_elem(self.SUB[1])
         elif isinstance(node, list):
@@ -130,15 +128,16 @@ class Navigator:
                 if relPath not in self.pathNodeMap:
                     self.pathNodeMap[relPath] = node
                 pattern = self.ELEM_ACT if node.topic.isActive else self.ELEM
-                elem = pattern[0] % (relPath, node.name)
-                self._add_elem('%s%s' % (elem, pattern))
+                text = pattern[0] % (relPath, node.name) + pattern[1]
+                self._add_elem(text)
         else:
             raise Exception("%s" % (type(node)))
         self.depth -= 1
         self._add_elem(self.GLOBAL[1] if self.depth == 1 else self.MAIN[1])
 
     def _add_elem(self, text):
-        self._elems.append('%s%s' % (' ' * 4 * self.depth, text))
+        spaces = ' ' * (4 * (self.depth - 1)) if self.depth > 1 else ""
+        self._elems.append(spaces + text)
 
     @staticmethod
     def create_nodes(_, key, value):
@@ -150,12 +149,11 @@ class Navigator:
 
 
 def get_yaml_structure():
-    try:
-        topic = Topic(METADATA.STRUCTURE_TOPIC_ID)
+    if SITE.USE_FILE:
+        stream = open(SITE.STRUCTURE_PATH)
+    else:
+        topic = Topic(SITE.STRUCTURE_TOPIC_ID)
         regex = re.compile(r'\[code\](.*)\[/code\]', re.MULTILINE | re.DOTALL)
         match = regex.search(topic.posts[0].content)
         stream = io.StringIO(match.group(1))
-    except:
-        log.error("db access failed - fall back to file")
-        stream = open(LocalPath(__file__).dirname / 'structure.yml')
     return ordered_yaml_load(stream=stream)
