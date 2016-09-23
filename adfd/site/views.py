@@ -14,8 +14,8 @@ log = logging.getLogger(__name__)
 class Page(object):
     def __init__(self, path, meta, html):
         self.path = path
-        self.meta = meta
         self.html = html
+        self.meta = meta
 
     def __repr__(self):
         return '<Page %r>' % self.path
