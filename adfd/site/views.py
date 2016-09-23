@@ -10,6 +10,17 @@ from werkzeug.utils import cached_property
 
 log = logging.getLogger(__name__)
 
+# FIXME ever needed? -> static_url_path='/assets'
+app = Flask(__name__, template_folder=PATH.TEMPLATES, static_folder=PATH.STATIC,)
+# FIXME Why do I set the root path to the very root? Needed?
+app.root_path = str(PATH.PROJECT)
+app.config.update(
+    DEBUG=True,
+    FREEZER_DESTINATION=str(PATH.OUTPUT),
+    FREEZER_RELATIVE_URLS=True)
+
+navigator = Navigator(get_yaml_structure())
+
 
 class Page(object):
     def __init__(self, path, meta, html):
@@ -34,18 +45,6 @@ class Page(object):
         ``page['title']`` == ``{{ page.title }}`` == ``page.meta['title']``.
         """
         return self.meta[name]
-
-
-# FIXME ever needed? -> static_url_path='/assets'
-app = Flask(__name__, template_folder=PATH.TEMPLATES, static_folder=PATH.STATIC,)
-# FIXME Why do I set the root path to the very root? Needed?
-app.root_path = str(PATH.PROJECT)
-app.config.update(
-    DEBUG=True,
-    FREEZER_DESTINATION=str(PATH.OUTPUT),
-    FREEZER_RELATIVE_URLS=True)
-
-navigator = Navigator(get_yaml_structure())
 
 
 @app.route('/')
