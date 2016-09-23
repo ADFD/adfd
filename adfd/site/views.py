@@ -1,12 +1,13 @@
 import logging
 
-from adfd.cst import PATH, APP
-from adfd.db.phpbb_classes import Topic
-from adfd.site.navigation import Navigator, get_yaml_structure
 from flask import render_template, send_from_directory, Flask
 from flask.ext.frozen import os
 from plumbum.machines import local
 from werkzeug.utils import cached_property
+
+from adfd.cst import PATH, APP
+from adfd.db.phpbb_classes import Topic
+from adfd.site.navigation import Navigator, get_yaml_structure
 
 log = logging.getLogger(__name__)
 
