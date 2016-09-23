@@ -56,6 +56,7 @@ class Forum:
 class Topic:
     def __init__(self, topicId):
         self.id = topicId
+        self.postIds = self._get_post_ids()
         self.isActive = False
 
     def __repr__(self):
@@ -106,8 +107,7 @@ class Topic:
                 posts.append(post)
         return posts
 
-    @cached_property
-    def postIds(self):
+    def _get_post_ids(self):
         ids = DbWrapper().fetch_post_ids_from_topic(self.id)
         if not ids:
             raise TopicDoesNotExist(str(self.id))

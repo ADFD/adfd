@@ -83,10 +83,10 @@ class Navigator:
     def __init__(self, yamlStructure):
         self.structure = remap(yamlStructure, visit=self.create_nodes)
         root = next(iter(self.structure))
-        self.pathNodeMap[""] = root
+        self.pathNodeMap['/'] = root
         self.menu = self.structure[root]
         self.depth = 1
-        self.lastPath = ''
+        self.lastPath = '/'
 
     def get_navigation(self, newPath=""):
         self._elems = []

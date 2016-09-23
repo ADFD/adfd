@@ -4,11 +4,9 @@ from setuptools import setup
 setup(
     name='adfd',
     packages=['adfd'],
-    # pyparsing==2.1.0
     install_requires=[
         'cached-property==1.3.0',
         'flask==0.10.1',
-        'flask-flatpages==0.6',
         'frozen-flask==0.12',
         'mysqlclient==1.3.7',
         'plumbum==1.6.0',

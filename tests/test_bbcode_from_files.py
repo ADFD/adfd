@@ -15,7 +15,7 @@ class PairTester:
     def test_pairs(cls, fName, src, exp):
         exp = exp.strip()
         if not exp:
-            pytest.xfail(reason='no expectation for %s' % (fName))
+            pytest.xfail(reason='no expectation for %s' % fName)
         log.info("file under test is %s", fName)
         html = cls._parser.to_html(src)
         print("\n## RESULT ##")
@@ -45,10 +45,3 @@ class TestFromDataAcceptance:
         if fName in ['nested-quotes.bbcode']:
             pytest.xfail('nested quuotes is tricky and of qquestionable use')
         PairTester.test_pairs(fName, src, exp)
-
-
-# fixme provide directory with fakefiles, when stable
-# class TestPage:
-#     def test_metadata(self):
-#         p = Page(689)
-#         print(obj_attr(p))

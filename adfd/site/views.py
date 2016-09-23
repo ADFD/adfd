@@ -1,77 +1,51 @@
 import logging
 
+from adfd.cst import PATH, APP
 from adfd.db.phpbb_classes import Topic
-from adfd.exc import TopicDoesNotExist
+from adfd.site.navigation import Navigator, get_yaml_structure
 from flask import render_template, send_from_directory, Flask
-from flask.ext.flatpages import FlatPages, Page
 from flask.ext.frozen import os
-from plumbum import LocalPath
 from plumbum.machines import local
 from werkzeug.utils import cached_property
-
-from adfd.cnt.metadata import PageMetadata
-from adfd.cst import PATH, EXT, APP
-from adfd.site.navigation import Navigator, get_yaml_structure
 
 log = logging.getLogger(__name__)
 
 
-class FlatPagesWithDbAccess(FlatPages):
-    def get(self, path, default=None):
-        try:
-            topic = Topic(int(path))
-            return NoRenderPageWithAdfdMetadata(path, topic.md, topic.html)
-        except TopicDoesNotExist:
-            return None
+class Page(object):
+    def __init__(self, path, meta, html):
+        self.path = path
+        self.meta = meta
+        self.html = html
 
-        except ValueError:
-            return super().get(path, default=None)
-
-
-class NoRenderPageWithAdfdMetadata(Page):
-    def __init__(self, path, meta, body):
-        super().__init__(path, meta, body, None)
-
-    @cached_property
-    def meta(self):
-        return self._meta
+    def __repr__(self):
+        return '<Page %r>' % self.path
 
     @cached_property
     def html(self):
-        return self.body
+        return self.html
+
+    def __html__(self):
+        """In a template: ``{{ page }}`` == ``{{ page.html|safe }}``."""
+        return self.html
+
+    def __getitem__(self, name):
+        """Shortcut for accessing metadata.
+
+        ``page['title']`` == ``{{ page.title }}`` == ``page.meta['title']``.
+        """
+        return self.meta[name]
 
 
-class NoRenderAdfdMetadataFlatPages(FlatPagesWithDbAccess):
-    def _parse(self, content, path):
-        mdPath = (LocalPath(self.root) / path).with_suffix(EXT.META)
-        meta = PageMetadata(path=mdPath)
-        assert meta.exists, meta._path
-        return NoRenderPageWithAdfdMetadata(path, meta, content)
+# FIXME ever needed? -> static_url_path='/assets'
+app = Flask(__name__, template_folder=PATH.TEMPLATES, static_folder=PATH.STATIC,)
+# FIXME Why do I set the root path to the very root? Needed?
+app.root_path = str(PATH.PROJECT)
+app.config.update(
+    DEBUG=True,
+    FREEZER_DESTINATION=str(PATH.OUTPUT),
+    FREEZER_RELATIVE_URLS=True)
 
-app = Flask(
-    __name__, template_folder=PATH.TEMPLATES, static_folder=PATH.STATIC,
-    # static_url_path='/assets'
-)
-
-pages = NoRenderAdfdMetadataFlatPages(app)
-
-# TODO breadcrumbs
 navigator = Navigator(get_yaml_structure())
-
-
-def config_app(appToCOnfig, pagesToConfig):
-    appToCOnfig.root_path = str(PATH.PROJECT)
-    appToCOnfig.config.update(
-        DEBUG=True,
-        FLATPAGES_ROOT=str(PATH.PAGES),
-        FLATPAGES_EXTENSION=EXT.OUT,
-        FLATPAGES_AUTO_RELOAD=True,
-        FREEZER_DESTINATION=str(PATH.OUTPUT),
-        FREEZER_RELATIVE_URLS=True)
-    pagesToConfig.init_app(app)
-    return appToCOnfig
-
-config_app(app, pages)
 
 
 @app.route('/')
@@ -81,25 +55,25 @@ def page(path=''):
         if path.startswith(specialDir):
             return send_from_directory(specialDir, os.path.basename(path))
 
+    path = "/" + path  # FIXME Why is this necessary?
     navigation = navigator.get_navigation(path)
-    indexPath = 'index' if not path else "%s/index" % path
-    page = pages.get_or_404(indexPath)
+    topic = navigator.pathNodeMap[path].topic
+    page = Page(path, topic.md, topic.html)
     return render_template('page.html', page=page, navigation=navigation)
 
 
 @app.route('/article/<int:topicId>/')
 def article(topicId):
-    page = pages.get_or_404(topicId)
+    topic = Topic(int(topicId))
+    page = Page(topicId, topic.md, topic.html)
     return render_template('page.html', page=page)
-
-
-@app.route('/tag/<string:tag>/')
-def tag(tag):
-    tagged = [p for p in pages if tag in p.meta.get('tags', [])]
-    return render_template('tag.html', pages=tagged, tag=tag)
 
 
 def run_devserver(projectPath=PATH.PROJECT, port=APP.PORT):
     with local.cwd(projectPath):
         log.info("serving on http://localhost:%s", port)
         app.run(port=port)
+
+
+if __name__ == '__main__':
+    run_devserver()
