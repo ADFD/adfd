@@ -1,9 +1,8 @@
 import logging
 
 import pytest
-
-from adfd.cnt.parse import AdfdParser
 from adfd.cst import RE
+from adfd.parse import AdfdParser
 
 log = logging.getLogger(__name__)
 

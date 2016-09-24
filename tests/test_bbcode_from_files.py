@@ -1,8 +1,7 @@
 import logging
 
 import pytest
-
-from adfd.cnt.parse import AdfdParser
+from adfd.parse import AdfdParser
 from adfd.utils import DataGrabber
 
 log = logging.getLogger(__name__)

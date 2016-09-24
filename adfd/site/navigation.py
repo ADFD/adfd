@@ -3,7 +3,7 @@ import logging
 import re
 
 from adfd.cst import SITE
-from adfd.db.phpbb_classes import Topic
+from adfd.db.model import Topic
 from adfd.utils import slugify, ordered_yaml_load
 from boltons.iterutils import remap
 from cached_property import cached_property
@@ -41,7 +41,7 @@ class Node:
 
     @cached_property
     def topic(self):
-        """:rtype: adfd.db.phpbb_classes.Topic"""
+        """:rtype: adfd.db.model.Topic"""
         return Topic(self.topicId)
 
 

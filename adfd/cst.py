@@ -28,7 +28,6 @@ class DIR:
 
 
 class NAME:
-    CATEGORY = 'category'
     CONTENT = 'content'
     FINAL = 'final'
     INDEX = 'index'
@@ -88,39 +87,6 @@ class METADATA:
 
         <span style="display: none;">[meta]{TEXT}[/meta]</span>
     """
-    class CATEGORY:
-        ATTRIBUTES = [
-            'name',
-            'mainTopicId',
-            'weight'
-        ]
-
-    class PAGE:
-        OVERRIDABLES = [
-            'allAuthors',
-            'isExcluded',
-            'linktext',
-            'relFilePath',
-            'relPath',
-            'slug',
-            'title',
-            'weight',
-        ]
-        """can be overridden by metadata in post content"""
-        ATTRIBUTES = OVERRIDABLES + [
-            'author',
-            'authorId',
-            'lastUpdate',
-            'postDate',
-            'topicId',
-            'postId',
-
-            'useTitles',
-
-            'relPath',
-        ]
-        """all allowed attributes in use, prevents shooting self in foot"""
-
     DATE_FORMAT = '%d.%m.%Y'
     """this format will be used for human readable dates in meta data"""
 

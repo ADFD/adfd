@@ -2,14 +2,13 @@ import html
 import logging
 import re
 
-from adfd.cnt.parse import AdfdParser
 from adfd.cst import PARSE
-from cached_property import cached_property
-
-from adfd.cnt.metadata import PageMetadata
 from adfd.db.lib import DbWrapper
+from adfd.db.metadata import PageMetadata
 from adfd.exc import *
+from adfd.parse import AdfdParser
 from adfd.utils import slugify, date_from_timestamp
+from cached_property import cached_property
 
 log = logging.getLogger(__name__)
 

@@ -107,22 +107,32 @@ class Metadata:
         dump_contents(path, self.asFileContents)
 
 
-# FIXME where to put this? I guess best place is site description YAML
-class CategoryMetadata(Metadata):
-    ATTRIBUTES = METADATA.CATEGORY.ATTRIBUTES
-
-    def __init__(self, path=None, kwargs=None, text=None):
-        self.name = None
-        self.weight = None
-        self.mainTopicId = None
-        super().__init__(path, kwargs, text)
-
-
 # FIXME this is a bit fuzzy still. There should be Post and Topic metadata
 class PageMetadata(Metadata):
-    ATTRIBUTES = METADATA.PAGE.ATTRIBUTES
-    OVERRIDABLES = METADATA.PAGE.OVERRIDABLES
+    OVERRIDABLES = [
+        'allAuthors',
+        'isExcluded',
+        'linktext',
+        'relFilePath',
+        'relPath',
+        'slug',
+        'title',
+        'weight',
+    ]
+    """can be overridden by metadata in post content"""
+    ATTRIBUTES = OVERRIDABLES + [
+        'author',
+        'authorId',
+        'lastUpdate',
+        'postDate',
+        'topicId',
+        'postId',
 
+        'useTitles',
+
+        'relPath',
+    ]
+    """all allowed attributes in use, prevents shooting self in foot"""
     def __init__(self, path=None, kwargs=None, text=None):
         self.allAuthors = None
         self.author = None
