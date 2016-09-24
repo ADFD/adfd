@@ -11,6 +11,7 @@ except:
         def __getitem__(self, item):
             return "dontcare"
 
+
 class NAME:
     STATIC = 'static'
 
