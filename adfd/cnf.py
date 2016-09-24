@@ -26,6 +26,7 @@ class DB:
     USER = _CNF['user']
     PW = _CNF['pw']
     NAME = _CNF['name']
-    HOST = _CNF['host']
-    URL = "mysql://%s:%s@%s/%s" % (USER, PW, HOST, NAME)
+    REMOTE_HOST = _CNF['remoteHost']
+    _dbHost = REMOTE_HOST if _CNF['useRemoteDb'] else 'localhost'
+    URL = "mysql://%s:%s@%s/%s" % (USER, PW, _dbHost, NAME)
     DUMP_PATH = PATH.PROJECT / _CNF['relDumpPath']

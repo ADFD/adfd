@@ -11,8 +11,8 @@ from plumbum import cli, local
 
 log = logging.getLogger(__name__)
 
-TEST = ('%s:./www/privat/neu' % DB.HOST, 'privat/neu')
-LIVE = ('%s:./www/inhalt' % DB.HOST, 'inhalt')
+TEST = ('%s:./www/privat/neu' % DB.REMOTE_HOST, 'privat/neu')
+LIVE = ('%s:./www/inhalt' % DB.REMOTE_HOST, 'inhalt')
 TARGET_MAP = {'local': (None, None), 'test': TEST, 'live': LIVE}
 
 
@@ -23,7 +23,7 @@ class Adfd(cli.Application):
             self.nested_command = (AdfdDev, ['adfd dev'])
 
 
-@Adfd.subcommand('sync-remote')
+@Adfd.subcommand('sync')
 class AdfdSyncRemote(cli.Application):
     """Fetch remote dump und load dump to local db"""
     def main(self):
