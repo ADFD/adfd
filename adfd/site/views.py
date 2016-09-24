@@ -70,6 +70,15 @@ def article(topicId):
     return render_template('page.html', page=page)
 
 
+@app.route('/robots.txt')
+def robots_txt():
+    if os.getenv('APP_TARGET') != 'live':
+        return "User-agent: *\nDisallow: /\n"
+
+    # TODO exclude bad rebots
+    return "User-agent: *\nDisallow:\n"
+
+
 def run_devserver(projectPath=PATH.PROJECT, port=APP.PORT):
     with local.cwd(projectPath):
         log.info("serving on http://localhost:%s", port)
