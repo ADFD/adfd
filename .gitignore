@@ -9,4 +9,4 @@ __pycache__
 *.dump
 .frozen/*
 
-adfd/secrets.py
+adfd/cnf.yml

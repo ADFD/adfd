@@ -5,7 +5,7 @@ from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import sessionmaker
 
 from adfd.db.schema import PhpbbTopic, PhpbbForum, PhpbbPost, PhpbbUser
-from adfd.secrets import DB
+from adfd.cnf import DB
 
 log = logging.getLogger(__name__)
 
@@ -34,15 +34,15 @@ def generate_schema(writeToFile="schema.py"):
 
 
 def get_db_session():
+    global _DB_SESSION
     if _DB_SESSION:
         return _DB_SESSION
 
     logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
-    Session = sessionmaker()
+    session = sessionmaker()
     engine = create_engine(DB.URL, echo=False)
-    Session.configure(bind=engine)
-    global _DB_SESSION
-    _DB_SESSION = Session()
+    session.configure(bind=engine)
+    _DB_SESSION = session()
     return _DB_SESSION
 
 

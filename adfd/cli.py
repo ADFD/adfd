@@ -3,17 +3,16 @@ import logging
 import os
 import socketserver
 
-from adfd.cnf import PATH, APP
+from adfd.cnf import PATH, APP, DB
 from adfd.db.sync import DbSynchronizer
-from adfd.secrets import DB
 from adfd.site.views import app, navigator, run_devserver
 from flask.ext.frozen import Freezer
 from plumbum import cli, local
 
 log = logging.getLogger(__name__)
 
-TEST = ('%s:./www/privat/neu' % DB.REMOTE_HOST, 'privat/neu')
-LIVE = ('%s:./www/inhalt' % DB.REMOTE_HOST, 'inhalt')
+TEST = ('%s:./www/privat/neu' % DB.HOST, 'privat/neu')
+LIVE = ('%s:./www/inhalt' % DB.HOST, 'inhalt')
 TARGET_MAP = {'local': (None, None), 'test': TEST, 'live': LIVE}
 
 
