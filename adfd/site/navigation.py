@@ -2,7 +2,7 @@ import io
 import logging
 import re
 
-from adfd.cst import SITE
+from adfd.cnf import SITE
 from adfd.db.model import Topic
 from adfd.utils import slugify, ordered_yaml_load
 from boltons.iterutils import remap

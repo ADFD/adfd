@@ -6,7 +6,7 @@ from collections import OrderedDict
 from types import FunctionType, MethodType
 
 import yaml
-from adfd.cst import PATH
+from adfd.cnf import PATH
 from plumbum import LocalPath
 
 log = logging.getLogger(__name__)

@@ -2,7 +2,7 @@ import http.server
 import logging
 import socketserver
 
-from adfd.cst import PATH, APP
+from adfd.cnf import PATH, APP
 from adfd.db.sync import DbSynchronizer
 from adfd.secrets import DB
 from adfd.site.views import app, navigator, run_devserver

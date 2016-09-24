@@ -5,7 +5,7 @@ from flask.ext.frozen import os
 from plumbum.machines import local
 from werkzeug.utils import cached_property
 
-from adfd.cst import PATH, APP
+from adfd.cnf import PATH, APP
 from adfd.db.model import Topic
 from adfd.site.navigation import Navigator, get_yaml_structure
 
