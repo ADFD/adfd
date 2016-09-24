@@ -86,7 +86,7 @@ class AdfdDeploy(cli.Application):
         self.deploy(PATH.FROZEN, TARGET_MAP[self.target][1])
 
 
-@Adfd.subcommand('serve-frozen')
+@Adfd.subcommand('frozen')
 class AdfdServeFrozen(cli.Application):
     """Serve frozen web page locally"""
     def main(self):

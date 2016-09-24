@@ -1,4 +1,5 @@
 import itertools
+from html.parser import HTMLParser
 import logging
 import re
 
@@ -127,7 +128,7 @@ class Parser:
         options = TagOptions(tagName.strip().lower(), **kwargs)
         self.recognized_tags[options.tagName] = (render_func, options)
 
-    def add_simple_formatter(self, tagName, format_string, **kwargs):
+    def add_simple(self, tagName, format_string, **kwargs):
         """Install a formatter.
 
         Takes the tag options dictionary, puts a value key in it
@@ -685,24 +686,24 @@ class AdfdParser(Parser):
         return '\n'.join(out)
 
     def _add_formatters(self):
-        self.add_simple_formatter('b', '<strong>%(value)s</strong>')
-        self.add_simple_formatter('br', '<br>\n', standalone=True)
+        self.add_simple('b', '<strong>%(value)s</strong>')
+        self.add_simple('br', '<br>\n', standalone=True)
 
         # todo use foundation way for centering
-        self.add_simple_formatter(
+        self.add_simple(
             'center', '<div style="text-align:center;">%(value)s</div>\n')
 
-        self.add_simple_formatter(
+        self.add_simple(
             'code', '<code>%(value)s</code>\n', renderEmbedded=False,
             transformNewlines=False, swallowTrailingNewline=True)
-        self.add_simple_formatter('hr', '<hr>\n', standalone=True)
-        self.add_simple_formatter('i', '<em>%(value)s</em>')
-        self.add_simple_formatter('p', '<p>%(value)s</p>\n')
-        self.add_simple_formatter('s', '<strike>%(value)s</strike>')
-        self.add_simple_formatter(
+        self.add_simple('hr', '<hr>\n', standalone=True)
+        self.add_simple('i', '<em>%(value)s</em>')
+        self.add_simple('p', '<p>%(value)s</p>\n')
+        self.add_simple('s', '<strike>%(value)s</strike>')
+        self.add_simple(
             'u', '<span style="text-decoration: underline;">%(value)s</span>')
-        self.add_simple_formatter('sub', '<sub>%(value)s</sub>')
-        self.add_simple_formatter('sup', '<sup>%(value)s</sup>')
+        self.add_simple('sub', '<sub>%(value)s</sub>')
+        self.add_simple('sup', '<sup>%(value)s</sup>')
 
         self._add_bbvideo_formatter()
         self._add_color_formatter()
@@ -710,6 +711,7 @@ class AdfdParser(Parser):
         self._add_img_formatter()
         self._add_list_formatter()
         self._add_quote_formatter()
+        self._add_raw_formatter()
         self._add_removals()
         self._add_section_formatter()
         self._add_url_formatter()
@@ -765,7 +767,7 @@ class AdfdParser(Parser):
             strip=True, swallowTrailingNewline=True)
         # Make sure transformNewlines = False for [*], so [code]
         # tags can be embedded without transformation.
-        self.add_simple_formatter(
+        self.add_simple(
             '*', '<li>%(value)s</li>', newlineCloses=True,
             transformNewlines=False, sameTagCloses=True, strip=True)
 
@@ -786,7 +788,7 @@ class AdfdParser(Parser):
     def _add_header_formatters(self):
         for tag in self.HEADER_TAGS:
             demotedTag = tag[0] + str(int(tag[1]) + self.DEMOTION_LEVEL)
-            self.add_simple_formatter(
+            self.add_simple(
                 tag, '\n<%s>%%(value)s</%s>\n' % (demotedTag, demotedTag))
 
     def _add_quote_formatter(self):
@@ -803,14 +805,22 @@ class AdfdParser(Parser):
         value = value.replace('\n', '<br>')
         return '<blockquote><p>%s%s</p></blockquote>\n' % (value, cite)
 
-    def _add_removals(self):
-        for removal in ['meta', 'mod']:
-            self.add_simple_formatter(removal, '')
+    def _add_raw_formatter(self):
+        self.add_formatter(
+            'raw', self._render_raw, replaceLinks=False, replaceCosmetic=False)
 
     # noinspection PyUnusedLocal
-    @staticmethod
-    def _render_meta(name, value, options, parent, context):
-        return '<div style="display: none;">%s</div>\n' % value
+    def _render_raw(self, name, value, options, parent, context):
+        return HTMLParser().unescape(value)
+
+    def _add_removals(self):
+        for removal in ['meta', 'mod']:
+            self.add_simple(removal, '')
+
+    # # noinspection PyUnusedLocal
+    # @staticmethod
+    # def _render_meta(name, value, options, parent, context):
+    #     return '<div style="display: none;">%s</div>\n' % value
 
     def _add_section_formatter(self):
         self.add_formatter(
