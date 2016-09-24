@@ -4,7 +4,7 @@ import logging
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import sessionmaker
 
-from adfd.db.phpbb_schema import PhpbbTopic, PhpbbForum, PhpbbPost, PhpbbUser
+from adfd.db.schema import PhpbbTopic, PhpbbForum, PhpbbPost, PhpbbUser
 from adfd.secrets import DB
 
 log = logging.getLogger(__name__)
@@ -67,12 +67,12 @@ class DbWrapper:
         return [row.post_id for row in query.all()]
 
     def fetch_forum(self, forumId):
-        """:rtype: adfd.db.phpbb_schema.PhpbbForum"""
+        """:rtype: adfd.db.schema.PhpbbForum"""
         q = self.query(PhpbbForum).filter(PhpbbForum.forum_id == forumId)
         return q.first()
 
     def fetch_post(self, postId):
-        """:rtype: adfd.db.phpbb_schema.PhpbbPost"""
+        """:rtype: adfd.db.schema.PhpbbPost"""
         q = self.query(PhpbbPost).filter(PhpbbPost.post_id == postId)
         return q.first()
 
