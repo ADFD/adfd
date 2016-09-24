@@ -7,12 +7,23 @@ _PACKAGE = _PROJECT / 'adfd'
 _CNF = yaml.safe_load(open(_PACKAGE / 'cnf.yml'))
 
 
+class NAME:
+    STATIC = 'static'
+
+
 class PATH:
     PROJECT = _PROJECT
     SITE = _PACKAGE / 'site'
-    STATIC = SITE / _CNF['webAssetsRelPath']
+    STATIC = SITE / NAME.STATIC
     TEMPLATES = SITE / 'templates'
     FROZEN = _PROJECT / '.frozen'
+
+
+class APP:
+    CSS_PATH = 'dist/semantic.css'
+    CSS_MIN_PATH = 'dist/semantic.min.css'
+    JS_PATH = 'dist/semantic.js'
+    JS_MIN_PATH = 'dist/semantic.min.js'
 
 
 class SITE:

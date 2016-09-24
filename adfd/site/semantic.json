@@ -4,16 +4,16 @@
     "source": {
       "config": "src/theme.config",
       "definitions": "src/definitions/",
-      "site": "src/site/",
-      "themes": "src/themes/"
+      "themes": "src/themes/",
+      "site": "src/site/"
     },
     "output": {
-      "packaged": "dist/",
-      "uncompressed": "dist/components/",
-      "compressed": "dist/components/",
-      "themes": "dist/themes/"
+      "packaged": "../static/dist/",
+      "uncompressed": "../static/dist/components_uncompressed/",
+      "compressed": "../static/dist/components_compressed/",
+      "themes": "../static/dist/themes/"
     },
-    "clean": "dist/"
+    "clean": "../static/dist/"
   },
   "permission": false,
   "autoInstall": false,

@@ -69,12 +69,27 @@ class ArticleNode(Node):
 
 
 class Navigator:
-    GLOBAL = ('<ul class="vertical medium-horizontal menu" '
-              'data-responsive-menu="drilldown medium-dropdown">', '</ul>')
-    MAIN = ('<ul class="submenu menu vertical" data-submenu>', '</ul>')
-    CAT = ('<a href="%s">%s', '</a>')
-    CAT_ACT = ('<a style="text-weight: bold;" href="%s">%s', '</a>')
-    SUB = ('<li class="has-submenu">', '</li>')
+    """
+      <a class="item" href="#">{{ APP }}</a>
+      <a class="item" href="#">Link Item</a>
+      <div class="divider"></div>
+      <div class="header">Header Item</div>
+      <div class="item">
+        <i class="dropdown icon"></i>
+        Sub Menu
+        <div class="menu">
+          <a class="item" href="#">Link Item</a>
+          <a class="item" href="#">Link Item</a>
+        </div>
+      </div>
+      <a class="item" href="#">Link Item</a>
+
+    """
+    CAT = ('<div class="item"><i class="dropdown icon"></i><a class="item" href="%s">%s', '</div>')
+    # TODO highlight active
+    CAT_ACT = ('<div class="item"><i class="dropdown icon"></i><a class="item" href="%s">%s', '</div>')
+
+    SUB = ('<div class="menu">', '</div>')
     ELEM = ('<li><a href="%s">%s', '</a></li>')
     ELEM_ACT = ('<li style="text-weight: bold;"><a href="%s">%s', '</a></li>')
 
@@ -107,7 +122,6 @@ class Navigator:
         return list([n.topic for n in self.pathNodeMap.values()])
 
     def _recursive_add_elems(self, node, prefix=''):
-        self._add_elem(self.GLOBAL[0] if self.depth == 1 else self.MAIN[0])
         self.depth += 1
         if isinstance(node, dict):
             for category, val in node.items():
@@ -133,7 +147,6 @@ class Navigator:
         else:
             raise Exception("%s" % (type(node)))
         self.depth -= 1
-        self._add_elem(self.GLOBAL[1] if self.depth == 1 else self.MAIN[1])
 
     def _add_elem(self, text):
         spaces = ' ' * (4 * (self.depth - 1)) if self.depth > 1 else ""

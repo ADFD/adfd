@@ -1,47 +1,95 @@
 <!doctype html>
 <html class="no-js" lang="de">
 <head>
-  <title>ADFD</title>
-  <meta charset="utf-8">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}"/>
+    <title>ADFD</title>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename=APP.CSS_PATH) }}"/>
 </head>
 <body>
 
-
 {% if navigation %}
-<div class="title-bar" data-responsive-toggle="main-menu" data-hide-for="medium">
-  <button class="menu-icon" type="button" data-toggle></button>
-  <div class="title-bar-title">Navigation</div>
-</div>
-
-<div class="top-bar" id="main-menu">
-  <div class="top-bar-left">
-    {{ navigation | safe }}
-  </div>
-  <div class="top-bar-right">
-    <ul class="dropdown menu" data-dropdown-menu>
-      <li class="menu-text">
-        <a href="/" title="Antidepressiva Forum Deutschland">
-          <img src="{{ url_for('static', filename='img/logo78x81.png') }}"/>
+<div class="ui fixed inverted menu">
+    <div class="ui container">
+        <a href="#" class="header item">
+            <img class="logo" src="{{ url_for('static', filename='img/logo78x81.png') }}">
         </a>
-      </li>
-    </ul>
-  </div>
+
+        <a href="#" class="item">ADFD</a>
+        <div class="ui simple dropdown item">
+            Dropdown <i class="dropdown icon"></i>
+            <div class="menu">
+                <a class="item" href="#">Link Item</a>
+                <a class="item" href="#">Link Item</a>
+                <div class="divider"></div>
+                <div class="header">Header Item</div>
+                <div class="item">
+                    <i class="dropdown icon"></i>
+                    Sub Menu
+                    <div class="menu">
+                        <a class="item" href="#">Link Item</a>
+                        <a class="item" href="#">Link Item</a>
+                    </div>
+                </div>
+                <a class="item" href="#">Link Item</a>
+            </div>
+        </div>
+
+        {#<div class="top-bar" id="main-menu">#}
+        {#  <div class="top-bar-left">#}
+        {#    {{ navigation | safe }}#}
+        {#  </div>#}
+        {#  <div class="top-bar-right">#}
+        {#    <ul class="dropdown menu" data-dropdown-menu>#}
+        {#      <li class="menu-text">#}
+        {#        <a href="/" title="Antidepressiva Forum Deutschland">#}
+        {#          <img src="{{ url_for('static', filename='img/logo78x81.png') }}"/>#}
+        {#        </a>#}
+        {#      </li>#}
+        {#    </ul>#}
+        {#  </div>#}
+        {#</div>#}
+    </div>
 </div>
 {% endif %}
 
 {% block content %}{% endblock content %}
 
-<div class="footer">
-  <div class="row">
-    <div class="small-12 text-center">
-      ADFD
+<div class="ui inverted vertical footer segment">
+    <div class="ui center aligned container">
+        <div class="ui stackable inverted divided grid">
+            <div class="three wide column">
+                <h4 class="ui inverted header">Sachen</h4>
+                <div class="ui inverted link list">
+                    <a href="/" class="item">Start</a>
+                    <a href="/" class="item">Zeug</a>
+                    <a href="/" class="item">Sachen</a>
+                </div>
+            </div>
+            <div class="three wide column">
+                <h4 class="ui inverted header">Dinge</h4>
+                <div class="ui inverted link list">
+                    <a href="#" class="item">Noch ein Link</a>
+                    <a href="#" class="item">Ein weiterer Link</a>
+                    <a href="#" class="item">Woanders hin</a>
+                </div>
+            </div>
+            <div class="nine wide column">
+                <h4 class="ui inverted header">Irgendwas wichtiges</h4>
+                <p>Hier könnte was wichtiges stehen, was man auf jeden Fall lesen sollte.</p>
+            </div>
+        </div>
+        <div class="ui inverted section divider"></div>
+        <img src="{{ url_for('static', filename='img/logo78x81.png') }}" class="ui centered mini image">
+        <div class="ui horizontal inverted small divided link list">
+            <a class="item" href="#">Site Map</a>
+            <a class="item" href="#">Kontakt</a>
+            <a class="item" href="#">Forenregeln</a>
+        </div>
     </div>
-  </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script src="{{ url_for('static', filename=APP.JS_PATH) }}"></script>
 </body>
 </html>

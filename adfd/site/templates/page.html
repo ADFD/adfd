@@ -1,28 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row">
-  <div class="small-12 text-center columns">
-    <h3>{{ page.title }}</h3>
-  </div>
-</div>
+<div class="ui main text container">
+    <h1>{{ page.title }}</h1>
 
-{% if info %}
-<div class="row">
-  <div class="small-1 columns">&nbsp;</div>
-  <div class="small-10 text-right columns">
-    {{ info }}
-  </div>
-  <div class="small-1 columns">&nbsp;</div>
-</div>
-{% endif %}
-<div class="row">
-  <div class="small-1 columns">&nbsp;</div>
-  <div class="small-10 columns">
-    <article>
-      {{ page.html | safe }}
-    </article>
-  </div>
-  <div class="small-1 columns">&nbsp;</div>
+    {% if info %}
+    <p>{{ info }}</p>
+    {% endif %}
+
+{#    <article>#}
+      <p>{{ page.html | safe }}</p>
+{#    </article>#}
 </div>
 {% endblock content %}

@@ -5,7 +5,7 @@ from flask.ext.frozen import os
 from plumbum.machines import local
 from werkzeug.utils import cached_property
 
-from adfd.cnf import PATH, SITE
+from adfd.cnf import PATH, SITE, APP
 from adfd.db.model import Topic
 from adfd.site.navigation import Navigator, get_yaml_structure
 
@@ -47,6 +47,11 @@ class Page(object):
         ``page['title']`` == ``{{ page.title }}`` == ``page.meta['title']``.
         """
         return self.meta[name]
+
+
+@app.context_processor
+def inject_dict_for_all_templates():
+    return dict(APP=APP)
 
 
 @app.route('/')
