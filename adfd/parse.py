@@ -1,5 +1,5 @@
+import html
 import itertools
-from html.parser import HTMLParser
 import logging
 import re
 
@@ -811,7 +811,7 @@ class AdfdParser(Parser):
 
     # noinspection PyUnusedLocal
     def _render_raw(self, name, value, options, parent, context):
-        return HTMLParser().unescape(value)
+        return html.unescape(value)
 
     def _add_removals(self):
         for removal in ['meta', 'mod']:
