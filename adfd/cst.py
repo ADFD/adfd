@@ -128,7 +128,7 @@ class METADATA:
 class SITE:
     STRUCTURE_TOPIC_ID = 12109
     STRUCTURE_PATH = PATH.SITE / "structure.yml"
-    USE_FILE = True
+    USE_FILE = False
 
 
 class RE:
