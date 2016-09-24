@@ -10,7 +10,8 @@ try:
 except:
     class _CNF:
         def __getitem__(self, item):
-            return "dontcare"
+            return False
+
     _CNF = _CNF()
 
 
