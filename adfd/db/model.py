@@ -1,13 +1,13 @@
 import html
 import logging
 import re
+from datetime import datetime
 
-from adfd.cst import PARSE
 from adfd.db.lib import DbWrapper
 from adfd.db.metadata import PageMetadata
 from adfd.exc import *
 from adfd.parse import AdfdParser
-from adfd.utils import slugify, date_from_timestamp
+from adfd.utils import slugify
 from cached_property import cached_property
 
 log = logging.getLogger(__name__)
@@ -53,6 +53,8 @@ class Forum:
 
 
 class Topic:
+    TITLE_PATTERN = '[h2]%s[/h2]\n'
+
     def __init__(self, topicId):
         self.id = topicId
         self.postIds = self._get_post_ids()
@@ -83,7 +85,7 @@ class Topic:
 
             content = ''
             if self.md.useTitles:
-                content += PARSE.TITLE_PATTERN % self.md.title
+                content += self.TITLE_PATTERN % self.md.title
             contents.append(post.content)
         return "\n\n".join(contents)
 
@@ -227,3 +229,7 @@ class Post:
             raise PostDoesNotExist(str(self.id))
 
         return dbp
+
+
+def date_from_timestamp(timestamp):
+    return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y')

@@ -6,8 +6,6 @@ from cached_property import cached_property
 from pyphen import Pyphen
 from typogrify.filters import typogrify
 
-from adfd.cst import RE, PARSE
-
 log = logging.getLogger(__name__)
 
 
@@ -75,7 +73,7 @@ class Token:
         if self.tag:
             return "<%s%s>" % ('/' if self.isCloser else '', self.tag)
 
-        return "<%s>" % (self.text)
+        return "<%s>" % self.text
 
     @property
     def asTuple(self):
@@ -654,7 +652,7 @@ class Chunkman:
 
 class AdfdParser(Parser):
     ORPHAN_MATCHER = re.compile(r'^<p></p>')
-    HEADER_TAGS = ['h%s' % (i) for i in range(1, 6)]
+    HEADER_TAGS = ['h%s' % i for i in range(1, 6)]
     DEMOTION_LEVEL = 1  # number of levels header tags get demoted
 
     def __init__(self, *args, **kwargs):
@@ -728,7 +726,7 @@ class AdfdParser(Parser):
         return (
             '<a href="%(url)s" class="bbvideo" '
             'data-bbvideo="%(width)s,%(height)s" '
-            'target="_blank">%(url)s</a>' % (dataMap))
+            'target="_blank">%(url)s</a>' % dataMap)
 
     def _add_color_formatter(self):
         self.add_formatter('color', self._render_color)
@@ -801,7 +799,7 @@ class AdfdParser(Parser):
     def _render_quote(name, value, options, parent, context):
         """see http://html5doctor.com/blockquote-q-cite/"""
         author = (options['quote'] if (options and 'quote' in options) else '')
-        cite = "<footer><cite>%s</cite></footer>" % (author) if author else ''
+        cite = "<footer><cite>%s</cite></footer>" % author if author else ''
         value = value.replace('\n', '<br>')
         return '<blockquote><p>%s%s</p></blockquote>\n' % (value, cite)
 
@@ -812,7 +810,7 @@ class AdfdParser(Parser):
     # noinspection PyUnusedLocal
     @staticmethod
     def _render_meta(name, value, options, parent, context):
-        return '<div style="display: none;">%s</div>\n' % (value)
+        return '<div style="display: none;">%s</div>\n' % value
 
     def _add_section_formatter(self):
         self.add_formatter(
@@ -822,7 +820,7 @@ class AdfdParser(Parser):
     # noinspection PyUnusedLocal
     @staticmethod
     def _render_section(name, value, options, parent, context):
-        return '<section>%s</section>' % (value)
+        return '<section>%s</section>' % value
 
     def _add_url_formatter(self):
         self.add_formatter('url', self._render_url, replaceLinks=False,
@@ -875,6 +873,34 @@ class Replacer:
 
 
 def hyphenate(text, hyphen='&shy;'):
-    py = Pyphen(lang=PARSE.PYPHEN_LANG)
+    py = Pyphen(lang='de_de')
     words = text.split(' ')
     return ' '.join([py.inserted(word, hyphen=hyphen) for word in words])
+
+
+# fixme likely not needed
+def untypogrify(text):
+    def untypogrify_char(c):
+        return '"' if c in ['“', '„'] else c
+
+    return ''.join([untypogrify_char(c) for c in text])
+
+
+class RE:
+    URL = re.compile(
+        r'(?im)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)'
+        r'(?:[^\s()<>]+|\([^\s()<>]+\))'
+        r'+(?:\([^\s()<>]+\)|[^\s`!()\[\]{};:\'".,<>?]))')
+    """
+    from http://daringfireball.net/2010/07/improved_regex_for_matching_urls
+    Only support one level of parentheses - was failing on some URLs.
+    See http://www.regular-expressions.info/catastrophic.html
+    """
+    DOMAIN = re.compile(
+        r'(?im)(?:www\d{0,3}[.]|[a-z0-9.\-]+[.]'
+        r'(?:com|net|org|edu|biz|gov|mil|info|io|name|me|tv|us|uk|mobi))')
+    """
+    For the URL tag, try to be smart about when to append a missing http://.
+    If the given link looks like a domain, add a http:// in front of it,
+    otherwise leave it alone (be a relative path, a filename, etc.).
+    """

@@ -2,7 +2,6 @@ import logging
 import re
 from collections import OrderedDict
 
-from adfd.cst import METADATA
 from adfd.exc import PathMissing, NotAnAttribute, NotOverridable
 from adfd.utils import ContentGrabber, dump_contents
 
@@ -10,6 +9,21 @@ log = logging.getLogger(__name__)
 
 
 class Metadata:
+    """
+    For overriding this directly from post contents the bbcode tag
+    ``meta`` has to be defined on the board.
+
+    The following settings to be done in ``adm/index.php?i=acp_bbcodes``
+    define the tag and make it invisible if the post is viewed directly.
+
+    BBCODE use:
+
+        [meta]{TEXT}[/meta]
+
+    BBCODE replacement:
+
+        <span style="display: none;">[meta]{TEXT}[/meta]</span>
+    """
     ATTRIBUTES = None
     OVERRIDABLES = None
     META_RE = re.compile(r'\[meta\](.*)\[/meta\]', re.MULTILINE | re.DOTALL)

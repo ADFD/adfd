@@ -3,42 +3,13 @@ import logging
 import os
 import re
 from collections import OrderedDict
-from datetime import datetime
 from types import FunctionType, MethodType
 
 import yaml
-from adfd.cst import METADATA, PATH
+from adfd.cst import PATH
 from plumbum import LocalPath
 
 log = logging.getLogger(__name__)
-
-
-# fixme likely not needed
-def untypogrify(text):
-    def untypogrify_char(c):
-        return '"' if c in ['“', '„'] else c
-
-    return ''.join([untypogrify_char(c) for c in text])
-
-
-# FIXME hopefully obsolete after transition
-def get_paths(containerPath, ext=None, content=None):
-    paths = sorted([p for p in containerPath.list()])
-    if ext:
-        paths = [p for p in paths if p.endswith(ext)]
-    if content:
-        paths = [p for p in paths if content in p]
-    return paths
-
-
-def id2name(id_):
-    if isinstance(id_, str):
-        id_ = int(id_)
-    return "%05d" % id_
-
-
-def date_from_timestamp(timestamp):
-    return datetime.fromtimestamp(timestamp).strftime(METADATA.DATE_FORMAT)
 
 
 class _Slugification:

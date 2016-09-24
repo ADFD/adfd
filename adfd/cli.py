@@ -2,13 +2,42 @@ import http.server
 import logging
 import socketserver
 
-from adfd.cst import PATH, APP, TARGET
+from adfd.cst import PATH, APP
 from adfd.db.sync import DbSynchronizer
+from adfd.secrets import DB
 from adfd.site.views import app, navigator, run_devserver
 from flask.ext.frozen import Freezer
 from plumbum import cli, local
 
 log = logging.getLogger(__name__)
+
+
+class TARGET:
+    class _T:
+        def __init__(self, name, path, prefix):
+            self.name = name
+            self.path = path
+            self.prefix = prefix
+
+        def __str__(self):
+            return self.name
+
+        def __eq__(self, other):
+            return self.name == other.name
+
+    TEST = _T('test', '%s:./www/privat/neu' % DB.REMOTE_HOST, 'privat/neu')
+    LIVE = _T('live', '%s:./www/inhalt' % DB.REMOTE_HOST, 'inhalt')
+    ALL = [TEST, LIVE]
+
+    @classmethod
+    def get(cls, wantedTarget):
+        for target in cls.ALL:
+            if isinstance(wantedTarget, cls._T):
+                wantedTarget = wantedTarget.name
+            if target.name == wantedTarget:
+                return target
+
+        raise ValueError('target %s not found' % wantedTarget)
 
 
 class Adfd(cli.Application):
