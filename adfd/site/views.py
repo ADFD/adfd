@@ -75,7 +75,7 @@ def robots_txt():
     if os.getenv('APP_TARGET') != 'live':
         return "User-agent: *\nDisallow: /\n"
 
-    # TODO exclude bad rebots
+    # TODO exclude bad robots
     return "User-agent: *\nDisallow:\n"
 
 
