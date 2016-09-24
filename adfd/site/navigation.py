@@ -169,8 +169,12 @@ def get_yaml_structure():
         except:
             pass
 
-    topic = Topic(SITE.STRUCTURE_TOPIC_ID)
-    regex = re.compile(r'\[code\](.*)\[/code\]', re.MULTILINE | re.DOTALL)
-    match = regex.search(topic.posts[0].content)
-    stream = io.StringIO(match.group(1))
-    return ordered_yaml_load(stream=stream)
+    try:
+        topic = Topic(SITE.STRUCTURE_TOPIC_ID)
+        regex = re.compile(r'\[code\](.*)\[/code\]', re.MULTILINE | re.DOTALL)
+        match = regex.search(topic.posts[0].content)
+        stream = io.StringIO(match.group(1))
+        return ordered_yaml_load(stream=stream)
+
+    except:
+        pass
