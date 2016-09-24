@@ -163,10 +163,14 @@ class Navigator:
 
 def get_yaml_structure():
     if SITE.USE_FILE:
-        stream = open(SITE.STRUCTURE_PATH)
-    else:
-        topic = Topic(SITE.STRUCTURE_TOPIC_ID)
-        regex = re.compile(r'\[code\](.*)\[/code\]', re.MULTILINE | re.DOTALL)
-        match = regex.search(topic.posts[0].content)
-        stream = io.StringIO(match.group(1))
+        try:
+            return ordered_yaml_load(stream=open(SITE.STRUCTURE_PATH))
+
+        except:
+            pass
+
+    topic = Topic(SITE.STRUCTURE_TOPIC_ID)
+    regex = re.compile(r'\[code\](.*)\[/code\]', re.MULTILINE | re.DOTALL)
+    match = regex.search(topic.posts[0].content)
+    stream = io.StringIO(match.group(1))
     return ordered_yaml_load(stream=stream)
