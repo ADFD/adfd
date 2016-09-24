@@ -1,12 +1,4 @@
-__pycache__
-*.py[cod]
-*.egg-info
-.cache
-
-.sass-cache/*
-
+adfd/site/node_modules
 *.bbcode.html
-*.dump
 .frozen/*
-
 adfd/cnf.yml
