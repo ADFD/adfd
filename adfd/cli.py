@@ -1,5 +1,6 @@
 import http.server
 import logging
+import os
 import socketserver
 
 from adfd.cnf import PATH, APP
@@ -44,10 +45,10 @@ class AdfdBuild(cli.Application):
         ['t', 'target'], default='local', help="one of %s" % TARGET_MAP.keys())
 
     def main(self):
-        self.freeze(TARGET_MAP[self.target][1])
+        self.freeze(TARGET_MAP[self.target][1], self.target == 'live')
 
     @staticmethod
-    def freeze(pathPrefix=None):
+    def freeze(pathPrefix, isLive):
         """:param pathPrefix: for freezing when it's served not from root"""
 
         def page():
@@ -55,6 +56,7 @@ class AdfdBuild(cli.Application):
                 yield {'path': url}
 
         log.info("freeze in: %s", PATH.PROJECT)
+        os.environ['IS_LIVE'] = isLive
         freezer = Freezer(app)
         freezer.register_generator(page)
         with local.cwd(PATH.PROJECT):
