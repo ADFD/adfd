@@ -2,12 +2,25 @@
 
 **Embedded as git subtree with:**
 
-    $ cd <git root>
+    $ cd <PATH.PROJECT>
     $ git subtree add --prefix adfd/site/foundation https://github.com/zurb/foundation-zurb-template master --squash
 
 **Update:**
 
     $ git subtree pull --prefix adfd/site/foundation https://github.com/zurb/foundation-zurb-template master --squash
+
+**Install foundation:**
+    $ <install npm somehow>
+    $ npm install -g bower
+
+    $ cd <PATH.PROJECT>/adfd/site/foundation
+    $ npm install
+    $ bower install
+    
+**Develop:**
+
+    $ cd <PATH.PROJECT>/adfd/site/foundation
+    $ 
 
 # Structure
 
