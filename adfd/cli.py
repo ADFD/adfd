@@ -38,12 +38,13 @@ class AdfdDev(cli.Application):
 
 
 @Adfd.subcommand('freeze')
-class AdfdBuild(cli.Application):
+class AdfdFreeze(cli.Application):
     """Freeze website to static files"""
     target = cli.SwitchAttr(
         ['t', 'target'], default='local', help="one of %s" % TARGET_MAP.keys())
 
     def main(self):
+        PATH.FROZEN.delete()
         self.freeze(TARGET_MAP[self.target][1], self.target)
 
     @staticmethod
@@ -84,7 +85,18 @@ class AdfdDeploy(cli.Application):
     def main(self):
         if self.target == 'local':
             raise Exception("no local deploy possible")
-        self.deploy(PATH.FROZEN, TARGET_MAP[self.target][1])
+        prefix = TARGET_MAP[self.target][1]
+        AdfdFreeze.freeze(prefix, self.target)
+        self.deploy(PATH.FROZEN, prefix)
+
+    # FIXME paths and args still screwed up ... still needed
+    @staticmethod
+    def deploy(outputPath, target):
+        """synchronize static website with target"""
+        args = ('-av', outputPath + '/', target)
+        log.debug('run rsync%s', args)
+        rsyncOutput = local['rsync'](*args)
+        log.info("rsync result:\n%s", rsyncOutput)
 
 
 @Adfd.subcommand('frozen')
