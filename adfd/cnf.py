@@ -7,10 +7,6 @@ _PACKAGE = _PROJECT / 'adfd'
 _CNF = yaml.safe_load(open(_PACKAGE / 'cnf.yml'))
 
 
-class APP:
-    PORT = 5000
-
-
 class PATH:
     PROJECT = _PROJECT
     SITE = _PACKAGE / 'site'
@@ -23,6 +19,7 @@ class SITE:
     STRUCTURE_TOPIC_ID = _CNF['structureTopicId']
     STRUCTURE_PATH = PATH.SITE / _CNF['structurePath']
     USE_FILE = _CNF['useFile']
+    APP_PORT = 5000
 
 
 class DB:

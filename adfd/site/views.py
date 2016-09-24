@@ -5,7 +5,7 @@ from flask.ext.frozen import os
 from plumbum.machines import local
 from werkzeug.utils import cached_property
 
-from adfd.cnf import PATH, APP
+from adfd.cnf import PATH, SITE
 from adfd.db.model import Topic
 from adfd.site.navigation import Navigator, get_yaml_structure
 
@@ -79,7 +79,7 @@ def robots_txt():
     return "User-agent: *\nDisallow:\n"
 
 
-def run_devserver(projectPath=PATH.PROJECT, port=APP.PORT):
+def run_devserver(projectPath=PATH.PROJECT, port=SITE.APP_PORT):
     with local.cwd(projectPath):
         log.info("serving on http://localhost:%s", port)
         app.run(port=port)

@@ -3,7 +3,7 @@ import logging
 import os
 import socketserver
 
-from adfd.cnf import PATH, APP, DB
+from adfd.cnf import PATH, SITE, DB
 from adfd.db.sync import DbSynchronizer
 from adfd.site.views import app, navigator, run_devserver
 from flask.ext.frozen import Freezer
@@ -91,14 +91,14 @@ class AdfdDeploy(cli.Application):
 class AdfdServeFrozen(cli.Application):
     """Serve frozen web page locally"""
     def main(self):
-        log.info("serve '%s' at http://localhost:%s", PATH.FROZEN, APP.PORT)
+        log.info("'%s' -> http://localhost:%s", PATH.FROZEN, SITE.APP_PORT)
         self.serve(PATH.FROZEN)
 
     @staticmethod
     def serve(siteRoot):
         with local.cwd(siteRoot):
             Handler = http.server.SimpleHTTPRequestHandler
-            httpd = socketserver.TCPServer(("", APP.PORT), Handler)
+            httpd = socketserver.TCPServer(("", SITE.APP_PORT), Handler)
             try:
                 httpd.serve_forever()
             finally:
