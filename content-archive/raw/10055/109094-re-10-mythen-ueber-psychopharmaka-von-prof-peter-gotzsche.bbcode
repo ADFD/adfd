@@ -1,1 +1,0 @@
-Oh wow. Vielen Dank dafür.

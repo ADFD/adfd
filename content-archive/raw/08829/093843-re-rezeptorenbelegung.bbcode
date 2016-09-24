@@ -1,1 +1,0 @@
-danke schlumpf und drehwurm - nun sind die grafiken da, haben sie wohl inzwischen richtiggestellt!

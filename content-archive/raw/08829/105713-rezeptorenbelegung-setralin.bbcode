@@ -1,1 +1,0 @@
-[attachment=0]<!-- ia0 -->Setralin.png<!-- ia0 -->[/attachment]Grafik für Setralin

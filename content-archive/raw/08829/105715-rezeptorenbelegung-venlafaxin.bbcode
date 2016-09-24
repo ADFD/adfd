@@ -1,1 +1,0 @@
-[attachment=0]<!-- ia0 -->Venlafaxin.png<!-- ia0 -->[/attachment]Grafik zu Venlafaxin

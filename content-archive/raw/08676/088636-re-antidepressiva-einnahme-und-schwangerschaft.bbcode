@@ -1,2 +1,0 @@
-:evil: ich glaube auch nicht , dass es zwei jahre benötigt, bis man schwanger werden sollte. Mutter sein , macht einen tatsächlich , "gesünder". Wers noch nicht erlebt hat , kann auch nicht wirklich mitreden. Du suehst dich , die welt , alles einfach anders. Ich bin überzeugt , dass ein kind einem die kraft gibt , berge zu versetzen. 
-Für frauen , die mediamente einnehmen und "trotzdem" schwanger sind , finde ich sätze wie : das würde ich meinem kind nicht antun- äusserst fragwürdig , wenn es hier doch darum geht gegenseitig hilfe und trost zu spenden.

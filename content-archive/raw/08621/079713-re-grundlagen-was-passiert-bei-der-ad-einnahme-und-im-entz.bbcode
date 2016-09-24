@@ -1,1 +1,0 @@
-Danke sehr interessanter Beitrag , erklärt mir einiges was wirklich passiert im gehirn!
