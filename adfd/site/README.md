@@ -1,9 +1,13 @@
 # Foundation
 
-as git subtree
+**Embedded as git subtree with:**
 
-* cd adfd/site/
-git subtree add --prefix foundation https://github.com/zurb/foundation-zurb-template master --squash 
+    $ cd <git root>
+    $ git subtree add --prefix adfd/site/foundation https://github.com/zurb/foundation-zurb-template master --squash
+
+**Update:**
+
+    $ git subtree pull --prefix adfd/site/foundation https://github.com/zurb/foundation-zurb-template master --squash
 
 # Structure
 
