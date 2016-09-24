@@ -177,4 +177,4 @@ def get_yaml_structure():
         return ordered_yaml_load(stream=stream)
 
     except:
-        pass
+        return {}
