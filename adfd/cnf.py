@@ -1,8 +1,4 @@
-import logging
-
 import plumbum
-
-log = logging.getLogger(__name__)
 
 
 class APP:
