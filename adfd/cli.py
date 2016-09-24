@@ -11,33 +11,9 @@ from plumbum import cli, local
 
 log = logging.getLogger(__name__)
 
-
-class TARGET:
-    class _T:
-        def __init__(self, name, path, prefix):
-            self.name = name
-            self.path = path
-            self.prefix = prefix
-
-        def __str__(self):
-            return self.name
-
-        def __eq__(self, other):
-            return self.name == other.name
-
-    TEST = _T('test', '%s:./www/privat/neu' % DB.REMOTE_HOST, 'privat/neu')
-    LIVE = _T('live', '%s:./www/inhalt' % DB.REMOTE_HOST, 'inhalt')
-    ALL = [TEST, LIVE]
-
-    @classmethod
-    def get(cls, wantedTarget):
-        for target in cls.ALL:
-            if isinstance(wantedTarget, cls._T):
-                wantedTarget = wantedTarget.name
-            if target.name == wantedTarget:
-                return target
-
-        raise ValueError('target %s not found' % wantedTarget)
+TEST = ('%s:./www/privat/neu' % DB.REMOTE_HOST, 'privat/neu')
+LIVE = ('%s:./www/inhalt' % DB.REMOTE_HOST, 'inhalt')
+TARGET_MAP = {'local': (None, None), 'test': TEST, 'live': LIVE}
 
 
 class Adfd(cli.Application):
@@ -65,11 +41,10 @@ class AdfdDev(cli.Application):
 class AdfdBuild(cli.Application):
     """Freeze website to static files"""
     target = cli.SwitchAttr(
-        ['t', 'target'], default='test', help="one of %s" % TARGET.ALL)
+        ['t', 'target'], default='local', help="one of %s" % TARGET_MAP.keys())
 
     def main(self):
-        target = TARGET.get(self.target)
-        self.freeze(target.prefix)
+        self.freeze(TARGET_MAP[self.target][1])
 
     @staticmethod
     def freeze(pathPrefix=None):
@@ -87,9 +62,10 @@ class AdfdBuild(cli.Application):
             seenUrls = freezer.freeze()
             log.info("frozen urls are:\n%s", '\n'.join(seenUrls))
         if pathPrefix:
+            log.warning("prefix %s - changing links", pathPrefix)
             for url in seenUrls:
                 if url.endswith('/'):
-                    filePath = PATH.OUTPUT / url[1:] / 'index.html'
+                    filePath = PATH.FROZEN / url[1:] / 'index.html'
                     with open(filePath) as f:
                         content = f.read()
                         content = content.replace(
@@ -102,18 +78,20 @@ class AdfdBuild(cli.Application):
 class AdfdDeploy(cli.Application):
     """Deploy frozen web page to remote location"""
     target = cli.SwitchAttr(
-        ['t', 'target'], default='test', help="one of %s" % TARGET.ALL)
+        ['t', 'target'], default='test', help="one of %s" % TARGET_MAP.keys())
 
     def main(self):
-        self.deploy(PATH.OUTPUT, TARGET.get(self.target))
+        if self.target == 'local':
+            raise Exception("no local deploy possible")
+        self.deploy(PATH.FROZEN, TARGET_MAP[self.target][1])
 
 
 @Adfd.subcommand('serve-frozen')
 class AdfdServeFrozen(cli.Application):
     """Serve frozen web page locally"""
     def main(self):
-        log.info("serve '%s' at http://localhost:%s", PATH.OUTPUT, APP.PORT)
-        self.serve(PATH.OUTPUT)
+        log.info("serve '%s' at http://localhost:%s", PATH.FROZEN, APP.PORT)
+        self.serve(PATH.FROZEN)
 
     @staticmethod
     def serve(siteRoot):

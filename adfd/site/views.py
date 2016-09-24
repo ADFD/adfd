@@ -12,12 +12,13 @@ from adfd.site.navigation import Navigator, get_yaml_structure
 log = logging.getLogger(__name__)
 
 # TODO ever needed on server? static_url_path='/assets'
-app = Flask(__name__, template_folder=PATH.TEMPLATES, static_folder=PATH.STATIC,)
+app = Flask(
+    __name__, template_folder=PATH.TEMPLATES, static_folder=PATH.STATIC)
 # FIXME Why do I set the root path to the very root? Needed?
 app.root_path = str(PATH.PROJECT)
 app.config.update(
     DEBUG=True,
-    FREEZER_DESTINATION=str(PATH.OUTPUT),
+    FREEZER_DESTINATION=str(PATH.FROZEN),
     FREEZER_RELATIVE_URLS=True)
 
 navigator = Navigator(get_yaml_structure())

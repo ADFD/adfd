@@ -7,6 +7,6 @@ __pycache__
 
 *.bbcode.html
 *.dump
-build/*
+.frozen/*
 
 adfd/secrets.py

@@ -7,11 +7,11 @@ class APP:
 
 class PATH:
     PROJECT = plumbum.LocalPath(__file__).dirname.up()
-    OUTPUT = PROJECT / 'output'
     SITE = PROJECT / 'adfd' / 'site'
-    TEMPLATES = SITE / 'templates'
     FOUNDATION = SITE / 'foundation'
     STATIC = FOUNDATION / 'dist' / 'assets'
+    TEMPLATES = SITE / 'templates'
+    FROZEN = PROJECT / '.frozen'
 
 
 class SITE:
