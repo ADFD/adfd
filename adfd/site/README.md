@@ -1,26 +1,10 @@
-# Foundation
+# Semantic UI
 
-**Embedded as git subtree with:**
+installed according to [Getting started](http://semantic-ui.com/introduction/getting-started.html)
 
-    $ cd <PATH.PROJECT>
-    $ git subtree add --prefix adfd/site/foundation https://github.com/zurb/foundation-zurb-template master --squash
+## Responsive menu
 
-**Update:**
-
-    $ git subtree pull --prefix adfd/site/foundation https://github.com/zurb/foundation-zurb-template master --squash
-
-**Install foundation:**
-    $ <install npm somehow>
-    $ npm install -g bower
-
-    $ cd <PATH.PROJECT>/adfd/site/foundation
-    $ npm install
-    $ bower install
-    
-**Develop:**
-
-    $ cd <PATH.PROJECT>/adfd/site/foundation
-    $ 
+http://stackoverflow.com/questions/27476008/semantic-ui-transistioning-from-mobile-to-tablet-displays-with-the-sidebar-open
 
 # Structure
 
