@@ -20,9 +20,13 @@ class Node:
         self.topicId = topicId
         self.isHome = name == ''
         self._name = name
+        self.isActive = False
 
     def __repr__(self):
         return "<%s(%s)>" % (self.SPEC, self.name)
+
+    def get_nav_elems(self, relPath, isSubMenu=False):
+        raise NotImplementedError
 
     @cached_property
     def html(self):
@@ -41,9 +45,17 @@ class Node:
         """:rtype: str"""
         return slugify(self.name) if not self.isHome else ''
 
+    @property
+    def hasPage(self):
+        return self.topicId is not None
+
     @cached_property
     def topic(self):
         """:rtype: adfd.db.model.Topic"""
+        if not self.topicId:
+            # todo determine what should happen, if e.g category has no page
+            raise NotImplementedError
+
         return Topic(self.topicId)
 
 
@@ -52,6 +64,22 @@ class CategoryNode(Node):
 
     def __init__(self, data):
         super().__init__(*self._parse(data))
+
+    def get_nav_elems(self, relPath, isSubMenu=False):
+        openerPattern = '<div class="%s">'
+        if isSubMenu:
+            classes = ['item']
+        else:
+            classes = ['ui', 'simple', 'dropdown', 'item']
+        if self.isActive:
+            classes.append('active')
+        opener = openerPattern % (" ".join(classes))
+        if self.hasPage:
+            opener += '<a href="%s">%s</a>' % (relPath, self.name)
+        else:
+            opener += self.name
+        opener += '<i class="dropdown icon"></i>'
+        return opener, '</div>'
 
     @classmethod
     def _parse(cls, data):
@@ -62,25 +90,24 @@ class CategoryNode(Node):
 
         title = sd[0].strip()
         title = title if title != "Home" else ""
-        mainTopicId = int(sd[1].strip()) if len(sd) == 2 else 0
+        mainTopicId = int(sd[1].strip()) if len(sd) == 2 else None
         return mainTopicId, title
 
 
 class ArticleNode(Node):
     SPEC = "A"
 
+    def get_nav_elems(self, relPath, isSubMenu=False):
+        openerPattern = '<a class="%s" href="%s">%s'
+        classes = ['item']
+        if self.isActive:
+            classes.append('active')
+        opener = openerPattern % (" ".join(classes), relPath, self.name)
+        return opener, '</a>'
+
 
 class Navigator:
-    CAT_MAIN = ('<div class="ui simple dropdown item"><a href="%s">%s</a>'
-                ' <i class="dropdown icon"></i>', '</div>')
-    CAT_SUB = ('<div class="item"><i class="dropdown icon">'
-               ' </i><a href="%s">%s</a>', '</div>')
-    # TODO highlight active
-    CAT_MAIN_ACT =CAT_MAIN
-    CAT_SUB_ACT =CAT_SUB
     SUB = ('<div class="menu">', '</div>')
-    ELEM = ('<a class="item" href="%s">%s', '</a>')
-    ELEM_ACT = ELEM
 
     pathNodeMap = {}
 
@@ -94,6 +121,7 @@ class Navigator:
     def get_navigation(self, newPath=""):
         self._elems = []
         self._recursive_add_elems(self.menu)
+        log.info("%s -> %s", self.lastPath, newPath)
         self.pathNodeMap[self.lastPath].isActive = False
         self.pathNodeMap[newPath].isActive = True
         self.lastPath = newPath
@@ -104,20 +132,19 @@ class Navigator:
         if isinstance(node, dict):
             for category, val in node.items():
                 relPath = self.get_rel_path(category, prefix)
-                cat = self.get_cat_pattern(isSubMenu, category.topic.isActive)
-                self._add_elem(cat[0] % (relPath, category.name))
+                catElems = category.get_nav_elems(relPath, isSubMenu)
+                self._add_elem(catElems[0])
                 self._add_elem(self.SUB[0])
                 self._recursive_add_elems(val, prefix=relPath, isSubMenu=True)
                 self._add_elem(self.SUB[1])
-                self._add_elem(cat[1])
+                self._add_elem(catElems[1])
         elif isinstance(node, list):
             for e in node:
                 self._recursive_add_elems(e, prefix=prefix)
         elif isinstance(node, Node):
             relPath = self.get_rel_path(node, prefix)
-            elem = self.ELEM_ACT if node.topic.isActive else self.ELEM
-            text = elem[0] % (relPath, node.name) + elem[1]
-            self._add_elem(text)
+            catElems = node.get_nav_elems(relPath, isSubMenu)
+            self._add_elem("".join(catElems))
         else:
             raise Exception("%s" % (type(node)))
 
