@@ -37,7 +37,7 @@ class APP:
 class SITE:
     STRUCTURE_TOPIC_ID = _CNF['structureTopicId']
     STRUCTURE_PATH = PATH.SITE / _CNF['structurePath']
-    USE_FILE = _CNF['useFile']
+    USE_FILE = _CNF['useFile'] or True
     APP_PORT = 5000
 
 
