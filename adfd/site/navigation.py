@@ -148,12 +148,6 @@ class Navigator:
         else:
             raise Exception("%s" % (type(node)))
 
-    def get_cat_pattern(self, isSubMenu, isActive):
-        if isSubMenu:
-            return self.CAT_SUB_ACT if isActive else self.CAT_SUB
-
-        return self.CAT_MAIN_ACT if isActive else self.CAT_MAIN
-
     def get_rel_path(self, node, prefix):
         """adds it to the map as side effect"""
         relPath = prefix + "/" + node.slug
