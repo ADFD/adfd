@@ -58,7 +58,6 @@ class Topic:
     def __init__(self, topicId):
         self.id = topicId
         self.postIds = self._get_post_ids()
-        self.isActive = False
 
     def __repr__(self):
         return "<Topic(%s (%s))>" % (self.subject, self.id)
