@@ -4775,6 +4775,11 @@ input::selection {
 /*******************************
          Site Overrides
 *******************************/
+
+.adfd-spacer {
+  width: 100%;
+  height: 95px;
+}
 /*!
  * # Semantic UI 2.2.4 - Divider
  * http://github.com/semantic-org/semantic-ui/
