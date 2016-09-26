@@ -2,11 +2,13 @@ import io
 import logging
 import re
 
+from boltons.iterutils import remap
+from bs4 import BeautifulSoup
+from cached_property import cached_property
+
 from adfd.cnf import SITE
 from adfd.db.model import Topic
 from adfd.utils import slugify, ordered_yaml_load
-from boltons.iterutils import remap
-from cached_property import cached_property
 
 log = logging.getLogger(__name__)
 
@@ -85,13 +87,16 @@ class Navigator:
       <a class="item" href="#">Link Item</a>
 
     """
-    CAT = ('<div class="item"><i class="dropdown icon"></i><a class="item" href="%s">%s', '</div>')
+    CAT_MAIN = ('<div class="ui simple dropdown item"><a href="%s">%s</a>'
+                ' <i class="dropdown icon"></i>', '</div>')
+    CAT_SUB = ('<div class="item"><i class="dropdown icon">'
+               ' </i><a href="%s">%s</a>', '</div>')
     # TODO highlight active
-    CAT_ACT = ('<div class="item"><i class="dropdown icon"></i><a class="item" href="%s">%s', '</div>')
-
+    CAT_MAIN_ACT =CAT_MAIN
+    CAT_SUB_ACT =CAT_SUB
     SUB = ('<div class="menu">', '</div>')
-    ELEM = ('<li><a href="%s">%s', '</a></li>')
-    ELEM_ACT = ('<li style="text-weight: bold;"><a href="%s">%s', '</a></li>')
+    ELEM = ('<a href="%s">%s', '</a>')
+    ELEM_ACT = ELEM
 
     pathNodeMap = {}
 
@@ -100,7 +105,6 @@ class Navigator:
         root = next(iter(self.structure))
         self.pathNodeMap['/'] = root
         self.menu = self.structure[root]
-        self.depth = 1
         self.lastPath = '/'
 
     def get_navigation(self, newPath=""):
@@ -109,7 +113,45 @@ class Navigator:
         self.pathNodeMap[self.lastPath].isActive = False
         self.pathNodeMap[newPath].isActive = True
         self.lastPath = newPath
-        return "\n".join(self._elems)
+        soup = BeautifulSoup("\n".join(self._elems), 'html.parser')
+        return soup.prettify()
+
+    def _recursive_add_elems(self, node, prefix='', isSubMenu=False):
+        if isinstance(node, dict):
+            for category, val in node.items():
+                relPath = self.get_rel_path(category, prefix)
+                cat = self.get_cat_pattern(isSubMenu, category.topic.isActive)
+                self._add_elem(cat[0] % (relPath, category.name))
+                self._add_elem(self.SUB[0])
+                self._recursive_add_elems(val, prefix=relPath, isSubMenu=True)
+                self._add_elem(self.SUB[1])
+                self._add_elem(cat[1])
+        elif isinstance(node, list):
+            for e in node:
+                self._recursive_add_elems(e, prefix=prefix)
+        elif isinstance(node, Node):
+            relPath = self.get_rel_path(node, prefix)
+            elem = self.ELEM_ACT if node.topic.isActive else self.ELEM
+            text = elem[0] % (relPath, node.name) + elem[1]
+            self._add_elem(text)
+        else:
+            raise Exception("%s" % (type(node)))
+
+    def get_cat_pattern(self, isSubMenu, isActive):
+        if isSubMenu:
+            return self.CAT_SUB_ACT if isActive else self.CAT_SUB
+
+        return self.CAT_MAIN_ACT if isActive else self.CAT_MAIN
+
+    def get_rel_path(self, node, prefix):
+        """adds it to the map as side effect"""
+        relPath = prefix + "/" + node.slug
+        if relPath not in self.pathNodeMap:
+            self.pathNodeMap[relPath] = node
+        return relPath
+
+    def _add_elem(self, text):
+        self._elems.append(text)
 
     @cached_property
     def allUrls(self):
@@ -119,38 +161,9 @@ class Navigator:
 
     @cached_property
     def allTopics(self):
+        if not hasattr(self, '_elems'):
+            self.get_navigation()
         return list([n.topic for n in self.pathNodeMap.values()])
-
-    def _recursive_add_elems(self, node, prefix=''):
-        self.depth += 1
-        if isinstance(node, dict):
-            for category, val in node.items():
-                self._add_elem(self.SUB[0])
-                relPath = prefix + "/" + category.slug
-                if relPath not in self.pathNodeMap:
-                    self.pathNodeMap[relPath] = category
-                pattern = self.CAT_ACT if category.topic.isActive else self.CAT
-                text = pattern[0] % (relPath, category.name) + pattern[1]
-                self._add_elem(text)
-                self._recursive_add_elems(val, prefix=relPath)
-                self._add_elem(self.SUB[1])
-        elif isinstance(node, list):
-            for e in node:
-                self._recursive_add_elems(e, prefix=prefix)
-        elif isinstance(node, Node):
-                relPath = prefix + "/" + node.slug
-                if relPath not in self.pathNodeMap:
-                    self.pathNodeMap[relPath] = node
-                pattern = self.ELEM_ACT if node.topic.isActive else self.ELEM
-                text = pattern[0] % (relPath, node.name) + pattern[1]
-                self._add_elem(text)
-        else:
-            raise Exception("%s" % (type(node)))
-        self.depth -= 1
-
-    def _add_elem(self, text):
-        spaces = ' ' * (4 * (self.depth - 1)) if self.depth > 1 else ""
-        self._elems.append(spaces + text)
 
     @staticmethod
     def create_nodes(_, key, value):

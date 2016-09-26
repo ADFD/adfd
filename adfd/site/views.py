@@ -29,9 +29,14 @@ class Page(object):
         self.path = path
         self.html = html
         self.meta = meta
+        """:type: adfd.metadata.PageMetaData"""
 
     def __repr__(self):
         return '<Page %r>' % self.path
+
+    @cached_property
+    def title(self):
+        return self.meta.title
 
     @cached_property
     def html(self):
