@@ -18,8 +18,14 @@ class DbSynchronizer:
         self.sm.close()
 
     def sync(self):
+        self.get_dump()
+        self.update_local_db()
+
+    def get_dump(self):
         self.dump()
         self.fetch()
+
+    def update_local_db(self):
         self.prepare_local_db()
         self.load_local_dump()
 
@@ -43,7 +49,9 @@ class DbSynchronizer:
             ("GRANT ALL PRIVILEGES ON %s.* TO %s@localhost" %
              (DB.NAME, DB.USER)),
             "FLUSH PRIVILEGES"]
-        local['mysql']('-uroot', '-e', "; ".join(cmds))
+        for cmd in cmds:
+            log.info("executing '%s'" % (cmd))
+            local['mysql']('-uroot', '-e', cmd + ";")
 
     def load_local_dump(self):
         log.info('load local dump from %s', self.dumpDstPath)

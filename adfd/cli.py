@@ -30,6 +30,12 @@ class AdfdSyncRemote(cli.Application):
         DbSynchronizer().sync()
 
 
+@Adfd.subcommand('update-local')
+class AdfdSyncRemote(cli.Application):
+    def main(self):
+        DbSynchronizer().update_local_db()
+
+
 @Adfd.subcommand('dev')
 class AdfdDev(cli.Application):
     """Run local development server"""
