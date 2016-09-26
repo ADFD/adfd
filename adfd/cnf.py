@@ -10,7 +10,7 @@ try:
 except:
     class _CNF:
         def __getitem__(self, item):
-            return False
+            return None
 
     _CNF = _CNF()
 
@@ -36,7 +36,7 @@ class APP:
 
 class SITE:
     STRUCTURE_TOPIC_ID = _CNF['structureTopicId']
-    STRUCTURE_PATH = PATH.SITE / _CNF['structurePath']
+    STRUCTURE_PATH = PATH.SITE / (_CNF['structurePath'] or 'structure.yml')
     USE_FILE = _CNF['useFile'] or True
     APP_PORT = 5000
 

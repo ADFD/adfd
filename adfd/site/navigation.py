@@ -71,22 +71,6 @@ class ArticleNode(Node):
 
 
 class Navigator:
-    """
-      <a class="item" href="#">{{ APP }}</a>
-      <a class="item" href="#">Link Item</a>
-      <div class="divider"></div>
-      <div class="header">Header Item</div>
-      <div class="item">
-        <i class="dropdown icon"></i>
-        Sub Menu
-        <div class="menu">
-          <a class="item" href="#">Link Item</a>
-          <a class="item" href="#">Link Item</a>
-        </div>
-      </div>
-      <a class="item" href="#">Link Item</a>
-
-    """
     CAT_MAIN = ('<div class="ui simple dropdown item"><a href="%s">%s</a>'
                 ' <i class="dropdown icon"></i>', '</div>')
     CAT_SUB = ('<div class="item"><i class="dropdown icon">'
@@ -95,7 +79,7 @@ class Navigator:
     CAT_MAIN_ACT =CAT_MAIN
     CAT_SUB_ACT =CAT_SUB
     SUB = ('<div class="menu">', '</div>')
-    ELEM = ('<a href="%s">%s', '</a>')
+    ELEM = ('<a class="item" href="%s">%s', '</a>')
     ELEM_ACT = ELEM
 
     pathNodeMap = {}
@@ -176,18 +160,10 @@ class Navigator:
 
 def get_yaml_structure():
     if SITE.USE_FILE:
-        try:
-            return ordered_yaml_load(stream=open(SITE.STRUCTURE_PATH))
+        return ordered_yaml_load(stream=open(SITE.STRUCTURE_PATH))
 
-        except:
-            pass
-
-    try:
-        topic = Topic(SITE.STRUCTURE_TOPIC_ID)
-        regex = re.compile(r'\[code\](.*)\[/code\]', re.MULTILINE | re.DOTALL)
-        match = regex.search(topic.posts[0].content)
-        stream = io.StringIO(match.group(1))
-        return ordered_yaml_load(stream=stream)
-
-    except:
-        return {}
+    topic = Topic(SITE.STRUCTURE_TOPIC_ID)
+    regex = re.compile(r'\[code\](.*)\[/code\]', re.MULTILINE | re.DOTALL)
+    match = regex.search(topic.posts[0].content)
+    stream = io.StringIO(match.group(1))
+    return ordered_yaml_load(stream=stream)
