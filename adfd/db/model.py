@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 
 from adfd.db.lib import DbWrapper
-from adfd.db.metadata import PageMetadata
+from adfd.metadata import PageMetadata
 from adfd.exc import *
 from adfd.parse import AdfdParser
 from adfd.utils import slugify
