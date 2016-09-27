@@ -75,7 +75,9 @@ class Topic:
         forumId = wrapper.topic_id_2_forum_id(self.id)
         if forumId not in SITE.ALLOWED_FORUM_IDS:
             if self.id not in SITE.ALLOWED_TOPIC_IDS:
-                raise TopicNotAccessible("%s in forum %s", self.id, forumId)
+                name = wrapper.forum_id_2_forum_name(forumId)
+                raise TopicNotAccessible(
+                    "%s in %s (%s)", self.id, name, forumId)
 
         ids = wrapper.topic_id_2_db_posts(self.id)
         if not ids:
