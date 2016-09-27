@@ -1,13 +1,11 @@
 import logging
 
+from adfd.cnf import PATH, SITE, APP
+from adfd.model import Topic, Page
+from adfd.site.navigation import Navigator
 from flask import render_template, send_from_directory, Flask
 from flask.ext.frozen import os
 from plumbum.machines import local
-from werkzeug.utils import cached_property
-
-from adfd.cnf import PATH, SITE, APP
-from adfd.db.model import Topic
-from adfd.site.navigation import Navigator, get_yaml_structure
 
 log = logging.getLogger(__name__)
 
@@ -21,37 +19,7 @@ app.config.update(
     FREEZER_DESTINATION=str(PATH.FROZEN),
     FREEZER_RELATIVE_URLS=True)
 
-navigator = Navigator(get_yaml_structure())
-
-
-class Page(object):
-    def __init__(self, path, meta, html):
-        self.path = path
-        self.html = html
-        self.meta = meta
-        """:type: adfd.metadata.PageMetaData"""
-
-    def __repr__(self):
-        return '<Page %r>' % self.path
-
-    @cached_property
-    def title(self):
-        return self.meta.title
-
-    @cached_property
-    def html(self):
-        return self.html
-
-    def __html__(self):
-        """In a template: ``{{ page }}`` == ``{{ page.html|safe }}``."""
-        return self.html
-
-    def __getitem__(self, name):
-        """Shortcut for accessing metadata.
-
-        ``page['title']`` == ``{{ page.title }}`` == ``page.meta['title']``.
-        """
-        return self.meta[name]
+navigator = Navigator()
 
 
 @app.context_processor
@@ -67,7 +35,7 @@ def page(path=''):
             return send_from_directory(specialDir, os.path.basename(path))
 
     path = "/" + path  # FIXME Why is this necessary?
-    navigation = navigator.get_navigation(path)
+    navigation = navigator.generate_navigation(path)
     topic = navigator.pathNodeMap[path].topic
     page = Page(path, topic.md, topic.html)
     return render_template('page.html', page=page, navigation=navigation)

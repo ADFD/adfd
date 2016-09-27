@@ -9,6 +9,7 @@ from adfd.exc import *
 from adfd.parse import AdfdParser
 from adfd.utils import slugify
 from cached_property import cached_property
+from werkzeug.utils import cached_property
 
 log = logging.getLogger(__name__)
 
@@ -232,3 +233,133 @@ class Post:
 
 def date_from_timestamp(timestamp):
     return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y')
+
+
+class Page(object):
+    def __init__(self, path, meta, html):
+        self.path = path
+        self.html = html
+        self.meta = meta
+        """:type: adfd.metadata.PageMetaData"""
+
+    def __repr__(self):
+        return '<Page %r>' % self.path
+
+    @cached_property
+    def title(self):
+        return self.meta.title
+
+    @cached_property
+    def html(self):
+        return self.html
+
+    def __html__(self):
+        """In a template: ``{{ page }}`` == ``{{ page.html|safe }}``."""
+        return self.html
+
+    def __getitem__(self, name):
+        """Shortcut for accessing metadata.
+
+        ``page['title']`` == ``{{ page.title }}`` == ``page.meta['title']``.
+        """
+        return self.meta[name]
+
+
+class Node:
+    SPEC = "N"
+
+    def __init__(self, identifier, name=None):
+        self.identifier = identifier
+        self.isHome = name == ''
+        self._name = name
+        self.isActive = False
+
+    def __repr__(self):
+        return "<%s(%s)>" % (self.SPEC, self.name)
+
+    def get_nav_elems(self, relPath, isSubMenu=False):
+        raise NotImplementedError
+
+    @cached_property
+    def html(self):
+        return self.topic.html
+
+    # Todo return None if it is a static page
+    @cached_property
+    def link(self):
+        return "http://adfd.org/austausch/viewtopic.php?t=%s" % self.topic.id
+
+    @cached_property
+    def name(self):
+        return self._name or self.topic.subject
+
+    @cached_property
+    def slug(self):
+        """:rtype: str"""
+        return slugify(self.name) if not self.isHome else ''
+
+    @property
+    def hasContent(self):
+        return self.identifier is not None
+
+    @cached_property
+    def topic(self):
+        """:rtype: adfd.db.model.Topic"""
+        if not self.identifier:
+            # todo determine what should happen, if e.g category has no page
+            raise NotImplementedError
+
+        if isinstance(self.identifier, int):
+            return Topic(self.identifier)
+
+        # todo create StaticTopic read from file or something like that
+        # abstract out non db parts of Topic for that
+        # create new abstraction: article?
+        # Attach just one Post to it?
+
+
+class CategoryNode(Node):
+    SPEC = "C"
+
+    def __init__(self, data):
+        super().__init__(*self._parse(data))
+
+    def get_nav_elems(self, relPath, isSubMenu=False):
+        openerPattern = '<div class="%s">'
+        if isSubMenu:
+            classes = ['item']
+        else:
+            classes = ['ui', 'simple', 'dropdown', 'item']
+        if self.isActive:
+            classes.append('active')
+        opener = openerPattern % (" ".join(classes))
+        if self.hasContent:
+            opener += '<a href="%s">%s</a>' % (relPath, self.name)
+        else:
+            opener += self.name
+        opener += '&rarr;'  # '<i class="dropdown icon"></i>'
+        return opener, '</div>'
+
+    @classmethod
+    def _parse(cls, data):
+        sep = "|"
+        sd = data.split(sep)
+        if len(sd) > 2:
+            raise ValueError("Too many '%s' in %s" % (sep, data))
+
+        title = sd[0].strip()
+        title = title if title != "Home" else ""
+        mainTopicId = int(sd[1].strip()) if len(sd) == 2 else None
+        return mainTopicId, title
+
+
+class ArticleNode(Node):
+    SPEC = "A"
+
+    def get_nav_elems(self, relPath, isSubMenu=False):
+        openerPattern = '<a class="%s" href="%s">%s'
+        classes = ['item']
+        if self.isActive:
+            classes.append('active')
+        opener = openerPattern % (" ".join(classes), relPath, self.name)
+        return opener, '</a>'
