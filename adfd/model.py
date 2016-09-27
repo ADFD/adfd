@@ -290,6 +290,7 @@ class Node:
 
 class CategoryNode(Node):
     SPEC = "C"
+    SUB_MENU_WRAPPER = ('<div class="menu">', '</div>')
 
     def __init__(self, data):
         super().__init__(*self._parse(data))

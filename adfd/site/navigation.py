@@ -16,7 +16,6 @@ log = logging.getLogger(__name__)
 
 
 class Navigator:
-    SUB = ('<div class="menu">', '</div>')
 
     pathNodeMap = {}
 
@@ -44,9 +43,9 @@ class Navigator:
                 relPath = self.get_rel_path(category, prefix)
                 catElems = category.get_nav_elems(relPath, isSubMenu)
                 self._add_elem(catElems[0])
-                self._add_elem(self.SUB[0])
+                self._add_elem(category.SUB_MENU_WRAPPER[0])
                 self._recursive_add_elems(val, prefix=relPath, isSubMenu=True)
-                self._add_elem(self.SUB[1])
+                self._add_elem(category.SUB_MENU_WRAPPER[1])
                 self._add_elem(catElems[1])
         elif isinstance(node, list):
             for e in node:
