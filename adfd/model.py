@@ -14,45 +14,6 @@ from werkzeug.utils import cached_property
 log = logging.getLogger(__name__)
 
 
-class Forum:
-    def __init__(self, forumId):
-        self.id = forumId
-
-    @cached_property
-    def topics(self):
-        for topicId in self.topicIds:
-            try:
-                yield Topic(topicId)
-
-            except TopicDoesNotExist:
-                log.warning("topic %s is broken", topicId)
-                continue
-
-    @cached_property
-    def name(self):
-        return self.dbo.forum_name
-
-    @cached_property
-    def db(self):
-        return DbWrapper()
-
-    @cached_property
-    def topicIds(self):
-        ids = self.db.fetch_topic_ids_from_forum(self.id)
-        if not ids:
-            raise ForumIsEmpty(str(self.id))
-
-        return ids
-
-    @cached_property
-    def dbo(self):
-        dbo = self.db.fetch_forum(self.id)
-        if not dbo:
-            raise ForumDoesNotExist(str(self.id))
-
-        return dbo
-
-
 class Topic:
     TITLE_PATTERN = '[h2]%s[/h2]\n'
 
