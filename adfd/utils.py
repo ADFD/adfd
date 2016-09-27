@@ -2,11 +2,10 @@ import codecs
 import logging
 import os
 import re
-from collections import OrderedDict
 from types import FunctionType, MethodType
 
-import yaml
-from adfd.cnf import PATH
+from adfd.cnf import SITE
+from adfd.db.lib import DbWrapper
 from plumbum import LocalPath
 
 log = logging.getLogger(__name__)
@@ -173,7 +172,6 @@ def _obj_attr(obj, hideString, filterMethods, filterPrivate,
                 value = str(attr).replace("\n", "\n|  ")
                 if len(value) > maxLen:
                     value = value[:maxLen] + '[...]'
-            value = value.replace(PATH.CONTENT + '/', '[P]')
             out.append((name, attrType.__name__, value))
         except AssertionError as e:
             out.append(("[A] %s" % name, e.__class__.__name__, e))
@@ -234,17 +232,9 @@ def get_obj_info(objects):
     return '\n'.join(out)
 
 
-def ordered_yaml_load(
-        stream, Loader=yaml.SafeLoader, object_pairs_hook=OrderedDict):
-    class OrderedLoader(Loader):
-        pass
-
-    def construct_mapping(loader, node):
-        loader.flatten_mapping(node)
-        return object_pairs_hook(loader.construct_pairs(node))
-
-    # noinspection PyUnresolvedReferences
-    OrderedLoader.add_constructor(
-        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-        construct_mapping)
-    return yaml.load(stream, OrderedLoader)
+def get_db_config_info():
+    msg = ""
+    allowedForums = ["%s (%s)" % (DbWrapper().forum_id_2_forum_name(fId), fId)
+                     for fId in SITE.ALLOWED_FORUM_IDS]
+    msg += "allowed Forums:\n    %s" % ("\n    ".join(allowedForums))
+    return msg

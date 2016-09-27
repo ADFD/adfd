@@ -35,6 +35,8 @@ class APP:
 
 
 class SITE:
+    ALLOWED_FORUM_IDS = [4, 6, 15, 19, 50, 57, 54, 43]
+    ALLOWED_TOPIC_IDS = [9324]
     STRUCTURE_TOPIC_ID = _CNF['structureTopicId']
     STRUCTURE_PATH = PATH.SITE / (_CNF['structurePath'] or 'structure.yml')
     USE_FILE = _CNF['useFile'] or True

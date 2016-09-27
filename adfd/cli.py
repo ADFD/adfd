@@ -6,6 +6,7 @@ import socketserver
 from adfd.cnf import PATH, SITE, DB
 from adfd.db.sync import DbSynchronizer
 from adfd.site.views import app, navigator, run_devserver
+from adfd.utils import get_db_config_info
 from flask.ext.frozen import Freezer
 from plumbum import cli, local
 
@@ -121,6 +122,12 @@ class AdfdServeFrozen(cli.Application):
                 httpd.serve_forever()
             finally:
                 httpd.server_close()
+
+
+@Adfd.subcommand('info')
+class AdfdInfo(cli.Application):
+    def main(self):
+        print(get_db_config_info())
 
 
 def main():

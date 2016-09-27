@@ -47,29 +47,27 @@ def get_db_session():
 
 
 class DbWrapper:
-    """very simple wrapper that can fetch the little that's needed atm"""
+    """very simple wrapper that can fetch the little that is needed"""
     def __init__(self):
         self.session = get_db_session()
         self.query = self.session.query
 
-    def fetch_topic_ids_from_forum(self, forumId):
+    def forum_id_2_forum_name(self, forumId):
         """:rtype: list of int"""
-        query = self.query(PhpbbTopic).join(
-            PhpbbForum, PhpbbForum.forum_id == PhpbbTopic.forum_id)\
-            .filter(PhpbbTopic.forum_id == forumId)
-        return [row.topic_id for row in query.all()]
+        query = self.query(PhpbbForum).filter(PhpbbForum.forum_id == forumId)
+        return query.first().forum_name
 
-    def fetch_post_ids_from_topic(self, topicId):
+    def topic_id_2_db_posts(self, topicId):
         """:rtype: list of int"""
         query = self.query(PhpbbPost).join(
             PhpbbTopic, PhpbbTopic.topic_id == PhpbbPost.topic_id)\
             .filter(PhpbbTopic.topic_id == topicId)
         return [row.post_id for row in query.all()]
 
-    def fetch_forum(self, forumId):
-        """:rtype: adfd.db.schema.PhpbbForum"""
-        q = self.query(PhpbbForum).filter(PhpbbForum.forum_id == forumId)
-        return q.first()
+    def topic_id_2_forum_id(self, topicId):
+        """:rtype: int"""
+        query = self.query(PhpbbTopic).filter(PhpbbTopic.topic_id == topicId)
+        return query.first().forum_id
 
     def fetch_post(self, postId):
         """:rtype: adfd.db.schema.PhpbbPost"""

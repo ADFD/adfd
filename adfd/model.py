@@ -3,6 +3,7 @@ import logging
 import re
 from datetime import datetime
 
+from adfd.cnf import SITE
 from adfd.db.lib import DbWrapper
 from adfd.metadata import PageMetadata
 from adfd.exc import *
@@ -70,7 +71,13 @@ class Topic:
         return posts
 
     def _get_post_ids(self):
-        ids = DbWrapper().fetch_post_ids_from_topic(self.id)
+        wrapper = DbWrapper()
+        forumId = wrapper.topic_id_2_forum_id(self.id)
+        if forumId not in SITE.ALLOWED_FORUM_IDS:
+            if self.id not in SITE.ALLOWED_TOPIC_IDS:
+                raise TopicNotAccessible("%s in forum %s", self.id, forumId)
+
+        ids = wrapper.topic_id_2_db_posts(self.id)
         if not ids:
             raise TopicDoesNotExist(str(self.id))
 

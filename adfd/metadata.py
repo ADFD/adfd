@@ -2,8 +2,8 @@ import logging
 import re
 from collections import OrderedDict
 
-from adfd.exc import PathMissing, NotAnAttribute, NotOverridable
-from adfd.utils import ContentGrabber, dump_contents
+from adfd.exc import NotAnAttribute, NotOverridable
+from adfd.utils import ContentGrabber
 
 log = logging.getLogger(__name__)
 
@@ -112,13 +112,6 @@ class Metadata:
         value = str(value).strip()
         log.debug('%s: %s -> %s', self.__class__.__name__, key, value)
         setattr(self, key, value)
-
-    def dump(self, path=None):
-        path = path or self._path
-        if not path:
-            raise PathMissing(self.asFileContents)
-
-        dump_contents(path, self.asFileContents)
 
 
 # FIXME this is a bit fuzzy still. There should be Post and Topic metadata

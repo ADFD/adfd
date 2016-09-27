@@ -1,13 +1,16 @@
 import io
 import logging
 import re
+# noinspection PyPackageRequirements
+import yaml
+from collections import OrderedDict
 
-from adfd.cnf import SITE
-from adfd.model import Topic, Node, CategoryNode, ArticleNode
-from adfd.utils import ordered_yaml_load
 from boltons.iterutils import remap
 from bs4 import BeautifulSoup
 from cached_property import cached_property
+
+from adfd.cnf import SITE
+from adfd.model import Topic, Node, CategoryNode, ArticleNode
 
 log = logging.getLogger(__name__)
 
@@ -85,13 +88,28 @@ class Navigator:
             value = ArticleNode(value)
         return key, value
 
-    @staticmethod
-    def load_structure():
+    @classmethod
+    def load_structure(cls):
         if SITE.USE_FILE:
-            return ordered_yaml_load(stream=open(SITE.STRUCTURE_PATH))
+            return cls.ordered_yaml_load(stream=open(SITE.STRUCTURE_PATH))
 
         topic = Topic(SITE.STRUCTURE_TOPIC_ID)
         regex = re.compile(r'\[code\](.*)\[/code\]', re.MULTILINE | re.DOTALL)
         match = regex.search(topic.posts[0].content)
         stream = io.StringIO(match.group(1))
-        return ordered_yaml_load(stream=stream)
+        return cls.ordered_yaml_load(stream=stream)
+
+    @classmethod
+    def ordered_yaml_load(cls, stream):
+        class OrderedLoader(yaml.SafeLoader):
+            pass
+
+        def construct_mapping(loader, node):
+            loader.flatten_mapping(node)
+            return OrderedDict(loader.construct_pairs(node))
+
+        # noinspection PyUnresolvedReferences
+        OrderedLoader.add_constructor(
+            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+            construct_mapping)
+        return yaml.load(stream, OrderedLoader)
