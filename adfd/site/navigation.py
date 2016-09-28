@@ -36,7 +36,7 @@ class Navigator:
         self.pathNodeMap = {"/": self.root}
 
     def _recursive_add_elems(self, obj, crumbs=None):
-        log.info("generate nav for %s at %s", obj, crumbs)
+        log.info("generate nav for %s at %s", str(obj), str(crumbs))
         crumbs = crumbs or []
         if isinstance(obj, dict):
             for cat, val in obj.items():
