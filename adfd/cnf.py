@@ -4,19 +4,7 @@ import yaml
 
 _PROJECT = plumbum.LocalPath(__file__).dirname.up()
 _PACKAGE = _PROJECT / 'adfd'
-
-try:
-    _CNF = yaml.safe_load(open(_PACKAGE / 'cnf.yml'))
-except:
-    class _CNF:
-        def __getitem__(self, item):
-            if item == 'useFile':
-                return True
-
-            return None
-
-    _CNF = _CNF()
-
+_CNF = yaml.safe_load(open(_PACKAGE / 'cnf.yml'))
 
 class NAME:
     STATIC = 'static'
