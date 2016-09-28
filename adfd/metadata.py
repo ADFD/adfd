@@ -134,10 +134,7 @@ class PageMetadata(Metadata):
         'postDate',
         'topicId',
         'postId',
-
         'useTitles',
-
-        'relPath',
     ]
     """all allowed attributes in use, prevents shooting self in foot"""
     def __init__(self, path=None, kwargs=None, text=None):
@@ -151,6 +148,6 @@ class PageMetadata(Metadata):
         self.slug = None
         self.title = None
         self.topicId = None
-        self.useTitles = None
+        self.useTitles = True
         self.weight = None
         super().__init__(path, kwargs, text)

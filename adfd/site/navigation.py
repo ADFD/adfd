@@ -10,62 +10,57 @@ from bs4 import BeautifulSoup
 from cached_property import cached_property
 
 from adfd.cnf import SITE
-from adfd.model import Topic, Node, CategoryNode, ArticleNode
+from adfd.model import Node, CategoryNode, ArticleNode, Post
 
 log = logging.getLogger(__name__)
 
 
 class Navigator:
-
-    pathNodeMap = {}
-
     def __init__(self):
         self.structure = remap(self.load_structure(), visit=self.create_nodes)
-        root = next(iter(self.structure))
-        self.pathNodeMap['/'] = root
-        self.menu = self.structure[root]
-        self.lastPath = '/'
+        self.root = next(iter(self.structure))
+        self.menu = self.structure[self.root]
+        self.pathNodeMap = {}
+        self.elems = []
 
-    def generate_navigation(self, newPath=""):
-        self._elems = []
+    def generate_navigation(self, activePath="/"):
+        self._reset()
+        self.activePath = activePath
         self._recursive_add_elems(self.menu)
-        log.info("%s -> %s", self.lastPath, newPath)
-        # FIXME setting to active does not translate into active class yet!
-        self.pathNodeMap[self.lastPath].isActive = False
-        self.pathNodeMap[newPath].isActive = True
-        self.lastPath = newPath
-        soup = BeautifulSoup("\n".join(self._elems), 'html.parser')
+        soup = BeautifulSoup("\n".join(self.elems), 'html.parser')
         return soup.prettify()
 
-    def _recursive_add_elems(self, node, prefix='', isSubMenu=False):
-        if isinstance(node, dict):
-            for category, val in node.items():
-                relPath = self.get_rel_path(category, prefix)
-                catElems = category.get_nav_elems(relPath, isSubMenu)
-                self._add_elem(catElems[0])
-                self._add_elem(category.SUB_MENU_WRAPPER[0])
-                self._recursive_add_elems(val, prefix=relPath, isSubMenu=True)
-                self._add_elem(category.SUB_MENU_WRAPPER[1])
-                self._add_elem(catElems[1])
-        elif isinstance(node, list):
-            for e in node:
-                self._recursive_add_elems(e, prefix=prefix)
-        elif isinstance(node, Node):
-            relPath = self.get_rel_path(node, prefix)
-            catElems = node.get_nav_elems(relPath, isSubMenu)
-            self._add_elem("".join(catElems))
-        else:
-            raise Exception("%s" % (type(node)))
+    def _reset(self):
+        self.elems = []
+        [node.reset() for node in self.pathNodeMap.values()]
+        self.pathNodeMap = {"/": self.root}
 
-    def get_rel_path(self, node, prefix):
-        """adds it to the map as side effect"""
-        relPath = prefix + "/" + node.slug
+    def _recursive_add_elems(self, obj, crumbs=None):
+        crumbs = crumbs or []
+        if isinstance(obj, dict):
+            for cat, val in obj.items():
+                assert isinstance(cat, CategoryNode)
+                self._update_node(cat, crumbs)
+                self.elems.append(cat.navHtmlOpener)
+                self.elems.append(cat.SUB_MENU_WRAPPER[0])
+                self._recursive_add_elems(val, crumbs=crumbs + [cat])
+                self.elems.append(cat.SUB_MENU_WRAPPER[1])
+                self.elems.append(cat.navHtmlCloser)
+        elif isinstance(obj, list):
+            for e in obj:
+                self._recursive_add_elems(e, crumbs=crumbs)
+        else:
+            assert isinstance(obj, Node), obj
+            self._update_node(obj, crumbs)
+            self.elems.append(obj.navHtml)
+
+    def _update_node(self, node, crumbs):
+        node.parents = crumbs
+        relPath = node.relPath
         if relPath not in self.pathNodeMap:
             self.pathNodeMap[relPath] = node
-        return relPath
-
-    def _add_elem(self, text):
-        self._elems.append(text)
+        if self.activePath == relPath:
+            node.isActive = True
 
     @cached_property
     def allUrls(self):
@@ -92,9 +87,10 @@ class Navigator:
         if SITE.USE_FILE:
             return cls.ordered_yaml_load(stream=open(SITE.STRUCTURE_PATH))
 
-        topic = Topic(SITE.STRUCTURE_TOPIC_ID)
+        post = Post(SITE.STRUCTURE_POST_ID)
+        # FIXME extract to function/method extract_tag_content and reuse
         regex = re.compile(r'\[code\](.*)\[/code\]', re.MULTILINE | re.DOTALL)
-        match = regex.search(topic.posts[0].content)
+        match = regex.search(post.content)
         stream = io.StringIO(match.group(1))
         return cls.ordered_yaml_load(stream=stream)
 

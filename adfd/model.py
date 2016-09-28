@@ -15,9 +15,59 @@ from werkzeug.utils import cached_property
 log = logging.getLogger(__name__)
 
 
-class Topic:
+class ContentContainer:
     TITLE_PATTERN = '[h2]%s[/h2]\n'
 
+    @staticmethod
+    def date_from_timestamp(timestamp):
+        return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y')
+
+
+class StaticArticle(ContentContainer):
+    @cached_property
+    def slug(self):
+        return self.posts[0].slug
+
+
+    @cached_property
+    def subject(self):
+        return self.posts[0].subject
+
+
+    @cached_property
+    def html(self):
+        return AdfdParser().to_html(self.bbcode)
+
+
+    @cached_property
+    def bbcode(self):
+        return self.content
+
+
+    @cached_property
+    def content(self):
+        contents = []
+        for post in self.posts:
+            if post.isExcluded:
+                continue
+
+            content = ''
+            if self.md.useTitles:
+                content += self.TITLE_PATTERN % self.md.title
+            contents.append(post.content)
+        return "\n\n".join(contents)
+
+
+    @cached_property
+    def lastUpdate(self):
+        raise NotImplementedError
+
+    @cached_property
+    def md(self):
+        raise NotImplementedError
+
+
+class Topic(ContentContainer):
     def __init__(self, topicId):
         self.id = topicId
         self.postIds = self._get_post_ids()
@@ -35,11 +85,14 @@ class Topic:
 
     @cached_property
     def html(self):
-        return AdfdParser().to_html(self.content)
+        return AdfdParser().to_html(self.bbcode)
+
+    @cached_property
+    def bbcode(self):
+        return self.content
 
     @cached_property
     def content(self):
-        """merge contents from topic files into one file"""
         contents = []
         for post in self.posts:
             if post.isExcluded:
@@ -54,7 +107,7 @@ class Topic:
     @cached_property
     def lastUpdate(self):
         newestDate = sorted([p.postTime for p in self.posts], reverse=True)[0]
-        return date_from_timestamp(newestDate)
+        return self.date_from_timestamp(newestDate)
 
     @cached_property
     def md(self):
@@ -86,7 +139,7 @@ class Topic:
         return ids
 
 
-class Post:
+class Post(ContentContainer):
     def __init__(self, postId):
         self.id = postId
 
@@ -108,22 +161,15 @@ class Post:
     @cached_property
     def md(self):
         md = PageMetadata(kwargs=dict(
-            title=self.subject,
             author=self.username,
             authorId=self.dbp.poster_id,
             lastUpdate=self.lastUpdate,
-            postDate=date_from_timestamp(self.dbp.post_time),
-            topicId=self.topicId,
-            postId=self.id))
+            postDate=self.date_from_timestamp(self.dbp.post_time),
+            postId=self.id,
+            title=self.subject,
+            topicId=self.topicId))
         md.populate_from_text(self.content)
         return md
-
-    @cached_property
-    def filename(self):
-        filename = '%06d' % self.id
-        if self.slug:
-            filename += '-%s' % self.slug
-        return filename
 
     @cached_property
     def subject(self):
@@ -148,7 +194,7 @@ class Post:
 
     @cached_property
     def lastUpdate(self):
-        return date_from_timestamp(self.postTime)
+        return self.date_from_timestamp(self.postTime)
 
     @cached_property
     def isExcluded(self):
@@ -201,10 +247,6 @@ class Post:
         return dbp
 
 
-def date_from_timestamp(timestamp):
-    return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y')
-
-
 class Page(object):
     def __init__(self, path, meta, html):
         self.path = path
@@ -242,19 +284,30 @@ class Node:
         self.identifier = identifier
         self.isHome = name == ''
         self._name = name
+        self.parents = []
+        """:type: list of Node"""
         self.isActive = False
 
     def __repr__(self):
         return "<%s(%s)>" % (self.SPEC, self.name)
 
-    def get_nav_elems(self, relPath, isSubMenu=False):
-        raise NotImplementedError
+    def reset(self):
+        self.parents = []
+        self.isActive = False
+
+    @property
+    def relPath(self):
+        return "/" + "/".join([c.slug for c in self.crumbs])
+
+    @property
+    def crumbs(self):
+        return self.parents + [self]
 
     @cached_property
     def html(self):
         return self.topic.html
 
-    # Todo return None if it is a static page
+    # Todo return file path if it is a static page
     @cached_property
     def link(self):
         return "http://adfd.org/austausch/viewtopic.php?t=%s" % self.topic.id
@@ -272,6 +325,11 @@ class Node:
     def hasContent(self):
         return self.identifier is not None
 
+    @property
+    def isSubMenu(self):
+        return (isinstance(self, CategoryNode) and
+                any(isinstance(c, CategoryNode) for c in self.parents))
+
     @cached_property
     def topic(self):
         """:rtype: adfd.db.model.Topic"""
@@ -287,6 +345,18 @@ class Node:
         # create new abstraction: article?
         # Attach just one Post to it?
 
+    @property
+    def navHtml(self):
+        return self.navHtmlOpener + self.navHtmlCloser
+
+    @property
+    def navHtmlOpener(self):
+        raise NotImplementedError
+
+    @cached_property
+    def navHtmlCloser(self):
+        raise NotImplementedError
+
 
 class CategoryNode(Node):
     SPEC = "C"
@@ -295,21 +365,26 @@ class CategoryNode(Node):
     def __init__(self, data):
         super().__init__(*self._parse(data))
 
-    def get_nav_elems(self, relPath, isSubMenu=False):
-        openerPattern = '<div class="%s">'
-        if isSubMenu:
+    @property
+    def navHtmlOpener(self):
+        pattern = '<div class="%s">'
+        if self.isSubMenu:
             classes = ['item']
         else:
             classes = ['ui', 'simple', 'dropdown', 'item']
         if self.isActive:
             classes.append('active')
-        opener = openerPattern % (" ".join(classes))
+        opener = pattern % (" ".join(classes))
         if self.hasContent:
-            opener += '<a href="%s">%s</a>' % (relPath, self.name)
+            opener += '<a href="%s">%s</a>' % (self.relPath, self.name)
         else:
             opener += self.name
-        opener += '&rarr;'  # '<i class="dropdown icon"></i>'
-        return opener, '</div>'
+        opener += ' <i class="dropdown icon"></i>'
+        return opener
+
+    @property
+    def navHtmlCloser(self):
+        return '</div>'
 
     @classmethod
     def _parse(cls, data):
@@ -327,10 +402,14 @@ class CategoryNode(Node):
 class ArticleNode(Node):
     SPEC = "A"
 
-    def get_nav_elems(self, relPath, isSubMenu=False):
-        openerPattern = '<a class="%s" href="%s">%s'
+    @property
+    def navHtmlOpener(self):
+        pattern = '<a class="%s" href="%s">%s'
         classes = ['item']
         if self.isActive:
             classes.append('active')
-        opener = openerPattern % (" ".join(classes), relPath, self.name)
-        return opener, '</a>'
+        return pattern % (" ".join(classes), self.relPath, self.name)
+
+    @cached_property
+    def navHtmlCloser(self):
+        return '</a>'

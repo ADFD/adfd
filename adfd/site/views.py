@@ -27,6 +27,10 @@ def inject_dict_for_all_templates():
     return dict(APP=APP)
 
 
+# TODO add sourcelink and show bbcode
+# TODO add link to original post on ADFD
+# TODO add showing of meta data info (authors, date, etc)
+
 @app.route('/')
 @app.route('/<path:path>/')
 def page(path=''):
