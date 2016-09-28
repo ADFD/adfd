@@ -45,7 +45,7 @@ def page(path=''):
     return render_template('page.html', page=page, navigation=navigation)
 
 
-@app.route('/article/<int:topicId>/')
+@app.route('/topic/<int:topicId>/')
 def article(topicId):
     topic = Topic(int(topicId))
     page = Page(topicId, topic.md, topic.html)
