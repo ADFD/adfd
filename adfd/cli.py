@@ -5,7 +5,7 @@ import socketserver
 
 from adfd.cnf import PATH, SITE, DB
 from adfd.db.sync import DbSynchronizer
-from adfd.site.views import app, navigator, run_devserver
+from adfd.site.controller import app, navigator, run_devserver
 from adfd.utils import get_db_config_info
 from flask.ext.frozen import Freezer
 from plumbum import cli, local

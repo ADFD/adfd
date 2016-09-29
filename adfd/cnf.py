@@ -26,7 +26,7 @@ class PATH:
     PROJECT = _PROJECT
     SITE = _PACKAGE / 'site'
     STATIC = SITE / NAME.STATIC
-    TEMPLATES = SITE / 'templates'
+    TEMPLATES = SITE / 'view'
     FROZEN = _PROJECT / '.frozen'
 
 

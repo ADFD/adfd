@@ -51,6 +51,8 @@ def article(topicId):
     page = Page(topicId, topic.md, topic.html)
     return render_template('page.html', page=page)
 
+# todo /favicon.ico
+
 
 @app.route('/robots.txt')
 def robots_txt():
