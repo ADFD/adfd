@@ -64,7 +64,7 @@ def robots_txt():
 def run_devserver(projectPath=PATH.PROJECT, port=SITE.APP_PORT):
     with local.cwd(projectPath):
         log.info("serving on http://localhost:%s", port)
-        app.run(port=port)
+        app.run(host='0.0.0.0', port=port)
 
 
 if __name__ == '__main__':
