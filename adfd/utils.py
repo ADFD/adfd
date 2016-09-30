@@ -37,8 +37,6 @@ def slugify_path(relPath):
 
 
 class ContentGrabber:
-    # TODO inject live content here from DB if possible
-    # make configurable via cnf object if DB should be tried
     def __init__(self, absPath=None, relPath='.'):
         if absPath:
             self.rootPath = absPath
