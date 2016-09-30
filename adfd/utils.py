@@ -2,6 +2,7 @@ import codecs
 import logging
 import os
 import re
+from datetime import datetime
 from types import FunctionType, MethodType
 
 from adfd.cnf import SITE
@@ -11,8 +12,12 @@ from plumbum import LocalPath
 log = logging.getLogger(__name__)
 
 
-class _Slugification:
-    """Turn sentences into slugs to be used in filenames and URLs"""
+def date_from_timestamp(timestamp):
+    return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y')
+
+
+class _Slugifier:
+    """Turn sentences into slugs to be used in names and URLs"""
     SEP = '-'
 
     def __init__(self):
@@ -29,11 +34,7 @@ class _Slugification:
                 words.append(word)
         return self.SEP.join(words)
 
-slugify = _Slugification()
-
-
-def slugify_path(relPath):
-    return "/".join([slugify(s) for s in relPath.split('/')])
+slugify = _Slugifier()
 
 
 class ContentGrabber:
@@ -60,51 +61,6 @@ class ContentGrabber:
         if not lines[-1]:
             lines.pop()
         return lines
-
-
-def dump_contents(path, contents):
-    log.debug(path)
-    path.dirname.mkdir()
-    path.write(contents, encoding='utf8')
-
-
-class DataGrabber(ContentGrabber):
-    DATA_PATH = LocalPath(__file__).up(2) / 'tests' / 'data'
-
-    def __init__(self, relPath='.', absPath=None):
-        super(DataGrabber, self).__init__(relPath, absPath)
-        if not absPath:
-            self.rootPath = self.DATA_PATH / relPath
-
-    def get_chunks(self, fName):
-        """separates chunks separated by empty lines
-
-        :returns: list of list of str
-        """
-        chunks = []
-        currentChunkLines = []
-        for line in self.get_lines(fName):
-            if line:
-                currentChunkLines.append(line)
-            else:
-                chunks.append(currentChunkLines)
-                currentChunkLines = []
-        return chunks
-
-    def get_boolean_tests(self, fName, good='good'):
-        return [(l, good in l) for l in self.get_lines(fName)]
-
-    def get_pairs(self):
-        paths = [p for p in sorted(self.rootPath.list())]
-        idx = 0
-        contents = []
-        while idx + 1 < len(paths):
-            fName = paths[idx].basename
-            src = self.grab(paths[idx])
-            exp = self.grab(paths[idx + 1])
-            contents.append((fName, src, exp))
-            idx += 2
-        return contents
 
 
 _specialAttrNames = [

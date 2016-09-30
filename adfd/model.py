@@ -1,62 +1,43 @@
 import html
 import logging
 import re
-from datetime import datetime
 
-from adfd.cnf import SITE
+from adfd.cnf import SITE, PATH
 from adfd.db.lib import DbWrapper
 from adfd.metadata import PageMetadata
 from adfd.exc import *
 from adfd.parse import AdfdParser
-from adfd.utils import slugify
+from adfd.utils import slugify, ContentGrabber, date_from_timestamp
 from cached_property import cached_property
 from werkzeug.utils import cached_property
 
 log = logging.getLogger(__name__)
 
 
-class ContentContainer:
-    TITLE_PATTERN = '[h2]%s[/h2]\n'
+class Article:
+    def __init__(self, identifier):
+        self.identifier = identifier
+        self.grabber = ContentGrabber(absPath=PATH.STATIC / 'content')
 
-    @staticmethod
-    def date_from_timestamp(timestamp):
-        return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y')
-
-
-class StaticArticle(ContentContainer):
     @cached_property
     def slug(self):
-        return self.posts[0].slug
-
+        return slugify(self.subject)
 
     @cached_property
     def subject(self):
-        return self.posts[0].subject
-
+        return self.md.title
 
     @cached_property
     def html(self):
         return AdfdParser().to_html(self.bbcode)
 
-
     @cached_property
     def bbcode(self):
         return self.content
 
-
     @cached_property
     def content(self):
-        contents = []
-        for post in self.posts:
-            if post.isExcluded:
-                continue
-
-            content = ''
-            if self.md.useTitles:
-                content += self.TITLE_PATTERN % self.md.title
-            contents.append(post.content)
-        return "\n\n".join(contents)
-
+        return self.grabber.grab(self.identifier)
 
     @cached_property
     def lastUpdate(self):
@@ -67,17 +48,15 @@ class StaticArticle(ContentContainer):
         raise NotImplementedError
 
 
-class Topic(ContentContainer):
+class Topic:
+    TITLE_PATTERN = '[h2]%s[/h2]\n'
+
     def __init__(self, topicId):
         self.id = topicId
         self.postIds = self._get_post_ids()
 
     def __repr__(self):
         return "<Topic(%s (%s))>" % (self.subject, self.id)
-
-    @cached_property
-    def slug(self):
-        return self.posts[0].slug
 
     @cached_property
     def subject(self):
@@ -107,7 +86,7 @@ class Topic(ContentContainer):
     @cached_property
     def lastUpdate(self):
         newestDate = sorted([p.postTime for p in self.posts], reverse=True)[0]
-        return self.date_from_timestamp(newestDate)
+        return date_from_timestamp(newestDate)
 
     @cached_property
     def md(self):
@@ -139,7 +118,7 @@ class Topic(ContentContainer):
         return ids
 
 
-class Post(ContentContainer):
+class Post:
     def __init__(self, postId):
         self.id = postId
 
@@ -164,7 +143,7 @@ class Post(ContentContainer):
             author=self.username,
             authorId=self.dbp.poster_id,
             lastUpdate=self.lastUpdate,
-            postDate=self.date_from_timestamp(self.dbp.post_time),
+            postDate=date_from_timestamp(self.dbp.post_time),
             postId=self.id,
             title=self.subject,
             topicId=self.topicId))
@@ -194,7 +173,7 @@ class Post(ContentContainer):
 
     @cached_property
     def lastUpdate(self):
-        return self.date_from_timestamp(self.postTime)
+        return date_from_timestamp(self.postTime)
 
     @cached_property
     def isExcluded(self):
@@ -277,6 +256,9 @@ class Page(object):
         return self.meta[name]
 
 
+# Fixme Markup should have nothing to do in here
+# find a way to move the representational part completely into the view
+# (how about a recursive jinja2 macro that generates navigation from nodes?)
 class Node:
     SPEC = "N"
 
@@ -285,6 +267,8 @@ class Node:
         self.isHome = name == ''
         self._name = name
         self.parents = []
+        """:type: list of Node"""
+        self.children = []
         """:type: list of Node"""
         self.isActive = False
 

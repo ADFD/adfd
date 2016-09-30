@@ -3,7 +3,6 @@ import re
 from collections import OrderedDict
 
 from adfd.exc import NotAnAttribute, NotOverridable
-from adfd.utils import ContentGrabber
 
 log = logging.getLogger(__name__)
 
@@ -28,19 +27,13 @@ class Metadata:
     OVERRIDABLES = None
     META_RE = re.compile(r'\[meta\](.*)\[/meta\]', re.MULTILINE | re.DOTALL)
 
-    def __init__(self, path=None, kwargs=None, text=None):
+    def __init__(self, kwargs=None, text=None):
         """WARNING: all public attributes are written as meta data"""
-        self._path = path
-        self.populate_from_file(path)
         self.populate_from_kwargs(kwargs)
         self.populate_from_text(text)
 
     def __repr__(self):
         return str(self.asDict)
-
-    @property
-    def exists(self):
-        return self._path and self._path.exists()
 
     @property
     def asFileContents(self):
@@ -66,18 +59,6 @@ class Metadata:
 
             dict_[name] = attr
         return dict_
-
-    def populate_from_file(self, path):
-        if not path or not path.exists():
-            return
-
-        for line in ContentGrabber(path).grab().split('\n'):
-            if not line.strip():
-                continue
-
-            key, value = line[3:].split(': ', 1)
-            log.debug('%s -> %s from "%s"', key, value, line)
-            self.update(key.strip(), value.strip())
 
     def populate_from_kwargs(self, kwargs):
         if not kwargs:
@@ -137,7 +118,7 @@ class PageMetadata(Metadata):
         'useTitles',
     ]
     """all allowed attributes in use, prevents shooting self in foot"""
-    def __init__(self, path=None, kwargs=None, text=None):
+    def __init__(self, kwargs=None, text=None):
         self.allAuthors = None
         self.author = None
         self.authorId = None
@@ -150,4 +131,4 @@ class PageMetadata(Metadata):
         self.topicId = None
         self.useTitles = True
         self.weight = None
-        super().__init__(path, kwargs, text)
+        super().__init__(kwargs, text)

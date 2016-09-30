@@ -1,10 +1,51 @@
 import logging
 
 import pytest
+
+from adfd.cnf import PATH
 from adfd.parse import AdfdParser
-from adfd.utils import DataGrabber
+from adfd.utils import ContentGrabber
 
 log = logging.getLogger(__name__)
+
+
+class DataGrabber(ContentGrabber):
+    DATA_PATH = PATH.PROJECT / 'tests' / 'data'
+
+    def __init__(self, relPath='.', absPath=None):
+        super(DataGrabber, self).__init__(relPath, absPath)
+        if not absPath:
+            self.rootPath = self.DATA_PATH / relPath
+
+    def get_chunks(self, fName):
+        """separates chunks separated by empty lines
+
+        :returns: list of list of str
+        """
+        chunks = []
+        currentChunkLines = []
+        for line in self.get_lines(fName):
+            if line:
+                currentChunkLines.append(line)
+            else:
+                chunks.append(currentChunkLines)
+                currentChunkLines = []
+        return chunks
+
+    def get_boolean_tests(self, fName, good='good'):
+        return [(l, good in l) for l in self.get_lines(fName)]
+
+    def get_pairs(self):
+        paths = [p for p in sorted(self.rootPath.list())]
+        idx = 0
+        contents = []
+        while idx + 1 < len(paths):
+            fName = paths[idx].basename
+            src = self.grab(paths[idx])
+            exp = self.grab(paths[idx + 1])
+            contents.append((fName, src, exp))
+            idx += 2
+        return contents
 
 
 class PairTester:
@@ -42,5 +83,5 @@ class TestFromDataAcceptance:
     @pytest.mark.parametrize("fName,src,exp", ACCEPTANCE_PAIRS)
     def test_acceptance_pairs(self, fName, src, exp):
         if fName in ['nested-quotes.bbcode']:
-            pytest.xfail('nested quuotes is tricky and of qquestionable use')
+            pytest.xfail('nested quotes is tricky and of questionable use')
         PairTester.test_pairs(fName, src, exp)
