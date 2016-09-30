@@ -688,11 +688,8 @@ class AdfdParser(Parser):
     def _add_formatters(self):
         self.add_simple('b', '<strong>%(value)s</strong>')
         self.add_simple('br', '<br>\n', standalone=True)
-
-        # todo use foundation way for centering
         self.add_simple(
             'center', '<div style="text-align:center;">%(value)s</div>\n')
-
         self.add_simple(
             'code', '<code>%(value)s</code>\n', renderEmbedded=False,
             transformNewlines=False, swallowTrailingNewline=True)
