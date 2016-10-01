@@ -61,7 +61,7 @@ class DbWrapper:
         """:rtype: list of int"""
         query = self.query(PhpbbPost).join(
             PhpbbTopic, PhpbbTopic.topic_id == PhpbbPost.topic_id)\
-            .filter(PhpbbTopic.topic_id == topicId)
+                .filter(PhpbbTopic.topic_id == topicId)
         return [row.post_id for row in query.all()]
 
     def topic_id_2_forum_id(self, topicId):

@@ -2,14 +2,15 @@
 
 {% block content %}
 <div class="ui main text container">
-    <h1>{{ page.title }}</h1>
+    <h1>{{ node.title }}</h1>
 
+{#    TODO ADD metadata info thing #}
     {% if info %}
     <p>{{ info }}</p>
     {% endif %}
 
 {#    <article>#}
-      <p>{{ page.html | safe }}</p>
+      <p>{{ node.html | safe }}</p>
 {#    </article>#}
 </div>
 {% endblock content %}

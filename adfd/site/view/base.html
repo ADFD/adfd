@@ -15,7 +15,9 @@
         <a href="/" class="header item">
             <img class="logo" src="{{ url_for('static', filename='img/logo78x81.png') }}">
         </a>
-        {{ navigation | safe }}
+        <div class="ui simple dropdown item">
+            {{ navigation | safe }}
+        </div>
     </div>
 </div>
 <div class="adfd-spacer"><!-- clear height of fixed menu --></div>

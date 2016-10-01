@@ -1,8 +1,8 @@
 import logging
 
 from adfd.cnf import PATH, SITE, APP
-from adfd.model import Topic, Page
 from adfd.site.navigation import Navigator
+from bs4 import BeautifulSoup
 from flask import render_template, send_from_directory, Flask
 from flask.ext.frozen import os
 from plumbum.machines import local
@@ -19,7 +19,15 @@ app.config.update(
     FREEZER_DESTINATION=str(PATH.FROZEN),
     FREEZER_RELATIVE_URLS=True)
 
-navigator = Navigator()
+navigator = None
+""":type: Navigator"""
+
+
+@app.before_first_request
+def before_first_request():
+    global navigator
+    if not navigator:
+        navigator = Navigator()
 
 
 @app.context_processor
@@ -33,25 +41,26 @@ def inject_dict_for_all_templates():
 
 @app.route('/')
 @app.route('/<path:path>/')
-def page(path=''):
+def path_route(path=''):
+    # fixme adapt to semantic UI
     for specialDir in ['js', 'stylesheets']:
         if path.startswith(specialDir):
             return send_from_directory(specialDir, os.path.basename(path))
 
-    path = "/" + path  # FIXME Why is this necessary?
-    navigation = navigator.generate_navigation(path)
-    # FIXME use new fetching method from new navigation
-    # topic = navigator.pathNodeMap[path].topic
-    topic = navigator.pathNodeMap[path].topic
-    page = Page(path, topic.md, topic.html)
-    return render_template('page.html', page=page, navigation=navigation)
+    node = navigator.pathNodeMap[path]
+    navigation = navigator.menuAsString
+    html = render_template('page.html', node=node, navigation=navigation)
+    # html = BeautifulSoup(html, 'html.parser').prettify()
+    return html
 
-
-@app.route('/topic/<int:topicId>/')
-def article(topicId):
-    topic = Topic(int(topicId))
-    page = Page(topicId, topic.md, topic.html)
-    return render_template('page.html', page=page)
+@app.route('/article/<int:topicId>/')
+@app.route('/article/<path:identifier>/')
+def article(topicId=None, identifier=None):
+    raise Exception("%s, %s" % (topicId, identifier))
+    # todo get Node from identier or topicId
+    # page = Page(topicId, topic.md, topic.html)
+    # return render_template('page.html', page=page)
+    pass
 
 # todo /favicon.ico
 

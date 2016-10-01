@@ -250,13 +250,20 @@ class Node:
     def __repr__(self):
         return "<%s(%s: %s)>" % (self.SPEC, self.identifier, self.name[:6])
 
-    def reset(self):
-        self.parents = []
-        self.isActive = False
+    def __html__(self):
+        """In a template: ``{{ page }}`` == ``{{ page.html|safe }}``."""
+        return self.html
+
+    # def __getitem__(self, name):
+    #     """Shortcut for accessing metadata.
+    #
+    #     ``page['title']`` == ``{{ page.title }}`` == ``page.meta['title']``.
+    #     """
+    #     return self.topic.md[name]
 
     @property
     def relPath(self):
-        return "/" + "/".join([c.slug for c in self.crumbs])
+        return "/".join([c.slug for c in self.crumbs])
 
     @property
     def crumbs(self):
@@ -300,10 +307,6 @@ class Node:
         if isinstance(self.identifier, int):
             return Topic(self.identifier)
 
-        # todo create StaticTopic read from file or something like that
-        # abstract out non db parts of Topic for that
-        # create new abstraction: article?
-        # Attach just one Post to it?
         return StaticTopic(self.identifier)
 
     @property
@@ -321,7 +324,6 @@ class Node:
 
 class CategoryNode(Node):
     SPEC = "C"
-    SUB_MENU_WRAPPER = ('<div class="menu">', '</div>')
 
     def __init__(self, data):
         super().__init__(*self._parse(data))
@@ -346,11 +348,12 @@ class CategoryNode(Node):
         else:
             opener += self.name
         opener += ' <i class="dropdown icon"></i>'
+        opener += '<div class="menu">'
         return opener
 
     @property
     def navHtmlCloser(self):
-        return '</div>'
+        return '</div></div>'
 
     @classmethod
     def _parse(cls, data):
@@ -390,7 +393,7 @@ class StructureLoader:
         if SITE.USE_FILE:
             return cls.ordered_yaml_load(stream=open(SITE.STRUCTURE_PATH))
 
-        post = Post(SITE.STRUCTURE_POST_ID)
+        post = Topic(SITE.STRUCTURE_TOPIC_ID)
         stream = io.StringIO(extract_from_bbcode(SITE.META_TAG, post.content))
         return cls.ordered_yaml_load(stream=stream)
 
