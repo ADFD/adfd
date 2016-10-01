@@ -45,6 +45,7 @@ class SITE:
     STATIC_ARTICLES_PATH = PATH.STATIC / 'content' / 'articles'
     USE_FILE = _CNF['useFile']
     APP_PORT = 5000
+    META_TAG = 'meta'
 
 
 class DB:

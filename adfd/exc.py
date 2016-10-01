@@ -12,7 +12,3 @@ class TopicNotAccessible(Exception):
 
 class NotAnAttribute(Exception):
     """A key is not an attribute"""
-
-
-class NotOverridable(Exception):
-    """A key is not configured as overridable overriden (e.g. postId)"""

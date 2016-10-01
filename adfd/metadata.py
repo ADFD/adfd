@@ -1,13 +1,14 @@
 import logging
-import re
 from collections import OrderedDict
 
-from adfd.exc import NotAnAttribute, NotOverridable
+from adfd.cnf import SITE
+from adfd.exc import NotAnAttribute
+from adfd.parse import extract_from_bbcode
 
 log = logging.getLogger(__name__)
 
 
-class Metadata:
+class PageMetadata:
     """
     For overriding this directly from post contents the bbcode tag
     ``meta`` has to be defined on the board.
@@ -23,22 +24,33 @@ class Metadata:
 
         <span style="display: none;">[meta]{TEXT}[/meta]</span>
     """
-    ATTRIBUTES = None
-    OVERRIDABLES = None
-    META_RE = re.compile(r'\[meta\](.*)\[/meta\]', re.MULTILINE | re.DOTALL)
+    ATTRIBUTES = [
+        'allAuthors',
+        'author',
+        'isExcluded',
+        'linkText',
+        'slug',
+        'title',
+        'useTitles',
+    ]
 
     def __init__(self, kwargs=None, text=None):
         """WARNING: all public attributes are written as meta data"""
-        self.populate_from_kwargs(kwargs)
-        self.populate_from_text(text)
+        self.allAuthors = None
+        self.author = None
+        self.authorId = None
+        self.isExcluded = False
+        self.linkText = None
+        """text that should be used if linked to here ??? Needed?"""
+        self.slug = None
+        self.title = None  # TODO resolve subject vs title
+        self.useTitles = True
+        assert kwargs or text
+        self._populate_from_kwargs(kwargs)
+        self._populate_from_text(text)
 
     def __repr__(self):
         return str(self.asDict)
-
-    @property
-    def asFileContents(self):
-        return "\n".join([".. %s: %s" % (k, v) for k, v in self.asDict.items()
-                          if v is not None])
 
     @property
     def asDict(self):
@@ -47,7 +59,7 @@ class Metadata:
             if name.startswith('_'):
                 continue
 
-            if self.ATTRIBUTES and name not in self.ATTRIBUTES:
+            if name not in self.ATTRIBUTES:
                 raise NotAnAttribute(name)
 
             attr = getattr(self, name)
@@ -60,75 +72,31 @@ class Metadata:
             dict_[name] = attr
         return dict_
 
-    def populate_from_kwargs(self, kwargs):
+    def _populate_from_kwargs(self, kwargs):
         if not kwargs:
             return
 
         for key, value in kwargs.items():
-            self.update(key, str(value))
+            self._update(key, str(value))
 
-    def populate_from_text(self, text):
+    def _populate_from_text(self, text):
         if not text:
             return
 
-        match = self.META_RE.search(text)
-        if not match:
+        rawMd = extract_from_bbcode(SITE.META_TAG, text)
+        if not rawMd:
             return
 
-        metaLines = match.group(1).split('\n')
-        for line in metaLines:
+        lines = rawMd.split('\n')
+        for line in lines:
             assert isinstance(line, str)  # pycharm is strange sometimes
             if not line.strip():
                 continue
 
             key, value = line.split(':', maxsplit=1)
-            key = key.strip()
-            if self.OVERRIDABLES and key not in self.OVERRIDABLES:
-                raise NotOverridable('%s in %s' % (key, self))
+            self._update(key.strip(), value.strip())
 
-            self.update(key, value.strip())
-
-    def update(self, key, value):
-        key = key.strip()
+    def _update(self, key, value):
         value = str(value).strip()
         log.debug('%s: %s -> %s', self.__class__.__name__, key, value)
         setattr(self, key, value)
-
-
-# FIXME this is a bit fuzzy still. There should be Post and Topic metadata
-class PageMetadata(Metadata):
-    OVERRIDABLES = [
-        'allAuthors',
-        'isExcluded',
-        'linktext',
-        'relFilePath',
-        'relPath',
-        'slug',
-        'title',
-        'weight',
-    ]
-    """can be overridden by metadata in post content"""
-    ATTRIBUTES = OVERRIDABLES + [
-        'author',
-        'authorId',
-        'lastUpdate',
-        'postDate',
-        'topicId',
-        'postId',
-        'useTitles',
-    ]
-    """all allowed attributes in use, prevents shooting self in foot"""
-    def __init__(self, kwargs=None, text=None):
-        self.allAuthors = None
-        self.author = None
-        self.authorId = None
-        self.isExcluded = False
-        self.lastUpdate = None
-        self.postDate = None
-        self.postId = None
-        self.slug = None
-        self.title = None
-        self.topicId = None
-        self.useTitles = True
-        self.weight = None
-        super().__init__(kwargs, text)

@@ -911,3 +911,14 @@ class RE:
     If the given link looks like a domain, add a http:// in front of it,
     otherwise leave it alone (be a relative path, a filename, etc.).
     """
+
+
+def extract_from_bbcode(tag, content):
+    rString = r'\[%s\](.*)\[/%s\]' % (tag, tag)
+    regex = re.compile(rString, re.MULTILINE | re.DOTALL)
+    match = regex.search(content)
+    try:
+        return match.group(1)
+    except AttributeError:
+        pass
+        # log.warning("no [%s] in %s[...]" % (tag, content[:50]))

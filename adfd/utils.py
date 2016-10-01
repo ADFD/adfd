@@ -36,24 +36,22 @@ slugify = _Slugifier()
 
 
 class ContentGrabber:
-    def __init__(self, absPath=None, relPath='.'):
-        if absPath:
-            self.rootPath = absPath
-        else:
-            self.rootPath = LocalPath(__file__).up(2) / relPath
+    def __init__(self, path):
+        self.path = LocalPath(path)
 
     def get_lines(self, fName):
         """get lines as list from file (without empty element at end)"""
         return self.strip_whitespace(self.get_text(fName))
 
     def get_text(self, fName, ext='.bb'):
-        return self.grab(self.rootPath / (fName + ext))
+        return self.grab(self.path / (fName + ext))
 
     def grab(self, path=None):
-        path = path or self.rootPath
+        path = path or self.path
         return path.read('utf-8')
 
-    def strip_whitespace(self, content):
+    @staticmethod
+    def strip_whitespace(content):
         """lines stripped of surrounding whitespace and last empty line"""
         lines = [t.strip() for t in content.split('\n')]
         if not lines[-1]:

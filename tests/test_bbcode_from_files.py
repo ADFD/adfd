@@ -12,10 +12,8 @@ log = logging.getLogger(__name__)
 class DataGrabber(ContentGrabber):
     DATA_PATH = PATH.PROJECT / 'tests' / 'data'
 
-    def __init__(self, relPath='.', absPath=None):
-        super(DataGrabber, self).__init__(relPath, absPath)
-        if not absPath:
-            self.rootPath = self.DATA_PATH / relPath
+    def __init__(self, path):
+        super().__init__(self.DATA_PATH / path)
 
     def get_chunks(self, fName):
         """separates chunks separated by empty lines
@@ -36,7 +34,7 @@ class DataGrabber(ContentGrabber):
         return [(l, good in l) for l in self.get_lines(fName)]
 
     def get_pairs(self):
-        paths = [p for p in sorted(self.rootPath.list())]
+        paths = [p for p in sorted(self.path.list())]
         idx = 0
         contents = []
         while idx + 1 < len(paths):

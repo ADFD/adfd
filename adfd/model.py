@@ -1,12 +1,15 @@
 import html
+import io
 import logging
 import re
+from collections import OrderedDict
 
+import yaml
 from adfd.cnf import SITE, PATH
 from adfd.db.lib import DbWrapper
 from adfd.metadata import PageMetadata
 from adfd.exc import *
-from adfd.parse import AdfdParser
+from adfd.parse import AdfdParser, extract_from_bbcode
 from adfd.utils import slugify, ContentGrabber, date_from_timestamp
 from cached_property import cached_property
 from werkzeug.utils import cached_property
@@ -14,10 +17,9 @@ from werkzeug.utils import cached_property
 log = logging.getLogger(__name__)
 
 
-class Article:
+class StaticTopic:
     def __init__(self, identifier):
         self.identifier = identifier
-        self.grabber = ContentGrabber(absPath=PATH.STATIC / 'content')
 
     @cached_property
     def slug(self):
@@ -37,7 +39,8 @@ class Article:
 
     @cached_property
     def content(self):
-        return self.grabber.grab(self.identifier)
+        grabber = ContentGrabber(PATH.STATIC / 'content' / self.identifier)
+        return grabber.grab()
 
     @cached_property
     def lastUpdate(self):
@@ -45,7 +48,7 @@ class Article:
 
     @cached_property
     def md(self):
-        raise NotImplementedError
+        return PageMetadata(text=self.content)
 
 
 class Topic:
@@ -139,15 +142,16 @@ class Post:
 
     @cached_property
     def md(self):
-        md = PageMetadata(kwargs=dict(
-            author=self.username,
-            authorId=self.dbp.poster_id,
-            lastUpdate=self.lastUpdate,
-            postDate=date_from_timestamp(self.dbp.post_time),
-            postId=self.id,
-            title=self.subject,
-            topicId=self.topicId))
-        md.populate_from_text(self.content)
+        md = PageMetadata(
+            kwargs=dict(
+                author=self.username,
+                authorId=self.dbp.poster_id,
+                lastUpdate=self.lastUpdate,
+                postDate=date_from_timestamp(self.dbp.post_time),
+                postId=self.id,
+                title=self.subject,
+                topicId=self.topicId),
+            text=self.content)
         return md
 
     @cached_property
@@ -226,35 +230,6 @@ class Post:
         return dbp
 
 
-class Page(object):
-    def __init__(self, path, meta, html):
-        self.path = path
-        self.html = html
-        self.meta = meta
-        """:type: adfd.metadata.PageMetaData"""
-
-    def __repr__(self):
-        return '<Page %r>' % self.path
-
-    @cached_property
-    def title(self):
-        return self.meta.title
-
-    @cached_property
-    def html(self):
-        return self.html
-
-    def __html__(self):
-        """In a template: ``{{ page }}`` == ``{{ page.html|safe }}``."""
-        return self.html
-
-    def __getitem__(self, name):
-        """Shortcut for accessing metadata.
-
-        ``page['title']`` == ``{{ page.title }}`` == ``page.meta['title']``.
-        """
-        return self.meta[name]
-
 
 # Fixme Markup should have nothing to do in here
 # find a way to move the representational part completely into the view
@@ -317,6 +292,7 @@ class Node:
     @cached_property
     def topic(self):
         """:rtype: adfd.db.model.Topic"""
+        # FIXME seems to be never called -> remove
         if not self.identifier:
             # todo determine what should happen, if e.g category has no page
             raise NotImplementedError
@@ -328,6 +304,7 @@ class Node:
         # abstract out non db parts of Topic for that
         # create new abstraction: article?
         # Attach just one Post to it?
+        return StaticTopic(self.identifier)
 
     @property
     def navHtml(self):
@@ -397,3 +374,29 @@ class ArticleNode(Node):
     @cached_property
     def navHtmlCloser(self):
         return '</a>'
+
+
+class StructureLoader:
+    @classmethod
+    def load(cls):
+        if SITE.USE_FILE:
+            return cls.ordered_yaml_load(stream=open(SITE.STRUCTURE_PATH))
+
+        post = Post(SITE.STRUCTURE_POST_ID)
+        stream = io.StringIO(extract_from_bbcode(SITE.META_TAG, post.content))
+        return cls.ordered_yaml_load(stream=stream)
+
+    @classmethod
+    def ordered_yaml_load(cls, stream):
+        class OrderedLoader(yaml.SafeLoader):
+            pass
+
+        def construct_mapping(loader, node):
+            loader.flatten_mapping(node)
+            return OrderedDict(loader.construct_pairs(node))
+
+        # noinspection PyUnresolvedReferences
+        OrderedLoader.add_constructor(
+            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+            construct_mapping)
+        return yaml.load(stream, OrderedLoader)
