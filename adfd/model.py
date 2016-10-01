@@ -231,7 +231,6 @@ class Post:
         return dbp
 
 
-
 # Fixme Markup should have nothing to do in here
 # find a way to move the representational part completely into the view
 # (how about a recursive jinja2 macro that generates navigation from nodes?)
@@ -327,6 +326,11 @@ class CategoryNode(Node):
     def __init__(self, data):
         super().__init__(*self._parse(data))
 
+    def __str__(self):
+        return (self.navHtmlOpener +
+                "".join([str(c) for c in self.children]) +
+                self.navHtmlCloser)
+
     @property
     def navHtmlOpener(self):
         pattern = '<div class="%s">'
@@ -363,6 +367,9 @@ class CategoryNode(Node):
 
 class ArticleNode(Node):
     SPEC = "A"
+
+    def __str__(self):
+        return self.navHtml
 
     @property
     def navHtmlOpener(self):
