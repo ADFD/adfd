@@ -261,11 +261,11 @@ class Node:
     #     """
     #     return self.topic.md[name]
 
-    @property
+    @cached_property
     def relPath(self):
-        return "/".join([c.slug for c in self.crumbs if c])
+        return "/".join([c.slug for c in self.crumbs]) or "/"
 
-    @property
+    @cached_property
     def crumbs(self):
         return self.parents + [self]
 

@@ -19,15 +19,7 @@ app.config.update(
     FREEZER_DESTINATION=str(PATH.FROZEN),
     FREEZER_RELATIVE_URLS=True)
 
-navigator = None
-""":type: Navigator"""
-
-
-@app.before_first_request
-def before_first_request():
-    global navigator
-    if not navigator:
-        navigator = Navigator()
+navigator = Navigator()
 
 
 @app.context_processor
@@ -47,7 +39,8 @@ def path_route(path=''):
         if path.startswith(specialDir):
             return send_from_directory(specialDir, os.path.basename(path))
 
-    node = navigator.pathNodeMap[path]
+    node = navigator.pathNodeMap["/" + path]
+    # TODO set active path
     navigation = navigator.menuAsString
     html = render_template('page.html', node=node, navigation=navigation)
     # html = BeautifulSoup(html, 'html.parser').prettify()
