@@ -263,7 +263,7 @@ class Node:
 
     @property
     def relPath(self):
-        return "/".join([c.slug for c in self.crumbs])
+        return "/".join([c.slug for c in self.crumbs if c])
 
     @property
     def crumbs(self):
@@ -294,7 +294,7 @@ class Node:
     @property
     def isSubMenu(self):
         return (isinstance(self, CategoryNode) and
-                any(isinstance(c, CategoryNode) for c in self.parents))
+                any(isinstance(c, CategoryNode) for c in self.parents[1:]))
 
     @cached_property
     def topic(self):

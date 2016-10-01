@@ -53,11 +53,12 @@ def path_route(path=''):
     # html = BeautifulSoup(html, 'html.parser').prettify()
     return html
 
+
 @app.route('/article/<int:topicId>/')
 @app.route('/article/<path:identifier>/')
 def article(topicId=None, identifier=None):
     raise Exception("%s, %s" % (topicId, identifier))
-    # todo get Node from identier or topicId
+    # todo get Node from identifier or topicId
     # page = Page(topicId, topic.md, topic.html)
     # return render_template('page.html', page=page)
     pass
