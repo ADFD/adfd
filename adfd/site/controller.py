@@ -40,6 +40,8 @@ def page(path=''):
 
     path = "/" + path  # FIXME Why is this necessary?
     navigation = navigator.generate_navigation(path)
+    # FIXME use new fetching method from new navigation
+    # topic = navigator.pathNodeMap[path].topic
     topic = navigator.pathNodeMap[path].topic
     page = Page(path, topic.md, topic.html)
     return render_template('page.html', page=page, navigation=navigation)
