@@ -273,7 +273,7 @@ class Node:
         self.isActive = False
 
     def __repr__(self):
-        return "<%s(%s)>" % (self.SPEC, self.name)
+        return "<%s(%s: %s)>" % (self.SPEC, self.identifier, self.name[:6])
 
     def reset(self):
         self.parents = []

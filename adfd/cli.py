@@ -3,12 +3,13 @@ import logging
 import os
 import socketserver
 
-from adfd.cnf import PATH, SITE, DB
-from adfd.db.sync import DbSynchronizer
-from adfd.site.controller import app, navigator, run_devserver
-from adfd.utils import get_db_config_info
 from flask.ext.frozen import Freezer
 from plumbum import cli, local
+
+from adfd.cnf import PATH, SITE, DB
+from adfd.db.lib import get_db_config_info
+from adfd.db.sync import DbSynchronizer
+from adfd.site.controller import app, navigator, run_devserver
 
 log = logging.getLogger(__name__)
 
@@ -127,7 +128,7 @@ class AdfdServeFrozen(cli.Application):
 @Adfd.subcommand('info')
 class AdfdInfo(cli.Application):
     def main(self):
-        print(get_db_config_info())
+        print(get_db_config_info)
 
 
 def main():

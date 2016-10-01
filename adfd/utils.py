@@ -5,8 +5,6 @@ import re
 from datetime import datetime
 from types import FunctionType, MethodType
 
-from adfd.cnf import SITE
-from adfd.db.lib import DbWrapper
 from plumbum import LocalPath
 
 log = logging.getLogger(__name__)
@@ -184,11 +182,3 @@ def get_obj_info(objects):
     for name, obj in sorted([(k, v) for k, v in inf.items() if k.isupper()]):
         out.append(obj_attr(obj, objName=name))
     return '\n'.join(out)
-
-
-def get_db_config_info():
-    msg = ""
-    allowedForums = ["%s (%s)" % (DbWrapper().forum_id_2_forum_name(fId), fId)
-                     for fId in SITE.ALLOWED_FORUM_IDS]
-    msg += "allowed Forums:\n    %s" % ("\n    ".join(allowedForums))
-    return msg

@@ -5,7 +5,7 @@ from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import sessionmaker
 
 from adfd.db.schema import PhpbbTopic, PhpbbForum, PhpbbPost, PhpbbUser
-from adfd.cnf import DB
+from adfd.cnf import DB, SITE
 
 log = logging.getLogger(__name__)
 
@@ -78,6 +78,15 @@ class DbWrapper:
         """:rtype: str"""
         n = self.query(PhpbbUser).filter(PhpbbUser.user_id == userId).first()
         return n.username or "Anonymous"
+
+
+def get_db_config_info():
+    msg = ""
+    allowedForums = [
+        "%s (%s)" % (DbWrapper().forum_id_2_forum_name(fId), fId)
+        for fId in SITE.ALLOWED_FORUM_IDS]
+    msg += "allowed Forums:\n    %s" % ("\n    ".join(allowedForums))
+    return msg
 
 
 if __name__ == '__main__':
