@@ -4,15 +4,16 @@ import logging
 import re
 from collections import OrderedDict
 
+from cached_property import cached_property
+from werkzeug.utils import cached_property
 import yaml
+
 from adfd.cnf import SITE, PATH
 from adfd.db.lib import DbWrapper
 from adfd.metadata import PageMetadata
 from adfd.exc import *
 from adfd.parse import AdfdParser, extract_from_bbcode
 from adfd.utils import slugify, ContentGrabber, date_from_timestamp
-from cached_property import cached_property
-from werkzeug.utils import cached_property
 
 log = logging.getLogger(__name__)
 
