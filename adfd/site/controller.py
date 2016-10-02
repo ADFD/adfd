@@ -53,7 +53,7 @@ def path_route(path=''):
 
 @app.route('/article/<int:topicId>/')
 @app.route('/article/<path:identifier>/')
-def article(topicId=None, identifier=None):
+def article_route(topicId=None, identifier=None):
     if topicId:
         node = navigator.identifierNodeMap[topicId]
     else:
@@ -65,7 +65,7 @@ def article(topicId=None, identifier=None):
 
 
 @app.route('/robots.txt')
-def robots_txt():
+def robots_txt_route():
     if os.getenv('APP_TARGET') != 'live':
         return "User-agent: *\nDisallow: /\n"
 

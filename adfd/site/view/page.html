@@ -4,11 +4,11 @@
 <div class="ui main text container">
     <h1>{{ node.topic.md.title }}</h1>
 
-{#    <p>### {{ node.topic.md.author }} ###</p>#}
+    {#    <p>### {{ node.topic.md.author }} ###</p>#}
 
-{#see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article#}
-<article>
-{{ node.html | safe }}
-</article>
+    {#see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article#}
+    <article>
+    {{ node.html | safe }}
+    </article>
 </div>
 {% endblock content -%}

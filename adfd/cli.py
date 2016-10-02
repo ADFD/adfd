@@ -59,15 +59,19 @@ class AdfdFreeze(cli.Application):
     def freeze(pathPrefix, target):
         """:param pathPrefix: for freezing when it's served not from root"""
 
-        def page():
-            for _url in navigator.pathNodeMap.keys():
+        def path_route():
+            for _url, node in navigator.pathNodeMap.items():
+                if not node.hasContent:
+                    log.info("nothing to render for %s -> %r", _url, node)
+                    continue
+
                 log.info("yield %s", _url)
                 yield {'path': _url}
 
         log.info("freeze in: %s", PATH.PROJECT)
         os.environ['APP_TARGET'] = target
         freezer = Freezer(app)
-        freezer.register_generator(page)
+        freezer.register_generator(path_route)
         with local.cwd(PATH.PROJECT):
             log.info("freezing %s", freezer)
             seenUrls = freezer.freeze()
