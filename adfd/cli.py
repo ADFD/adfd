@@ -68,7 +68,7 @@ class AdfdFreeze(cli.Application):
                 log.info("yield %s", _url)
                 yield {'path': _url}
 
-        log.info("freeze in: %s", PATH.PROJECT)
+        log.info("freeze to: %s", PATH.FROZEN)
         os.environ['APP_TARGET'] = target
         app.config.update(FREEZER_DESTINATION=str(PATH.FROZEN),
                           FREEZER_RELATIVE_URLS=True)
