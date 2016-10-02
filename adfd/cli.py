@@ -1,17 +1,15 @@
 import http.server
 import logging
 import os
-import socket
 import socketserver
 
-import plumbum
-from flask.ext.frozen import Freezer
-from plumbum import cli, local
+from plumbum import cli, local, LocalPath
 
-from adfd.cnf import PATH, SITE, DB
+from adfd.cnf import PATH, SITE
 from adfd.db.lib import get_db_config_info
 from adfd.db.sync import DbSynchronizer
 from adfd.site.controller import app, navigator, run_devserver
+from flask.ext.frozen import Freezer
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +46,7 @@ class AdfdFreeze(cli.Application):
     """Freeze website to static files"""
     TM = {
         'dev': (PATH.PROJECT / '.frozen', None),
-        'test': (plumbum.LocalPath('/home/www/privat/neu'),  'privat/neu'),
+        'test': (LocalPath('/home/www/privat/neu'),  'privat/neu'),
         'live': (None, None),
     }
     target = cli.SwitchAttr(
@@ -121,7 +119,6 @@ class AdfdInfo(cli.Application):
 
 
 def main():
-    logging.basicConfig(level=logging.INFO)
     try:
         Adfd.run()
     except KeyboardInterrupt:

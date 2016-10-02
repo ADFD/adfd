@@ -45,6 +45,7 @@ class SITE:
     USE_FILE = _CNF['useFile']
     APP_PORT = 5000
     META_TAG = 'meta'
+    CODE_TAG = 'code'
 
 
 class DB:

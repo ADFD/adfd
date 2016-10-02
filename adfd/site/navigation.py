@@ -91,7 +91,7 @@ class StructureLoader:
 
         return cls.ordered_yaml_load(
             stream=io.StringIO(extract_from_bbcode(
-                    SITE.META_TAG,
+                    SITE.CODE_TAG,
                     ArticleNode(SITE.STRUCTURE_TOPIC_ID).bbcode)))
 
     @classmethod
