@@ -1,5 +1,6 @@
 boltons==16.5.0
 bs4
+html5lib
 cached-property==1.3.0
 flask==0.10.1
 frozen-flask==0.12
