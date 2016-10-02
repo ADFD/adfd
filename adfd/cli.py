@@ -1,8 +1,10 @@
 import http.server
 import logging
 import os
+import socket
 import socketserver
 
+import plumbum
 from flask.ext.frozen import Freezer
 from plumbum import cli, local
 
@@ -12,10 +14,6 @@ from adfd.db.sync import DbSynchronizer
 from adfd.site.controller import app, navigator, run_devserver
 
 log = logging.getLogger(__name__)
-
-TEST = ('%s:./www/privat/neu' % DB.REMOTE_HOST, 'privat/neu')
-LIVE = ('%s:./www/inhalt' % DB.REMOTE_HOST, 'inhalt')
-TARGET_MAP = {'local': (None, None), 'test': TEST, 'live': LIVE}
 
 
 class Adfd(cli.Application):
@@ -48,17 +46,22 @@ class AdfdDev(cli.Application):
 @Adfd.subcommand('freeze')
 class AdfdFreeze(cli.Application):
     """Freeze website to static files"""
+    TM = {
+        'dev': (PATH.PROJECT / '.frozen', None),
+        'test': (plumbum.LocalPath('/home/www/privat/neu'),  'privat/neu'),
+        'live': (None, None),
+    }
     target = cli.SwitchAttr(
-        ['t', 'target'], default='local', help="one of %s" % TARGET_MAP.keys())
+        ['t', 'target'], default='dev', help="one of %s" % TM.keys())
 
     def main(self):
-        PATH.FROZEN.delete()
-        self.freeze(TARGET_MAP[self.target][1], self.target)
+        if self.target == 'live':
+            raise Exception("not ready for live!")
+
+        self.freeze(self.target, *self.TM[self.target])
 
     @staticmethod
-    def freeze(pathPrefix, target):
-        """:param pathPrefix: for freezing when it's served not from root"""
-
+    def freeze(target, dstPath, pathPrefix):
         def path_route():
             for _url, node in navigator.pathNodeMap.items():
                 if not node.hasContent:
@@ -68,10 +71,11 @@ class AdfdFreeze(cli.Application):
                 log.info("yield %s", _url)
                 yield {'path': _url}
 
-        log.info("freeze to: %s", PATH.FROZEN)
+        log.info("freeze to: %s", dstPath)
         os.environ['APP_TARGET'] = target
-        app.config.update(FREEZER_DESTINATION=str(PATH.FROZEN),
-                          FREEZER_RELATIVE_URLS=True)
+        app.config.update(FREEZER_DESTINATION=str(dstPath),
+                          FREEZER_RELATIVE_URLS=True,
+                          FREEZER_REMOVE_EXTRA_FILES=True)
         freezer = Freezer(app)
         freezer.register_generator(path_route)
         with local.cwd(PATH.PROJECT):
@@ -82,7 +86,7 @@ class AdfdFreeze(cli.Application):
             log.warning("prefix %s - changing links", pathPrefix)
             for url in seenUrls:
                 if url.endswith('/'):
-                    filePath = PATH.FROZEN / url[1:] / 'index.html'
+                    filePath = dstPath / url[1:] / 'index.html'
                     with open(filePath) as f:
                         content = f.read()
                         content = content.replace(
@@ -91,35 +95,13 @@ class AdfdFreeze(cli.Application):
                         f.write(content)
 
 
-@Adfd.subcommand('deploy')
-class AdfdDeploy(cli.Application):
-    """Deploy frozen web page to remote location"""
-    target = cli.SwitchAttr(
-        ['t', 'target'], default='test', help="one of %s" % TARGET_MAP.keys())
-
-    def main(self):
-        if self.target == 'local':
-            raise Exception("no local deploy possible")
-        prefix = TARGET_MAP[self.target][1]
-        AdfdFreeze.freeze(prefix, self.target)
-        self.deploy(PATH.FROZEN, prefix)
-
-    # FIXME paths and args still screwed up ... still needed
-    @staticmethod
-    def deploy(outputPath, target):
-        """synchronize static website with target"""
-        args = ('-av', outputPath + '/', target)
-        log.debug('run rsync%s', args)
-        rsyncOutput = local['rsync'](*args)
-        log.info("rsync result:\n%s", rsyncOutput)
-
-
 @Adfd.subcommand('frozen')
 class AdfdServeFrozen(cli.Application):
     """Serve frozen web page locally"""
     def main(self):
-        log.info("'%s' -> http://localhost:%s", PATH.FROZEN, SITE.APP_PORT)
-        self.serve(PATH.FROZEN)
+        dstPath = AdfdFreeze.TM['dev'][0]
+        log.info("'%s' -> http://localhost:%s", dstPath, SITE.APP_PORT)
+        self.serve(dstPath)
 
     @staticmethod
     def serve(siteRoot):

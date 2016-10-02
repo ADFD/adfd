@@ -27,7 +27,6 @@ class PATH:
     SITE = _PACKAGE / 'site'
     STATIC = SITE / NAME.STATIC
     TEMPLATES = SITE / 'view'
-    FROZEN = plumbum.LocalPath(_CNF['frozenPath']) or _PROJECT / '.frozen'
 
 
 class APP:
