@@ -9,19 +9,19 @@
 </head>
 <body>
 
-{% if navigation %}
 <div class="ui fixed menu">
     <div class="ui container">
         <a href="/" class="header item">
-            <img class="logo" src="{{ url_for('static', filename='img/logo78x81.png') }}">
+            <img class="logo" alt="ADFD logo" src="{{ url_for('static', filename='img/logo78x81.png') }}">
         </a>
+        {% if navigation -%}
         {{ navigation | safe }}
+        {% endif -%}
     </div>
 </div>
 <div class="adfd-spacer"><!-- clear height of fixed menu --></div>
-{% endif %}
 
-{% block content %}{% endblock content %}
+{% block content -%}{% endblock content -%}
 
 <div class="ui inverted vertical footer segment">
     <div class="ui center aligned container">
@@ -43,13 +43,13 @@
                 </div>
             </div>
             <div class="ten wide column">
-                <h4 class="ui inverted header">Irgendwas wichtiges</h4>
+                <div class="ui inverted header">Irgendwas wichtiges</div>
                 <p>Hier könnte was wichtiges stehen, was man auf jeden Fall lesen sollte.
                 Wenn man es schafft bis hier unten hin zu scrollen!</p>
             </div>
         </div>
         <div class="ui inverted section divider"></div>
-        <img src="{{ url_for('static', filename='img/logo78x81.png') }}" class="ui centered mini image">
+        <img class="ui centered mini image" alt="ADFD logo" src="{{ url_for('static', filename='img/logo78x81.png') }}">
         <div class="ui horizontal inverted small divided link list">
             <a class="item" href="#">Site Map</a>
             <a class="item" href="#">Kontakt</a>

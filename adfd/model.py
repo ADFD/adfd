@@ -22,6 +22,9 @@ class StaticTopic:
     def __init__(self, identifier):
         self.identifier = identifier
 
+    def __repr__(self):
+        return "<StaticTopic(%s (%s))>" % (self.subject, self.identifier)
+
     @cached_property
     def slug(self):
         return slugify(self.subject)
@@ -38,7 +41,8 @@ class StaticTopic:
     def bbcode(self):
         return self.content
 
-    @cached_property
+    # @cached_property
+    @property
     def content(self):
         grabber = ContentGrabber(PATH.STATIC / 'content' / self.identifier)
         return grabber.grab()
@@ -52,7 +56,7 @@ class StaticTopic:
         return PageMetadata(text=self.content)
 
 
-class Topic:
+class DbTopic:
     TITLE_PATTERN = '[h2]%s[/h2]\n'
 
     def __init__(self, topicId):
@@ -60,17 +64,19 @@ class Topic:
         self.postIds = self._get_post_ids()
 
     def __repr__(self):
-        return "<Topic(%s (%s))>" % (self.subject, self.id)
+        return "<DbTopic(%s (%s))>" % (self.subject, self.id)
 
     @cached_property
     def subject(self):
         return self.posts[0].subject
 
-    @cached_property
+    # @cached_property
+    @property
     def html(self):
         return AdfdParser().to_html(self.bbcode)
 
-    @cached_property
+    # @cached_property
+    @property
     def bbcode(self):
         return self.content
 
@@ -298,14 +304,14 @@ class Node:
 
     @cached_property
     def topic(self):
-        """:rtype: adfd.db.model.Topic"""
+        """:rtype: adfd.model.DbTopic"""
         # FIXME seems to be never called -> remove
         if not self.identifier:
             # todo determine what should happen, if e.g category has no page
             raise NotImplementedError
 
         if isinstance(self.identifier, int):
-            return Topic(self.identifier)
+            return DbTopic(self.identifier)
 
         return StaticTopic(self.identifier)
 
@@ -388,26 +394,29 @@ class ArticleNode(Node):
 
 
 class StructureLoader:
+    class OrderedLoader(yaml.SafeLoader):
+        def __init__(self, stream):
+            # noinspection PyUnresolvedReferences
+            self.add_constructor(
+                yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+                self.construct_ordered_mapping)
+            super().__init__(stream)
+
+        @staticmethod
+        def construct_ordered_mapping(loader, node):
+            loader.flatten_mapping(node)
+            return OrderedDict(loader.construct_pairs(node))
+
     @classmethod
     def load(cls):
         if SITE.USE_FILE:
             return cls.ordered_yaml_load(stream=open(SITE.STRUCTURE_PATH))
 
-        post = Topic(SITE.STRUCTURE_TOPIC_ID)
-        stream = io.StringIO(extract_from_bbcode(SITE.META_TAG, post.content))
-        return cls.ordered_yaml_load(stream=stream)
+        return cls.ordered_yaml_load(
+            stream=io.StringIO(extract_from_bbcode(
+                    SITE.META_TAG,
+                    DbTopic(SITE.STRUCTURE_TOPIC_ID).content)))
 
     @classmethod
     def ordered_yaml_load(cls, stream):
-        class OrderedLoader(yaml.SafeLoader):
-            pass
-
-        def construct_mapping(loader, node):
-            loader.flatten_mapping(node)
-            return OrderedDict(loader.construct_pairs(node))
-
-        # noinspection PyUnresolvedReferences
-        OrderedLoader.add_constructor(
-            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-            construct_mapping)
-        return yaml.load(stream, OrderedLoader)
+        return yaml.load(stream, cls.OrderedLoader)

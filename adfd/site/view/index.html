@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends "base.html" -%}
 
-{% block content %}
+{% block content -%}
     <div class="row">
         <div class="small-12 columns">
             <div class="panel">
@@ -8,7 +8,7 @@
             </div>
         </div>
     </div>
-    {% with pages=pages %}
-        {% include "_list.html" %}
-    {% endwith %}
-{% endblock content %}
+    {% with pages=pages -%}
+        {% include "_list.html" -%}
+    {% endwith -%}
+{% endblock content -%}

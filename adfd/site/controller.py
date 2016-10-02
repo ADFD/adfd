@@ -27,6 +27,12 @@ def inject_dict_for_all_templates():
     return dict(APP=APP)
 
 
+def render_pretty(template_name_or_list, **context):
+    result = render_template(template_name_or_list, **context)
+    return BeautifulSoup(result, 'html5lib').prettify()
+    # return result
+
+
 # TODO add sourcelink and show bbcode
 # TODO add link to original post on ADFD
 # TODO add showing of meta data info (authors, date, etc)
@@ -42,19 +48,18 @@ def path_route(path=''):
     node = navigator.pathNodeMap["/" + path]
     # TODO set active path
     navigation = navigator.menuAsString
-    html = render_template('page.html', node=node, navigation=navigation)
-    # html = BeautifulSoup(html, 'html.parser').prettify()
-    return html
+    return render_pretty('page.html', node=node, navigation=navigation)
 
 
 @app.route('/article/<int:topicId>/')
 @app.route('/article/<path:identifier>/')
 def article(topicId=None, identifier=None):
-    raise Exception("%s, %s" % (topicId, identifier))
-    # todo get Node from identifier or topicId
-    # page = Page(topicId, topic.md, topic.html)
-    # return render_template('page.html', page=page)
-    pass
+    if topicId:
+        node = navigator.identifierNodeMap[topicId]
+    else:
+        node = navigator.pathNodeMap["/" + identifier]
+    return render_pretty('page.html', node=node)
+
 
 # todo /favicon.ico
 

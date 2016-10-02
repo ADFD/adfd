@@ -15,7 +15,7 @@ class LinkInformer:
 
     def __init__(self, topics):
         """
-        :type topics: list Topic
+        :type topics: list DbTopic
         """
         self.topics = topics
 

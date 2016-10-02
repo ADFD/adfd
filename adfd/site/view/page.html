@@ -1,16 +1,14 @@
-{% extends "base.html" %}
+{% extends "base.html" -%}
 
-{% block content %}
+{% block content -%}
 <div class="ui main text container">
-    <h1>{{ node.title }}</h1>
+    <h1>{{ node.topic.md.title }}</h1>
 
-{#    TODO ADD metadata info thing #}
-    {% if info %}
-    <p>{{ info }}</p>
-    {% endif %}
+{#    <p>### {{ node.topic.md.author }} ###</p>#}
 
-{#    <article>#}
-      <p>{{ node.html | safe }}</p>
-{#    </article>#}
+{#see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article#}
+<article>
+{{ node.html | safe }}
+</article>
 </div>
-{% endblock content %}
+{% endblock content -%}
