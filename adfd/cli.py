@@ -52,7 +52,7 @@ class AdfdFreeze(cli.Application):
         'live': (None, None),
     }
     target = cli.SwitchAttr(
-        ['t', 'target'], default='dev', help="one of %s" % TM.keys())
+        ['t', 'target'], default='test', help="one of %s" % TM.keys())
 
     def main(self):
         if self.target == 'live':
