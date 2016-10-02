@@ -55,7 +55,7 @@ def article_route(topicId=None, identifier=None):
 
 @app.route('/robots.txt')
 def robots_txt_route():
-    if os.getenv('APP_TARGET') != 'live':
+    if os.getenv(APP.ENV_TARGET) != 'live':
         return "User-agent: *\nDisallow: /\n"
 
     # TODO exclude bad robots

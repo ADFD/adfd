@@ -1,8 +1,11 @@
 import html
 import logging
+import os
 import re
 
-from adfd.cnf import SITE, PATH
+from cached_property import cached_property
+
+from adfd.cnf import SITE, PATH, APP
 from adfd.db.lib import DbWrapper
 from adfd.exc import *
 from adfd.metadata import PageMetadata
@@ -31,42 +34,42 @@ class Node:
         """In a template: ``{{ page }}`` == ``{{ page.html|safe }}``."""
         return self.html
 
-    @property
+    @cached_property
     def title(self):
         return self._title or self.topic.title
 
-    @property
+    @cached_property
     def html(self):
         return self.topic.html
 
-    @property
+    @cached_property
     def bbcode(self):
         return self.topic.bbcode
 
-    @property
+    @cached_property
     def relPath(self):
         return "/".join([c.slug for c in self.crumbs]) or "/"
 
-    @property
+    @cached_property
     def crumbs(self):
         return self.parents + [self]
 
     # Todo return file path if it is a static page
-    @property
+    @cached_property
     def link(self):
         return "http://adfd.org/austausch/viewtopic.php?t=%s" % self.topic.id
 
-    @property
+    @cached_property
     def slug(self):
         """:rtype: str"""
         isRoot = isinstance(self, CategoryNode) and self._title == ''
         return '' if isRoot else slugify(self.title)
 
-    @property
+    @cached_property
     def hasContent(self):
         return self.identifier is not None
 
-    @property
+    @cached_property
     def topic(self):
         # FIXME seems to be never called -> remove
         if not self.identifier:
@@ -88,7 +91,7 @@ class CategoryNode(Node):
     def __str__(self):
         return self.navPattern % "".join([str(c) for c in self.children])
 
-    @property
+    @cached_property
     def navPattern(self):
         pattern = '<div class="%s">'
         if self._isSubMenu:
@@ -118,7 +121,7 @@ class CategoryNode(Node):
         mainTopicId = int(sd[1].strip()) if len(sd) == 2 else None
         return mainTopicId, title
 
-    @property
+    @cached_property
     def _isSubMenu(self):
         return (isinstance(self, CategoryNode) and
                 any(isinstance(c, CategoryNode) for c in self.parents[1:]))
@@ -142,7 +145,7 @@ class CategoryTopic:
     def __repr__(self):
         return "<CategoryTopic(%s (%s))>" % (self.title, self.identifier)
 
-    @property
+    @cached_property
     def html(self):
         return "#### HTML TODO ###"
 
@@ -154,33 +157,33 @@ class StaticTopic:
     def __repr__(self):
         return "<StaticTopic(%s (%s))>" % (self.title, self.identifier)
 
-    @property
+    @cached_property
     def slug(self):
         return slugify(self.title)
 
-    @property
+    @cached_property
     def title(self):
         return self.md.title
 
-    @property
+    @cached_property
     def html(self):
         return AdfdParser().to_html(self.bbcode)
 
-    @property
+    @cached_property
     def bbcode(self):
         return self.content
 
-    # @property
-    @property
+    # @cached_property
+    @cached_property
     def content(self):
         grabber = ContentGrabber(PATH.STATIC / 'content' / self.identifier)
         return grabber.grab()
 
-    @property
+    @cached_property
     def lastUpdate(self):
         raise NotImplementedError
 
-    @property
+    @cached_property
     def md(self):
         return PageMetadata(text=self.content)
 
@@ -195,21 +198,21 @@ class DbTopic:
     def __repr__(self):
         return "<DbTopic(%s (%s))>" % (self.title, self.id)
 
-    @property
+    @cached_property
     def title(self):
         return self.posts[0].subject
 
-    # @property
-    @property
+    # @cached_property
+    @cached_property
     def html(self):
         return AdfdParser().to_html(self.bbcode)
 
-    # @property
-    @property
+    # @cached_property
+    @cached_property
     def bbcode(self):
         return self.content
 
-    @property
+    @cached_property
     def content(self):
         contents = []
         for post in self.posts:
@@ -223,16 +226,16 @@ class DbTopic:
             contents.append(post.content)
         return "\n\n".join(contents)
 
-    @property
+    @cached_property
     def lastUpdate(self):
         newestDate = sorted([p.postTime for p in self.posts], reverse=True)[0]
         return date_from_timestamp(newestDate)
 
-    @property
+    @cached_property
     def md(self):
         return self.posts[0].md
 
-    @property
+    @cached_property
     def posts(self):
         """:rtype: list of Post"""
         posts = []
@@ -265,40 +268,40 @@ class Post:
     def __repr__(self):
         return "<%s %s (%s)>" % (self.__class__.__name__, self.id, self.slug)
 
-    @property
+    @cached_property
     def subject(self):
         return self._preprocess(self.dbp.post_subject)
 
-    @property
+    @cached_property
     def content(self):
         content = self._preprocess(self.dbp.post_text, self.dbp.bbcode_uid)
         content = self._fix_db_storage_patterns(content)
         content = self._fix_whitespace(content)
         return content
 
-    @property
+    @cached_property
     def slug(self):
         return slugify(self.subject)
 
-    @property
+    @cached_property
     def postTime(self):
         return self.dbp.post_edit_time or self.dbp.post_time
 
-    @property
+    @cached_property
     def md(self):
         return PageMetadata(text=self.content)
 
-    @property
+    @cached_property
     def username(self):
         username = (self.dbp.post_username or
                     DbWrapper().get_username(self.dbp.poster_id))
         return self._preprocess(username)
 
-    @property
+    @cached_property
     def lastUpdate(self):
         return date_from_timestamp(self.postTime)
 
-    @property
+    @cached_property
     def isExcluded(self):
         return self.md.isExcluded
 
@@ -336,7 +339,7 @@ class Post:
             text = text.replace("\n\n\n", "\n\n")
         return text
 
-    @property
+    @cached_property
     def dbp(self):
         dbp = DbWrapper().fetch_post(self.id)
         if not dbp:

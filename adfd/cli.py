@@ -5,7 +5,7 @@ import socketserver
 
 from plumbum import cli, local, LocalPath
 
-from adfd.cnf import PATH, SITE
+from adfd.cnf import PATH, SITE, APP
 from adfd.db.lib import get_db_config_info
 from adfd.db.sync import DbSynchronizer
 from adfd.site.controller import app, navigator, run_devserver
@@ -70,7 +70,7 @@ class AdfdFreeze(cli.Application):
                 yield {'path': _url}
 
         log.info("freeze to: %s", dstPath)
-        os.environ['APP_TARGET'] = target
+        os.environ[APP.ENV_TARGET] = target
         app.config.update(FREEZER_DESTINATION=str(dstPath),
                           FREEZER_RELATIVE_URLS=True,
                           FREEZER_REMOVE_EXTRA_FILES=True)

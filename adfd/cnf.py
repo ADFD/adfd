@@ -34,6 +34,7 @@ class APP:
     CSS_MIN_PATH = 'dist/semantic.min.css'
     JS_PATH = 'dist/semantic.js'
     JS_MIN_PATH = 'dist/semantic.min.js'
+    ENV_TARGET = 'APP_TARGET'
 
 
 class SITE:
