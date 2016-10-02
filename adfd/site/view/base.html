@@ -19,10 +19,21 @@
         {% endif -%}
     </div>
 </div>
-<div class="adfd-spacer"><!-- clear height of fixed menu --></div>
 
-{% block content -%}{% endblock content -%}
+<div class="ui main text container">
+    {% if node.parents %}
+    <div class="ui breadcrumb">
+        {% for crumb in node.parents %}
+        <a class="section" href="{{ crumb.relPath }}">{{ crumb.title }}</a>
+        <i class="right angle icon divider"></i>
+        {%  endfor %}
+        <a class="active section" href="{{ node.relPath }}">{{ node.title }}</a>
+    </div>
+    {% endif %}
+    {% block content -%}{% endblock content -%}
+</div>
 
+{#TODO replace boilerplate #}
 <div class="ui inverted vertical footer segment">
     <div class="ui center aligned container">
         <div class="ui stackable inverted divided grid">

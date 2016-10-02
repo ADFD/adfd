@@ -8,17 +8,8 @@ from flask.ext.frozen import os
 from plumbum.machines import local
 
 log = logging.getLogger(__name__)
-
-# TODO ever needed on server? static_url_path='/assets'
-app = Flask(
-    __name__, template_folder=PATH.TEMPLATES, static_folder=PATH.STATIC)
-# FIXME Why do I set the root path to the very root? Needed?
-app.root_path = str(PATH.PROJECT)
-app.config.update(
-    DEBUG=True,
-    FREEZER_DESTINATION=str(PATH.FROZEN),
-    FREEZER_RELATIVE_URLS=True)
-
+app = Flask('adfd', template_folder=PATH.TEMPLATES, static_folder=PATH.STATIC)
+app.config.update(DEBUG=True)
 navigator = Navigator()
 
 
@@ -33,7 +24,8 @@ def render_pretty(template_name_or_list, **context):
     # return result
 
 
-# TODO add sourcelink and show bbcode
+# todo route to /favicon.ico and other things I might have missed
+# TODO add source link and show bbcode
 # TODO add link to original post on ADFD
 # TODO add showing of meta data info (authors, date, etc)
 
@@ -59,9 +51,6 @@ def article_route(topicId=None, identifier=None):
     else:
         node = navigator.pathNodeMap["/" + identifier]
     return render_pretty('page.html', node=node)
-
-
-# todo /favicon.ico
 
 
 @app.route('/robots.txt')

@@ -1,14 +1,13 @@
 {% extends "base.html" -%}
 
 {% block content -%}
-<div class="ui main text container">
-    <h1>{{ node.topic.md.title }}</h1>
+
+    <h1>{{ node.title }}</h1>
 
     {#    <p>### {{ node.topic.md.author }} ###</p>#}
 
     {#see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article#}
     <article>
-    {{ node.html | safe }}
+    {{ node }}
     </article>
-</div>
 {% endblock content -%}

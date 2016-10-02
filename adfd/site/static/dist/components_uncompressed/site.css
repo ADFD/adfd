@@ -158,3 +158,26 @@ input::selection {
          Site Overrides
 *******************************/
 
+.main.container {
+  margin-top: 7em;
+}
+
+/* Not supported by Chrome yet, but on the way
+   https://bugs.chromium.org/p/chromium/issues/detail?id=605840 */
+@supports ((-webkit-hyphens: auto) or (-ms-hyphens: auto) or (hyphens: auto)) {
+  p {
+    text-align: justify;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+        hyphens: auto;
+  }
+}
+/*html {*/
+/*height: 100%;*/
+/*}*/
+/*body {*/
+/*height: 100%;*/
+/*margin: 0;*/
+/*background: linear-gradient(to bottom, #eee, rgba(222, 112, 6, 0.2), #de7006) no-repeat;*/
+/*overflow-x: hidden;*/
+/*}*/

@@ -70,6 +70,8 @@ class AdfdFreeze(cli.Application):
 
         log.info("freeze in: %s", PATH.PROJECT)
         os.environ['APP_TARGET'] = target
+        app.config.update(FREEZER_DESTINATION=str(PATH.FROZEN),
+                          FREEZER_RELATIVE_URLS=True)
         freezer = Freezer(app)
         freezer.register_generator(path_route)
         with local.cwd(PATH.PROJECT):

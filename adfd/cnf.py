@@ -27,7 +27,7 @@ class PATH:
     SITE = _PACKAGE / 'site'
     STATIC = SITE / NAME.STATIC
     TEMPLATES = SITE / 'view'
-    FROZEN = _PROJECT / '.frozen'
+    FROZEN = _PROJECT / _CNF['frozenPath']
 
 
 class APP:

@@ -1,8 +1,13 @@
+import io
 import logging
+from collections import OrderedDict
 
 from boltons.iterutils import remap
+import yaml
 
-from adfd.model import CategoryNode, ArticleNode, StructureLoader
+from adfd.cnf import SITE
+from adfd.parse import extract_from_bbcode
+from adfd.model import CategoryNode, ArticleNode
 
 log = logging.getLogger(__name__)
 
@@ -63,3 +68,32 @@ class Navigator:
                 cat = CategoryNode(key)
                 self.yamlKeyNodeMap[key] = cat
                 return cat
+
+
+class StructureLoader:
+    class OrderedLoader(yaml.SafeLoader):
+        def __init__(self, stream):
+            # noinspection PyUnresolvedReferences
+            self.add_constructor(
+                yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+                self.construct_ordered_mapping)
+            super().__init__(stream)
+
+        @staticmethod
+        def construct_ordered_mapping(loader, node):
+            loader.flatten_mapping(node)
+            return OrderedDict(loader.construct_pairs(node))
+
+    @classmethod
+    def load(cls):
+        if SITE.USE_FILE:
+            return cls.ordered_yaml_load(stream=open(SITE.STRUCTURE_PATH))
+
+        return cls.ordered_yaml_load(
+            stream=io.StringIO(extract_from_bbcode(
+                    SITE.META_TAG,
+                    ArticleNode(SITE.STRUCTURE_TOPIC_ID).bbcode)))
+
+    @classmethod
+    def ordered_yaml_load(cls, stream):
+        return yaml.load(stream, cls.OrderedLoader)
