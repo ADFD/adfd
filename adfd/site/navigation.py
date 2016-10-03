@@ -17,6 +17,8 @@ class Navigator:
         self.pathNodeMap = {}
         self.identifierNodeMap = {}
         self.yamlKeyNodeMap = {}
+
+    def populate(self):
         self.structure = StructureLoader.load()
         remap(self.structure, visit=self.visit)
         self.root = self.yamlKeyNodeMap[next(iter(self.structure))]

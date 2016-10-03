@@ -18,6 +18,11 @@ def inject_dict_for_all_templates():
     return dict(APP=APP)
 
 
+@app.before_first_request
+def populate_navigator():
+    navigator.populate()
+
+
 def render_pretty(template_name_or_list, **context):
     result = render_template(template_name_or_list, **context)
     return BeautifulSoup(result, 'html5lib').prettify()

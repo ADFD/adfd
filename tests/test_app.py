@@ -1,6 +1,7 @@
+from flexmock import flexmock
 import pytest
 
-from adfd.site.controller import app
+from adfd.site.controller import app, navigator
 
 
 @pytest.fixture
@@ -11,6 +12,8 @@ def tc():
 
 class TestApp:
     def test_basic(self, tc):
+        navMock = flexmock(navigator)
+        navMock.should_receive('menuAsString').and_return("")
         rv = tc.get('/')
         txt = rv.data.decode()
         assert 'body' in txt
