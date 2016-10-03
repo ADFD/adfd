@@ -1,11 +1,12 @@
 import logging
+import os
+
+from bs4 import BeautifulSoup
+from flask import Flask, render_template
+from plumbum.machines import local
 
 from adfd.cnf import PATH, SITE, APP
 from adfd.site.navigation import Navigator
-from bs4 import BeautifulSoup
-from flask import render_template, Flask
-from flask.ext.frozen import os
-from plumbum.machines import local
 
 log = logging.getLogger(__name__)
 app = Flask(__name__, template_folder=PATH.VIEW, static_folder=PATH.STATIC)
