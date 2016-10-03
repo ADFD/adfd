@@ -31,6 +31,13 @@ class Node:
             self.SPEC, self.identifier, self.article.title[:6])
 
     @cached_property
+    def title(self):
+        if not self.parents:
+            return "Start"
+
+        return self._title or self.article.title
+
+    @cached_property
     def relPath(self):
         return "/".join([c.slug for c in self.parents + [self]]) or "/"
 
@@ -85,7 +92,7 @@ class CategoryNode(Node):
             classes.append('active')
         tag = pattern % (" ".join(classes))
         if self.hasContent:
-            tag += '<a href="%s">%s</a>' % (self.relPath, self.article.title)
+            tag += '<a href="%s">%s</a>' % (self.relPath, self.title)
         else:
             tag += self.article.title
         tag += '<i class="dropdown icon"></i>'
@@ -200,7 +207,7 @@ class StaticContentContainer(ContentContainer):
 
     @cached_property
     def creationDate(self):
-        return date_from_timestamp(self.lastUpdate())
+        return self._grabber.get_ctime()
 
     @cached_property
     def lastUpdate(self):

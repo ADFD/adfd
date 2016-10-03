@@ -48,6 +48,9 @@ class ContentGrabber:
         path = path or self.path
         return path.read('utf-8')
 
+    def get_ctime(self):
+        return date_from_timestamp(os.path.getctime(self.path))
+
     def get_mtime(self):
         return date_from_timestamp(os.path.getmtime(self.path))
 

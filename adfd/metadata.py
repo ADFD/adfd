@@ -35,7 +35,7 @@ class PageMetadata:
 
     def __init__(self, kwargs=None, text=None):
         """WARNING: all public attributes are written as meta data"""
-        self.allAuthors = None
+        self.allAuthors = []
         self.isExcluded = False
         self.linkText = None  # TODO needed?
         """text that should be used if linked to here"""
