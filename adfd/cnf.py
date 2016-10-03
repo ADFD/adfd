@@ -26,7 +26,7 @@ class PATH:
     PROJECT = _PROJECT
     SITE = _PACKAGE / 'site'
     STATIC = SITE / NAME.STATIC
-    TEMPLATES = SITE / 'view'
+    VIEW = SITE / 'view'
 
 
 class APP:

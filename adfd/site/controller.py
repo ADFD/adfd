@@ -8,7 +8,7 @@ from flask.ext.frozen import os
 from plumbum.machines import local
 
 log = logging.getLogger(__name__)
-app = Flask('adfd', template_folder=PATH.TEMPLATES, static_folder=PATH.STATIC)
+app = Flask(__name__, template_folder=PATH.VIEW, static_folder=PATH.STATIC)
 app.config.update(DEBUG=True)
 navigator = Navigator()
 
