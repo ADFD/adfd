@@ -43,7 +43,7 @@ class PageMetadata:
         self.linkText = None
         """text that should be used if linked to here ??? Needed?"""
         self.slug = None
-        self.title = None  # TODO resolve subject vs title
+        self.title = None
         self.useTitles = True
         assert kwargs or text
         self._populate_from_kwargs(kwargs)

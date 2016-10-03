@@ -1,16 +1,14 @@
 import html
 import logging
-import os
 import re
 
-from cached_property import cached_property
-
-from adfd.cnf import SITE, PATH, APP
+from adfd.cnf import SITE, PATH
 from adfd.db.lib import DbWrapper
 from adfd.exc import *
 from adfd.metadata import PageMetadata
 from adfd.parse import AdfdParser
 from adfd.utils import slugify, ContentGrabber, date_from_timestamp
+from cached_property import cached_property
 
 log = logging.getLogger(__name__)
 
@@ -30,13 +28,13 @@ class Node:
     def __repr__(self):
         return "<%s(%s: %s)>" % (self.SPEC, self.identifier, self.title[:6])
 
-    def __html__(self):
-        """In a template: ``{{ page }}`` == ``{{ page.html|safe }}``."""
-        return self.html
-
     @cached_property
     def title(self):
         return self._title or self.topic.title
+
+    def __html__(self):
+        """In a template: ``{{ page }}`` == ``{{ page.html|safe }}``."""
+        return self.html
 
     @cached_property
     def html(self):
@@ -134,12 +132,10 @@ class ArticleNode(Node):
         return pattern % (" ".join(classes), self.relPath, self.title)
 
 
+# TODO needed? What for?
 class CategoryTopic:
-    def __init__(self, title):
-        self.title = title
-
-    def __repr__(self):
-        return "<CategoryTopic(%s (%s))>" % (self.title, self.identifier)
+    def __init__(self, identifier):
+        self.identifier = identifier
 
     @cached_property
     def html(self):
@@ -169,7 +165,6 @@ class StaticTopic:
     def bbcode(self):
         return self.content
 
-    # @cached_property
     @cached_property
     def content(self):
         grabber = ContentGrabber(PATH.STATIC / 'content' / self.identifier)
@@ -189,21 +184,18 @@ class DbTopic:
 
     def __init__(self, topicId):
         self.id = topicId
-        self.postIds = self._get_post_ids()
 
     def __repr__(self):
         return "<DbTopic(%s (%s))>" % (self.title, self.id)
 
     @cached_property
     def title(self):
-        return self.posts[0].subject
+        return self.md.title or self.firstPost.title
 
-    # @cached_property
     @cached_property
     def html(self):
         return AdfdParser().to_html(self.bbcode)
 
-    # @cached_property
     @cached_property
     def bbcode(self):
         return self.content
@@ -212,13 +204,8 @@ class DbTopic:
     def content(self):
         contents = []
         for post in self.posts:
-            if post.isExcluded:
-                continue
-
-            content = ''
             if self.md.useTitles:
-                title = post.md.title or post.subject
-                content += self.TITLE_PATTERN % title
+                contents.append(self.TITLE_PATTERN % post.title)
             contents.append(post.content)
         return "\n\n".join(contents)
 
@@ -229,7 +216,11 @@ class DbTopic:
 
     @cached_property
     def md(self):
-        return self.posts[0].md
+        return self.firstPost.md
+
+    @cached_property
+    def firstPost(self):
+        return self.posts[0]
 
     @cached_property
     def posts(self):
@@ -241,7 +232,8 @@ class DbTopic:
                 posts.append(post)
         return posts
 
-    def _get_post_ids(self):
+    @cached_property
+    def postIds(self):
         wrapper = DbWrapper()
         forumId = wrapper.topic_id_2_forum_id(self.id)
         if forumId not in SITE.ALLOWED_FORUM_IDS:
@@ -262,51 +254,36 @@ class Post:
         self.id = postId
 
     def __repr__(self):
-        return "<%s %s (%s)>" % (self.__class__.__name__, self.id, self.slug)
+        return "<DbPost(%s, %s)>" % (self.id, self.title)
 
     @cached_property
-    def subject(self):
-        return self._preprocess(self.dbp.post_subject)
+    def title(self):
+        return self.md.title or html.unescape(self.dbp.post_subject)
 
     @cached_property
     def content(self):
-        content = self._preprocess(self.dbp.post_text, self.dbp.bbcode_uid)
+        content = html.unescape(self.dbp.post_text)
+        content = content.replace(':%s' % self.dbp.bbcode_uid, '')
         content = self._fix_db_storage_patterns(content)
-        content = self._fix_whitespace(content)
-        return content
-
-    @cached_property
-    def slug(self):
-        return slugify(self.subject)
+        return self._fix_whitespace(content)
 
     @cached_property
     def postTime(self):
         return self.dbp.post_edit_time or self.dbp.post_time
 
     @cached_property
-    def md(self):
-        return PageMetadata(text=self.content)
-
-    @cached_property
     def username(self):
         username = (self.dbp.post_username or
                     DbWrapper().get_username(self.dbp.poster_id))
-        return self._preprocess(username)
-
-    @cached_property
-    def lastUpdate(self):
-        return date_from_timestamp(self.postTime)
+        return html.unescape(username)
 
     @cached_property
     def isExcluded(self):
         return self.md.isExcluded
 
-    @staticmethod
-    def _preprocess(text, bbcodeUid=None):
-        if bbcodeUid:
-            text = text.replace(':%s' % bbcodeUid, '')
-        text = html.unescape(text)
-        return text
+    @cached_property
+    def md(self):
+        return PageMetadata(text=self.content)
 
     @classmethod
     def _fix_db_storage_patterns(cls, text):

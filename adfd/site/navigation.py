@@ -89,10 +89,9 @@ class StructureLoader:
         if SITE.USE_FILE:
             return cls.ordered_yaml_load(stream=open(SITE.STRUCTURE_PATH))
 
-        return cls.ordered_yaml_load(
-            stream=io.StringIO(extract_from_bbcode(
-                    SITE.CODE_TAG,
-                    ArticleNode(SITE.STRUCTURE_TOPIC_ID).bbcode)))
+        node = ArticleNode(SITE.STRUCTURE_TOPIC_ID)
+        yamlContent = extract_from_bbcode(SITE.CODE_TAG, node.bbcode)
+        return cls.ordered_yaml_load(stream=io.StringIO(yamlContent))
 
     @classmethod
     def ordered_yaml_load(cls, stream):
