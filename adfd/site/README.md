@@ -10,6 +10,9 @@
 
 installed according to [Getting started](http://semantic-ui.com/introduction/getting-started.html)
 
-## Responsive menu
+## Make responsive
 
 http://stackoverflow.com/questions/27476008/semantic-ui-transistioning-from-mobile-to-tablet-displays-with-the-sidebar-open
+
+http://stackoverflow.com/questions/32172155/which-one-is-the-right-one-semantic-ui-responsive-visibility
+

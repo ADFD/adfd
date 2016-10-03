@@ -47,7 +47,7 @@ class SITE:
     APP_PORT = 5000
     META_TAG = 'meta'
     CODE_TAG = 'code'
-
+    VIEWTOPIC_PATTERN = "http://adfd.org/austausch/viewtopic.php?t=%s"
 
 class DB:
     USER = _CNF['user']

@@ -7,7 +7,7 @@ import yaml
 
 from adfd.cnf import SITE
 from adfd.parse import extract_from_bbcode
-from adfd.model import CategoryNode, ArticleNode
+from adfd.model import CategoryNode, ArticleNode, DbContentContainer
 
 log = logging.getLogger(__name__)
 
@@ -91,8 +91,8 @@ class StructureLoader:
         if SITE.USE_FILE:
             return cls.ordered_yaml_load(stream=open(SITE.STRUCTURE_PATH))
 
-        node = ArticleNode(SITE.STRUCTURE_TOPIC_ID)
-        yamlContent = extract_from_bbcode(SITE.CODE_TAG, node.bbcode)
+        content = DbContentContainer(SITE.STRUCTURE_TOPIC_ID)
+        yamlContent = extract_from_bbcode(SITE.CODE_TAG, content.bbcode)
         return cls.ordered_yaml_load(stream=io.StringIO(yamlContent))
 
     @classmethod

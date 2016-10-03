@@ -1,11 +1,15 @@
 import logging
 
-from adfd.cnf import PATH
+from cached_property import cached_property
+from pygments import highlight
+from pygments.formatters.html import HtmlFormatter
+from pygments.lexers import get_lexer_by_name
+
+from adfd.cnf import PATH, SITE, NAME
 from adfd.db.lib import DbPost
 from adfd.metadata import PageMetadata
 from adfd.parse import AdfdParser
 from adfd.utils import slugify, ContentGrabber, date_from_timestamp
-from cached_property import cached_property
 
 log = logging.getLogger(__name__)
 
@@ -23,45 +27,35 @@ class Node:
         self.isActive = False
 
     def __repr__(self):
-        return "<%s(%s: %s)>" % (self.SPEC, self.identifier, self.title[:6])
-
-    @cached_property
-    def title(self):
-        return self._title or self.topic.title
-
-    def __html__(self):
-        """In a template: ``{{ page }}`` == ``{{ page.html|safe }}``."""
-        return self.html
-
-    @cached_property
-    def html(self):
-        return self.topic.html
-
-    @cached_property
-    def bbcode(self):
-        return self.topic.bbcode
+        return "<%s(%s: %s)>" % (
+            self.SPEC, self.identifier, self.article.title[:6])
 
     @cached_property
     def relPath(self):
         return "/".join([c.slug for c in self.parents + [self]]) or "/"
 
-    # Todo return file path if it is a static page
     @cached_property
-    def link(self):
-        return "http://adfd.org/austausch/viewtopic.php?t=%s" % self.topic.id
+    def sourceLink(self):
+        if isinstance(self.article, StaticContentContainer):
+            return "/%s/%s" % (NAME.STATIC, self.identifier)
+
+        elif isinstance(self.article, DbContentContainer):
+            return SITE.VIEWTOPIC_PATTERN % self.identifier
+
+        raise NotImplementedError(str(type(self.article)))
 
     @cached_property
     def slug(self):
         """:rtype: str"""
         isRoot = isinstance(self, CategoryNode) and self._title == ''
-        return '' if isRoot else slugify(self.title)
+        return '' if isRoot else slugify(self.article.title)
 
     @cached_property
     def hasContent(self):
         return self.identifier is not None
 
     @cached_property
-    def topic(self):
+    def article(self):
         if not self.identifier:
             return CategoryContentContainer(self._title)  # TODO needed?
 
@@ -89,14 +83,14 @@ class CategoryNode(Node):
             classes = ['ui', 'simple', 'dropdown', 'item']
         if self.isActive:
             classes.append('active')
-        opener = pattern % (" ".join(classes))
+        tag = pattern % (" ".join(classes))
         if self.hasContent:
-            opener += '<a href="%s">%s</a>' % (self.relPath, self.title)
+            tag += '<a href="%s">%s</a>' % (self.relPath, self.article.title)
         else:
-            opener += self.title
-        opener += ' <i class="dropdown icon"></i>'
-        opener += '<div class="menu">'
-        return "%s%%s</div></div>" % opener
+            tag += self.article.title
+        tag += '<i class="dropdown icon"></i>'
+        tag += '<div class="menu">'
+        return "%s%%s</div></div>" % tag
 
     @classmethod
     def _parse(cls, data):
@@ -124,7 +118,7 @@ class ArticleNode(Node):
         classes = ['item']
         if self.isActive:
             classes.append('active')
-        return pattern % (" ".join(classes), self.relPath, self.title)
+        return pattern % (" ".join(classes), self.relPath, self.article.title)
 
 
 class ContentContainer:
@@ -145,12 +139,25 @@ class ContentContainer:
         raise NotImplementedError
 
     @cached_property
+    def creationDate(self):
+        raise NotImplementedError
+
+    @cached_property
     def lastUpdate(self):
         raise NotImplementedError
+
+    def __html__(self):
+        """In a template: ``{{ article }}`` == ``{{ article.html|safe }}``."""
+        return self.html
 
     @cached_property
     def html(self):
         raise NotImplementedError
+
+    @cached_property
+    def bbcodeAsHtml(self):
+        lexer = get_lexer_by_name("bbcode", stripall=True)
+        return highlight(self.bbcode, lexer, HtmlFormatter())
 
     @cached_property
     def bbcode(self):
@@ -171,6 +178,10 @@ class StaticContentContainer(ContentContainer):
     @cached_property
     def allAuthors(self):
         return self.md.allAuthors
+
+    @cached_property
+    def creationDate(self):
+        return date_from_timestamp(self.lastUpdate())
 
     @cached_property
     def lastUpdate(self):
@@ -202,11 +213,15 @@ class DbContentContainer(ContentContainer):
 
     @cached_property
     def title(self):
-        return self.md.title or self.firstPost.title
+        return self.md.title or self._firstPost.title
 
     @cached_property
     def allAuthors(self):
-        return self.md.allAuthors or [self.firstPost.username]
+        return self.md.allAuthors or [self._firstPost.username]
+
+    @cached_property
+    def creationDate(self):
+        return date_from_timestamp(self._firstPost.postTime)
 
     @cached_property
     def lastUpdate(self):
@@ -232,10 +247,10 @@ class DbContentContainer(ContentContainer):
 
     @cached_property
     def md(self):
-        return self.firstPost.md
+        return self._firstPost.md
 
     @cached_property
-    def firstPost(self):
+    def _firstPost(self):
         return self.posts[0]
 
     @cached_property
