@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 
 def date_from_timestamp(timestamp):
-    return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y')
+    return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y (%H:%M Uhr)')
 
 
 class _Slugifier:
@@ -39,16 +39,17 @@ class ContentGrabber:
     def __init__(self, path):
         self.path = LocalPath(path)
 
-    def get_lines(self, fName):
+    def get_lines(self, fName=None):
         """get lines as list from file (without empty element at end)"""
-        return self.strip_whitespace(self.get_text(fName))
-
-    def get_text(self, fName, ext='.bb'):
-        return self.grab(self.path / (fName + ext))
+        path = self.path / (fName + '.bb') if fName else self.path
+        return self.strip_whitespace(self.grab(path))
 
     def grab(self, path=None):
         path = path or self.path
         return path.read('utf-8')
+
+    def get_mtime(self):
+        return date_from_timestamp(os.path.getmtime(self.path))
 
     @staticmethod
     def strip_whitespace(content):

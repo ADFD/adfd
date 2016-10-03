@@ -65,15 +65,13 @@ class Node:
 
     @cached_property
     def topic(self):
-        # FIXME seems to be never called -> remove
         if not self.identifier:
-            # todo determine what should happen, if e.g category has no page
-            return CategoryTopic(self._title)
+            return CategoryContentContainer(self._title)  # TODO needed?
 
         if isinstance(self.identifier, int):
-            return DbTopic(self.identifier)
+            return DbContentContainer(self.identifier)
 
-        return StaticTopic(self.identifier)
+        return StaticContentContainer(self.identifier)
 
 
 class CategoryNode(Node):
@@ -132,30 +130,46 @@ class ArticleNode(Node):
         return pattern % (" ".join(classes), self.relPath, self.title)
 
 
-# TODO needed? What for?
-class CategoryTopic:
-    def __init__(self, identifier):
-        self.identifier = identifier
-
-    @cached_property
-    def html(self):
-        return "#### HTML TODO ###"
-
-
-class StaticTopic:
+class ContentContainer:
     def __init__(self, identifier):
         self.identifier = identifier
 
     def __repr__(self):
-        return "<StaticTopic(%s (%s))>" % (self.title, self.identifier)
+        return ("<%s(%s) -> (%s>" %
+                (self.__class__.__name__, self.identifier, self.title))
+
+    @property
+    def title(self):
+        raise NotImplementedError
 
     @cached_property
-    def slug(self):
-        return slugify(self.title)
+    def allAuthors(self):
+        """list of authors (at least one)"""
+        raise NotImplementedError
 
+    @cached_property
+    def lastUpdate(self):
+        raise NotImplementedError
+
+
+class CategoryContentContainer(ContentContainer):
+    @property
+    def title(self):
+        return self.identifier
+
+
+class StaticContentContainer(ContentContainer):
     @cached_property
     def title(self):
         return self.md.title
+
+    @cached_property
+    def allAuthors(self):
+        return self.md.allAuthors
+
+    @cached_property
+    def lastUpdate(self):
+        return self._grabber.get_mtime()
 
     @cached_property
     def html(self):
@@ -167,30 +181,31 @@ class StaticTopic:
 
     @cached_property
     def content(self):
-        grabber = ContentGrabber(PATH.STATIC / 'content' / self.identifier)
-        return grabber.grab()
-
-    @cached_property
-    def lastUpdate(self):
-        raise NotImplementedError
+        return self._grabber.grab()
 
     @cached_property
     def md(self):
         return PageMetadata(text=self.content)
 
+    @cached_property
+    def _grabber(self):
+        return ContentGrabber(PATH.STATIC / 'content' / self.identifier)
 
-class DbTopic:
+class DbContentContainer(ContentContainer):
     TITLE_PATTERN = '[h2]%s[/h2]\n'
-
-    def __init__(self, topicId):
-        self.id = topicId
-
-    def __repr__(self):
-        return "<DbTopic(%s (%s))>" % (self.title, self.id)
 
     @cached_property
     def title(self):
         return self.md.title or self.firstPost.title
+
+    @cached_property
+    def allAuthors(self):
+        return self.md.allAuthors or [self.firstPost.username]
+
+    @cached_property
+    def lastUpdate(self):
+        newestDate = sorted([p.postTime for p in self.posts], reverse=True)[0]
+        return date_from_timestamp(newestDate)
 
     @cached_property
     def html(self):
@@ -208,11 +223,6 @@ class DbTopic:
                 contents.append(self.TITLE_PATTERN % post.title)
             contents.append(post.content)
         return "\n\n".join(contents)
-
-    @cached_property
-    def lastUpdate(self):
-        newestDate = sorted([p.postTime for p in self.posts], reverse=True)[0]
-        return date_from_timestamp(newestDate)
 
     @cached_property
     def md(self):
@@ -235,16 +245,16 @@ class DbTopic:
     @cached_property
     def postIds(self):
         wrapper = DbWrapper()
-        forumId = wrapper.topic_id_2_forum_id(self.id)
+        forumId = wrapper.topic_id_2_forum_id(self.identifier)
         if forumId not in SITE.ALLOWED_FORUM_IDS:
-            if self.id not in SITE.ALLOWED_TOPIC_IDS:
+            if self.identifier not in SITE.ALLOWED_TOPIC_IDS:
                 name = wrapper.forum_id_2_forum_name(forumId)
                 raise TopicNotAccessible(
-                    "%s in %s (%s)", self.id, name, forumId)
+                    "%s in %s (%s)", self.identifier, name, forumId)
 
-        ids = wrapper.topic_id_2_db_posts(self.id)
+        ids = wrapper.topic_id_2_db_posts(self.identifier)
         if not ids:
-            raise TopicDoesNotExist(str(self.id))
+            raise TopicDoesNotExist(str(self.identifier))
 
         return ids
 
