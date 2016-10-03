@@ -680,6 +680,20 @@ input::selection {
   }
 }
 
+blockquote {
+  background-color: #1DE9B6;
+}
+
+blockquote:before,
+q:before {
+  content: "\ef10d";
+}
+
+blockquote:after,
+q:after {
+  content: "\xf10d";
+}
+
 /*html {*/
 
 /*height: 100%;*/

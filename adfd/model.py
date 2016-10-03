@@ -124,6 +124,8 @@ class ArticleNode(Node):
 class ContentContainer:
     def __init__(self, identifier):
         self.identifier = identifier
+        self.requestPath = None
+        self.bbcodeIsActive = False
 
     def __repr__(self):
         return ("<%s(%s) -> (%s>" %
@@ -139,6 +141,10 @@ class ContentContainer:
         raise NotImplementedError
 
     @cached_property
+    def hasOneAuthor(self):
+        return len(self.allAuthors) == 1
+
+    @cached_property
     def creationDate(self):
         raise NotImplementedError
 
@@ -146,13 +152,26 @@ class ContentContainer:
     def lastUpdate(self):
         raise NotImplementedError
 
-    def __html__(self):
-        """In a template: ``{{ article }}`` == ``{{ article.html|safe }}``."""
-        return self.html
-
     @cached_property
     def html(self):
         raise NotImplementedError
+
+    @property
+    def contentToggleLink(self):
+        assert self.requestPath
+        path = self.requestPath
+        if not self.bbcodeIsActive:
+            path += '?' + NAME.BBCODE
+        return path
+
+    @property
+    def contentToggleLinkText(self):
+        text = "Umschalten zu: "
+        if self.bbcodeIsActive:
+            text += "Normaler Artikel"
+        else:
+            text += "BBCode Quelle"
+        return text
 
     @cached_property
     def bbcodeAsHtml(self):
@@ -259,7 +278,7 @@ class DbContentContainer(ContentContainer):
         posts = []
         for postId in self.postIds:
             post = DbPost(postId)
-            if not post.isExcluded:
+            if not post.isExcluded and post.isVisible:
                 posts.append(post)
         return posts
 

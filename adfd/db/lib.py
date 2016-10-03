@@ -71,8 +71,11 @@ class DbWrapper:
 
     def topic_id_2_forum_id(self, topicId):
         """:rtype: int"""
-        query = self.query(PhpbbTopic).filter(PhpbbTopic.topic_id == topicId)
-        return query.first().forum_id
+        return self.topic_from_topic_id(topicId).forum_id
+
+    def topic_from_topic_id(self, topicId):
+        return self.query(PhpbbTopic).filter(
+            PhpbbTopic.topic_id == topicId).first()
 
     def fetch_post(self, postId):
         """:rtype: adfd.db.schema.PhpbbPost"""
@@ -132,6 +135,10 @@ class DbPost:
     @cached_property
     def isExcluded(self):
         return self.md.isExcluded
+
+    @cached_property
+    def isVisible(self):
+        return self.dbp.post_visibility == 1
 
     @cached_property
     def md(self):

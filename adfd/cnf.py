@@ -20,6 +20,7 @@ except:
 
 class NAME:
     STATIC = 'static'
+    BBCODE = 'bbcode'
 
 
 class PATH:

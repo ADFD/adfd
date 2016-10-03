@@ -2,10 +2,10 @@ import logging
 import os
 
 from bs4 import BeautifulSoup
-from flask import Flask, render_template
+from flask import Flask, request, render_template
 from plumbum.machines import local
 
-from adfd.cnf import PATH, SITE, APP
+from adfd.cnf import PATH, SITE, APP, NAME
 from adfd.site.navigation import Navigator
 
 log = logging.getLogger(__name__)
@@ -33,9 +33,17 @@ def render_pretty(template_name_or_list, **context):
 @app.route('/<path:path>/')
 def path_route(path=''):
     node = navigator.pathNodeMap["/" + path]
-    # TODO set active path
+    node.article.requestPath = request.path
+    if NAME.BBCODE in request.args:
+        node.article.bbcodeIsActive = True
+        html = node.article.bbcodeAsHtml
+    else:
+        html = node.article.html
+    # TODO set active path (can be done on node directly)
     navigation = navigator.menuAsString
-    return render_pretty('page.html', node=node, navigation=navigation)
+    return render_pretty(
+        'page.html', navigation=navigation, node=node,
+        article=node.article, html=html)
 
 
 @app.route('/article/<int:topicId>/')
@@ -45,7 +53,7 @@ def article_route(topicId=None, identifier=None):
         node = navigator.identifierNodeMap[topicId]
     else:
         node = navigator.pathNodeMap["/" + identifier]
-    return render_pretty('page.html', node=node)
+    return render_pretty('page.html', node=node, article=node.article)
 
 
 @app.route('/robots.txt')
