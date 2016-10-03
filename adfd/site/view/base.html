@@ -23,8 +23,8 @@
 <div class="ui main text container">
     {% if node.parents %}
     <div class="ui breadcrumb">
-        {% for crumb in node.parents %}
-        <a class="section" href="{{ crumb.relPath }}">{{ crumb.title }}</a>
+        {% for parent in node.parents %}
+        <a class="section" href="{{ parent.relPath }}">{{ parent.title }}</a>
         <i class="right angle icon divider"></i>
         {%  endfor %}
         <a class="active section" href="{{ node.relPath }}">{{ node.title }}</a>

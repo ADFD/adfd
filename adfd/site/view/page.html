@@ -1,13 +1,36 @@
 {% extends "base.html" -%}
 
 {% block content -%}
+    <h1 class="ui header">{{ article.title }}</h1>
 
-    <h1>{{ node.title }}</h1>
-
-    {#    <p>### {{ node.topic.md.author }} ###</p>#}
+    <div class="ui compact horizontal segments">
+        <div class="ui segment left aligned">
+            {% if article.hasOneAuthor %}
+            Von {{ article.allAuthors[0] }}
+            {% else %}
+            Von {{ ", ".join(article.allAuthors) }}
+            {% endif %}
+        </div>
+        <div class="ui segment right aligned"
+            {% if article.creationDate != article.lastUpdate %}
+            title="zuletzt aktualisiert: {{ article.lastUpdate }}"
+            {% endif %}>
+            erstellt am {{ article.creationDate }}
+        </div>
+    </div>
 
     {#see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article#}
     <article>
-    {{ node }}
+        {{ html | safe }}
+        <div class="ui compact horizontal segments">
+            <div class="ui segment right aligned">
+                <a href="{{ article.contentToggleLink }}">
+                    {{ article.contentToggleLinkText }}
+                </a>
+            </div>
+            <div class="ui segment right aligned">
+                <a href="{{ node.sourceLink }}" target="_blank">Artikel im Forum</a>
+            </div>
+        </div>
     </article>
 {% endblock content -%}
