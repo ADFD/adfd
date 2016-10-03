@@ -3,6 +3,7 @@ import logging
 import os
 import socketserver
 
+from adfd.utils import configure_logging
 from plumbum import cli, local, LocalPath
 
 from adfd.cnf import PATH, SITE, APP
@@ -119,6 +120,7 @@ class AdfdInfo(cli.Application):
 
 
 def main():
+    configure_logging()
     try:
         Adfd.run()
     except KeyboardInterrupt:

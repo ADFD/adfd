@@ -3,7 +3,7 @@ import logging
 from adfd.cnf import PATH, SITE, APP
 from adfd.site.navigation import Navigator
 from bs4 import BeautifulSoup
-from flask import render_template, send_from_directory, Flask
+from flask import render_template, Flask
 from flask.ext.frozen import os
 from plumbum.machines import local
 
@@ -21,22 +21,11 @@ def inject_dict_for_all_templates():
 def render_pretty(template_name_or_list, **context):
     result = render_template(template_name_or_list, **context)
     return BeautifulSoup(result, 'html5lib').prettify()
-    # return result
 
-
-# todo route to /favicon.ico and other things I might have missed
-# TODO add source link and show bbcode
-# TODO add link to original post on ADFD
-# TODO add showing of meta data info (authors, date, etc)
 
 @app.route('/')
 @app.route('/<path:path>/')
 def path_route(path=''):
-    # fixme adapt to semantic UI
-    for specialDir in ['js', 'stylesheets']:
-        if path.startswith(specialDir):
-            return send_from_directory(specialDir, os.path.basename(path))
-
     node = navigator.pathNodeMap["/" + path]
     # TODO set active path
     navigation = navigator.menuAsString
@@ -58,8 +47,8 @@ def robots_txt_route():
     if os.getenv(APP.ENV_TARGET) != 'live':
         return "User-agent: *\nDisallow: /\n"
 
-    # TODO exclude bad robots
-    return "User-agent: *\nDisallow:\n"
+    # TODO serve static file with bad robots excluded
+    raise NotImplementedError
 
 
 def run_devserver(projectPath=PATH.PROJECT, port=SITE.APP_PORT):

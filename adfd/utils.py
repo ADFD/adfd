@@ -180,3 +180,10 @@ def get_obj_info(objects):
     for name, obj in sorted([(k, v) for k, v in inf.items() if k.isupper()]):
         out.append(obj_attr(obj, objName=name))
     return '\n'.join(out)
+
+
+def configure_logging():
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s %(filename)s %(funcName)s:%(lineno)d '
+               '%(levelname)s: %(message)s')

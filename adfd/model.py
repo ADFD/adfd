@@ -48,11 +48,7 @@ class Node:
 
     @cached_property
     def relPath(self):
-        return "/".join([c.slug for c in self.crumbs]) or "/"
-
-    @cached_property
-    def crumbs(self):
-        return self.parents + [self]
+        return "/".join([c.slug for c in self.parents + [self]]) or "/"
 
     # Todo return file path if it is a static page
     @cached_property
