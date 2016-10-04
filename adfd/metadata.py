@@ -27,7 +27,7 @@ class PageMetadata:
     ATTRIBUTES = [
         'allAuthors',
         'isExcluded',
-        'thisPostOnly',
+        'firstPostOnly',
         'linkText',
         'slug',
         'title',
@@ -41,7 +41,7 @@ class PageMetadata:
         """add this set to ``True`` to a post that should be excluded"""
         self.linkText = None  # TODO needed?
         """text that should be used if linked to here"""
-        self.thisPostOnly = True
+        self.firstPostOnly = True
         """If this is ``True`` in any post only this post wil be used."""
         self.slug = None
         self.title = None

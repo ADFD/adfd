@@ -288,14 +288,17 @@ class DbContentContainer(ContentContainer):
     @cached_property
     def posts(self):
         """:rtype: list of DbPost"""
-        posts = []
-        for postId in self.postIds:
+        firstPostId = self.postIds[0]
+        firstPost = DbPost(firstPostId)
+        posts = [firstPost]
+        if firstPost.md.firstPostOnly:
+            return [firstPost]
+
+        for postId in self.postIds[1:]:
             post = DbPost(postId)
             if not post.isExcluded and post.isVisible:
                 posts.append(post)
 
-            if post.md.thisPostOnly:
-                return [post]
 
         return posts
 
