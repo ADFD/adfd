@@ -17,13 +17,15 @@
             {% endif %}>
             erstellt am {{ node.article.creationDate }}
         </div>
-        <div class="ui segment center aligned">
-            <a href="{{ node.sourceLink }}" target="_blank">Quelle</a>
-        </div>
         <div class="ui segment right aligned">
-            <a href="{{ node.article.contentToggleLink }}">
-                {{ node.article.contentToggleLinkText }}
-            </a>
+            <div class="ui small button">
+                <a href="{{ node.sourceLink }}" target="_blank">Quelle</a>
+            </div>
+            <div class="ui tiny button">
+                <a href="{{ node.article.contentToggleLink }}">
+                    {{ node.article.contentToggleLinkText }}
+                </a>
+            </div>
         </div>
     </div>
 
