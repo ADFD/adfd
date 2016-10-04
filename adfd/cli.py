@@ -3,6 +3,7 @@ import logging
 import os
 import socketserver
 
+from adfd.site import fridge
 from adfd.utils import configure_logging
 from plumbum import cli, local, LocalPath
 
@@ -61,22 +62,13 @@ class AdfdFreeze(cli.Application):
 
     @staticmethod
     def freeze(target, dstPath, pathPrefix):
-        def path_route():
-            for _url, node in navigator.pathNodeMap.items():
-                if not node.hasContent:
-                    log.info("nothing to render for %s -> %r", _url, node)
-                    continue
-
-                log.info("yield %s", _url)
-                yield {'path': _url}
-
         log.info("freeze to: %s", dstPath)
         os.environ[APP.ENV_TARGET] = target
         app.config.update(FREEZER_DESTINATION=str(dstPath),
                           FREEZER_RELATIVE_URLS=True,
                           FREEZER_REMOVE_EXTRA_FILES=True)
         freezer = Freezer(app)
-        freezer.register_generator(path_route)
+        freezer.register_generator(fridge.path_route)
         with local.cwd(PATH.PROJECT):
             log.info("freezing %s", freezer)
             seenUrls = freezer.freeze()

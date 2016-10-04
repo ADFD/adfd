@@ -11,26 +11,24 @@
             Von {{ ", ".join(node.article.allAuthors) }}
             {% endif %}
         </div>
-        <div class="ui segment right aligned"
+        <div class="ui segment center aligned"
             {% if node.article.creationDate != node.article.lastUpdate %}
             title="zuletzt aktualisiert: {{ node.article.lastUpdate }}"
             {% endif %}>
             erstellt am {{ node.article.creationDate }}
+        </div>
+        <div class="ui segment center aligned">
+            <a href="{{ node.sourceLink }}" target="_blank">Quelle</a>
+        </div>
+        <div class="ui segment right aligned">
+            <a href="{{ node.article.contentToggleLink }}">
+                {{ node.article.contentToggleLinkText }}
+            </a>
         </div>
     </div>
 
     {#see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article#}
     <article>
         {{ node.article }}
-        <div class="ui compact horizontal segments">
-            <div class="ui segment right aligned">
-                <a href="{{ node.article.contentToggleLink }}">
-                    {{ node.article.contentToggleLinkText }}
-                </a>
-            </div>
-            <div class="ui segment right aligned">
-                <a href="{{ node.sourceLink }}" target="_blank">Artikel im Forum</a>
-            </div>
-        </div>
     </article>
 {% endblock content -%}

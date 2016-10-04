@@ -187,12 +187,7 @@ class ContentContainer:
 
     @property
     def contentToggleLinkText(self):
-        text = "Umschalten zu: "
-        if self.bbcodeIsActive:
-            text += "Normaler Artikel"
-        else:
-            text += "BBCode Quelle"
-        return text
+        return "BBCode" if self.bbcodeIsActive else "HTML"
 
     @cached_property
     def bbcodeAsHtml(self):
