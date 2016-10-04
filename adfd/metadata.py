@@ -27,6 +27,7 @@ class PageMetadata:
     ATTRIBUTES = [
         'allAuthors',
         'isExcluded',
+        'thisPostOnly',
         'linkText',
         'slug',
         'title',
@@ -37,8 +38,11 @@ class PageMetadata:
         """WARNING: all public attributes are written as meta data"""
         self.allAuthors = []
         self.isExcluded = False
+        """add this set to ``True`` to a post that should be excluded"""
         self.linkText = None  # TODO needed?
         """text that should be used if linked to here"""
+        self.thisPostOnly = True
+        """If this is ``True`` in any post only this post wil be used."""
         self.slug = None
         self.title = None
         self.useTitles = True

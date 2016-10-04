@@ -241,7 +241,7 @@ class StaticContentContainer(ContentContainer):
 
 
 class DbContentContainer(ContentContainer):
-    TITLE_PATTERN = '[h2]%s[/h2]\n'
+    TITLE_PATTERN = '[h1]%s[/h1]\n'
 
     @cached_property
     def title(self):
@@ -272,7 +272,7 @@ class DbContentContainer(ContentContainer):
     def content(self):
         contents = []
         for post in self.posts:
-            if self.md.useTitles:
+            if self.md.useTitles and post != self._firstPost:
                 contents.append(self.TITLE_PATTERN % post.title)
             contents.append(post.content)
         return "\n\n".join(contents)
@@ -293,6 +293,10 @@ class DbContentContainer(ContentContainer):
             post = DbPost(postId)
             if not post.isExcluded and post.isVisible:
                 posts.append(post)
+
+            if post.md.thisPostOnly:
+                return [post]
+
         return posts
 
     @cached_property
