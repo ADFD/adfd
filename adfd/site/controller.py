@@ -1,5 +1,6 @@
 import logging
 import os
+import socket
 
 from bs4 import BeautifulSoup
 from flask import Flask, request, render_template
@@ -32,18 +33,16 @@ def render_pretty(template_name_or_list, **context):
 @app.route('/')
 @app.route('/<path:path>/')
 def path_route(path=''):
+    bbcodeIsActive = False
+    if path.startswith(NAME.BBCODE):
+        bbcodeIsActive = True
+        path = path.partition("/")[-1]
     node = navigator.pathNodeMap["/" + path]
+    node.article.bbcodeIsActive = bbcodeIsActive
     node.article.requestPath = request.path
-    if NAME.BBCODE in request.args:
-        node.article.bbcodeIsActive = True
-        html = node.article.bbcodeAsHtml
-    else:
-        html = node.article.html
     # TODO set active path (can be done on node directly)
     navigation = navigator.menuAsString
-    return render_pretty(
-        'page.html', navigation=navigation, node=node,
-        article=node.article, html=html)
+    return render_pretty('page.html', navigation=navigation, node=node)
 
 
 @app.route('/article/<int:topicId>/')
@@ -58,14 +57,19 @@ def article_route(topicId=None, identifier=None):
 
 @app.route('/robots.txt')
 def robots_txt_route():
+    """check out http://bit.ly/2dnMQ0o"""
     if os.getenv(APP.ENV_TARGET) != 'live':
-        return "User-agent: *\nDisallow: /\n"
+        txt = "User-agent: *\nDisallow: /\n"
+    else:
+        # TODO serve static file with bad robots excluded
+        raise NotImplementedError
 
-    # TODO serve static file with bad robots excluded
-    raise NotImplementedError
+    return txt, 200, {'Content-Type': 'text/plain; charset=utf-8'}
 
 
 def run_devserver(projectPath=PATH.PROJECT, port=SITE.APP_PORT):
+    if socket.gethostname() == '1bo':
+        os.environ['WERKZEUG_DEBUG_PIN'] = 'off'
     with local.cwd(projectPath):
         log.info("serving on http://localhost:%s", port)
         app.run(host='0.0.0.0', port=port)

@@ -1,31 +1,31 @@
 {% extends "base.html" -%}
 
 {% block content -%}
-    <h1 class="ui header">{{ article.title }}</h1>
+    <h1 class="ui header">{{ node.article.title }}</h1>
 
     <div class="ui compact horizontal segments">
         <div class="ui segment left aligned">
-            {% if article.hasOneAuthor %}
-            Von {{ article.allAuthors[0] }}
+            {% if node.article.hasOneAuthor %}
+            Von {{ node.article.allAuthors[0] }}
             {% else %}
-            Von {{ ", ".join(article.allAuthors) }}
+            Von {{ ", ".join(node.article.allAuthors) }}
             {% endif %}
         </div>
         <div class="ui segment right aligned"
-            {% if article.creationDate != article.lastUpdate %}
-            title="zuletzt aktualisiert: {{ article.lastUpdate }}"
+            {% if node.article.creationDate != node.article.lastUpdate %}
+            title="zuletzt aktualisiert: {{ node.article.lastUpdate }}"
             {% endif %}>
-            erstellt am {{ article.creationDate }}
+            erstellt am {{ node.article.creationDate }}
         </div>
     </div>
 
     {#see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article#}
     <article>
-        {{ html | safe }}
+        {{ node.article }}
         <div class="ui compact horizontal segments">
             <div class="ui segment right aligned">
-                <a href="{{ article.contentToggleLink }}">
-                    {{ article.contentToggleLinkText }}
+                <a href="{{ node.article.contentToggleLink }}">
+                    {{ node.article.contentToggleLinkText }}
                 </a>
             </div>
             <div class="ui segment right aligned">

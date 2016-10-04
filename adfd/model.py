@@ -159,16 +159,30 @@ class ContentContainer:
     def lastUpdate(self):
         raise NotImplementedError
 
+    def __html__(self):
+        """mark article as safe html object and show the right content"""
+        if self.bbcodeIsActive:
+            return self.bbcodeAsHtml
+
+        return self.html
+
     @cached_property
     def html(self):
+        raise NotImplementedError
+
+    @cached_property
+    def bbcode(self):
         raise NotImplementedError
 
     @property
     def contentToggleLink(self):
         assert self.requestPath
-        path = self.requestPath
-        if not self.bbcodeIsActive:
-            path += '?' + NAME.BBCODE
+        if self.bbcodeIsActive:
+            path = self.requestPath.partition(NAME.BBCODE)[-1]
+        else:
+            path = "/" + NAME.BBCODE
+            if self.requestPath != "/":
+                path = "%s%s" % (path, self.requestPath)
         return path
 
     @property
@@ -183,11 +197,8 @@ class ContentContainer:
     @cached_property
     def bbcodeAsHtml(self):
         lexer = get_lexer_by_name("bbcode", stripall=True)
-        return highlight(self.bbcode, lexer, HtmlFormatter())
-
-    @cached_property
-    def bbcode(self):
-        raise NotImplementedError
+        txt = highlight(self.bbcode, lexer, HtmlFormatter())
+        return txt
 
 
 class CategoryContentContainer(ContentContainer):
