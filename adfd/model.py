@@ -10,6 +10,7 @@ from adfd.db.lib import DbPost
 from adfd.metadata import PageMetadata
 from adfd.parse import AdfdParser
 from adfd.utils import slugify, ContentGrabber, date_from_timestamp
+from pygments.styles import get_style_by_name
 
 log = logging.getLogger(__name__)
 
@@ -191,9 +192,12 @@ class ContentContainer:
 
     @cached_property
     def bbcodeAsHtml(self):
+        style = get_style_by_name('igor')
+        formatter = HtmlFormatter(style=style)
         lexer = get_lexer_by_name("bbcode", stripall=True)
+        css = formatter.get_style_defs()
         txt = highlight(self.bbcode, lexer, HtmlFormatter())
-        return txt
+        return "<style>%s</style>\n%s" % (css, txt)
 
 
 class CategoryContentContainer(ContentContainer):

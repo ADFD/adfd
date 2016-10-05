@@ -6,6 +6,8 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename=APP.CSS_PATH) }}"/>
+    {% if node.article.bbcodeIsActive %}
+    {% endif %}
 </head>
 <body>
 
@@ -23,7 +25,9 @@
 <div class="ui main text container">
     {% if node.parents %}
     <div class="ui breadcrumb">
-        {% for parent in node.parents %}
+        <a class="section" href="/"><i class="home icon"></i></a>
+        <i class="right angle icon divider"></i>
+        {% for parent in node.parents[1:] %}
         <a class="section" href="{{ parent.relPath }}">{{ parent.title }}</a>
         <i class="right angle icon divider"></i>
         {%  endfor %}

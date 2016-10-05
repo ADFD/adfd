@@ -1,11 +1,5 @@
 # TODO
 
-## IMPORTANT
-
-fix: bbcode sources are not frozen
-
-Do not use query strings! http://pythonhosted.org/Frozen-Flask/#filenames-and-mime-types
-
 ## Very Important
 
 Example article for helpers to refer to.
@@ -15,7 +9,6 @@ add metadata, showFirstOnly or similar for common case that article is in first 
 ## Others
 
 * route to /favicon.ico and other things I might have missed
-* add link to original post on ADFD
 * add showing of meta data info (authors, date, etc)
 * Show start page as <i class="home icon"> in crumbs
 
