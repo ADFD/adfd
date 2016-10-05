@@ -2,7 +2,9 @@ import http.server
 import logging
 import os
 import socketserver
+import tempfile
 
+import shutil
 from flask.ext.frozen import Freezer
 from plumbum import cli, local, LocalPath
 
@@ -47,24 +49,24 @@ class AdfdDev(cli.Application):
 class AdfdFreeze(cli.Application):
     """Freeze website to static files"""
     TM = {
-        'dev': (PATH.PROJECT / '.frozen', None),
+        'dev': (PATH.RENDERED, None),
         'test': (LocalPath('/home/www/privat/neu'),  'privat/neu'),
         'live': (None, None),
     }
     target = cli.SwitchAttr(
-        ['t', 'target'], default='test', help="one of %s" % TM.keys())
+        ['t', 'target'], default='dev', help="one of %s" % TM.keys())
 
     def main(self):
         if self.target == 'live':
             raise Exception("not ready for live!")
 
-        self.freeze(self.target, *self.TM[self.target])
+        self.freeze()
 
-    @staticmethod
-    def freeze(target, dstPath, pathPrefix):
-        log.info("freeze to: %s", dstPath)
-        os.environ[APP.ENV_TARGET] = target
-        app.config.update(FREEZER_DESTINATION=str(dstPath),
+    def freeze(self):
+        dstPath, pathPrefix = self.TM[self.target]
+        os.environ[APP.ENV_TARGET] = self.target
+        buildPath = tempfile.mkdtemp()
+        app.config.update(FREEZER_DESTINATION=buildPath,
                           FREEZER_RELATIVE_URLS=True,
                           FREEZER_REMOVE_EXTRA_FILES=True)
         freezer = Freezer(app)
@@ -84,6 +86,24 @@ class AdfdFreeze(cli.Application):
                             'href="/', 'href="/%s/' % pathPrefix)
                     with open(filePath, 'w') as f:
                         f.write(content)
+        self.copytree(buildPath, PATH.RENDERED)
+        with local.cwd(PATH.RENDERED):
+            local['git']('add', '.')
+            local['git']('commit', '-m', 'new build')
+
+    @classmethod
+    def copytree(cls, src, dst, symlinks=False, ignore=None):
+        if not os.path.exists(dst):
+            os.makedirs(dst)
+        for item in os.listdir(src):
+            s = os.path.join(src, item)
+            d = os.path.join(dst, item)
+            if os.path.isdir(s):
+                cls.copytree(s, d, symlinks, ignore)
+            else:
+                if (not os.path.exists(d) or
+                        os.stat(s).st_mtime - os.stat(d).st_mtime > 1):
+                    shutil.copy2(s, d)
 
 
 @Adfd.subcommand('frozen')

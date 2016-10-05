@@ -28,6 +28,7 @@ class PATH:
     SITE = _PACKAGE / 'site'
     STATIC = SITE / NAME.STATIC
     VIEW = SITE / 'view'
+    RENDERED = _PROJECT / '..' / 'static'
 
 
 class APP:
