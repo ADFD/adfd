@@ -3,15 +3,15 @@ import logging
 import os
 import socketserver
 
-from adfd.site import fridge
-from adfd.utils import configure_logging
+from flask.ext.frozen import Freezer
 from plumbum import cli, local, LocalPath
 
 from adfd.cnf import PATH, SITE, APP
 from adfd.db.lib import get_db_config_info
 from adfd.db.sync import DbSynchronizer
-from adfd.site.controller import app, navigator, run_devserver
-from flask.ext.frozen import Freezer
+from adfd.site import fridge
+from adfd.site.controller import app, run_devserver
+from adfd.utils import configure_logging
 
 log = logging.getLogger(__name__)
 
