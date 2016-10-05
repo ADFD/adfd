@@ -14,7 +14,8 @@ class TestApp:
     def test_basic(self, tc):
         navMock = flexmock(navigator)
         navMock.should_receive('populate').once()
-        navMock.should_receive('pathNodeMap').and_return({"/": None})
+        navMock.should_receive('pathNodeMap')\
+            .and_return({"/": flexmock(article=flexmock())})
         navMock.should_receive('menuAsString').and_return("")
         rv = tc.get('/')
         txt = rv.data.decode()
