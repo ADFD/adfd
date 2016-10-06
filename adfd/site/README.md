@@ -4,6 +4,9 @@
 
 Example article for helpers to refer to.
 
+* All header should be an anchor link to be able to link directly to subsection
+* cool way of displaying where you are like in semantic ui
+
 add metadata, showFirstOnly or similar for common case that article is in first post (maybe even as default?)
 
 ## Others
@@ -22,3 +25,7 @@ http://stackoverflow.com/questions/27476008/semantic-ui-transistioning-from-mobi
 
 http://stackoverflow.com/questions/32172155/which-one-is-the-right-one-semantic-ui-responsive-visibility
 
+
+# Push footer to bottom
+
+http://matthewjamestaylor.com/blog/keeping-footers-at-the-bottom-of-the-page
