@@ -6,6 +6,7 @@ import tempfile
 
 import shutil
 from flask.ext.frozen import Freezer
+from plumbum import ProcessExecutionError
 from plumbum import cli, local, LocalPath
 
 from adfd.cnf import PATH, SITE, APP
@@ -20,7 +21,11 @@ log = logging.getLogger(__name__)
 
 class Adfd(cli.Application):
     """All functions for the ADFD website"""
+    logLevel = cli.SwitchAttr(
+        ['l', 'log-level'], default='WARNING', help="set log level")
+
     def main(self):
+        configure_logging(self.logLevel)
         if not self.nested_command:
             self.nested_command = (AdfdDev, ['adfd dev'])
 
@@ -60,11 +65,12 @@ class AdfdFreeze(cli.Application):
         if self.target == 'live':
             raise Exception("not ready for live!")
 
-        self.freeze()
+        self.freeze(self.target)
 
-    def freeze(self):
-        dstPath, pathPrefix = self.TM[self.target]
-        os.environ[APP.ENV_TARGET] = self.target
+    @classmethod
+    def freeze(cls, target):
+        dstPath, pathPrefix = cls.TM[target]
+        os.environ[APP.ENV_TARGET] = target
         buildPath = tempfile.mkdtemp()
         app.config.update(FREEZER_DESTINATION=buildPath,
                           FREEZER_RELATIVE_URLS=True,
@@ -86,10 +92,20 @@ class AdfdFreeze(cli.Application):
                             'href="/', 'href="/%s/' % pathPrefix)
                     with open(filePath, 'w') as f:
                         f.write(content)
-        self.copytree(buildPath, PATH.RENDERED)
+        cls.copytree(buildPath, PATH.RENDERED)
         with local.cwd(PATH.RENDERED):
             local['git']('add', '.')
-            local['git']('commit', '-m', 'new build')
+            try:
+                local['git']('commit', '-m', 'new build')
+            except ProcessExecutionError as e:
+                if "nothing to commit" in e.stdout:
+                    log.warning("no changes -> nothing to commit")
+                    return
+
+                log.warning("commit failed: %s", e)
+                return
+
+            local['git']('push')
 
     @classmethod
     def copytree(cls, src, dst, symlinks=False, ignore=None):
@@ -110,9 +126,9 @@ class AdfdFreeze(cli.Application):
 class AdfdServeFrozen(cli.Application):
     """Serve frozen web page locally"""
     def main(self):
-        dstPath = AdfdFreeze.TM['dev'][0]
-        log.info("'%s' -> http://localhost:%s", dstPath, SITE.APP_PORT)
-        self.serve(dstPath)
+        frozenPath = PATH.RENDERED
+        log.info("'%s' -> http://localhost:%s", frozenPath, SITE.APP_PORT)
+        self.serve(frozenPath)
 
     @staticmethod
     def serve(siteRoot):
@@ -132,7 +148,6 @@ class AdfdInfo(cli.Application):
 
 
 def main():
-    configure_logging()
     try:
         Adfd.run()
     except KeyboardInterrupt:

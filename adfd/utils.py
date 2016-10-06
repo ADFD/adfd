@@ -186,8 +186,8 @@ def get_obj_info(objects):
     return '\n'.join(out)
 
 
-def configure_logging():
+def configure_logging(level=logging.DEBUG):
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=level,
         format='%(asctime)s %(filename)s %(funcName)s:%(lineno)d '
                '%(levelname)s: %(message)s')
