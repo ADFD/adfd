@@ -83,6 +83,10 @@ class CategoryNode(Node):
         return self.navPattern % "".join([str(c) for c in self.children])
 
     @cached_property
+    def slug(self):
+        return slugify(self._title)
+
+    @cached_property
     def navPattern(self):
         pattern = '<div class="%s">'
         if self._isSubMenu:
