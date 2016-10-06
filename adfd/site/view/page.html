@@ -1,6 +1,7 @@
 {% extends "base.html" -%}
 
 {% block content -%}
+    {% if node.relPath != "/" %}
     <h1 class="ui header">{{ node.article.title }}</h1>
 
     <div class="ui compact horizontal segments">
@@ -17,17 +18,8 @@
             {% endif %}>
             erstellt am {{ node.article.creationDate }}
         </div>
-        <div class="ui segment right aligned">
-            <div class="ui small button">
-                <a href="{{ node.sourceLink }}" target="_blank">Quelle</a>
-            </div>
-            <div class="ui tiny button">
-                <a href="{{ node.article.contentToggleLink }}">
-                    {{ node.article.contentToggleLinkText }}
-                </a>
-            </div>
-        </div>
     </div>
+    {% endif %}
 
     {#see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article#}
     <article class="ui ">

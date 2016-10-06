@@ -303,7 +303,6 @@ class DbContentContainer(ContentContainer):
             if not post.isExcluded and post.isVisible:
                 posts.append(post)
 
-
         return posts
 
     @cached_property

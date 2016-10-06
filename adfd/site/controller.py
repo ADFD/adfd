@@ -4,6 +4,9 @@ import socket
 
 from bs4 import BeautifulSoup
 from flask import Flask, request, render_template
+from flask import flash
+from flask import redirect
+from flask import url_for
 from plumbum.machines import local
 
 from adfd.cnf import PATH, SITE, APP, NAME
@@ -11,9 +14,10 @@ from adfd.site.navigation import Navigator
 
 log = logging.getLogger(__name__)
 app = Flask(__name__, template_folder=PATH.VIEW, static_folder=PATH.STATIC)
+app.secret_key = "I actually don't need a secret key"
+app.config['SESSION_TYPE'] = 'filesystem'
 app.config.update(DEBUG=True)
 navigator = Navigator()
-
 
 @app.context_processor
 def inject_dict_for_all_templates():
@@ -22,7 +26,8 @@ def inject_dict_for_all_templates():
 
 @app.before_first_request
 def populate_navigator():
-    navigator.populate()
+    if not navigator.pathNodeMap:
+        navigator.populate()
 
 
 def render_pretty(template_name_or_list, **context):
@@ -65,6 +70,13 @@ def robots_txt_route():
         raise NotImplementedError
 
     return txt, 200, {'Content-Type': 'text/plain; charset=utf-8'}
+
+
+@app.route('/reset')
+def reset_route():
+    navigator.populate()
+    flash("navigator repopulated")
+    return redirect(url_for(".path_route", path="/"))
 
 
 def run_devserver(projectPath=PATH.PROJECT, port=SITE.APP_PORT):

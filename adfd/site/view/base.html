@@ -14,22 +14,42 @@
 <div class="ui fixed menu">
     <div class="ui container">
         <a href="/" class="header item">
-            <img class="logo" alt="ADFD logo" src="{{ url_for('static', filename='img/logo78x81.png') }}">
+            <img class="logo" alt="ADFD logo"
+                 src="{{ url_for('static', filename='img/logo78x81.png') }}">
         </a>
         {% if navigation -%}
         {{ navigation | safe }}
         {% endif -%}
+            <div class="item">
+                <a href="{{ node.sourceLink }}" target="_blank">[Quelle]</a>
+            </div>
+            <div class="item">
+                <a href="{{ node.article.contentToggleLink }}">
+                    [{{ node.article.contentToggleLinkText }}]
+                </a>
+            </div>
     </div>
 </div>
 
 <div class="ui main text container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+        <div class="ui big center aligned card">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
     {% if node.parents %}
     <div class="ui breadcrumb">
         <a class="section" href="/"><i class="home icon"></i></a>
         <i class="right angle icon divider"></i>
         {% for parent in node.parents[1:] %}
-        <a class="section" href="{{ parent.relPath }}">{{ parent.title }}</a>
-        <i class="right angle icon divider"></i>
+            {% if parent.hasContent %}
+                <a class="section" href="{{ parent.relPath }}">{{ parent.title }}</a>
+            {% else %}
+                <span class="section">{{ parent.title }}</span>
+            {% endif %}
+            <i class="right angle icon divider"></i>
         {%  endfor %}
         <a class="active section" href="{{ node.relPath }}">{{ node.title }}</a>
     </div>

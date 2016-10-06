@@ -14,15 +14,19 @@ log = logging.getLogger(__name__)
 
 class Navigator:
     def __init__(self):
-        self.pathNodeMap = {}
-        self.identifierNodeMap = {}
-        self.yamlKeyNodeMap = {}
+        self._reset()
 
     def populate(self):
+        self._reset()
         self.structure = StructureLoader.load()
         remap(self.structure, visit=self.visit)
         self.root = self.yamlKeyNodeMap[next(iter(self.structure))]
         self.menu = self.root.children
+
+    def _reset(self):
+        self.pathNodeMap = {}
+        self.identifierNodeMap = {}
+        self.yamlKeyNodeMap = {}
 
     @property
     def menuAsString(self):
