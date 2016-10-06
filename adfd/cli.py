@@ -1,15 +1,16 @@
 import http.server
 import logging
 import os
+import shutil
 import socketserver
 import tempfile
 
-import shutil
 from flask.ext.frozen import Freezer
 from plumbum import ProcessExecutionError
-from plumbum import cli, local, LocalPath
+from plumbum import SshMachine
+from plumbum import cli, local
 
-from adfd.cnf import PATH, SITE, APP
+from adfd.cnf import PATH, SITE, APP, DB
 from adfd.db.lib import get_db_config_info
 from adfd.db.sync import DbSynchronizer
 from adfd.site import fridge
@@ -55,7 +56,7 @@ class AdfdFreeze(cli.Application):
     """Freeze website to static files"""
     TM = {
         'dev': (PATH.RENDERED, None),
-        'test': (LocalPath('/home/www/privat/neu'),  'privat/neu'),
+        'test': (PATH.RENDERED,  'privat/neu'),
         'live': (None, None),
     }
     target = cli.SwitchAttr(
@@ -83,6 +84,9 @@ class AdfdFreeze(cli.Application):
             log.info("frozen urls are:\n%s", '\n'.join(seenUrls))
         if pathPrefix:
             log.warning("prefix %s - changing links", pathPrefix)
+
+            # todo extract this and iterate through all index.html instead
+            # todo run this after git pull on deployment target
             for url in seenUrls:
                 if url.endswith('/'):
                     filePath = dstPath / url[1:] / 'index.html'
@@ -139,6 +143,17 @@ class AdfdServeFrozen(cli.Application):
                 httpd.serve_forever()
             finally:
                 httpd.server_close()
+
+
+@Adfd.subcommand('deploy')
+class AdfdDeploy(cli.Application):
+    """Deploy code by pulling it from github"""
+    def main(self):
+        with local.cwd(PATH.RENDERED):
+            remote = SshMachine(DB.REMOTE_HOST)
+            with remote.cwd('www/privat/neu'):
+                print(remote['git']('pull'))
+                # todo update links to point to prefix privat/neu
 
 
 @Adfd.subcommand('info')
