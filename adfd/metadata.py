@@ -95,9 +95,14 @@ class PageMetadata:
                 continue
 
             key, value = line.split(':', maxsplit=1)
-            self._update(key.strip(), value.strip())
+            self._update(key, value)
 
     def _update(self, key, value):
+        key = key.strip()
         value = str(value).strip()
+        if value.lower() == 'true':
+            value = True
+        elif value.lower() == 'false':
+            value = False
         log.debug('%s: %s -> %s', self.__class__.__name__, key, value)
         setattr(self, key, value)
