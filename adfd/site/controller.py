@@ -60,18 +60,6 @@ def article_route(topicId=None, identifier=None):
     return render_pretty('page.html', node=node, article=node.article)
 
 
-@app.route('/robots.txt')
-def robots_txt_route():
-    """check out http://bit.ly/2dnMQ0o"""
-    if os.getenv(APP.ENV_TARGET) != 'live':
-        txt = "User-agent: *\nDisallow: /\n"
-    else:
-        # TODO serve static file with bad robots excluded
-        raise NotImplementedError
-
-    return txt, 200, {'Content-Type': 'text/plain; charset=utf-8'}
-
-
 @app.route('/reset')
 def reset_route():
     navigator.populate()
