@@ -54,62 +54,45 @@ class AdfdDev(cli.Application):
 @Adfd.subcommand('freeze')
 class AdfdFreeze(cli.Application):
     """Freeze website to static files"""
-    TM = {
-        'dev': (PATH.RENDERED, None),
-        'test': (PATH.RENDERED,  'privat/neu'),
-        'live': (None, None),
-    }
-    target = cli.SwitchAttr(
-        ['t', 'target'], default='dev', help="one of %s" % TM.keys())
+    push = cli.SwitchAttr(
+        ['p', 'push'], argtype=bool, default=True, help="push changes")
 
     def main(self):
-        if self.target == 'live':
-            raise Exception("not ready for live!")
-
-        self.freeze(self.target)
+        self.freeze(self.push)
 
     @classmethod
-    def freeze(cls, target):
-        dstPath, pathPrefix = cls.TM[target]
-        os.environ[APP.ENV_TARGET] = target
+    def freeze(cls, push):
         buildPath = tempfile.mkdtemp()
-        app.config.update(FREEZER_DESTINATION=buildPath,
-                          FREEZER_RELATIVE_URLS=True,
-                          FREEZER_REMOVE_EXTRA_FILES=True)
+        app.config.update(
+            FREEZER_DESTINATION=PATH.RENDERED,
+            FREEZER_RELATIVE_URLS=True,
+            FREEZER_REMOVE_EXTRA_FILES=True,
+            FREEZER_DESTINATION_IGNORE=['.git*','*.idea'])
         freezer = Freezer(app)
         freezer.register_generator(fridge.path_route)
         with local.cwd(PATH.PROJECT):
             log.info("freezing %s", freezer)
             seenUrls = freezer.freeze()
             log.info("frozen urls are:\n%s", '\n'.join(seenUrls))
-        if pathPrefix:
-            log.warning("prefix %s - changing links", pathPrefix)
-
-            # todo extract this and iterate through all index.html instead
-            # todo run this after git pull on deployment target
-            for url in seenUrls:
-                if url.endswith('/'):
-                    filePath = dstPath / url[1:] / 'index.html'
-                    with open(filePath) as f:
-                        content = f.read()
-                        content = content.replace(
-                            'href="/', 'href="/%s/' % pathPrefix)
-                    with open(filePath, 'w') as f:
-                        f.write(content)
         cls.copytree(buildPath, PATH.RENDERED)
-        with local.cwd(PATH.RENDERED):
-            local['git']('add', '.')
-            try:
-                local['git']('commit', '-m', 'new build')
-            except ProcessExecutionError as e:
-                if "nothing to commit" in e.stdout:
-                    log.warning("no changes -> nothing to commit")
-                    return
+        cls.deliver_static_root_files()
+        cls.remove_clutter()
+        if push:
+            cls.push_to_github()
 
-                log.warning("commit failed: %s", e)
-                return
+    @classmethod
+    def deliver_static_root_files(cls):
+        for path in [p for p in PATH.ROOT_FILES.walk() if p.is_file()]:
+            path.copy(PATH.RENDERED)
 
-            local['git']('push')
+    @classmethod
+    def remove_clutter(cls):
+        for path in [
+            # PATH.RENDERED / 'static/experiments',
+            PATH.RENDERED / 'static/_root',
+            PATH.RENDERED / 'reset',
+        ]:
+            path.delete()
 
     @classmethod
     def copytree(cls, src, dst, symlinks=False, ignore=None):
@@ -124,6 +107,22 @@ class AdfdFreeze(cli.Application):
                 if (not os.path.exists(d) or
                         os.stat(s).st_mtime - os.stat(d).st_mtime > 1):
                     shutil.copy2(s, d)
+
+    @classmethod
+    def push_to_github(cls):
+        with local.cwd(PATH.RENDERED):
+            local['git']('add', '.')
+            try:
+                local['git']('commit', '-m', 'new build')
+            except ProcessExecutionError as e:
+                if "nothing to commit" in e.stdout:
+                    log.warning("no changes -> nothing to commit")
+                    return
+
+                log.warning("commit failed: %s", e)
+                return
+
+            local['git']('push')
 
 
 @Adfd.subcommand('frozen')
