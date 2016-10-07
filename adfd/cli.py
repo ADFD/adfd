@@ -145,13 +145,13 @@ class AdfdServeFrozen(cli.Application):
 @Adfd.subcommand('deploy')
 class AdfdDeploy(cli.Application):
     """Deploy code by pulling it from github"""
-
     def main(self):
         remote = SshMachine(TARGET.DOMAIN)
-        with remote.cwd(TARGET.TOOL):
-            remote[TARGET.ADFD_BIN]('')
-        with remote.cwd('/home/adfd'):
+        with remote.cwd(TARGET.STAGING):
             print(remote['git']('pull'))
+        with remote.cwd(TARGET.TOOL):
+            print(remote['git']('pull'))
+            print(remote[TARGET.PYTHON_BIN]('pip', 'install', '-U', '-e', '.'))
             print(remote['adfd']('fix-staging-paths'))
 
 
