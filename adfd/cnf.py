@@ -1,3 +1,5 @@
+import socket
+
 import plumbum
 
 import yaml
@@ -63,6 +65,10 @@ class DB:
     DUMP_PATH = PATH.PROJECT / _CNF['relDumpPath']
 
 
+class HOSTINFO:
+    IS_LOCAL = socket.gethostname() == '1bo'
+
+
 class TARGET:
     DOMAIN = _CNF['remoteHost']
     VIRT_ENV_BIN_PATH_STR = '/home/.pyenv/versions/adfd/bin'
@@ -72,4 +78,4 @@ class TARGET:
     WWW = HOME / 'www'
     TOOL = HOME / 'adfd'
     PREFIX_STR = 'privat/neu'
-    STAGING = WWW / PREFIX_STR
+    STAGING = PATH.RENDERED if HOSTINFO.IS_LOCAL else WWW / PREFIX_STR

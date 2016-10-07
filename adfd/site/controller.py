@@ -2,6 +2,7 @@ import logging
 import os
 import socket
 
+from adfd.utils import date_from_timestamp
 from bs4 import BeautifulSoup
 from flask import Flask, request, render_template
 from flask import flash
@@ -9,7 +10,7 @@ from flask import redirect
 from flask import url_for
 from plumbum.machines import local
 
-from adfd.cnf import PATH, SITE, APP, NAME
+from adfd.cnf import PATH, SITE, APP, NAME, TARGET
 from adfd.site.navigation import Navigator
 
 log = logging.getLogger(__name__)
@@ -18,16 +19,23 @@ app.secret_key = "I actually don't need a secret key"
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config.update(DEBUG=True)
 navigator = Navigator()
+COMMIT_DATE = None
+
 
 @app.context_processor
 def inject_dict_for_all_templates():
-    return dict(APP=APP)
+    return dict(APP=APP, VERSION=COMMIT_DATE)
 
 
 @app.before_first_request
 def populate_navigator():
     if not navigator.pathNodeMap:
         navigator.populate()
+    global COMMIT_DATE
+    if not COMMIT_DATE:
+        with local.cwd(TARGET.STAGING):
+            ts = local['git']('show', '-s', '--format=%ct', 'HEAD')
+            COMMIT_DATE = date_from_timestamp(float(ts))
 
 
 def render_pretty(template_name_or_list, **context):
