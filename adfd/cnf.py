@@ -61,3 +61,15 @@ class DB:
     _dbHost = REMOTE_HOST if _CNF['useRemoteDb'] else 'localhost'
     URL = "mysql://%s:%s@%s/%s" % (USER, PW, _dbHost, NAME)
     DUMP_PATH = PATH.PROJECT / _CNF['relDumpPath']
+
+
+class TARGET:
+    DOMAIN = _CNF['remoteHost']
+    VIRT_ENV_BIN_PATH_STR = ' /home/.pyenv/versions/adfd/bin'
+    ADFD_BIN = VIRT_ENV_BIN_PATH_STR + '/adfd'
+    PYTHON_BIN = VIRT_ENV_BIN_PATH_STR + '/python'
+    HOME = plumbum.LocalPath('/home')
+    WWW = HOME / 'www'
+    TOOL = HOME / 'adfd'
+    PREFIX_STR = 'privat/neu'
+    STAGING = WWW / PREFIX_STR

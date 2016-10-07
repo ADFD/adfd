@@ -6,11 +6,9 @@ import socketserver
 import tempfile
 
 from flask.ext.frozen import Freezer
-from plumbum import ProcessExecutionError
-from plumbum import SshMachine
-from plumbum import cli, local
+from plumbum import ProcessExecutionError, SshMachine, cli, local
 
-from adfd.cnf import PATH, SITE, APP, DB
+from adfd.cnf import PATH, SITE, DB, TARGET
 from adfd.db.lib import get_db_config_info
 from adfd.db.sync import DbSynchronizer
 from adfd.site import fridge
@@ -147,12 +145,39 @@ class AdfdServeFrozen(cli.Application):
 @Adfd.subcommand('deploy')
 class AdfdDeploy(cli.Application):
     """Deploy code by pulling it from github"""
+
     def main(self):
-        with local.cwd(PATH.RENDERED):
-            remote = SshMachine(DB.REMOTE_HOST)
-            with remote.cwd('www/privat/neu'):
-                print(remote['git']('pull'))
-                # todo update links to point to prefix privat/neu
+        remote = SshMachine(TARGET.DOMAIN)
+        with remote.cwd(TARGET.TOOL):
+            remote[TARGET.ADFD_BIN]('')
+        with remote.cwd('/home/adfd'):
+            print(remote['git']('pull'))
+            print(remote['adfd']('fix-staging-paths'))
+
+
+@Adfd.subcommand('fix-staging-paths')
+class AdfdFixStagingPaths(cli.Application):
+    """fix paths for deployed site"""
+
+    def main(self):
+        self.fix_staging_paths()
+
+    @classmethod
+    def fix_staging_paths(cls):
+        log.warning("prefix %s - changing links", TARGET.PREFIX_STR)
+        print(cls.get_all_page_paths())
+        return
+
+        for path in cls.get_all_page_paths():
+            with open(path) as f:
+                cnt = f.read()
+            cnt = cnt.replace('href="/', 'href="/%s/' % TARGET.PREFIX_STR)
+            with open(path, 'w') as f:
+                f.write(cnt)
+
+    @classmethod
+    def get_all_page_paths(cls):
+        return [p for p in TARGET.STAGING.walk() if p.endswith("index.html")]
 
 
 @Adfd.subcommand('info')
