@@ -149,6 +149,7 @@ class AdfdDeploy(cli.Application):
         remote = SshMachine(TARGET.DOMAIN)
         with remote.cwd(TARGET.STAGING):
             print(remote['git']('pull'))
+            print(remote['git']('reset', '--hard'))
         with remote.cwd(TARGET.TOOL):
             print(remote['git']('pull'))
             print(remote[TARGET.PIP_BIN]('install', '-U', '-e', '.'))
