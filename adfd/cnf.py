@@ -20,6 +20,7 @@ except:
 
 class NAME:
     STATIC = 'static'
+    ROOT = '_root'
     BBCODE = 'bbcode'
 
 
@@ -27,6 +28,7 @@ class PATH:
     PROJECT = _PROJECT
     SITE = _PACKAGE / 'site'
     STATIC = SITE / NAME.STATIC
+    ROOT_FILES = STATIC / '_root'
     VIEW = SITE / 'view'
     RENDERED = _PROJECT / '..' / 'static'
 
@@ -36,7 +38,6 @@ class APP:
     CSS_MIN_PATH = 'dist/semantic.min.css'
     JS_PATH = 'dist/semantic.js'
     JS_MIN_PATH = 'dist/semantic.min.js'
-    ENV_TARGET = 'APP_TARGET'
 
 
 class SITE:
@@ -50,6 +51,7 @@ class SITE:
     META_TAG = 'meta'
     CODE_TAG = 'code'
     VIEWTOPIC_PATTERN = "http://adfd.org/austausch/viewtopic.php?t=%s"
+
 
 class DB:
     USER = _CNF['user']
