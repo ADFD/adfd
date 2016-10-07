@@ -1,0 +1,17 @@
+User-Agent: *
+
+Disallow: /content/
+Disallow: /cgi-bin/
+Disallow:/adfd.de/
+Disallow:/test/
+Disallow:/php-shell/
+Disallow:/wa390/
+Disallow:/forum/
+Disallow:/austausch_staging/
+Disallow:/austausch_neu/
+Disallow:/privat/
+
+Disallow:/static/db-cache/
+Disallow:/static/dist/
+Disallow:/static/experiments/
+Disallow:/static/_root/
