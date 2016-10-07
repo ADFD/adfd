@@ -151,7 +151,7 @@ class AdfdDeploy(cli.Application):
             print(remote['git']('pull'))
         with remote.cwd(TARGET.TOOL):
             print(remote['git']('pull'))
-            print(remote[TARGET.PYTHON_BIN]('pip', 'install', '-U', '-e', '.'))
+            print(remote[TARGET.PIP_BIN]('install', '-U', '-e', '.'))
             print(remote['adfd']('fix-staging-paths'))
 
 
