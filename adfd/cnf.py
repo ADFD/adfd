@@ -65,7 +65,7 @@ class DB:
 
 class TARGET:
     DOMAIN = _CNF['remoteHost']
-    VIRT_ENV_BIN_PATH_STR = ' /home/.pyenv/versions/adfd/bin'
+    VIRT_ENV_BIN_PATH_STR = '/home/.pyenv/versions/adfd/bin'
     ADFD_BIN = VIRT_ENV_BIN_PATH_STR + '/adfd'
     PIP_BIN = VIRT_ENV_BIN_PATH_STR + '/pip'
     HOME = plumbum.LocalPath('/home')
