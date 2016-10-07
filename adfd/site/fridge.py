@@ -17,7 +17,7 @@ def path_route():
             yield {'path': path}
 
             if prefix:
-                prefixedPath = "/%s" % (NAME.BBCODE)
+                prefixedPath = "/%s" % NAME.BBCODE
                 if path != "/":
                     prefixedPath += path
                 log.info("yield %s", prefixedPath)
