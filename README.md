@@ -75,7 +75,7 @@ Articles that are on the web site should override the article it originates from
 
 Javascript solution but easiest to implement.
 
-BBCode tag `redirect? (only usable by members with special permissions) that adds redirect directly in the post. Example:
+BBCode tag `redirect` (only usable by members with special permissions) that adds redirect directly in the post. Example:
 
     [redirect]http://www.google.com/[/redirect]
 
