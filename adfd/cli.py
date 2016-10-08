@@ -147,8 +147,9 @@ class AdfdDeploy(cli.Application):
     def main(self):
         remote = SshMachine(TARGET.DOMAIN)
         with remote.cwd(TARGET.CHECKOUT_PATH):
-            print(remote['git']('pull'))
             print(remote['git']('reset', '--hard'))
+            print(remote['git']('clean', '-f', '-d'))
+            print(remote['git']('pull'))
         with remote.cwd(TARGET.TOOL_PATH):
             print(remote['git']('pull'))
             print(remote[VIRTENV.PIP_BIN]('install', '-U', '-e', '.'))
