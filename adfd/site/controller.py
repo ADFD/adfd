@@ -40,6 +40,7 @@ def populate_navigator():
         else:
             COMMIT_DATE = 'dontcare'
 
+
 def render_pretty(template_name_or_list, **context):
     result = render_template(template_name_or_list, **context)
     return BeautifulSoup(result, 'html5lib').prettify()
