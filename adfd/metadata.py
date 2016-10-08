@@ -32,7 +32,6 @@ class PageMetadata:
         'firstPostOnly',
         'linkText',
         'slug',
-        'title',
         'useTitles',
         # 'tags',
     ]
@@ -47,7 +46,6 @@ class PageMetadata:
         self.firstPostOnly = True
         """If this is ``True`` in any post only this post wil be used."""
         self.slug = None
-        self.title = None
         self.useTitles = True
         assert kwargs or text
         self._populate_from_kwargs(kwargs)

@@ -1,8 +1,8 @@
 Home | 11221:
   - ADFD | 10694:
-    - 11220
+    - Über uns | 11220
     - 11223
-    - 11222
+    - Das Team | 11222
   - Psychopharmaka | 11224:
     - 9736
     - Psychopharmaka Mythen | 10694:
@@ -62,3 +62,6 @@ Home | 11221:
     - 10920
     - 10068
     - 11217
+    - Bbcode example | articles/example.bbcode
+    - Bbcode formatting | articles/formatting.bbcode
+    - Bbcode structure | articles/structure.bbcode

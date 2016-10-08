@@ -109,11 +109,11 @@ class DbPost:
         self.id = postId
 
     def __repr__(self):
-        return "<DbPost(%s, %s)>" % (self.id, self.title)
+        return "<DbPost(%s, %s)>" % (self.id, self.subject)
 
     @cached_property
-    def title(self):
-        return self.md.title or html.unescape(self.dbp.post_subject)
+    def subject(self):
+        return html.unescape(self.dbp.post_subject)
 
     @cached_property
     def content(self):

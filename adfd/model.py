@@ -29,14 +29,14 @@ class Node:
 
     def __repr__(self):
         return "<%s(%s: %s)>" % (
-            self.SPEC, self.identifier, self.article.title[:6])
+            self.SPEC, self.identifier, self.title[:6])
 
     @cached_property
     def title(self):
         if not self.parents:
             return "Start"
 
-        return self._title or self.article.title
+        return self._title or self.article.subject
 
     @cached_property
     def relPath(self):
@@ -56,7 +56,7 @@ class Node:
     def slug(self):
         """:rtype: str"""
         isRoot = isinstance(self, CategoryNode) and self._title == ''
-        return '' if isRoot else slugify(self.article.title)
+        return '' if isRoot else slugify(self.title)
 
     @cached_property
     def hasContent(self):
@@ -65,24 +65,13 @@ class Node:
     @cached_property
     def article(self):
         if not self.identifier:
-            return CategoryContentContainer(self._title)  # TODO needed?
+            return CategoryContentContainer(self._title)
 
         if isinstance(self.identifier, int):
             return DbContentContainer(self.identifier)
 
         return StaticContentContainer(self.identifier)
 
-    @classmethod
-    def _parse(cls, data):
-        sep = "|"
-        sd = data.split(sep)
-        if len(sd) > 2:
-            raise ValueError("Too many '%s' in %s" % (sep, data))
-
-        title = sd[0].strip()
-        title = title if title != "Home" else ""
-        mainTopicId = int(sd[1].strip()) if len(sd) == 2 else None
-        return mainTopicId, title
 
 
 class CategoryNode(Node):
@@ -111,7 +100,7 @@ class CategoryNode(Node):
         if self.hasContent:
             tag += '<a href="%s">%s</a>' % (self.relPath, self.title)
         else:
-            tag += self.article.title
+            tag += self.title
         tag += '<i class="dropdown icon"></i>'
         tag += '<div class="menu">'
         return "%s%%s</div></div>" % tag
@@ -121,16 +110,55 @@ class CategoryNode(Node):
         return (isinstance(self, CategoryNode) and
                 any(isinstance(c, CategoryNode) for c in self.parents[1:]))
 
+    @classmethod
+    def _parse(cls, data):
+        sep = "|"
+        sd = data.split(sep)
+        if len(sd) > 2:
+            raise ValueError("Too many '%s' in %s" % (sep, data))
+
+        title = sd[0].strip()
+        title = title if title != "Home" else ""
+        mainTopicId = int(sd[1].strip()) if len(sd) == 2 else None
+        return mainTopicId, title
+
 
 class ArticleNode(Node):
     SPEC = "A"
+    HOME_NODE = "Home"
+
+    def __init__(self, data):
+        super().__init__(*self._parse(data))
 
     def __str__(self):
         pattern = '<a class="%s" href="%s">%s</a>'
         classes = ['item']
         if self.isActive:
             classes.append('active')
-        return pattern % (" ".join(classes), self.relPath, self.article.title)
+        return pattern % (" ".join(classes), self.relPath, self.title)
+
+    @classmethod
+    def _parse(cls, data):
+        """returns: (identifier, title)"""
+        if isinstance(data, int):
+            return data, None
+
+        identifier = None
+        assert isinstance(data, str)
+        sep = "|"
+        sd = data.split(sep)
+        if len(sd) > 2:
+            raise ValueError("Too many '%s' in %s" % (sep, data))
+
+        title = sd[0].strip()
+        title = title if title != cls.HOME_NODE else ""
+        if len(sd) == 2:
+            txt = sd[1].strip()
+            try:
+                identifier = int(txt)
+            except ValueError:
+                identifier = txt
+        return identifier, title
 
 
 class ContentContainer:
@@ -140,12 +168,7 @@ class ContentContainer:
         self.bbcodeIsActive = False
 
     def __repr__(self):
-        return ("<%s(%s) -> (%s>" %
-                (self.__class__.__name__, self.identifier, self.title))
-
-    @property
-    def title(self):
-        raise NotImplementedError
+        return "<%s(%s)" % (self.__class__.__name__, self.identifier)
 
     @cached_property
     def allAuthors(self):
@@ -205,16 +228,9 @@ class ContentContainer:
 
 
 class CategoryContentContainer(ContentContainer):
-    @property
-    def title(self):
-        return self.identifier
-
+    pass
 
 class StaticContentContainer(ContentContainer):
-    @cached_property
-    def title(self):
-        return self.md.title
-
     @cached_property
     def allAuthors(self):
         return self.md.allAuthors
@@ -252,8 +268,8 @@ class DbContentContainer(ContentContainer):
     TITLE_PATTERN = '[h1]%s[/h1]\n'
 
     @cached_property
-    def title(self):
-        return self.md.title or self._firstPost.title
+    def subject(self):
+        return self._firstPost.subject
 
     @cached_property
     def allAuthors(self):
@@ -280,8 +296,9 @@ class DbContentContainer(ContentContainer):
     def content(self):
         contents = []
         for post in self.posts:
+            assert isinstance(post, DbPost)
             if self.md.useTitles and post != self._firstPost:
-                contents.append(self.TITLE_PATTERN % post.title)
+                contents.append(self.TITLE_PATTERN % post.subject)
             contents.append(post.content)
         return "\n\n".join(contents)
 
