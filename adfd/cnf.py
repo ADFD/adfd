@@ -21,6 +21,11 @@ except:
     _CNF = _CNF()
 
 
+class INFO:
+    IS_DEV_BOX = socket.gethostname() == '1bo'
+    IS_CI = 'CI' in os.environ
+
+
 class NAME:
     STATIC = 'static'
     CONTENT = 'content'
@@ -35,6 +40,7 @@ class PATH:
     ROOT_FILES = STATIC / '_root'
     VIEW = SITE / 'view'
     RENDERED = _PROJECT / '..' / 'static'
+    CHECKOUT = RENDERED if INFO.IS_DEV_BOX else TARGET.CHECKOUT_PATH
 
 
 class APP:
@@ -69,13 +75,17 @@ class DB:
 
 class TARGET:
     DOMAIN = _CNF['remoteHost']
-    VIRT_ENV_BIN_PATH_STR = '/home/.pyenv/versions/adfd/bin'
-    ADFD_BIN = VIRT_ENV_BIN_PATH_STR + '/adfd'
-    PIP_BIN = VIRT_ENV_BIN_PATH_STR + '/pip'
     HOME = plumbum.LocalPath('/home')
-    WWW = HOME / 'www'
-    TOOL = HOME / 'adfd'
+    TOOL_PATH = HOME / 'adfd'
     PREFIX_STR = 'privat/neu'
-    IS_SOURCE = socket.gethostname() == '1bo'
-    IS_CI = 'CI' in os.environ
-    STAGING = PATH.RENDERED if IS_SOURCE else WWW / PREFIX_STR
+    WWW = HOME / 'www'
+    CHECKOUT_PATH = WWW / PREFIX_STR
+
+
+class VIRTENV:
+    FOLDER = '/home/.pyenv/versions/adfd/bin'
+    ACTIVATE_SCRIPT = 'activate_this.py'
+    ACTIVATE_THIS_SRC = '/home/adfd/adfd/site/' + ACTIVATE_SCRIPT
+    ACTIVATE_THIS_SCRIPT = FOLDER + '/' + ACTIVATE_SCRIPT
+    ADFD_BIN = FOLDER + '/adfd'
+    PIP_BIN = FOLDER + '/pip'

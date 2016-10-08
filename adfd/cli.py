@@ -5,15 +5,14 @@ import shutil
 import socketserver
 import tempfile
 
-from flask.ext.frozen import Freezer
-from plumbum import ProcessExecutionError, SshMachine, cli, local
-
-from adfd.cnf import PATH, SITE, DB, TARGET
+from adfd.cnf import PATH, SITE, TARGET, VIRTENV
 from adfd.db.lib import get_db_config_info
 from adfd.db.sync import DbSynchronizer
 from adfd.site import fridge
 from adfd.site.controller import app, run_devserver
 from adfd.utils import configure_logging
+from flask.ext.frozen import Freezer
+from plumbum import ProcessExecutionError, SshMachine, cli, local
 
 log = logging.getLogger(__name__)
 
@@ -147,13 +146,15 @@ class AdfdDeploy(cli.Application):
     """Deploy code by pulling it from github"""
     def main(self):
         remote = SshMachine(TARGET.DOMAIN)
-        with remote.cwd(TARGET.STAGING):
+        with remote.cwd(TARGET.CHECKOUT_PATH):
             print(remote['git']('pull'))
             print(remote['git']('reset', '--hard'))
-        with remote.cwd(TARGET.TOOL):
+        with remote.cwd(TARGET.TOOL_PATH):
             print(remote['git']('pull'))
-            print(remote[TARGET.PIP_BIN]('install', '-U', '-e', '.'))
+            print(remote[VIRTENV.PIP_BIN]('install', '-U', '-e', '.'))
+            print(remote['cp'](VIRTENV.ACTIVATE_THIS_SRC, VIRTENV.FOLDER))
             print(remote['adfd']('fix-staging-paths'))
+
 
 
 @Adfd.subcommand('fix-staging-paths')
@@ -175,7 +176,8 @@ class AdfdFixStagingPaths(cli.Application):
 
     @classmethod
     def get_all_page_paths(cls):
-        return [p for p in TARGET.STAGING.walk() if p.endswith("index.html")]
+
+        return [p for p in PATH.CHECKOUT.walk() if p.endswith("index.html")]
 
 
 @Adfd.subcommand('info')

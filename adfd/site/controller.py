@@ -10,7 +10,7 @@ from flask import redirect
 from flask import url_for
 from plumbum.machines import local
 
-from adfd.cnf import PATH, SITE, APP, NAME, TARGET
+from adfd.cnf import PATH, SITE, APP, NAME, TARGET, INFO
 from adfd.site.navigation import Navigator
 
 log = logging.getLogger(__name__)
@@ -33,8 +33,8 @@ def populate_navigator():
         navigator.populate()
     global COMMIT_DATE
     if not COMMIT_DATE:
-        if not TARGET.IS_CI:
-            with local.cwd(TARGET.STAGING):
+        if not INFO.IS_CI:
+            with local.cwd(PATH.CHECKOUT):
                 ts = local['git']('show', '-s', '--format=%ct', 'HEAD')
                 COMMIT_DATE = date_from_timestamp(float(ts))
         else:
