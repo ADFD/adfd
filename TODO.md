@@ -25,6 +25,10 @@ https://yoast.com/ultimate-guide-robots-txt/
 
 http://stackoverflow.com/questions/20646822/how-to-serve-static-files-in-flask
   
+## Custom Errorpages
+
+At the moment all errors are redirecting to adfd.org - not ideal -> 404, 403
+
 # Semantic UI
 
 installed according to [Getting started](http://semantic-ui.com/introduction/getting-started.html)
