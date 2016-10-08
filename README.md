@@ -43,7 +43,7 @@ To add meta data to a post the custom BBCode tag `meta` and set some YAML variab
     firstPostOnly: False
     allAuthors: Peter, Paul, Mary
     [/meta]
-    1
+
 This will be accessible then as attributes of the `ContentContainer` objects like `container.md.sourceTopicId` or `container.md.allAuthors`.
 
 see [model.py](adfd/model.py) and [metadata.py](adfd/metadata.py).
