@@ -10,7 +10,7 @@ Very specific to the needs of the [ADFD](http://adfd.org), but feel free to use 
 
 #  Overview
 
-The system is designed to be used by members of the board who have editing rights in the forum that contains the topics that are transformed into website articles. Therefore all information necessary for building the web site must be contained in form of editable data in forum posts. The used data format for setting this kind of data comes in the form of specific tags that contains [yaml](http://www.yaml.org/) data that can be easily extracted and used in the generator code.
+The system is designed to be used by members of the board who have editing rights in the forum that contains the topics that are transformed into website articles. Therefore all information necessary for building the web site must be contained in form of editable data in forum posts. The used data format for setting this kind of data comes in the form of specific tags that contain simple [yaml](http://www.yaml.org/) data structures. These can easily be extracted and used in the generator code.
 
 ## Defining the site structure
 
