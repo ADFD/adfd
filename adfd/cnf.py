@@ -33,6 +33,15 @@ class NAME:
     BBCODE = 'bbcode'
 
 
+class TARGET:
+    DOMAIN = _CNF['remoteHost']
+    HOME = plumbum.LocalPath('/home')
+    TOOL_PATH = HOME / 'adfd'
+    PREFIX_STR = 'privat/neu'
+    WWW = HOME / 'www'
+    CHECKOUT_PATH = WWW / PREFIX_STR
+
+
 class PATH:
     PROJECT = _PROJECT
     SITE = _PACKAGE / 'site'
@@ -71,15 +80,6 @@ class DB:
     _dbHost = REMOTE_HOST if _CNF['useRemoteDb'] else 'localhost'
     URL = "mysql://%s:%s@%s/%s" % (USER, PW, _dbHost, NAME)
     DUMP_PATH = PATH.PROJECT / _CNF['relDumpPath']
-
-
-class TARGET:
-    DOMAIN = _CNF['remoteHost']
-    HOME = plumbum.LocalPath('/home')
-    TOOL_PATH = HOME / 'adfd'
-    PREFIX_STR = 'privat/neu'
-    WWW = HOME / 'www'
-    CHECKOUT_PATH = WWW / PREFIX_STR
 
 
 class VIRTENV:
