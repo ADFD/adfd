@@ -72,6 +72,18 @@ class Node:
 
         return StaticContentContainer(self.identifier)
 
+    @classmethod
+    def _parse(cls, data):
+        sep = "|"
+        sd = data.split(sep)
+        if len(sd) > 2:
+            raise ValueError("Too many '%s' in %s" % (sep, data))
+
+        title = sd[0].strip()
+        title = title if title != "Home" else ""
+        mainTopicId = int(sd[1].strip()) if len(sd) == 2 else None
+        return mainTopicId, title
+
 
 class CategoryNode(Node):
     SPEC = "C"
@@ -103,18 +115,6 @@ class CategoryNode(Node):
         tag += '<i class="dropdown icon"></i>'
         tag += '<div class="menu">'
         return "%s%%s</div></div>" % tag
-
-    @classmethod
-    def _parse(cls, data):
-        sep = "|"
-        sd = data.split(sep)
-        if len(sd) > 2:
-            raise ValueError("Too many '%s' in %s" % (sep, data))
-
-        title = sd[0].strip()
-        title = title if title != "Home" else ""
-        mainTopicId = int(sd[1].strip()) if len(sd) == 2 else None
-        return mainTopicId, title
 
     @cached_property
     def _isSubMenu(self):

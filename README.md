@@ -14,7 +14,7 @@ The system is designed to be used by members of the board who have editing right
 
 ## Defining the site structure
 
-The structure of the web site is defined in [here](http://adfd.org/austausch/viewtopic.php?f=54&t=12109). Every article should be referenced exactly once (**Development Note:** not necessary for development, but that should be the end result). 
+The structure of the web site is defined in [here (members only)](http://adfd.org/austausch/viewtopic.php?f=54&t=12109). Every article should be referenced exactly once (**Development Note:** not necessary for development, but that should be the end result). 
 
 The page structure consists of categories and articles (see [model.py](adfd/model.py)). The [navigation.py](adfd/site/navigation.py) is generated automatically from a sorted nested dictionary containing categories and articles. Categories **can but not must** have their own start page that can be visited (results in clickable link in menu and breadcrumbs). Here is an example of YAML used to define a simple site structure:
 
@@ -54,7 +54,7 @@ Technically arbitrary data can be set with this mechanism, what is actually used
 
 Many articles on the website originate from topics in the ADFD board. When the website is online, those topics will be masked by redirecting requests to the topic on the board to their corresponding static web page. 
 
-For this to work articles that should appear on the website often start as copies from the source that know about there source (topicId of the source topic). They all reside in [Inhalt](http://adfd.org/austausch/viewforum.php?f=54). If an article started its life explicitly as website article simply does not contain a link to it's source (all else being the same). **Development note:** for the time of development this is not necessary, but when the page goes live this should be completed to be able to use the redirect mechanism.
+For this to work articles that should appear on the website often start as copies from the source that know about there source (topicId of the source topic). They all reside in [Inhalt (members only)](http://adfd.org/austausch/viewforum.php?f=54). If an article started its life explicitly as website article simply does not contain a link to it's source (all else being the same). **Development note:** for the time of development this is not necessary, but when the page goes live this should be completed to be able to use the redirect mechanism.
 
 
 ## [Still in planning phase] Redirect from forum thread to article
