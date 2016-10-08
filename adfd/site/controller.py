@@ -33,7 +33,7 @@ def populate_navigator():
         navigator.populate()
     global COMMIT_DATE
     if not COMMIT_DATE:
-        if TARGET.IS_TESTING:
+        if not TARGET.IS_CI:
             with local.cwd(TARGET.STAGING):
                 ts = local['git']('show', '-s', '--format=%ct', 'HEAD')
                 COMMIT_DATE = date_from_timestamp(float(ts))

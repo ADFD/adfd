@@ -76,5 +76,6 @@ class TARGET:
     WWW = HOME / 'www'
     TOOL = HOME / 'adfd'
     PREFIX_STR = 'privat/neu'
-    IS_TESTING = socket.gethostname() == '1bo' or 'CI' in os.environ
-    STAGING = PATH.RENDERED if IS_TESTING else WWW / PREFIX_STR
+    IS_SOURCE = socket.gethostname() == '1bo'
+    IS_CI = 'CI' in os.environ
+    STAGING = PATH.RENDERED if IS_SOURCE else WWW / PREFIX_STR
