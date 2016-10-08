@@ -4,7 +4,7 @@
 
 Crude CMS / static website generator using the database of a phpBB Board as data source. 
 
-Takes a site description (YAML) from a special topic in the board or a file, fetches topics and meta data from the phpBB databas, transforms them to HTML and generates web site (either dynamic with [Flask](http://flask.pocoo.org/) for development or static for production with [Frozen-Flask](http://pythonhosted.org/Frozen-Flask/)). Uses [Semantic-UI](http://semantic-ui.com).
+Takes a site description (YAML) from a special topic in the board (or a file), fetches topics and meta data from the phpBB database, transforms them to HTML and generates web site (either dynamic with [Flask](http://flask.pocoo.org/) for development or static for production with [Frozen-Flask](http://pythonhosted.org/Frozen-Flask/)). Uses [Semantic-UI](http://semantic-ui.com).
 
 Very specific to the needs of the [ADFD](http://adfd.org), but feel free to use the code to adapt this to your own needs if you find it useful.
 
@@ -43,7 +43,7 @@ To add meta data to a post the custom BBCode tag `meta` and set some YAML variab
     firstPostOnly: False
     allAuthors: Peter, Paul, Mary
     [/meta]
-    
+    1
 This will be accessible then as attributes of the `ContentContainer` objects like `container.md.sourceTopicId` or `container.md.allAuthors`.
 
 see [model.py](adfd/model.py) and [metadata.py](adfd/metadata.py).
