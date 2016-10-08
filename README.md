@@ -16,7 +16,7 @@ The system is designed to be used by members of the board who have editing right
 
 The structure of the web site is defined in [here (members only)](http://adfd.org/austausch/viewtopic.php?f=54&t=12109). Every article should be referenced exactly once (**Development Note:** not necessary for development, but that should be the end result). 
 
-The page structure consists of categories and articles (see [model.py](adfd/model.py)). The [navigation.py](adfd/site/navigation.py) is generated automatically from a sorted nested dictionary containing categories and articles. Categories **can but not must** have their own start page that can be visited (results in clickable link in menu and breadcrumbs). Here is an example of YAML used to define a simple site structure:
+The page structure consists of categories and articles (see [model.py](adfd/model.py)). The [navigation](adfd/site/navigation.py) is generated automatically from a sorted nested dictionary containing categories and articles. Categories **can but not must** have their own start page that can be visited (results in clickable link in menu and breadcrumbs). Here is an example of YAML used to define a simple site structure:
 
     Home | 3:
       - Main Category 1 | 13:
