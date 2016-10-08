@@ -48,7 +48,7 @@ This will be accessible then as attributes of the `ContentContainer` objects lik
 
 see [model.py](adfd/model.py) and [metadata.py](adfd/metadata.py).
 
-Technically arbitrary data can be set with this mechanism, what is actually used is defined in the `PageMetadata` class.
+Technically arbitrary data can be set with this mechanism, but what is actually used is defined and documented in the `PageMetadata` class.
 
 ## Redirection from Forum to website
 
