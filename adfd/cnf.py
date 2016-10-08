@@ -22,6 +22,7 @@ except:
 
 class NAME:
     STATIC = 'static'
+    CONTENT = 'content'
     ROOT = '_root'
     BBCODE = 'bbcode'
 
@@ -65,8 +66,8 @@ class DB:
     DUMP_PATH = PATH.PROJECT / _CNF['relDumpPath']
 
 
-class HOSTINFO:
-    IS_LOCAL = socket.gethostname() == '1bo'
+class INFO:
+    IS_LOCALHOST = socket.gethostname() == '1bo'
 
 
 class TARGET:
@@ -78,4 +79,4 @@ class TARGET:
     WWW = HOME / 'www'
     TOOL = HOME / 'adfd'
     PREFIX_STR = 'privat/neu'
-    STAGING = PATH.RENDERED if HOSTINFO.IS_LOCAL else WWW / PREFIX_STR
+    STAGING = PATH.RENDERED if INFO.IS_LOCALHOST else WWW / PREFIX_STR

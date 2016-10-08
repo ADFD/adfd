@@ -45,7 +45,9 @@ class Node:
     @cached_property
     def sourceLink(self):
         if isinstance(self.article, StaticContentContainer):
-            return "/%s/%s" % (NAME.STATIC, self.identifier)
+            gh = "https://github.com/ADFD/adfd/tree/master/adfd/site"
+            return ("%s/%s/%s/%s" %
+                    (gh, NAME.STATIC, NAME.CONTENT, self.identifier))
 
         elif isinstance(self.article, DbContentContainer):
             return SITE.VIEWTOPIC_PATTERN % self.identifier
