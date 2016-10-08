@@ -30,7 +30,7 @@ The page structure consists of categories and articles (see [model.py](adfd/mode
         - 9736
         - 873
 
-The start page of the article will be fetched from the phpBB topic with ID 3 (**Note:** for the root the name "Home" does not matter as it will not be used for the root of the web page). Below the root are three main categories two of which have there own content ( name and topic id are separated by the pipe character). "Main Category 1" also contains another category with Topic 13 as its start page and the topics 43 and 112 as articles in that category.
+The start page of the article will be fetched from the phpBB topic with ID 3 (**Note:** for the root the name "Home" does not matter as it will not be used for the root of the web page). Below the root are three main categories - two of which have their own content (name and topic id are separated by the pipe character). "Main Category 1" also contains another category with Topic 13 as its start page and the topics 43 and 112 as articles in that category.
 
 The page structure presents itself to the user as nested menu. The Urls are made [semantic](https://en.wikipedia.org/wiki/Semantic_URL) by building up a path from the [slugified](https://en.wikipedia.org/wiki/Semantic_URL#Slug) names of the categories and articles leading to the endpoint. For example `http://some-page.com/main-category-1/sub-category-1/some-article` would be the URL of the article fetched from topic 43 that has the title "Some Article" (the title is also fetched directly from the topic and does not have to be set in the structure (but can be if wanted/needed as seen for topic 112 that has an alternative title given directly in the structure)).
 
