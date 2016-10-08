@@ -39,11 +39,16 @@ The page structure presents itself to the user as nested menu. The Urls are made
 To add meta data to a post the custom BBCode tag `meta` and set some YAML variables. Example:
 
     [meta]
-    source: 1123
-    
+    sourceTopicId: 1123
+    firstPostOnly: False
+    allAuthors: Peter, Paul, Mary
     [/meta]
+    
+This will be accessible then as attributes of the `ContentContainer` objects like `container.md.sourceTopicId` or `container.md.allAuthors`.
 
-see [metadata.py](adfd/metadata.py)
+see [model.py](adfd/model.py) and [metadata.py](adfd/metadata.py).
+
+Technically arbitrary data can be set with this mechanism, what is actually used is defined in the `PageMetadata` class.
 
 ## Redirection from Forum to website
 
