@@ -157,7 +157,6 @@ class AdfdDeploy(cli.Application):
             print(remote['adfd']('fix-staging-paths'))
 
 
-
 @Adfd.subcommand('fix-staging-paths')
 class AdfdFixStagingPaths(cli.Application):
     """fix paths for deployed site"""
