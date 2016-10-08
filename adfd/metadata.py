@@ -1,3 +1,20 @@
+"""
+This makes it possible to transfer arbitrary data contained in the `meta` tag
+from posts on the board to be used by the generator or in the website articles.
+
+To make this work the bbcode tag ``meta`` has to be defined on the board.
+
+The following settings to be done in ``adm/index.php?i=acp_bbcodes``
+define the tag and make it invisible if the post is viewed directly.
+
+BBCode use:
+
+    [meta]{TEXT}[/meta]
+
+Minimal BBCode replacement:
+
+    <div>[meta]{TEXT}[/meta]</div>
+"""
 import logging
 from collections import OrderedDict
 
@@ -9,21 +26,6 @@ log = logging.getLogger(__name__)
 
 
 class PageMetadata:
-    """
-    For overriding this directly from post contents the bbcode tag
-    ``meta`` has to be defined on the board.
-
-    The following settings to be done in ``adm/index.php?i=acp_bbcodes``
-    define the tag and make it invisible if the post is viewed directly.
-
-    BBCODE use:
-
-        [meta]{TEXT}[/meta]
-
-    BBCODE replacement:
-
-        <span style="display: none;">[meta]{TEXT}[/meta]</span>
-    """
     ATTRIBUTES = [
         'allAuthors',
         'isExcluded',
@@ -32,6 +34,7 @@ class PageMetadata:
         'slug',
         'title',
         'useTitles',
+        # 'tags',
     ]
 
     def __init__(self, kwargs=None, text=None):
