@@ -36,7 +36,7 @@ The page structure presents itself to the user as nested menu. The Urls are made
 
 ## Meta data
 
-To add meta data to a post the custom BBCode tag `meta` and set some YAML variables. Example:
+To add meta data to a post use the custom BBCode tag `meta` and set some YAML variables. Example:
 
     [meta]
     sourceTopicId: 1123
@@ -44,20 +44,20 @@ To add meta data to a post the custom BBCode tag `meta` and set some YAML variab
     allAuthors: Peter, Paul, Mary
     [/meta]
 
-This will be accessible then as attributes of the `ContentContainer` objects like `container.md.sourceTopicId` or `container.md.allAuthors`.
+This will be accessible then as attributes of `ContentContainer` so they can be accessed like `container.md.sourceTopicId` or `container.md.allAuthors`.
 
 see [model.py](adfd/model.py) and [metadata.py](adfd/metadata.py).
 
 Technically arbitrary data can be set with this mechanism, but what is actually used is defined and documented in the `PageMetadata` class.
 
-## Redirection from Forum to website
+## [Still in planning phase] Redirection from Forum to website
 
 Many articles on the website originate from topics in the ADFD board. When the website is online, those topics will be masked by redirecting requests to the topic on the board to their corresponding static web page. 
 
 For this to work articles that should appear on the website often start as copies from the source that know about there source (topicId of the source topic). They all reside in [Inhalt (members only)](http://adfd.org/austausch/viewforum.php?f=54). If an article started its life explicitly as website article simply does not contain a link to it's source (all else being the same). **Development note:** for the time of development this is not necessary, but when the page goes live this should be completed to be able to use the redirect mechanism.
 
 
-## [Still in planning phase] Redirect from forum thread to article
+## Redirect from forum thread to article
 
 Articles that are on the web site should override the article it originates from. Therefore routes to those articles should be redirected to the corresponding article.
 
