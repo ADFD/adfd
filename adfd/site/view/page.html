@@ -22,7 +22,10 @@
     {% endif %}
 
     {#see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article#}
-    <article class="ui ">
+    <article class="ui segment">
         {{ node.article }}
     </article>
+
+    {#  FIXME add padding instead #}
+    <div>&nbsp;</div>
 {% endblock content -%}
