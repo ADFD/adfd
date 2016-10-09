@@ -5,7 +5,7 @@ import shutil
 import socketserver
 import tempfile
 
-from adfd.cnf import PATH, SITE, TARGET, VIRTENV
+from adfd.cnf import PATH, SITE, TARGET, VIRTENV, INFO
 from adfd.db.lib import get_db_config_info
 from adfd.db.sync import DbSynchronizer
 from adfd.site import fridge
@@ -51,11 +51,10 @@ class AdfdDev(cli.Application):
 @Adfd.subcommand('freeze')
 class AdfdFreeze(cli.Application):
     """Freeze website to static files"""
-    push = cli.SwitchAttr(
-        ['p', 'push'], argtype=bool, default=True, help="push changes")
+    noPush = cli.Flag(['--no-push'], default=False)
 
     def main(self):
-        self.freeze(self.push)
+        self.freeze(not self.noPush)
 
     @classmethod
     def freeze(cls, push):
@@ -64,7 +63,7 @@ class AdfdFreeze(cli.Application):
             FREEZER_DESTINATION=PATH.RENDERED,
             FREEZER_RELATIVE_URLS=True,
             FREEZER_REMOVE_EXTRA_FILES=True,
-            FREEZER_DESTINATION_IGNORE=['.git*','*.idea'])
+            FREEZER_DESTINATION_IGNORE=['.git*', '*.idea'])
         freezer = Freezer(app)
         freezer.register_generator(fridge.path_route)
         with local.cwd(PATH.PROJECT):
@@ -73,7 +72,8 @@ class AdfdFreeze(cli.Application):
             log.info("frozen urls are:\n%s", '\n'.join(seenUrls))
         cls.copytree(buildPath, PATH.RENDERED)
         cls.deliver_static_root_files()
-        cls.remove_clutter()
+        if INFO.IS_DEV_BOX:
+            cls.remove_clutter()
         if push:
             cls.push_to_github()
 
