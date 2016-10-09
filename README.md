@@ -95,7 +95,7 @@ Most effective(?) but maybe also hardest to develop (lots of different urls can 
 
 # Credits
 
-Dan Watson ([bbcode parser](https://github.com/dcwatson/bbcode))
+Dan Watson [bbcode parser](https://github.com/dcwatson/bbcode) (basis for own version)
 
 # License
 
