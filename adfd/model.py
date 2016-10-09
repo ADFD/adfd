@@ -235,6 +235,11 @@ class CategoryContentContainer(ContentContainer):
 
 
 class StaticContentContainer(ContentContainer):
+    # FIXME transitional till everything is imported
+    @cached_property
+    def isImported(self):
+        return True
+
     @cached_property
     def creationDate(self):
         return self._grabber.get_ctime()
@@ -266,6 +271,11 @@ class StaticContentContainer(ContentContainer):
 
 class DbContentContainer(ContentContainer):
     TITLE_PATTERN = '[h1]%s[/h1]\n'
+
+    # FIXME transitional till everything is imported
+    @cached_property
+    def isImported(self):
+        return self._firstPost.dbp.forum_id == 54
 
     @cached_property
     def subject(self):

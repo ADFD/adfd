@@ -6,6 +6,13 @@
 
     <div class="ui compact horizontal segments">
         <div class="ui segment left aligned">
+            {% if node.article.isImported %}
+                <i class="check circle icon"></i>
+            {% else %}
+                <i class="minus circle icon"></i>
+            {% endif %}
+        </div>
+        <div class="ui segment left aligned">
             {% if node.article.hasOneAuthor %}
             Von {{ node.article.allAuthors[0] }}
             {% else %}
