@@ -16,26 +16,24 @@ app.secret_key = "I actually don't need a secret key"
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config.update(DEBUG=True)
 navigator = Navigator()
-COMMIT_DATE = None
+LAST_UPDATE = None
 
 
 @app.context_processor
 def inject_dict_for_all_templates():
-    return dict(APP=APP, VERSION=COMMIT_DATE)
+    return dict(APP=APP, VERSION=LAST_UPDATE)
 
 
 @app.before_first_request
 def populate_navigator():
     if not navigator.pathNodeMap:
         navigator.populate()
-    global COMMIT_DATE
-    if not COMMIT_DATE:
-        if not INFO.IS_CI:
-            with local.cwd(PATH.RENDERED):
-                ts = local['git']('show', '-s', '--format=%ct', 'HEAD')
-                COMMIT_DATE = date_from_timestamp(float(ts))
-        else:
-            COMMIT_DATE = 'dontcare'
+    global LAST_UPDATE
+    if not LAST_UPDATE:
+        LAST_UPDATE = PATH.LAST_UPDATE.read(encoding='utf8')
+        # with local.cwd(PATH.RENDERED):
+        #     ts = local['git']('show', '-s', '--format=%ct', 'HEAD')
+        #     LAST_UPDATE = date_from_timestamp(float(ts))
 
 
 def render_pretty(template_name_or_list, **context):
