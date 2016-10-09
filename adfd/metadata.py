@@ -30,8 +30,8 @@ class PageMetadata:
         'allAuthors',
         'isExcluded',
         'firstPostOnly',
+        'oldTopicId',
         'linkText',
-        'slug',
         'useTitles',
         # 'tags',
     ]
@@ -45,7 +45,8 @@ class PageMetadata:
         """text that should be used if linked to here"""
         self.firstPostOnly = True
         """If this is ``True`` in any post only this post wil be used."""
-        self.slug = None
+        self.oldTopicId = None
+        """ID of the topic that the article originated from"""
         self.useTitles = True
         assert kwargs or text
         self._populate_from_kwargs(kwargs)

@@ -707,6 +707,7 @@ class AdfdParser(Parser):
         self._add_header_formatters()
         self._add_img_formatter()
         self._add_list_formatter()
+        self._add_mod_formatter()
         self._add_quote_formatter()
         self._add_raw_formatter()
         self._add_removals()
@@ -743,6 +744,24 @@ class AdfdParser(Parser):
         match = re.match(r'^([a-z]+)|^(#[a-f0-9]{3,6})', color, re.I)
         color = match.group() if match else 'inherit'
         return '<span style="color:%s;">%s</span>' % (color, value)
+
+    def _add_mod_formatter(self):
+        self.add_formatter('mod', self._render_mod)
+
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def _render_mod(name, value, options, parent, context):
+        if 'mod' in options:
+            name = options['mod'].strip()
+        elif options:
+            name = list(options.keys())[0].strip()
+        else:
+            return value
+
+        match = re.match(r'^([a-z]+)|^(#[a-f0-9]{3,6})', name, re.I)
+        name = match.group() if match else 'inherit'
+        return ('<div style="background: orange;">[%s] %s</div>'
+                % (name, value))
 
     def _add_img_formatter(self):
         self.add_formatter(
@@ -811,7 +830,7 @@ class AdfdParser(Parser):
         return html.unescape(value)
 
     def _add_removals(self):
-        for removal in ['meta', 'mod']:
+        for removal in ['meta']:
             self.add_simple(removal, '')
 
     # # noinspection PyUnusedLocal

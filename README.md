@@ -39,7 +39,7 @@ The page structure presents itself to the user as nested menu. The Urls are made
 To add meta data to a post use the custom BBCode tag `meta` and set some YAML variables. Example:
 
     [meta]
-    sourceTopicId: 1123
+    oldTopicId: 1123
     firstPostOnly: False
     allAuthors: Peter, Paul, Mary
     [/meta]
@@ -99,4 +99,4 @@ Dan Watson: [bbcode parser](https://github.com/dcwatson/bbcode) (basis for own v
 
 # License
 
-[BSD 3-clause License](https://opensource.org/licenses/BSD-3-Clause). See [LICENSE](./LICENSE) for more information.
+[BSD 3-clause License](https://opensource.org/licenses/BSD-3-Clause). See [LICENSE](LICENSE) for more information.

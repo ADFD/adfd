@@ -29,7 +29,10 @@ def populate_navigator():
         navigator.populate()
     global LAST_UPDATE
     if not LAST_UPDATE:
-        LAST_UPDATE = PATH.LAST_UPDATE.read(encoding='utf8')
+        try:
+            LAST_UPDATE = PATH.LAST_UPDATE.read(encoding='utf8')
+        except FileNotFoundError:
+            LAST_UPDATE = "unknown"
         # with local.cwd(PATH.RENDERED):
         #     ts = local['git']('show', '-s', '--format=%ct', 'HEAD')
         #     LAST_UPDATE = date_from_timestamp(float(ts))

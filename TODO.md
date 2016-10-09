@@ -19,6 +19,10 @@ Example article for helpers to refer to.
 * All headers should be an anchor link to be able to link directly to subsection
 * cool way of displaying where you are like in semantic ui
 
+## Missing tags
+
+* System for footnotes/reference
+
 ## robots.txt
 
 https://yoast.com/ultimate-guide-robots-txt/
