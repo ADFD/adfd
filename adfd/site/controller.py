@@ -31,7 +31,7 @@ def populate_navigator():
     global COMMIT_DATE
     if not COMMIT_DATE:
         if not INFO.IS_CI:
-            with local.cwd(PATH.CHECKOUT):
+            with local.cwd(PATH.RENDERED):
                 ts = local['git']('show', '-s', '--format=%ct', 'HEAD')
                 COMMIT_DATE = date_from_timestamp(float(ts))
         else:

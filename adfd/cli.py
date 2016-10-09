@@ -176,8 +176,7 @@ class AdfdFixStagingPaths(cli.Application):
 
     @classmethod
     def get_all_page_paths(cls):
-
-        return [p for p in PATH.CHECKOUT.walk() if p.endswith("index.html")]
+        return [p for p in PATH.RENDERED.walk() if p.endswith("index.html")]
 
 
 @Adfd.subcommand('info')

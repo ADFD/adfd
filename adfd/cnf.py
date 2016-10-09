@@ -48,8 +48,8 @@ class PATH:
     STATIC = SITE / NAME.STATIC
     ROOT_FILES = STATIC / '_root'
     VIEW = SITE / 'view'
-    RENDERED = _PROJECT / '..' / 'static'
-    CHECKOUT = RENDERED if INFO.IS_DEV_BOX else TARGET.CHECKOUT_PATH
+    _DEV_BOX_RENDERED = _PROJECT / '..' / 'static'
+    RENDERED = _DEV_BOX_RENDERED if INFO.IS_DEV_BOX else TARGET.CHECKOUT_PATH
 
 
 class APP:
