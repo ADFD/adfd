@@ -68,10 +68,10 @@ class AdfdFreeze(cli.Application):
         freezer.register_generator(fridge.path_route)
         with local.cwd(PATH.PROJECT):
             log.info("freezing %s", freezer)
-            seenUrls = freezer.freeze()
-            log.info("frozen urls are:\n%s", '\n'.join(seenUrls))
             with open(PATH.LAST_UPDATE, 'w', encoding='utf') as f:
                 f.write(date_from_timestamp())
+            seenUrls = freezer.freeze()
+            log.info("frozen urls are:\n%s", '\n'.join(seenUrls))
         cls.copytree(buildPath, PATH.RENDERED)
         cls.deliver_static_root_files()
         cls.remove_clutter()
