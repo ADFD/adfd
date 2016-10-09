@@ -6,9 +6,8 @@ from bs4 import BeautifulSoup
 from flask import Flask, request, render_template, flash, redirect, url_for
 from plumbum.machines import local
 
-from adfd.cnf import PATH, SITE, APP, NAME, INFO
+from adfd.cnf import PATH, SITE, APP, NAME
 from adfd.site.navigation import Navigator
-from adfd.utils import date_from_timestamp
 
 log = logging.getLogger(__name__)
 app = Flask(__name__, template_folder=PATH.VIEW, static_folder=PATH.STATIC)
