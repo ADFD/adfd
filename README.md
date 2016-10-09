@@ -92,3 +92,11 @@ that reads metadata from the source article that contains the redirect path
 #### Apache rewrite rules
 
 Most effective(?) but maybe also hardest to develop (lots of different urls can lead to the same thread (e.g. by topicId or postIds)), test and automate.
+
+# Credits
+
+    Dan Watson ([bbcode parser](https://github.com/dcwatson/bbcode))
+
+# License
+
+[BSD 3-clause License](https://opensource.org/licenses/BSD-3-Clause). See [LICENSE](./LICENSE) for more information.
