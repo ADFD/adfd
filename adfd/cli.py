@@ -171,7 +171,7 @@ class AdfdFixStagingPaths(cli.Application):
         for path in cls.get_all_page_paths():
             cnt = path.read(encoding='utf8')
             cnt = cnt.replace('href="/', 'href="/%s/' % TARGET.PREFIX_STR)
-            with open(path, 'w') as f:
+            with open(path, 'w', encoding='utf8') as f:
                 f.write(cnt)
 
     @classmethod
