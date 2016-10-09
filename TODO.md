@@ -43,7 +43,6 @@ http://stackoverflow.com/questions/32172155/which-one-is-the-right-one-semantic-
 
 http://matthewjamestaylor.com/blog/keeping-footers-at-the-bottom-of-the-page
 
-
 # Caching
 
 Only if it is painfully slow ...
@@ -53,3 +52,10 @@ Only if it is painfully slow ...
 # Hyphenation
 
 * hyphenate still screws up links (throw out and use http://mnater.github.io/Hyphenator/mergeAndPack.html instead)
+
+# Apple touch icons
+
+File does not exist: /home/www/apple-touch-icon-120x120-precomposed.png
+File does not exist: /home/www/apple-touch-icon-120x120.png
+File does not exist: /home/www/apple-touch-icon-precomposed.png
+File does not exist: /home/www/apple-touch-icon.png
