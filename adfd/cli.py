@@ -169,8 +169,7 @@ class AdfdFixStagingPaths(cli.Application):
     def fix_staging_paths(cls):
         log.warning("prefix %s - changing links", TARGET.PREFIX_STR)
         for path in cls.get_all_page_paths():
-            with open(path) as f:
-                cnt = f.read()
+            cnt = path.read(encoding='utf8')
             cnt = cnt.replace('href="/', 'href="/%s/' % TARGET.PREFIX_STR)
             with open(path, 'w') as f:
                 f.write(cnt)
