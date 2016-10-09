@@ -50,6 +50,7 @@ class PATH:
     VIEW = SITE / 'view'
     _DEV_BOX_RENDERED = _PROJECT / '..' / 'static'
     RENDERED = _DEV_BOX_RENDERED if INFO.IS_DEV_BOX else TARGET.CHECKOUT_PATH
+    LAST_UPDATE = RENDERED / 'last_updated'
 
 
 class APP:

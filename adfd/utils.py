@@ -2,6 +2,7 @@ import codecs
 import logging
 import os
 import re
+import time
 from datetime import datetime
 from types import FunctionType, MethodType
 
@@ -10,7 +11,8 @@ from plumbum import LocalPath
 log = logging.getLogger(__name__)
 
 
-def date_from_timestamp(timestamp):
+def date_from_timestamp(timestamp=None):
+    timestamp = timestamp or time.time()
     return datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y (%H:%M Uhr)')
 
 

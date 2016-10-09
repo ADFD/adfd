@@ -10,7 +10,7 @@ from adfd.db.lib import get_db_config_info
 from adfd.db.sync import DbSynchronizer
 from adfd.site import fridge
 from adfd.site.controller import app, run_devserver
-from adfd.utils import configure_logging
+from adfd.utils import configure_logging, date_from_timestamp
 from flask.ext.frozen import Freezer
 from plumbum import ProcessExecutionError, SshMachine, cli, local
 
@@ -70,6 +70,8 @@ class AdfdFreeze(cli.Application):
             log.info("freezing %s", freezer)
             seenUrls = freezer.freeze()
             log.info("frozen urls are:\n%s", '\n'.join(seenUrls))
+            with open(PATH.LAST_UPDATE, 'w', encoding='utf') as f:
+                f.write(date_from_timestamp())
         cls.copytree(buildPath, PATH.RENDERED)
         cls.deliver_static_root_files()
         cls.remove_clutter()
