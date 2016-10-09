@@ -75,7 +75,6 @@ class Node:
         return StaticContentContainer(self.identifier)
 
 
-
 class CategoryNode(Node):
     SPEC = "C"
 
@@ -174,8 +173,7 @@ class ContentContainer:
 
     @cached_property
     def allAuthors(self):
-        """list of authors (at least one)"""
-        raise NotImplementedError
+        return [a.strip() for a in self.md.allAuthors.split(",") if a.strip()]
 
     @cached_property
     def hasOneAuthor(self):
@@ -228,15 +226,15 @@ class ContentContainer:
         txt = highlight(self.bbcode, lexer, HtmlFormatter())
         return "<style>%s</style>\n%s" % (css, txt)
 
+    @cached_property
+    def md(self):
+        raise NotImplementedError
 
 class CategoryContentContainer(ContentContainer):
     pass
 
-class StaticContentContainer(ContentContainer):
-    @cached_property
-    def allAuthors(self):
-        return self.md.allAuthors
 
+class StaticContentContainer(ContentContainer):
     @cached_property
     def creationDate(self):
         return self._grabber.get_ctime()
@@ -275,7 +273,7 @@ class DbContentContainer(ContentContainer):
 
     @cached_property
     def allAuthors(self):
-        return self.md.allAuthors or [self._firstPost.username]
+        return super().allAuthors or [self._firstPost.username]
 
     @cached_property
     def creationDate(self):

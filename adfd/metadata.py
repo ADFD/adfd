@@ -38,7 +38,7 @@ class PageMetadata:
 
     def __init__(self, kwargs=None, text=None):
         """WARNING: all public attributes are written as meta data"""
-        self.allAuthors = []
+        self.allAuthors = ""
         self.isExcluded = False
         """add this set to ``True`` to a post that should be excluded"""
         self.linkText = None  # TODO needed?
