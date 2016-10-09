@@ -72,8 +72,9 @@ class AdfdFreeze(cli.Application):
             log.info("frozen urls are:\n%s", '\n'.join(seenUrls))
         cls.copytree(buildPath, PATH.RENDERED)
         cls.deliver_static_root_files()
-        if INFO.IS_DEV_BOX:
-            cls.remove_clutter()
+        cls.remove_clutter()
+        if not INFO.IS_DEV_BOX:
+            AdfdFixStagingPaths.fix_staging_paths()
         if push:
             cls.push_to_github()
 
