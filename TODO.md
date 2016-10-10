@@ -2,6 +2,9 @@
 
 * save a copy of the raw bbcode alongside with the highlighted BBcode (for safekeeping and versioning)
 * fix quote styling
+* Import checks
+    * check if all topics are in Inhalt
+    * check if all topics in Inhalt are used on website (except for "Struktur")
 
 ## Important articles
 
