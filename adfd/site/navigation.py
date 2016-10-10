@@ -93,7 +93,8 @@ class StructureLoader:
     @classmethod
     def load(cls):
         if SITE.USE_FILE:
-            return cls.ordered_yaml_load(stream=open(SITE.STRUCTURE_PATH))
+            return cls.ordered_yaml_load(
+                stream=open(SITE.STRUCTURE_PATH, encoding='utf8'))
 
         content = DbContentContainer(SITE.STRUCTURE_TOPIC_ID)
         yamlContent = extract_from_bbcode(SITE.CODE_TAG, content.bbcode)
