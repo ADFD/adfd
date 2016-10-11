@@ -48,7 +48,7 @@ To add meta data to a post the custom BBCode tag `meta` can be used to pass simp
     allAuthors: Peter, Paul, Mary
     [/meta]
 
-This will be accessible then as attributes of `ContentContainer` objects. They can be accessed like `container.md.sourceTopicId` or `container.md.allAuthors` (see [model.py](adfd/model.py) and [metadata.py](adfd/metadata.py)).
+This will be accessible then as attributes of `ContentContainer` objects. They can be accessed like `container.md.oldTopicId` or `container.md.allAuthors` (see [model.py](adfd/model.py) and [metadata.py](adfd/metadata.py)).
 
 With this mechanism completely arbitrary data can be set, but what is actually used is defined and documented in the `PageMetadata` class.
 
