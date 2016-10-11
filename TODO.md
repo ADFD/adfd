@@ -1,11 +1,19 @@
 # TODO
 
-* save a copy of the raw bbcode alongside with the highlighted BBcode (for safekeeping and versioning)
+* always make a complete bbcode dump of the Inhalt forum on freeze for source control of contents
 * fix quote styling
+
+## Implement sanity checks
+
 * Import checks
     * check if all topics are in Inhalt
     * check if all topics in Inhalt are used on website (except for "Struktur")
 
+* Meta data checks
+    * list all used meta data keys
+    * list all used tags (if and when we start using them)
+
+    
 ## Important articles
 
 (not yet in structure)
