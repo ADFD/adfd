@@ -52,7 +52,7 @@ This will be accessible then as attributes of `ContentContainer` objects. They c
 
 With this mechanism completely arbitrary data can be set, but what is actually used is defined and documented in the `PageMetadata` class.
 
-## [Still in planning phase] Redirection from Forum to website
+## [Still in planning phase] Redirection from board to website
 
 Many articles on the website originate from topics in the ADFD board. When the website is online, those topics should be masked by redirecting requests to the topic on the board to their corresponding static web page. 
 
