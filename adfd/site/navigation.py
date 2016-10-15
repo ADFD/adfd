@@ -18,7 +18,7 @@ class Navigator:
 
     def populate(self):
         self._reset()
-        self.structure = StructureLoader.load()
+        self.structure = self.load_structure()
         remap(self.structure, visit=self.visit)
         self.root = self.yamlKeyNodeMap[next(iter(self.structure))]
         self.menu = self.root.children
@@ -75,31 +75,29 @@ class Navigator:
                 self.yamlKeyNodeMap[key] = cat
                 return cat
 
-
-class StructureLoader:
-    class OrderedLoader(yaml.SafeLoader):
-        def __init__(self, stream):
-            # noinspection PyUnresolvedReferences
-            self.add_constructor(
-                yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-                self.construct_ordered_mapping)
-            super().__init__(stream)
-
-        @staticmethod
-        def construct_ordered_mapping(loader, node):
-            loader.flatten_mapping(node)
-            return OrderedDict(loader.construct_pairs(node))
-
     @classmethod
-    def load(cls):
-        if SITE.USE_FILE:
-            return cls.ordered_yaml_load(
-                stream=open(SITE.STRUCTURE_PATH, encoding='utf8'))
+    def load_structure(
+            cls, path=SITE.STRUCTURE_PATH, topicId=SITE.STRUCTURE_TOPIC_ID,
+            useFile=SITE.USE_FILE):
+        class OrderedLoader(yaml.SafeLoader):
+            def __init__(self, stream):
+                # noinspection PyUnresolvedReferences
+                self.add_constructor(
+                    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+                    self.construct_ordered_mapping)
+                super().__init__(stream)
 
-        content = DbContentContainer(SITE.STRUCTURE_TOPIC_ID)
+            @staticmethod
+            def construct_ordered_mapping(loader, node):
+                loader.flatten_mapping(node)
+                return OrderedDict(loader.construct_pairs(node))
+
+        def ordered_yaml_load(stream):
+            return yaml.load(stream, OrderedLoader)
+
+        if useFile:
+            return ordered_yaml_load(stream=open(path, encoding='utf8'))
+
+        content = DbContentContainer(topicId)
         yamlContent = extract_from_bbcode(SITE.CODE_TAG, content.bbcode)
-        return cls.ordered_yaml_load(stream=io.StringIO(yamlContent))
-
-    @classmethod
-    def ordered_yaml_load(cls, stream):
-        return yaml.load(stream, cls.OrderedLoader)
+        return ordered_yaml_load(stream=io.StringIO(yamlContent))
