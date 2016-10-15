@@ -60,12 +60,14 @@ def path_route(path=''):
 
 @app.route('/article/<int:topicId>/')
 @app.route('/article/<path:identifier>/')
+@app.route('/articles/')
 def article_route(topicId=None, identifier=None):
-    if topicId:
-        node = navigator.identifierNodeMap[topicId]
-    else:
-        node = navigator.pathNodeMap["/" + identifier]
-    return render_pretty('page.html', node=node, article=node.article)
+    if topicId or identifier:
+        node = navigator.identifierNodeMap[topicId or identifier]
+        return render_pretty('page.html', node=node, article=node.article)
+
+    nodes = sorted(navigator.pathNodeMap.values())
+    return render_pretty('all-articles.html', nodes=nodes)
 
 
 @app.route('/reset')

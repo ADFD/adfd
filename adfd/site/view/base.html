@@ -5,9 +5,8 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename=APP.CSS_PATH) }}"/>
-    {% if node.article.bbcodeIsActive %}
-    {% endif %}
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename=APP.CSS_PATH) }}"/>
 </head>
 <body>
 
@@ -18,44 +17,31 @@
                  src="{{ url_for('static', filename='img/logo78x81.png') }}">
         </a>
         {% if navigation -%}
-        {{ navigation | safe }}
+            {{ navigation | safe }}
         {% endif -%}
-            <div class="item">
-                <a href="{{ node.sourceLink }}" target="_blank">[Quelle]</a>
+        {% if node -%}
+            <div class="ui simple dropdown item">
+                [Tools]
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    <div class="item">
+                        <a href="{{ node.sourceLink }}" target="_blank">[Quelle]</a>
+                    </div>
+                    <div class="item">
+                        <a href="{{ node.article.contentToggleLink }}">
+                            [{{ node.article.contentToggleLinkText }}]
+                        </a>
+                    </div>
+                    <div class="item">
+                        <a href="/articles/">Liste aller Artikel</a>
+                    </div>
+                </div>
             </div>
-            <div class="item">
-                <a href="{{ node.article.contentToggleLink }}">
-                    [{{ node.article.contentToggleLinkText }}]
-                </a>
-            </div>
+        {% endif -%}
     </div>
 </div>
 
-<div class="ui main text container">
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        {% for message in messages %}
-        <div class="ui big center aligned card">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-    {% if node.parents %}
-    <div class="ui breadcrumb">
-        <a class="section" href="/"><i class="home icon"></i></a>
-        <i class="right angle icon divider"></i>
-        {% for parent in node.parents[1:] %}
-            {% if parent.hasContent %}
-                <a class="section" href="{{ parent.relPath }}">{{ parent.title }}</a>
-            {% else %}
-                <span class="section">{{ parent.title }}</span>
-            {% endif %}
-            <i class="right angle icon divider"></i>
-        {%  endfor %}
-        <a class="active section" href="{{ node.relPath }}">{{ node.title }}</a>
-    </div>
-    {% endif %}
-    {% block content -%}{% endblock content -%}
-</div>
+{% block content -%}{% endblock content -%}
 
 {#TODO replace boilerplate #}
 <div class="ui inverted vertical footer segment">
@@ -83,7 +69,8 @@
             </div>
         </div>
         <div class="ui inverted section divider"></div>
-        <img class="ui centered mini image" alt="ADFD logo" src="{{ url_for('static', filename='img/logo78x81.png') }}">
+        <img class="ui centered mini image" alt="ADFD logo"
+             src="{{ url_for('static', filename='img/logo78x81.png') }}">
         <div class="ui horizontal inverted small divided link list">
             <a class="item" href="#">Site Map</a>
             <a class="item" href="#">Kontakt</a>
@@ -93,9 +80,9 @@
 </div>
 
 <script
-  src="https://code.jquery.com/jquery-3.1.1.min.js"
-  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-  crossorigin="anonymous">
+        src="https://code.jquery.com/jquery-3.1.1.min.js"
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+        crossorigin="anonymous">
 </script>
 <script src="{{ url_for('static', filename=APP.JS_PATH) }}"></script>
 </body>

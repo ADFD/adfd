@@ -1,0 +1,15 @@
+<div class="ui breadcrumb">
+    <a class="section" href="/"><i class="home icon"></i></a>
+    <i class="right angle icon divider"></i>
+    {% for parent in node.parents[1:] %}
+        {% if parent.hasContent %}
+            <a class="section"
+               href="{{ parent.relPath }}">{{ parent.title }}</a>
+        {% else %}
+            <span class="section">{{ parent.title }}</span>
+        {% endif %}
+        <i class="right angle icon divider"></i>
+    {% endfor %}
+    <a class="active section"
+       href="{{ node.relPath }}">{{ node.title }}</a>
+</div>

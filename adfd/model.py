@@ -1,20 +1,22 @@
 import logging
+from functools import total_ordering
 
 from cached_property import cached_property
 from pygments import highlight
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
+from pygments.styles import get_style_by_name
 
 from adfd.cnf import PATH, SITE, NAME
 from adfd.db.lib import DbPost
 from adfd.metadata import PageMetadata
 from adfd.parse import AdfdParser
 from adfd.utils import slugify, ContentGrabber, date_from_timestamp
-from pygments.styles import get_style_by_name
 
 log = logging.getLogger(__name__)
 
 
+@total_ordering
 class Node:
     SPEC = "N"
 
@@ -30,6 +32,9 @@ class Node:
     def __repr__(self):
         return "<%s(%s: %s)>" % (
             self.SPEC, self.identifier, self.title[:6])
+
+    def __gt__(self, other):
+        return self.title > other.title
 
     @cached_property
     def title(self):
@@ -98,11 +103,14 @@ class CategoryNode(Node):
         if self.isActive:
             classes.append('active')
         tag = pattern % (" ".join(classes))
+        if self._isSubMenu:
+            tag += '<i class="dropdown icon"></i>'
         if self.hasContent:
             tag += '<a href="%s">%s</a>' % (self.relPath, self.title)
         else:
             tag += self.title
-        tag += '<i class="dropdown icon"></i>'
+        if not self._isSubMenu:
+            tag += '<i class="dropdown icon"></i>'
         tag += '<div class="menu">'
         return "%s%%s</div></div>" % tag
 

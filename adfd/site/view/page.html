@@ -1,38 +1,31 @@
 {% extends "base.html" -%}
 
 {% block content -%}
-    {% if node.relPath != "/" %}
-    <h1 class="ui header">{{ node.article.title }}</h1>
-
-    <div class="ui compact horizontal segments">
-        <div class="ui segment left aligned">
-            {% if node.article.isImported %}
-                <i class="check circle icon" title="Bereits importiert"></i>
-            {% else %}
-                <i class="minus circle icon" title="Noch nicht importiert"></i>
-            {% endif %}
+    <div id="main" class="ui three column doubling stackable grid container">
+        <div class="column two wide">
+            <div class="row">row in left column</div>
         </div>
-        <div class="ui segment left aligned">
-            {% if node.article.hasOneAuthor %}
-            Von {{ node.article.allAuthors[0] }}
-            {% else %}
-            Von {{ ", ".join(node.article.allAuthors) }}
+        <div class="column twelve wide main text container">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="ui big center aligned card">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% if node and node.parents %}
+                {% with node=node -%}
+                    {% include "_breadcrumbs.html" -%}
+                {% endwith -%}
             {% endif %}
+            {% with node=node -%}
+                {% include "_article.html" -%}
+            {% endwith -%}
         </div>
-        <div class="ui segment center aligned"
-            {% if node.article.creationDate != node.article.lastUpdate %}
-            title="zuletzt aktualisiert: {{ node.article.lastUpdate }}"
-            {% endif %}>
-            erstellt am {{ node.article.creationDate }}
+        <div class="column two wide">
+            <div class="row">row in right column</div>
         </div>
     </div>
-    {% endif %}
 
-    {#see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article#}
-    <article class="ui segment">
-        {{ node.article }}
-    </article>
-
-    {#  FIXME add padding instead #}
-    <div>&nbsp;</div>
+    <div>&nbsp;</div> {#  FIXME add padding instead #}
 {% endblock content -%}

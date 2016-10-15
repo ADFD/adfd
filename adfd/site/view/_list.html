@@ -1,17 +1,16 @@
-<div class="row">
-    <ul>
-    {% for page in pages -%}
-        <li>
-            <a href="{{ url_for("page", path=page.path) }}">{{ page.title }}</a>
-        {% if page.meta.tags|length -%}
+{% for node in nodes -%}
+    <div class="secondary segment">
+        <a href="{{ url_for("path_route", path=node.relPath) }}">{{ node.title }}</a>
+
+        {# TODO add tag functionality #}
+        {% if node.tags|length -%}
             | Tagged:
-            {% for page_tag in page.meta.tags -%}
-                <a href="{{ url_for("tag", tag=page_tag) }}">{{ page_tag }}</a>
+            {% for node_tag in node.meta.tags -%}
+                <a href="{{ url_for("tag", tag=node_tag) }}">{{ node_tag }}</a>
             {% endfor -%}
         {% endif -%}
-        </li>
-    {% else -%}
-        <li>No page.</li>
-    {% endfor -%}
-    </ul>
-</div>
+
+    </div>
+{% else -%}
+    <div class="secondary segment">No nodes.</div>
+{% endfor -%}
