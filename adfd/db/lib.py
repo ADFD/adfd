@@ -149,6 +149,7 @@ class DbPost:
         """restore original bbcode from phpBB db storage scheme"""
         pairs = [
             ("<!-- s(\S+) -->(?:.*?)<!-- s(?:\S+) -->", '\g<1>'),
+            ('<!-- e -->.*?href="(.*?)".*?<!-- e -->', '[url=\g<1>]\g<1>[/url]'),
             ('<!-- m -->.*?href="(.*?)".*?<!-- m -->', '[url]\g<1>[/url]'),
             ('<!-- l -->.*?href="(.*?)".*?<!-- l -->', '[url]\g<1>[/url]'),
             ("\[list\](.*?)\[\/list:u\]", '[list]\g<1>[/list]'),
