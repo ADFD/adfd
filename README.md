@@ -85,7 +85,7 @@ Renders to:
 
 #### phpBB extension 
 
-that reads metadata from the source article that contains the redirect path
+that reads metadata from the source article that contains the redirect path (has to be added later in an invisible tag, if we follow that route).
 
 #### Apache rewrite rules
 
