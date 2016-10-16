@@ -12,6 +12,8 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL
     # Apache/PHP/MYSQL and other dependencies
     apt-get update
+    # NOTE: yes providing a password like this is insecure - but ...
+    # the whole idea of having a local dev env is for it to be convenient - not secure
     debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password password 123456'
     debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password_again password 123456'
     apt-get install -y apache2 mysql-server-5.5 mysql-client php5 php5-mysql php5-gd imagemagick unzip
