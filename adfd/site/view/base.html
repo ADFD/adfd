@@ -5,84 +5,24 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename=APP.CSS_PATH) }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename=APP.CSS_PATH) }}"/>
 </head>
 <body>
 
-<div class="ui fixed menu">
-    <div class="ui container">
-        <a href="/" class="header item">
-            <img class="logo" alt="ADFD logo"
-                 src="{{ url_for('static', filename='img/logo78x81.png') }}">
-        </a>
-        {% if navigation -%}
-            {{ navigation | safe }}
-        {% endif -%}
-        {% if node -%}
-            <div class="ui simple dropdown item">
-                [Tools]
-                <i class="dropdown icon"></i>
-                <div class="menu">
-                    <div class="item">
-                        <a href="{{ node.sourceLink }}" target="_blank">[Quelle]</a>
-                    </div>
-                    <div class="item">
-                        <a href="{{ node.article.contentToggleLink }}">
-                            [{{ node.article.contentToggleLinkText }}]
-                        </a>
-                    </div>
-                    <div class="item">
-                        <a href="/articles/">Liste aller Artikel</a>
-                    </div>
-                </div>
-            </div>
-        {% endif -%}
-    </div>
-</div>
+{% with navigation=navigation, node=node -%}
+    {% include "_top-menu.html" -%}
+{% endwith -%}
 
 {% block content -%}{% endblock content -%}
 
-{#TODO replace boilerplate #}
-<div class="ui inverted vertical footer segment">
-    <div class="ui center aligned container">
-        <div class="ui stackable inverted divided grid">
-            <div class="three wide column">
-                <h4 class="ui inverted header">Sachen</h4>
-                <div class="ui inverted link list">
-                    <a href="/" class="item">Start</a>
-                    <a href="/" class="item">Zeug</a>
-                    <a href="/" class="item">Sachen</a>
-                </div>
-            </div>
-            <div class="three wide column">
-                <h4 class="ui inverted header">Dinge</h4>
-                <div class="ui inverted link list">
-                    <a href="#" class="item">Noch ein Link</a>
-                    <a href="#" class="item">Ein weiterer Link</a>
-                    <a href="#" class="item">Woanders hin</a>
-                </div>
-            </div>
-            <div class="ten wide column">
-                <div class="ui inverted header">Letztes Update</div>
-                <div class="center aligned">{{ VERSION }}</div>
-            </div>
-        </div>
-        <div class="ui inverted section divider"></div>
-        <img class="ui centered mini image" alt="ADFD logo"
-             src="{{ url_for('static', filename='img/logo78x81.png') }}">
-        <div class="ui horizontal inverted small divided link list">
-            <a class="item" href="#">Site Map</a>
-            <a class="item" href="#">Kontakt</a>
-            <a class="item" href="#">Forenregeln</a>
-        </div>
-    </div>
-</div>
+{% with navigation=navigation, node=node -%}
+    {% include "_footer.html" -%}
+{% endwith -%}
 
 <script
-        src="https://code.jquery.com/jquery-3.1.1.min.js"
-        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-        crossorigin="anonymous">
+    src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+    crossorigin="anonymous">
 </script>
 <script src="{{ url_for('static', filename=APP.JS_PATH) }}"></script>
 </body>

@@ -1,0 +1,30 @@
+<div class="ui fixed menu">
+    <div class="ui container">
+        <a href="/" class="header item">
+            <img class="logo" alt="ADFD logo"
+                 src="{{ url_for('static', filename='img/logo78x81.png') }}">
+        </a>
+        {% if navigation -%}
+            {{ navigation | safe }}
+        {% endif -%}
+        {% if IS_DEV and node -%}
+            <div class="ui simple dropdown item">
+                [Tools]
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    <div class="item">
+                        <a href="{{ node.sourceLink }}" target="_blank">[Quelle]</a>
+                    </div>
+                    <div class="item">
+                        <a href="{{ node.article.contentToggleLink }}">
+                            [{{ node.article.contentToggleLinkText }}]
+                        </a>
+                    </div>
+                    <div class="item">
+                        <a href="{{ url_for('article_route') }}">Liste aller Artikel</a>
+                    </div>
+                </div>
+            </div>
+        {% endif -%}
+    </div>
+</div>

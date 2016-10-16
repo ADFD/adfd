@@ -20,7 +20,10 @@ LAST_UPDATE = None
 
 @app.context_processor
 def inject_dict_for_all_templates():
-    return dict(APP=APP, VERSION=LAST_UPDATE)
+    return dict(APP=APP, VERSION=LAST_UPDATE,
+                ## Todo activate when main dev phase is over
+                IS_DEV=True  # 'FREEZER_DESTINATION' not in app.config
+    )
 
 
 @app.before_first_request
@@ -58,12 +61,24 @@ def path_route(path=''):
     return render_pretty('page.html', navigation=navigation, node=node)
 
 
-@app.route('/article/<int:topicId>/')
-@app.route('/article/<path:identifier>/')
+@app.route('/article/<topicId>/')
+@app.route('/article/<path:path>/')
+@app.route('/bbcode/article/<topicId>/')
+@app.route('/bbcode/article/<path:path>/')
 @app.route('/articles/')
-def article_route(topicId=None, identifier=None):
-    if topicId or identifier:
-        node = navigator.identifierNodeMap[topicId or identifier]
+def article_route(topicId=None, path=None):
+    identifier = topicId or path
+    if identifier:
+        bbcodeIsActive = False
+        if request.path[1:].startswith(NAME.BBCODE):
+            bbcodeIsActive = True
+        try:
+            identifier = int(identifier)
+        except ValueError:
+            pass
+        node = navigator.identifierNodeMap[identifier]
+        node.article.bbcodeIsActive = bbcodeIsActive
+        node.article.requestPath = request.path
         return render_pretty('page.html', node=node, article=node.article)
 
     nodes = sorted(navigator.pathNodeMap.values())
