@@ -1,49 +1,53 @@
 {% extends "base.html" -%}
 
 {% block content -%}
-    <h1 class="ui header">Alle Artikel</h1>
-
-    {% if NAV.dirtyNodes %}
-        <div class="ui segments">
-            <div class="ui huge orange inverted segment">
-                <p>{{ NAV.dirtyNodes.__len__() }} Artikel mit unbekannten tags.</p>
-            </div>
-
-            {% for node in NAV.dirtyNodes -%}
-                <div class="ui horizontal segments">
-                    <div class="ui segment">
-                        <p><a href="{{ url_for("path_route", path=node.relPath) }}">{{ node.title }}</a></p>
-                    </div>
-                    <div class="ui horizontal segments">
-                        {% for tag in node.article.unknownTags %}
-                            <div class="ui compact segment">
-                                <p>{{ tag }}</p>
-                            </div>
-                        {% endfor %}
-                    </div>
+    <div id="main">
+        {% if NAV.dirtyNodes %}
+            <div class="ui segments">
+                <div class="ui huge inverted orange center aligned segment">
+                    {{ NAV.dirtyNodes.__len__() }} Artikel mit unbekannten tags
                 </div>
-            {% endfor -%}
-        </div>
-    {% endif %}
-
-
-    {% for node in nodes -%}
-        <div class="ui segment">
-            <a href="{{ url_for("path_route", path=node.relPath) }}">{{ node.title }}</a>
-            {% if node.article.isDirty %}
-                (dirty)
-            {% endif %}
-            {# TODO add tag functionality #}
-            {% if node.tags|length -%}
-                | Tagged:
-                {% for node_tag in node.meta.tags -%}
-                    <a href="{{ url_for("tag", tag=node_tag) }}">{{ node_tag }}</a>
+                {% for node in NAV.dirtyNodes -%}
+                    <div class="ui horizontal segments">
+                        <div class="ui segment">
+                            <p><a href="{{ url_for("path_route", path=node.relPath) }}">{{ node.title }}</a></p>
+                        </div>
+                        <div class="ui horizontal segments">
+                            {% for tag in node.article.unknownTags %}
+                                <div class="ui compact segment">
+                                    <p>{{ tag }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 {% endfor -%}
-            {% endif -%}
+            </div>
+        {% endif %}
 
-        </div>
-    {% else -%}
-        <div class="secondary segment">No nodes.</div>
-    {% endfor -%}
+        {% if NAV.foreignNodes -%}
+            <div class="ui segments">
+                <div class="ui huge inverted orange center aligned segment">
+                    {{ NAV.foreignNodes.__len__() }} Artikel die noch nicht importiert sind.
+                </div>
+                {% for node in NAV.foreignNodes -%}
+                    <div class="ui segment">
+                        <a href="{{ url_for("path_route", path=node.relPath) }}">{{ node.title }}</a>
+                    </div>
+                {% endfor -%}
+            </div>
+        {% endif -%}
 
+        {% if NAV.orphanNodes -%}
+            <div class="ui segments">
+                <div class="ui huge inverted orange center aligned segment">
+                    {{ NAV.orphanNodes.__len__() }} Artikel aus dem "Inhalt"-Forum die noch nicht Teil der Seitenstruktur sind.
+                </div>
+                {% for node in NAV.orphanNodes -%}
+                    <div class="ui segment">
+                        <a href="{{ url_for("article_route", topicId=node.identifier) }}">{{ node.title }}</a>
+                    </div>
+                {% endfor -%}
+            </div>
+        {% endif -%}
+    </div>
 {% endblock content -%}

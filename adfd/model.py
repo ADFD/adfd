@@ -8,7 +8,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.styles import get_style_by_name
 
 from adfd.cnf import PATH, SITE, NAME
-from adfd.db.lib import DbPost
+from adfd.db.lib import DbPost, get_main_content_topic_ids
 from adfd.metadata import PageMetadata
 from adfd.parse import AdfdParser
 from adfd.utils import slugify, ContentGrabber, date_from_timestamp
@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 class Node:
     SPEC = "N"
 
-    def __init__(self, identifier, title=None):
+    def __init__(self, identifier, title=None, isOrphan=False):
         self.identifier = identifier
         self._title = title
         self.parents = []
@@ -28,6 +28,7 @@ class Node:
         self.children = []
         """:type: list of Node"""
         self.isActive = False
+        self.isOrphan = isOrphan
 
     def __repr__(self):
         return "<%s(%s: %s)>" % (
@@ -38,7 +39,7 @@ class Node:
 
     @cached_property
     def title(self):
-        if not self.parents:
+        if not self.parents and not self.isOrphan:
             return "Start"
 
         return self._title or self.article.subject
@@ -136,8 +137,8 @@ class ArticleNode(Node):
     SPEC = "A"
     HOME_NODE = "Home"
 
-    def __init__(self, data):
-        super().__init__(*self._parse(data))
+    def __init__(self, data, isOrphan=False):
+        super().__init__(*self._parse(data), isOrphan=isOrphan)
 
     def __str__(self):
         pattern = '<a class="%s" href="%s">%s</a>'
@@ -223,7 +224,7 @@ class ContentContainer:
 
     @property
     def contentToggleLinkText(self):
-        return "BBCode" if self.bbcodeIsActive else "HTML"
+        return "HTML zeigen" if self.bbcodeIsActive else "BBCode zeigen"
 
     @cached_property
     def bbcodeAsHtml(self):
@@ -265,6 +266,10 @@ class ContentContainer:
             unknownTags.append(tag)
 
         return unknownTags
+
+    @cached_property
+    def isForeign(self):
+        return False
 
 class CategoryContentContainer(ContentContainer):
     pass
@@ -352,6 +357,10 @@ class DbContentContainer(ContentContainer):
         return self._firstPost.md
 
     @cached_property
+    def isForeign(self):
+        return self._firstPost.dbp.forum_id != SITE.MAIN_CONTENT_FORUM_ID
+
+    @cached_property
     def _firstPost(self):
         return self.posts[0]
 
@@ -374,3 +383,8 @@ class DbContentContainer(ContentContainer):
     @cached_property
     def postIds(self):
         return DbPost.get_post_ids_for_topic(self.identifier)
+
+
+class MainContentForum:
+    def __init__(self):
+        self.allTopicIds = get_main_content_topic_ids()

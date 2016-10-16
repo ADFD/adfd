@@ -1,0 +1,8 @@
+{# NOT INCLUDED YET! #}
+{# TODO add tag functionality #}
+{% if node.tags|length -%}
+    | Tagged:
+    {% for node_tag in node.meta.tags -%}
+        <a href="{{ url_for("tag", tag=node_tag) }}">{{ node_tag }}</a>
+    {% endfor -%}
+{% endif -%}

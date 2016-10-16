@@ -7,7 +7,8 @@ import yaml
 
 from adfd.cnf import SITE
 from adfd.parse import extract_from_bbcode
-from adfd.model import CategoryNode, ArticleNode, DbContentContainer
+from adfd.model import (
+    CategoryNode, ArticleNode, DbContentContainer, MainContentForum)
 
 log = logging.getLogger(__name__)
 
@@ -22,11 +23,14 @@ class Navigator:
         remap(self.structure, visit=self.visit)
         self.root = self.yamlKeyNodeMap[next(iter(self.structure))]
         self.menu = self.root.children
+        self.orphanNodes = self.populate_orphan_nodes()
+
 
     def _reset(self):
         self.pathNodeMap = {}
         self.identifierNodeMap = {}
         self.yamlKeyNodeMap = {}
+        self.orphanNodes = []
 
     @property
     def allNodes(self):
@@ -35,6 +39,10 @@ class Navigator:
     @property
     def dirtyNodes(self):
         return [n for n in self.allNodes if n.article.isDirty]
+
+    @property
+    def foreignNodes(self):
+        return [n for n in self.allNodes if n.article.isForeign]
 
     @property
     def nav(self):
@@ -109,3 +117,14 @@ class Navigator:
         content = DbContentContainer(topicId)
         yamlContent = extract_from_bbcode(SITE.CODE_TAG, content.bbcode)
         return ordered_yaml_load(stream=io.StringIO(yamlContent))
+
+    def populate_orphan_nodes(self):
+        nodes = []
+        mcf = MainContentForum()
+        for topicId in mcf.allTopicIds:
+            if topicId not in self.identifierNodeMap.keys():
+                node = ArticleNode(topicId, isOrphan=True)
+                self.identifierNodeMap[topicId] = node
+                nodes.append(node)
+                log.warning("orphan: %s (%s)", node.title, topicId)
+        return nodes

@@ -51,6 +51,10 @@ def get_db_session():
     return _DB_SESSION
 
 
+def get_main_content_topic_ids():
+    return DbWrapper().forum_id_2_topic_ids(SITE.MAIN_CONTENT_FORUM_ID)
+
+
 class DbWrapper:
     """very simple wrapper that can fetch the little that is needed"""
     def __init__(self):
@@ -61,6 +65,11 @@ class DbWrapper:
         """:rtype: list of int"""
         query = self.query(PhpbbForum).filter(PhpbbForum.forum_id == forumId)
         return query.first().forum_name
+
+    def forum_id_2_topic_ids(self, forumId):
+        """:rtype: list of int"""
+        query = self.query(PhpbbTopic).filter(PhpbbTopic.forum_id == forumId)
+        return [r.topic_id for r in query.all()]
 
     def topic_id_2_db_posts(self, topicId):
         """:rtype: list of int"""
@@ -89,17 +98,21 @@ class DbWrapper:
 
 
 class DbPost:
-    @staticmethod
-    def get_post_ids_for_topic(topicId):
-        wrapper = DbWrapper()
-        forumId = wrapper.topic_id_2_forum_id(topicId)
-        if forumId not in SITE.ALLOWED_FORUM_IDS:
-            if topicId not in SITE.ALLOWED_TOPIC_IDS:
-                name = wrapper.forum_id_2_forum_name(forumId)
+    WRAPPER = None
+
+    @classmethod
+    def get_post_ids_for_topic(cls, topicId):
+        if not cls.WRAPPER:
+            cls.WRAPPER = DbWrapper()
+        forumId = cls.WRAPPER.topic_id_2_forum_id(topicId)
+        if forumId != SITE.MAIN_CONTENT_FORUM_ID:
+            log.warning("Topic not imported yet: %s", topicId)
+            if forumId not in SITE.ALLOWED_FORUM_IDS:
+                name = cls.WRAPPER.forum_id_2_forum_name(forumId)
                 raise TopicNotAccessible(
                     "%s in %s (%s)", topicId, name, forumId)
 
-        ids = wrapper.topic_id_2_db_posts(topicId)
+        ids = cls.WRAPPER.topic_id_2_db_posts(topicId)
         if not ids:
             raise TopicDoesNotExist(str(topicId))
 

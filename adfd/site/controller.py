@@ -64,10 +64,10 @@ def path_route(path=''):
     return render_template('page.html', navigation=NAV.nav, node=node)
 
 
-@app.route('/article/<topicId>/')
-@app.route('/article/<path:path>/')
 @app.route('/bbcode/article/<topicId>/')
 @app.route('/bbcode/article/<path:path>/')
+@app.route('/article/<topicId>/')
+@app.route('/article/<path:path>/')
 def article_route(topicId=None, path=None):
     identifier = topicId or path
     bbcodeIsActive = False
