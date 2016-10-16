@@ -1,6 +1,3 @@
-"""
-Also needs mysql including libmysqlclient-dev
-"""
 from setuptools import setup
 
 
