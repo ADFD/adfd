@@ -71,6 +71,11 @@ class SITE:
     META_TAG = 'meta'
     CODE_TAG = 'code'
     VIEWTOPIC_PATTERN = "http://adfd.org/austausch/viewtopic.php?t=%s"
+    IGNORED_TAG_ELEMENTS =  [
+        'inhalt', 'seroxat', 'ergänzung', 'david', 'anmerkung', 'link',
+        'halbwegs', 'ad', 'wieder',
+        ":", ".", "...",
+    ]
 
 
 class DB:

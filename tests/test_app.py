@@ -15,7 +15,7 @@ class TestApp:
         navMock = flexmock(NAV)
         navMock.should_receive('pathNodeMap')\
             .and_return({"/": flexmock(article=flexmock())})
-        navMock.should_receive('menuAsString').and_return("")
+        navMock.should_receive('nav').and_return("")
         rv = tc.get('/')
         txt = rv.data.decode()
         assert 'body' in txt

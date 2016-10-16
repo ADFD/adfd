@@ -238,12 +238,39 @@ class ContentContainer:
     def md(self):
         raise NotImplementedError
 
+    @cached_property
+    def parser(self):
+        return AdfdParser()
+
+    @cached_property
+    def isDirty(self):
+        return len(self.unknownTags) > 0
+
+    @cached_property
+    def unknownTags(self):
+        # noinspection PyStatementEffect
+        self.html # make sure it's parsed already
+        unknownTags = []
+        for tag in [t for t in self.parser.unknownTags if t.strip()]:
+            try:
+                int(tag)
+                continue
+
+            except ValueError:
+                pass
+
+            if any(e in tag for e in SITE.IGNORED_TAG_ELEMENTS):
+                continue
+
+            unknownTags.append(tag)
+
+        return unknownTags
+
 class CategoryContentContainer(ContentContainer):
     pass
 
 
 class StaticContentContainer(ContentContainer):
-    # FIXME transitional till everything is imported
     @cached_property
     def isImported(self):
         return True
@@ -258,7 +285,7 @@ class StaticContentContainer(ContentContainer):
 
     @cached_property
     def html(self):
-        return AdfdParser().to_html(self.bbcode)
+        return self.parser.to_html(self.bbcode)
 
     @cached_property
     def bbcode(self):
@@ -304,7 +331,7 @@ class DbContentContainer(ContentContainer):
 
     @cached_property
     def html(self):
-        return AdfdParser().to_html(self.bbcode)
+        return self.parser.to_html(self.bbcode)
 
     @cached_property
     def bbcode(self):

@@ -92,7 +92,8 @@ class Parser:
         self.tagCloser = tagCloser
         self.newline = newline
         self.normalizeNewlines = normalizeNewlines
-        self.recognized_tags = {}
+        self.recognizedTags = {}
+        self.unknownTags = set()
         self.dropUnrecognized = dropUnrecognized
         self.escapeHtml = escapeHtml
         self.typogrify = typogrify
@@ -126,7 +127,7 @@ class Parser:
                 The keyword argument dictionary passed into the format call.
         """
         options = TagOptions(tagName.strip().lower(), **kwargs)
-        self.recognized_tags[options.tagName] = (render_func, options)
+        self.recognizedTags[options.tagName] = (render_func, options)
 
     def add_simple(self, tagName, format_string, **kwargs):
         """Install a formatter.
@@ -311,20 +312,19 @@ class Parser:
                     valid, tagName, closer, opts = self._parse_tag(tag)
                     # Make sure this is a well-formed, recognized tag,
                     # otherwise it's just data
-                    if valid and tagName in self.recognized_tags:
+                    if valid and tagName in self.recognizedTags:
                         if closer:
                             args = (Token.TAG_END, tagName, None, tag)
                             tokens.append(Token(*args))
                         else:
                             args = (Token.TAG_START, tagName, opts, tag)
                             tokens.append(Token(*args))
-                    elif (valid and self.dropUnrecognized and
-                          tagName not in self.recognized_tags):
+                    elif valid and tagName not in self.recognizedTags:
                         # If we found a valid (but unrecognized) tag and
                         # self.dropUnrecognized is True, just drop it
-                        pass
-                    else:
-                        tokens.extend(self._newline_tokenize(tag))
+                        self.unknownTags.add(tagName)
+                        if not self.dropUnrecognized:
+                            tokens.extend(self._newline_tokenize(tag))
                 else:
                     # We didn't find a closing tag, tack it on as text.
                     tokens.extend(self._newline_tokenize(data[start:end]))
@@ -358,7 +358,7 @@ class Parser:
                 # closed by newlines, but there is an embedded tag that
                 # doesn't transform newlines (i.e. a code tag that keeps
                 # newlines intact), we need to skip over that.
-                innerTag = self.recognized_tags[token.tag][1]
+                innerTag = self.recognizedTags[token.tag][1]
                 if not innerTag.transformNewlines:
                     if token.type == Token.TAG_START:
                         blockCount += 1
@@ -453,7 +453,7 @@ class Parser:
             token = tokens[idx]
             """:type: Token"""
             if token.type == Token.TAG_START:
-                fn, tag = self.recognized_tags[token.tag]
+                fn, tag = self.recognizedTags[token.tag]
                 if tag.standalone:
                     ret = fn(token.tag, None, token.options, parent, context)
                     out.append(ret)

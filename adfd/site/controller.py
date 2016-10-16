@@ -5,7 +5,6 @@ import socket
 from adfd.cnf import PATH, SITE, APP, NAME
 from adfd.site.navigation import Navigator
 from adfd.utils import date_from_timestamp
-from bs4 import BeautifulSoup
 from flask import Flask, render_template, url_for
 from flask import request, flash, redirect
 from plumbum.machines import local
@@ -13,13 +12,20 @@ from plumbum.machines import local
 log = logging.getLogger(__name__)
 
 app = Flask(__name__, template_folder=PATH.VIEW, static_folder=PATH.STATIC)
-app.secret_key = "I only need that for flashing"
 app.config['SESSION_TYPE'] = 'filesystem'
+app.secret_key = "I only need that for flash()"
 
 LAST_UPDATE = None
 IS_DEV = None
 IS_FREEZING = None
 NAV = Navigator()
+
+
+# TODO activate if formatted HTML is wanted
+# def render_template(template_name_or_list, **context):
+#     from bs4 import BeautifulSoup
+#     result = render_template(template_name_or_list, **context)
+#     return BeautifulSoup(result, 'html5lib').prettify()
 
 
 @app.context_processor
@@ -44,11 +50,6 @@ def _before_first_request():
     NAV.populate()
 
 
-def render_pretty(template_name_or_list, **context):
-    result = render_template(template_name_or_list, **context)
-    return BeautifulSoup(result, 'html5lib').prettify()
-
-
 @app.route('/')
 @app.route('/<path:path>/')
 def path_route(path=''):
@@ -60,32 +61,37 @@ def path_route(path=''):
     node.article.bbcodeIsActive = bbcodeIsActive
     node.article.requestPath = request.path
     # TODO set active path (can be done on node directly)
-    navigation = NAV.menuAsString
-    return render_pretty('page.html', navigation=navigation, node=node)
+    return render_template('page.html', navigation=NAV.nav, node=node)
 
 
 @app.route('/article/<topicId>/')
 @app.route('/article/<path:path>/')
 @app.route('/bbcode/article/<topicId>/')
 @app.route('/bbcode/article/<path:path>/')
-@app.route('/articles/')
 def article_route(topicId=None, path=None):
     identifier = topicId or path
-    if identifier:
-        bbcodeIsActive = False
-        if request.path[1:].startswith(NAME.BBCODE):
-            bbcodeIsActive = True
-        try:
-            identifier = int(identifier)
-        except ValueError:
-            pass
-        node = NAV.identifierNodeMap[identifier]
-        node.article.bbcodeIsActive = bbcodeIsActive
-        node.article.requestPath = request.path
-        return render_pretty('page.html', node=node, article=node.article)
+    bbcodeIsActive = False
+    if request.path[1:].startswith(NAME.BBCODE):
+        bbcodeIsActive = True
+    try:
+        identifier = int(identifier)
+    except ValueError:
+        pass
+    node = NAV.identifierNodeMap[identifier]
+    node.article.bbcodeIsActive = bbcodeIsActive
+    node.article.requestPath = request.path
+    return render_template('page.html', node=node, article=node.article)
 
-    nodes = sorted(NAV.pathNodeMap.values())
-    return render_pretty('all-articles.html', nodes=nodes)
+
+@app.route('/check/')
+def check():
+    # Number of dirty articles
+    # Dirty articles
+    # Articles with open todos
+    # Articles in Inhalt but not in structure (exclude for structure topic)
+    # Clean articles
+
+    return render_template('check.html', NAV=NAV)
 
 
 @app.route('/reset')

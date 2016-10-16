@@ -29,7 +29,15 @@ class Navigator:
         self.yamlKeyNodeMap = {}
 
     @property
-    def menuAsString(self):
+    def allNodes(self):
+        return sorted([n for n in self.pathNodeMap.values()])
+
+    @property
+    def dirtyNodes(self):
+        return [n for n in self.allNodes if n.article.isDirty]
+
+    @property
+    def nav(self):
         return "".join([str(m) for m in self.menu])
 
     def visit(self, path, key, value):
