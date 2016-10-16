@@ -815,11 +815,14 @@ class AdfdParser(Parser):
     # noinspection PyUnusedLocal
     @staticmethod
     def _render_quote(name, value, options, parent, context):
-        """see http://html5doctor.com/blockquote-q-cite/"""
         author = (options['quote'] if (options and 'quote' in options) else '')
-        cite = "<footer><cite>%s</cite></footer>" % author if author else ''
+        if author:
+            cite = ('<div class="ui inverted secondary segment">'
+                    '<i class="comment outline icon"></i>%s</div>' % author)
+        else:
+            cite = ''
         value = value.replace('\n', '<br>')
-        return '<blockquote><p>%s%s</p></blockquote>\n' % (value, cite)
+        return '<div class="ui raised segment">%s%s</div>\n' % (value, cite)
 
     def _add_raw_formatter(self):
         self.add_formatter(
