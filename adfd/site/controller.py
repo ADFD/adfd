@@ -61,7 +61,8 @@ def path_route(path=''):
     node.article.bbcodeIsActive = bbcodeIsActive
     node.article.requestPath = request.path
     # TODO set active path (can be done on node directly)
-    return render_template('article-container.html', navigation=NAV.nav, node=node)
+    return render_template(
+        'article-container.html', navigation=NAV.nav, node=node)
 
 
 @app.route('/bbcode/article/<topicId>/')

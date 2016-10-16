@@ -13,6 +13,7 @@ def tc():
 class TestApp:
     def test_basic(self, tc):
         navMock = flexmock(NAV)
+        navMock.should_receive('populate')
         navMock.should_receive('pathNodeMap')\
             .and_return({"/": flexmock(article=flexmock())})
         navMock.should_receive('nav').and_return("")
