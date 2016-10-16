@@ -181,7 +181,7 @@ body {
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
-.main.container {
+#main {
   margin-top: 5em;
 }
 /* Not supported by Chrome yet, but on the way
@@ -194,16 +194,8 @@ body {
         hyphens: auto;
   }
 }
-blockquote {
-  background-color: #1DE9B6;
-}
-blockquote:before,
-q:before {
-  content: "\ef10d";
-}
-blockquote:after,
-q:after {
-  content: "\xf10d";
+.quote {
+  background-color: #b3cce2;
 }
 pre {
   white-space: pre-wrap;

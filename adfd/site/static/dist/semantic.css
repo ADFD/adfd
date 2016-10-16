@@ -697,7 +697,7 @@ body {
   background-attachment: fixed;
 }
 
-.main.container {
+#main {
   margin-top: 5em;
 }
 
@@ -713,18 +713,8 @@ body {
   }
 }
 
-blockquote {
-  background-color: #1DE9B6;
-}
-
-blockquote:before,
-q:before {
-  content: "\ef10d";
-}
-
-blockquote:after,
-q:after {
-  content: "\xf10d";
+.quote {
+  background-color: #b3cce2;
 }
 
 pre {
@@ -10251,7 +10241,7 @@ i.icon.contao:before {
   content: "\f26d";
 }
 
-i.icon.\35 00px:before {
+i.icon.idunno:before {
   content: "\f26e";
 }
 
