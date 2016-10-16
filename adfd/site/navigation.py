@@ -45,6 +45,10 @@ class Navigator:
         return [n for n in self.allNodes if n.article.isForeign]
 
     @property
+    def todoNodes(self):
+        return [n for n in self.allNodes if n.article.hasTodos]
+
+    @property
     def nav(self):
         return "".join([str(m) for m in self.menu])
 

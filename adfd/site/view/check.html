@@ -39,13 +39,25 @@
 
         <div class="ui divider"></div>
 
-        <div class="ui container">
+        <div class="ui two column stackable grid container">
             {% if NAV.orphanNodes -%}
-                <div class="ui segments">
+                <div class="ui column eight wide">
                     <div class="ui huge inverted orange center aligned segment">
                         {{ NAV.orphanNodes.__len__() }} Artikel aus dem "Inhalt"-Forum die noch nicht Teil der Seitenstruktur sind.
                     </div>
                     {% for node in NAV.orphanNodes -%}
+                        <div class="ui segment">
+                            <a href="{{ url_for("article_route", topicId=node.identifier) }}">{{ node.title }}</a>
+                        </div>
+                    {% endfor -%}
+                </div>
+            {% endif -%}
+            {% if NAV.todoNodes -%}
+                <div class="ui column eight wide">
+                    <div class="ui huge inverted orange center aligned segment">
+                        {{ NAV.todoNodes.__len__() }} Artikel mit offenen Todos.
+                    </div>
+                    {% for node in NAV.todoNodes -%}
                         <div class="ui segment">
                             <a href="{{ url_for("article_route", topicId=node.identifier) }}">{{ node.title }}</a>
                         </div>
