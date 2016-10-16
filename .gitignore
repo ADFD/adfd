@@ -1,4 +1,4 @@
 adfd/site/node_modules
 *.bbcode.html
 .frozen/*
-adfd/cnf.yml
+cnf.yml

@@ -9,7 +9,7 @@ _PROJECT = plumbum.LocalPath(__file__).dirname.up()
 _PACKAGE = _PROJECT / 'adfd'
 
 try:
-    _CNF = yaml.safe_load(open(_PACKAGE / 'cnf.yml'))
+    _CNF = yaml.safe_load(open(_PROJECT / 'cnf.yml'))
 except:
     class _CNF:
         def __getitem__(self, item):
@@ -76,6 +76,7 @@ class SITE:
 class DB:
     USER = _CNF['user']
     PW = _CNF['pw']
+    LOCAL_ROOT_PW = _CNF['localRootPw']
     NAME = _CNF['name']
     REMOTE_HOST = _CNF['remoteHost']
     _dbHost = REMOTE_HOST if _CNF['useRemoteDb'] else 'localhost'
