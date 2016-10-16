@@ -374,7 +374,7 @@ class DbContentContainer(ContentContainer):
         """:rtype: list of DbPost"""
         firstPostId = self.postIds[0]
         firstPost = DbPost(firstPostId)
-        posts = [firstPost]
+        posts = [firstPost] if not firstPost.isExcluded else []
         if firstPost.md.firstPostOnly:
             return [firstPost]
 
