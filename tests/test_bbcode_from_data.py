@@ -96,8 +96,6 @@ KITCHEN_SINK = (
      ''),
     ("[color='red']single[/color]",
      '<span style="color:red;">single</span>'),
-    ('[quote author="name][clan"]blah[/quote]',
-     '<blockquote><p>blah</p></blockquote>'),
     ('http://github.com/ http://example.org http://github.com/dcwatson/',
      '<a href="http://github.com/">http://github.com/</a> <a '
      'href="http://example.org">http://example.org</a> <a '
@@ -154,6 +152,7 @@ class TestAdfdParser:
         num = len(RE.URL.findall(link))
         assert num == 1, 'Found %d links in "%s"' % (num, link)
 
+    @pytest.mark.xfail(reason="new quote format not yet clear")
     @pytest.mark.parametrize(('src', 'expected'), QUOTES)
     def test_quotes(self, src, expected):
         tokens = self.parser.tokenize(src)

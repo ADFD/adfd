@@ -39,9 +39,10 @@ class DataGrabber(ContentGrabber):
         contents = []
         while idx + 1 < len(paths):
             fName = paths[idx].basename
-            src = self.grab(paths[idx])
-            exp = self.grab(paths[idx + 1])
-            contents.append((fName, src, exp))
+            if not paths[idx].endswith("inactive"):
+                src = self.grab(paths[idx])
+                exp = self.grab(paths[idx + 1])
+                contents.append((fName, src, exp))
             idx += 2
         return contents
 

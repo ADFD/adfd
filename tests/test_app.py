@@ -1,7 +1,7 @@
 from flexmock import flexmock
 import pytest
 
-from adfd.site.controller import app, navigator
+from adfd.site.controller import app, NAV
 
 
 @pytest.fixture
@@ -12,7 +12,7 @@ def tc():
 
 class TestApp:
     def test_basic(self, tc):
-        navMock = flexmock(navigator)
+        navMock = flexmock(NAV)
         navMock.should_receive('pathNodeMap')\
             .and_return({"/": flexmock(article=flexmock())})
         navMock.should_receive('menuAsString').and_return("")
