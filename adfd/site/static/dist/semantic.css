@@ -697,9 +697,11 @@ body {
   background-attachment: fixed;
 }
 
-#main {
-  margin-top: 5em;
-}
+/*#main {*/
+
+/*margin-top: 0.5em;*/
+
+/*}*/
 
 /* Not supported by Chrome yet, but on the way
    https://bugs.chromium.org/p/chromium/issues/detail?id=605840 */

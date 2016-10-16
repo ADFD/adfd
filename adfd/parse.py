@@ -3,6 +3,7 @@ import itertools
 import logging
 import re
 
+from adfd.utils import slugify
 from cached_property import cached_property
 from pyphen import Pyphen
 from typogrify.filters import typogrify
@@ -654,7 +655,6 @@ class Chunkman:
 class AdfdParser(Parser):
     ORPHAN_MATCHER = re.compile(r'^<p></p>')
     HEADER_TAGS = ['h%s' % i for i in range(1, 6)]
-    DEMOTION_LEVEL = 1  # number of levels header tags get demoted
 
     def __init__(self, *args, **kwargs):
         super(AdfdParser, self).__init__(*args, **kwargs)
@@ -803,9 +803,24 @@ class AdfdParser(Parser):
 
     def _add_header_formatters(self):
         for tag in self.HEADER_TAGS:
-            demotedTag = tag[0] + str(int(tag[1]) + self.DEMOTION_LEVEL)
-            self.add_simple(
-                tag, '\n<%s>%%(value)s</%s>\n' % (demotedTag, demotedTag))
+            self.add_formatter(tag, self._render_header)
+            # self.add_simple(
+            #     tag, '\n<%s>%%(value)s</%s>\n' % (demotedTag, demotedTag))
+
+            # noinspection PyUnusedLocal
+
+    @staticmethod
+    def _render_header(tag, value, options, parent, context):
+        demotionLevel = 1  # number of levels header tags get demoted
+        level = int(tag[1]) + demotionLevel
+        slug = slugify(value)
+        # TODO think about when and how best the relative anhor should
+        # be made absolute (we don't now the path here yet).
+        r = '<h%s id="%s">' % (level, slug)
+        r += '<a class="header" href="#%s">%s' % (slug, value)
+        r += ' <i class="paragraph icon"></i>'
+        r += '</a></h%s>' % level
+        return r
 
     def _add_quote_formatter(self):
         self.add_formatter(

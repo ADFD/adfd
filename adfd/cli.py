@@ -46,6 +46,15 @@ class AdfdDev(cli.Application):
         run_devserver()
 
 
+@Adfd.subcommand('gulp')
+class AdfdGulp(cli.Application):
+    """Run local development server"""
+    def main(self):
+        with local.cwd(PATH.SEMANTIC):
+            os.system("gulp build")
+            os.system("gulp watch")
+
+
 @Adfd.subcommand('freeze')
 class AdfdFreeze(cli.Application):
     """Freeze website to static files"""

@@ -45,6 +45,7 @@ class TARGET:
 class PATH:
     PROJECT = _PROJECT
     SITE = _PACKAGE / 'site'
+    SEMANTIC = SITE / 'semantic'
     STATIC = SITE / NAME.STATIC
     ROOT_FILES = STATIC / '_root'
     VIEW = SITE / 'view'

@@ -1,11 +1,11 @@
 {% extends "base.html" -%}
 
 {% block content -%}
-    <div id="main" class="ui three column doubling stackable grid container">
-        <div class="column two wide">
-            <div class="row">row in left column</div>
+    <div id="main" class="ui two column doubling stackable grid container">
+        <div class="column three wide">
+            <div class="row">bla bla bla bla bla bla bla bla bla bla bla bla </div>
         </div>
-        <div class="column twelve wide main text container">
+        <div class="column thirteen wide main text container">
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
                     {% for message in messages %}
@@ -21,9 +21,6 @@
             {% with node=node -%}
                 {% include "article-content.html" -%}
             {% endwith -%}
-        </div>
-        <div class="column two wide">
-            <div class="row">row in right column</div>
         </div>
     </div>
 
