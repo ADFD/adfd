@@ -25,7 +25,7 @@ class LinkInformer:
 
 
 if __name__ == '__main__':
-    from adfd.site.controller import navigator
+    from adfd.site.controller import NAV
 
-    topics = navigator.allTopics
+    topics = NAV.allTopics
     print(topics)

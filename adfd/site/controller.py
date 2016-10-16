@@ -2,43 +2,46 @@ import logging
 import os
 import socket
 
-from bs4 import BeautifulSoup
-from flask import Flask, request, render_template, flash, redirect, url_for
-from plumbum.machines import local
-
 from adfd.cnf import PATH, SITE, APP, NAME
 from adfd.site.navigation import Navigator
+from adfd.utils import date_from_timestamp
+from bs4 import BeautifulSoup
+from flask import Flask, render_template, url_for
+from flask import request, flash, redirect
+from plumbum.machines import local
 
 log = logging.getLogger(__name__)
+
 app = Flask(__name__, template_folder=PATH.VIEW, static_folder=PATH.STATIC)
-app.secret_key = "I actually don't need a secret key"
+app.secret_key = "I only need that for flashing"
 app.config['SESSION_TYPE'] = 'filesystem'
-app.config.update(DEBUG=True)
-navigator = Navigator()
+
 LAST_UPDATE = None
+IS_DEV = None
+IS_FREEZING = None
+NAV = Navigator()
 
 
 @app.context_processor
 def inject_dict_for_all_templates():
-    return dict(APP=APP, VERSION=LAST_UPDATE,
-                ## Todo activate when main dev phase is over
-                IS_DEV=True  # 'FREEZER_DESTINATION' not in app.config
-    )
+    return dict(APP=APP, VERSION=LAST_UPDATE, IS_DEV=IS_DEV)
 
 
 @app.before_first_request
-def populate_navigator():
-    if not navigator.pathNodeMap:
-        navigator.populate()
+def _before_first_request():
     global LAST_UPDATE
-    if not LAST_UPDATE:
-        try:
-            LAST_UPDATE = PATH.LAST_UPDATE.read(encoding='utf8')
-        except FileNotFoundError:
-            LAST_UPDATE = "unknown"
-        # with local.cwd(PATH.RENDERED):
-        #     ts = local['git']('show', '-s', '--format=%ct', 'HEAD')
-        #     LAST_UPDATE = date_from_timestamp(float(ts))
+    try:
+        LAST_UPDATE = PATH.LAST_UPDATE.read(encoding='utf8')
+    except FileNotFoundError:
+        LAST_UPDATE = date_from_timestamp()
+
+    global IS_DEV
+    # Todo activate condition when main dev phase is over
+    IS_DEV = True  # 'FREEZER_DESTINATION' not in app.config
+    global IS_FREEZING
+    IS_FREEZING = "FREEZER_DESTINATION" in app.config
+    global NAV
+    NAV.populate()
 
 
 def render_pretty(template_name_or_list, **context):
@@ -53,11 +56,11 @@ def path_route(path=''):
     if path.startswith(NAME.BBCODE):
         bbcodeIsActive = True
         path = path.partition("/")[-1]
-    node = navigator.pathNodeMap["/" + path]
+    node = NAV.pathNodeMap["/" + path]
     node.article.bbcodeIsActive = bbcodeIsActive
     node.article.requestPath = request.path
     # TODO set active path (can be done on node directly)
-    navigation = navigator.menuAsString
+    navigation = NAV.menuAsString
     return render_pretty('page.html', navigation=navigation, node=node)
 
 
@@ -76,23 +79,25 @@ def article_route(topicId=None, path=None):
             identifier = int(identifier)
         except ValueError:
             pass
-        node = navigator.identifierNodeMap[identifier]
+        node = NAV.identifierNodeMap[identifier]
         node.article.bbcodeIsActive = bbcodeIsActive
         node.article.requestPath = request.path
         return render_pretty('page.html', node=node, article=node.article)
 
-    nodes = sorted(navigator.pathNodeMap.values())
+    nodes = sorted(NAV.pathNodeMap.values())
     return render_pretty('all-articles.html', nodes=nodes)
 
 
 @app.route('/reset')
 def reset_route():
-    navigator.populate()
-    flash("navigator repopulated")
-    return redirect(url_for(".path_route", path="/"))
+    if IS_DEV and not IS_FREEZING:
+        NAV.populate()
+        flash("navigator repopulated")
+    return redirect(url_for(".path_route", path="/")), 301
 
 
 def run_devserver(projectPath=PATH.PROJECT, port=SITE.APP_PORT):
+    app.config.update(DEBUG=True)
     if socket.gethostname() == '1bo':
         os.environ['WERKZEUG_DEBUG_PIN'] = 'off'
     with local.cwd(projectPath):

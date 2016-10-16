@@ -1,13 +1,13 @@
 import logging
 
 from adfd.cnf import NAME
-from adfd.site.controller import navigator
+from adfd.site.controller import NAV
 
 log = logging.getLogger(__name__)
 
 
 def path_route():
-    for path, node in navigator.pathNodeMap.items():
+    for path, node in NAV.pathNodeMap.items():
         if not node.hasContent:
             log.info("nothing to render for %s -> %r", path, node)
             continue
