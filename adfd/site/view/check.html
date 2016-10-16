@@ -11,13 +11,11 @@
                     {% for node in NAV.dirtyNodes -%}
                         <div class="ui horizontal segments">
                             <div class="ui segment">
-                                <p><a href="{{ url_for("path_route", path=node.relPath) }}">{{ node.title }}</a></p>
+                                <a href="{{ url_for("path_route", path=node.relPath) }}">{{ node.title }}</a>
                             </div>
                             <div class="ui horizontal segments">
                                 {% for tag in node.article.unknownTags %}
-                                    <div class="ui compact segment">
-                                        <p>{{ tag }}</p>
-                                    </div>
+                                    <span class="ui compact segment">{{ tag }}</span>
                                 {% endfor %}
                             </div>
                         </div>

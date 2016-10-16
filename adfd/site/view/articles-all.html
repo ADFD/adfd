@@ -1,0 +1,22 @@
+{% extends "base.html" -%}
+
+{% block content -%}
+    <div id="main" class="ui container">
+        <div class="ui segments">
+            {% for node in NAV.allNodes -%}
+                <div class="ui horizontal segments">
+                    <div class="ui segment">
+                        <a href="{{ url_for("path_route", path=node.relPath) }}">
+                            {{ node.title }}
+                        </a>
+                    </div>
+                    <div class="ui compact right aligned segment">
+                        <a href="{{ node.sourceLink }}">
+                            {{ node.identifier}}
+                        </a>
+                    </div>
+                </div>
+            {% endfor -%}
+        </div>
+    </div>
+{% endblock content -%}

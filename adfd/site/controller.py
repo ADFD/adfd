@@ -61,7 +61,7 @@ def path_route(path=''):
     node.article.bbcodeIsActive = bbcodeIsActive
     node.article.requestPath = request.path
     # TODO set active path (can be done on node directly)
-    return render_template('article-main.html', navigation=NAV.nav, node=node)
+    return render_template('article-container.html', navigation=NAV.nav, node=node)
 
 
 @app.route('/bbcode/article/<topicId>/')
@@ -80,18 +80,17 @@ def article_route(topicId=None, path=None):
     node = NAV.identifierNodeMap[identifier]
     node.article.bbcodeIsActive = bbcodeIsActive
     node.article.requestPath = request.path
-    return render_template('article-main.html', node=node, article=node.article)
+    return render_template('article-container.html', node=node, article=node.article)
 
 
 @app.route('/check/')
-def check():
-    # Number of dirty articles
-    # Dirty articles
-    # Articles with open todos
-    # Articles in Inhalt but not in structure (exclude for structure topic)
-    # Clean articles
-
+def check_route():
     return render_template('check.html', NAV=NAV)
+
+
+@app.route('/all-articles/')
+def articles_all_route():
+    return render_template('articles-all.html', NAV=NAV)
 
 
 @app.route('/reset')

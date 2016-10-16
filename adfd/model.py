@@ -271,6 +271,11 @@ class ContentContainer:
     def isForeign(self):
         return False
 
+    @cached_property
+    def hasTodos(self):
+        return "todo" in self.bbcode.lower()
+
+
 class CategoryContentContainer(ContentContainer):
     pass
 

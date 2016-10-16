@@ -11,6 +11,9 @@
         {% if node.article.isDirty %}
             <i class="warning circle icon" title="Enthält unbekannte tags {{ node.article.unknownTags }}"></i>
         {% endif %}
+        {% if node.article.hasTodos %}
+            <i class="hand pointer icon" title="Hat offene Todos"></i>
+        {% endif %}
     </div>
     <div class="ui segment left aligned">
         {% if node.article.hasOneAuthor %}

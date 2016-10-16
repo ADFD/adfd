@@ -7,11 +7,12 @@
         {% if navigation -%}
             {{ navigation | safe }}
         {% endif -%}
-        {% if IS_DEV and node -%}
+        {% if IS_DEV -%}
             <div class="ui simple dropdown item">
                 [Tools]
                 <i class="dropdown icon"></i>
                 <div class="menu">
+                    {% if node -%}
                     <div class="item">
                         <a href="{{ node.sourceLink }}" target="_blank">[Quelle]</a>
                     </div>
@@ -20,8 +21,12 @@
                             [{{ node.article.contentToggleLinkText }}]
                         </a>
                     </div>
+                    {% endif %}
                     <div class="item">
-                        <a href="{{ url_for('check') }}">Übersicht / Checks</a>
+                        <a href="{{ url_for('check_route') }}">Übersicht / Checks</a>
+                    </div>
+                    <div class="item">
+                        <a href="{{ url_for('articles_all_route') }}">Alle Artikel</a>
                     </div>
                 </div>
             </div>
