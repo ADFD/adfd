@@ -3,6 +3,8 @@ import os
 
 from plumbum import SshMachine, local
 
+from cached_property import cached_property
+
 from adfd.cnf import DB, TARGET
 
 log = logging.getLogger(__name__)
@@ -10,12 +12,19 @@ log = logging.getLogger(__name__)
 
 class DbSynchronizer:
     def __init__(self):
-        self.sm = SshMachine(TARGET.DOMAIN)
+        self.closableSession = False
         self.dumpName = DB.NAME + '.dump'
         self.dumpDstPath = DB.DUMP_PATH / self.dumpName
 
     def __del__(self):
-        self.sm.close()
+        if self.closableSession:
+            self.remote.close()
+
+    @cached_property
+    def remote(self):
+        remote = SshMachine(TARGET.DOMAIN)
+        self.closableSession = True
+        return remote
 
     def sync(self):
         self.get_dump()
@@ -31,13 +40,13 @@ class DbSynchronizer:
 
     def dump(self):
         log.info('dump db')
-        self.sm['mysqldump'](
+        self.remote['mysqldump'](
             self.argUser, self.argPw,
             DB.NAME, '--result-file=%s' % self.dumpName)
 
     def fetch(self):
         log.info('fetch %s -> %s', self.dumpName, self.dumpDstPath)
-        self.sm.download(self.sm.path(self.dumpName), self.dumpDstPath)
+        self.remote.download(self.remote.path(self.dumpName), self.dumpDstPath)
 
     def prepare_local_db(self):
         log.info('prepare local db privileges')
@@ -50,8 +59,9 @@ class DbSynchronizer:
              (DB.NAME, DB.USER)),
             "FLUSH PRIVILEGES"]
         for cmd in cmds:
-            log.info("executing '%s'" % (cmd))
-            local['mysql']('-uroot', '-e', cmd + ";")
+            log.info("executing '%s'" % cmd)
+            local['mysql'](
+                '-uroot', '-p%s' % DB.LOCAL_ROOT_PW, '-e', cmd + ";")
 
     def load_local_dump(self):
         log.info('load local dump from %s', self.dumpDstPath)

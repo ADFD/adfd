@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 class Adfd(cli.Application):
     """All functions for the ADFD website"""
     logLevel = cli.SwitchAttr(
-        ['l', 'log-level'], default='WARNING', help="set log level")
+        ['l', 'log-level'], default='INFO', help="set log level")
 
     def main(self):
         configure_logging(self.logLevel)
@@ -28,17 +28,15 @@ class Adfd(cli.Application):
             self.nested_command = (AdfdDev, ['adfd dev'])
 
 
-@Adfd.subcommand('sync')
-class AdfdSyncRemote(cli.Application):
-    """Fetch remote dump und load dump to local db"""
-    def main(self):
-        DbSynchronizer().sync()
+@Adfd.subcommand('db-sync')
+class AdfdDbSync(cli.Application):
+    noRemote = cli.Flag(['--no-remote'], help="only load from dump")
 
-
-@Adfd.subcommand('update-local')
-class AdfdSyncRemote(cli.Application):
     def main(self):
-        DbSynchronizer().update_local_db()
+        if self.noRemote:
+            DbSynchronizer().update_local_db()
+        else:
+            DbSynchronizer().sync()
 
 
 @Adfd.subcommand('dev')
