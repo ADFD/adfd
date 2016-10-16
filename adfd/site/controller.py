@@ -61,7 +61,7 @@ def path_route(path=''):
     node.article.bbcodeIsActive = bbcodeIsActive
     node.article.requestPath = request.path
     # TODO set active path (can be done on node directly)
-    return render_template('page.html', navigation=NAV.nav, node=node)
+    return render_template('article-main.html', navigation=NAV.nav, node=node)
 
 
 @app.route('/bbcode/article/<topicId>/')
@@ -80,7 +80,7 @@ def article_route(topicId=None, path=None):
     node = NAV.identifierNodeMap[identifier]
     node.article.bbcodeIsActive = bbcodeIsActive
     node.article.requestPath = request.path
-    return render_template('page.html', node=node, article=node.article)
+    return render_template('article-main.html', node=node, article=node.article)
 
 
 @app.route('/check/')

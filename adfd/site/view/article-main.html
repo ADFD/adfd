@@ -15,11 +15,11 @@
             {% endwith %}
             {% if node and node.parents %}
                 {% with node=node -%}
-                    {% include "_breadcrumbs.html" -%}
+                    {% include "breadcrumbs.html" -%}
                 {% endwith -%}
             {% endif %}
             {% with node=node -%}
-                {% include "_article.html" -%}
+                {% include "article-content.html" -%}
             {% endwith -%}
         </div>
         <div class="column two wide">

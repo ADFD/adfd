@@ -64,7 +64,7 @@ class AdfdFreeze(cli.Application):
             FREEZER_DESTINATION_IGNORE=['.git*', '*.idea'])
         freezer = Freezer(app)
         freezer.register_generator(fridge.path_route)
-        with local.cwd(PATH.PROJECT):
+        with local.cwd(PATH.RENDERED):
             log.info("freezing %s", freezer)
             with open(PATH.LAST_UPDATE, 'w', encoding='utf') as f:
                 f.write(date_from_timestamp())
