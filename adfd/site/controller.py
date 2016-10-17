@@ -58,8 +58,8 @@ def path_route(path=''):
         bbcodeIsActive = True
         path = path.partition("/")[-1]
     node = NAV.pathNodeMap["/" + path]
-    node.article.bbcodeIsActive = bbcodeIsActive
-    node.article.requestPath = request.path
+    node.bbcodeIsActive = bbcodeIsActive
+    node.requestPath = request.path
     # TODO set active path (can be done on node directly)
     return render_template(
         'article-container.html', navigation=NAV.nav, node=node)
@@ -79,9 +79,9 @@ def article_route(topicId=None, path=None):
     except ValueError:
         pass
     node = NAV.identifierNodeMap[identifier]
-    node.article.bbcodeIsActive = bbcodeIsActive
-    node.article.requestPath = request.path
-    return render_template('article-container.html', node=node, article=node.article)
+    node.bbcodeIsActive = bbcodeIsActive
+    node.requestPath = request.path
+    return render_template('article-container.html', node=node)
 
 
 @app.route('/check/')

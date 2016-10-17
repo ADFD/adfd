@@ -3,35 +3,35 @@
 
 <div class="ui compact horizontal segments">
     <div class="ui segment left aligned">
-        {% if node.article.isForeign %}
+        {% if node.isForeign %}
             <i class="minus circle icon" title="Noch nicht importiert"></i>
         {% else %}
             <i class="check circle icon" title="Bereits importiert"></i>
         {% endif %}
-        {% if node.article.isDirty %}
-            <i class="warning circle icon" title="Enthält unbekannte tags {{ node.article.unknownTags }}"></i>
+        {% if node.isDirty %}
+            <i class="warning circle icon" title="Enthält unbekannte tags {{ node.unknownTags }}"></i>
         {% endif %}
-        {% if node.article.hasTodos %}
+        {% if node.hasTodos %}
             <i class="hand pointer icon" title="Hat offene Todos"></i>
         {% endif %}
     </div>
     <div class="ui segment left aligned">
-        {% if node.article.hasOneAuthor %}
-        Von {{ node.article.allAuthors[0] }}
+        {% if node.hasOneAuthor %}
+        Von {{ node.allAuthors[0] }}
         {% else %}
-        Von {{ ", ".join(node.article.allAuthors) }}
+        Von {{ ", ".join(node.allAuthors) }}
         {% endif %}
     </div>
     <div class="ui segment center aligned"
-        {% if node.article.creationDate != node.article.lastUpdate %}
-        title="zuletzt aktualisiert: {{ node.article.lastUpdate }}"
+        {% if node.creationDate != node.lastUpdate %}
+        title="zuletzt aktualisiert: {{ node.lastUpdate }}"
         {% endif %}>
-        erstellt am {{ node.article.creationDate }}
+        erstellt am {{ node.creationDate }}
     </div>
 </div>
 {% endif %}
 
 {#see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article#}
 <article class="ui segment">
-    {{ node.article }}
+    {{ node }}
 </article>

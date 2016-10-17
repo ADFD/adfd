@@ -42,15 +42,15 @@ class Navigator:
 
     @cached_property
     def dirtyNodes(self):
-        return [n for n in self.allNodes if n.article.isDirty]
+        return [n for n in self.allNodes if n.isDirty]
 
     @cached_property
     def foreignNodes(self):
-        return [n for n in self.allNodes if n.article.isForeign]
+        return [n for n in self.allNodes if n.isForeign]
 
     @cached_property
     def todoNodes(self):
-        return [n for n in self.allNodes if n.article.hasTodos]
+        return [n for n in self.allNodes if n.hasTodos]
 
     @property
     def nav(self):
