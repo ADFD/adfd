@@ -810,9 +810,8 @@ class AdfdParser(Parser):
         demotionLevel = 1  # number of levels header tags get demoted
         level = int(tag[1]) + demotionLevel
         slug = slugify(value)
-        relPath = context.get('relPath', '')
         r = '<h%s id="%s">' % (level, slug)
-        r += '<a class="header" href="%s#%s">%s' % (relPath, slug, value)
+        r += '<a class="header" href="#%s">%s' % (slug, value)
         r += ' <i class="paragraph icon"></i>'
         r += '</a></h%s>' % level
         return r
