@@ -181,10 +181,10 @@ class CategoryNode(Node):
         super().__init__(*self._parse(data))
 
     def __str__(self):
-        return self.navPattern % "".join([str(c) for c in self.children])
+        return self._navPattern % "".join([str(c) for c in self.children])
 
     @cached_property
-    def navPattern(self):
+    def _navPattern(self):
         pattern = '<div class="%s">'
         if self._isSubMenu:
             classes = ['item']
