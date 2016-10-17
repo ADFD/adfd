@@ -9,6 +9,7 @@ import yaml
 from adfd.cnf import SITE
 from adfd.parse import extract_from_bbcode
 from adfd.model import CategoryNode, ArticleNode, DbContentContainer
+from cached_property import cached_property
 
 log = logging.getLogger(__name__)
 
@@ -25,26 +26,25 @@ class Navigator:
         self.menu = self.root.children
         self.orphanNodes = self.populate_orphan_nodes()
 
-
     def _reset(self):
         self.pathNodeMap = {}
         self.identifierNodeMap = {}
         self.yamlKeyNodeMap = {}
         self.orphanNodes = []
 
-    @property
+    @cached_property
     def allNodes(self):
         return sorted([n for n in self.pathNodeMap.values()])
 
-    @property
+    @cached_property
     def dirtyNodes(self):
         return [n for n in self.allNodes if n.article.isDirty]
 
-    @property
+    @cached_property
     def foreignNodes(self):
         return [n for n in self.allNodes if n.article.isForeign]
 
-    @property
+    @cached_property
     def todoNodes(self):
         return [n for n in self.allNodes if n.article.hasTodos]
 

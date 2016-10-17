@@ -52,70 +52,76 @@ def get_db_session():
 
 
 def get_main_content_topic_ids():
-    return DbWrapper().forum_id_2_topic_ids(SITE.MAIN_CONTENT_FORUM_ID)
+    return DbWrapper().get_topic_ids(SITE.MAIN_CONTENT_FORUM_ID)
 
 
 class DbWrapper:
     """very simple wrapper that can fetch the little that is needed"""
     def __init__(self):
         self.session = get_db_session()
-        self.query = self.session.query
+        self.q = self.session.query
 
-    def forum_id_2_forum_name(self, forumId):
+    def get_forum_name(self, forumId):
         """:rtype: list of int"""
-        query = self.query(PhpbbForum).filter(PhpbbForum.forum_id == forumId)
-        return query.first().forum_name
+        return self.get_forum(forumId).forum_name
 
-    def forum_id_2_topic_ids(self, forumId):
+    def get_forum_id(self, topicId):
+        """:rtype: int"""
+        return self.get_topic(topicId).forum_id
+
+    def get_topic_ids(self, forumId):
         """:rtype: list of int"""
-        query = self.query(PhpbbTopic).filter(PhpbbTopic.forum_id == forumId)
+        query = self.q(PhpbbTopic).filter(PhpbbTopic.forum_id == forumId)
         return [r.topic_id for r in query.all()]
 
-    def topic_id_2_db_posts(self, topicId):
+    def get_topic(self, topicId):
+        return self.q(PhpbbTopic).\
+            filter(PhpbbTopic.topic_id == topicId).first()
+
+    def get_posts(self, topicId):
         """:rtype: list of int"""
-        query = self.query(PhpbbPost).join(
+        query = self.q(PhpbbPost).join(
             PhpbbTopic, PhpbbTopic.topic_id == PhpbbPost.topic_id)\
-                .filter(PhpbbTopic.topic_id == topicId)
+            .filter(PhpbbTopic.topic_id == topicId)
         return [row.post_id for row in query.all()]
 
-    def topic_id_2_forum_id(self, topicId):
-        """:rtype: int"""
-        return self.topic_from_topic_id(topicId).forum_id
+    def get_forum(self, id_):
+        return self.q(PhpbbForum).filter(PhpbbForum.forum_id == id_).first()
 
-    def topic_from_topic_id(self, topicId):
-        return self.query(PhpbbTopic).filter(
-            PhpbbTopic.topic_id == topicId).first()
-
-    def fetch_post(self, postId):
+    def get_post(self, postId):
         """:rtype: adfd.db.schema.PhpbbPost"""
-        q = self.query(PhpbbPost).filter(PhpbbPost.post_id == postId)
-        return q.first()
+        return self.q(PhpbbPost).filter(PhpbbPost.post_id == postId).first()
 
     def get_username(self, userId):
         """:rtype: str"""
-        n = self.query(PhpbbUser).filter(PhpbbUser.user_id == userId).first()
+        n = self.q(PhpbbUser).filter(PhpbbUser.user_id == userId).first()
         return n.username or "Anonymous"
 
 
 class DbPost:
     WRAPPER = None
+    TOPIC_IDS_POST_IDS_MAP = {}
 
     @classmethod
     def get_post_ids_for_topic(cls, topicId):
-        if not cls.WRAPPER:
-            cls.WRAPPER = DbWrapper()
-        forumId = cls.WRAPPER.topic_id_2_forum_id(topicId)
-        if forumId != SITE.MAIN_CONTENT_FORUM_ID:
-            log.warning("Topic not imported yet: %s", topicId)
-            if forumId not in SITE.ALLOWED_FORUM_IDS:
-                name = cls.WRAPPER.forum_id_2_forum_name(forumId)
-                raise TopicNotAccessible(
-                    "%s in %s (%s)", topicId, name, forumId)
+        try:
+            ids = cls.TOPIC_IDS_POST_IDS_MAP[topicId]
+        except KeyError:
+            if not cls.WRAPPER:
+                cls.WRAPPER = DbWrapper()
+            forumId = cls.WRAPPER.get_forum_id(topicId)
+            if forumId != SITE.MAIN_CONTENT_FORUM_ID:
+                log.warning("Topic not imported yet: %s", topicId)
+                if forumId not in SITE.ALLOWED_FORUM_IDS:
+                    name = cls.WRAPPER.get_forum_name(forumId)
+                    raise TopicNotAccessible(
+                        "%s in %s (%s)", topicId, name, forumId)
 
-        ids = cls.WRAPPER.topic_id_2_db_posts(topicId)
-        if not ids:
-            raise TopicDoesNotExist(str(topicId))
+            ids = cls.WRAPPER.get_posts(topicId)
+            if not ids:
+                raise TopicDoesNotExist(str(topicId))
 
+            cls.TOPIC_IDS_POST_IDS_MAP[topicId] = ids
         return ids
 
     def __init__(self, postId):
@@ -187,7 +193,7 @@ class DbPost:
 
     @cached_property
     def dbp(self):
-        dbp = DbWrapper().fetch_post(self.id)
+        dbp = DbWrapper().get_post(self.id)
         if not dbp:
             raise PostDoesNotExist(str(self.id))
 
@@ -197,7 +203,7 @@ class DbPost:
 def get_db_config_info():
     msg = ""
     allowedForums = [
-        "%s (%s)" % (DbWrapper().forum_id_2_forum_name(fId), fId)
+        "%s (%s)" % (DbWrapper().get_forum_name(fId), fId)
         for fId in SITE.ALLOWED_FORUM_IDS]
     msg += "allowed Forums:\n    %s" % ("\n    ".join(allowedForums))
     return msg
