@@ -18,26 +18,6 @@ _DB_SESSION = None
 """":type: sqlalchemy.orm.session.Session"""
 
 
-def generate_schema(writeToFile="schema.py"):
-    # if you are bored: use https://github.com/google/yapf to format file
-    engine = create_engine(DB.URL)
-    meta = MetaData()
-    meta.reflect(bind=engine)
-    imports = ("from sqlalchemy import Table\n"
-               "from db_reflection.schema import Base\n\n\n")
-    defs = [imports]
-    for table in meta.tables.values():
-        defs.append("class %s(Base):\n    __table__ = "
-                    "Table(%r, Base.metadata, autoload=True)\n\n\n" %
-                    (table.name, table.name))
-    declText = "".join(defs)
-    if writeToFile:
-        with open(writeToFile, "w") as f:
-            f.write(declText)
-    else:
-        print(declText)
-
-
 def get_db_session():
     global _DB_SESSION
     if _DB_SESSION:
@@ -51,28 +31,20 @@ def get_db_session():
     return _DB_SESSION
 
 
-def get_main_content_topic_ids():
-    return DbWrapper().get_topic_ids(SITE.MAIN_CONTENT_FORUM_ID)
-
-
-class DbWrapper:
+class _DbWrapper:
     """very simple wrapper that can fetch the little that is needed"""
-    def __init__(self):
-        self.session = get_db_session()
-        self.q = self.session.query
+    @cached_property
+    def session(self):
+        return get_db_session()
 
-    def get_forum_name(self, forumId):
-        """:rtype: list of int"""
-        return self.get_forum(forumId).forum_name
+    @property
+    def q(self):
+        return self.session.query
 
-    def get_forum_id(self, topicId):
-        """:rtype: int"""
-        return self.get_topic(topicId).forum_id
-
-    def get_topic_ids(self, forumId):
+    def get_topics(self, forumId):
         """:rtype: list of int"""
         query = self.q(PhpbbTopic).filter(PhpbbTopic.forum_id == forumId)
-        return [r.topic_id for r in query.all()]
+        return [t for t in query]
 
     def get_topic(self, topicId):
         return self.q(PhpbbTopic).\
@@ -98,8 +70,10 @@ class DbWrapper:
         return n.username or "Anonymous"
 
 
+DB_WRAPPER = _DbWrapper()
+
+
 class DbPost:
-    WRAPPER = None
     TOPIC_IDS_POST_IDS_MAP = {}
 
     @classmethod
@@ -107,17 +81,12 @@ class DbPost:
         try:
             ids = cls.TOPIC_IDS_POST_IDS_MAP[topicId]
         except KeyError:
-            if not cls.WRAPPER:
-                cls.WRAPPER = DbWrapper()
-            forumId = cls.WRAPPER.get_forum_id(topicId)
-            if forumId != SITE.MAIN_CONTENT_FORUM_ID:
-                log.warning("Topic not imported yet: %s", topicId)
-                if forumId not in SITE.ALLOWED_FORUM_IDS:
-                    name = cls.WRAPPER.get_forum_name(forumId)
-                    raise TopicNotAccessible(
-                        "%s in %s (%s)", topicId, name, forumId)
+            t = DB_WRAPPER.get_topic(topicId)
+            if t.forum_id != SITE.MAIN_CONTENT_FORUM_ID:
+                if t.forum_id not in SITE.ALLOWED_FORUM_IDS:
+                    raise TopicNotAccessible("%s in %s ", topicId, t.forum_id)
 
-            ids = cls.WRAPPER.get_posts(topicId)
+            ids = DB_WRAPPER.get_posts(topicId)
             if not ids:
                 raise TopicDoesNotExist(str(topicId))
 
@@ -148,7 +117,7 @@ class DbPost:
     @cached_property
     def username(self):
         username = (self.dbp.post_username or
-                    DbWrapper().get_username(self.dbp.poster_id))
+                    DB_WRAPPER.get_username(self.dbp.poster_id))
         return html.unescape(username)
 
     @cached_property
@@ -193,21 +162,32 @@ class DbPost:
 
     @cached_property
     def dbp(self):
-        dbp = DbWrapper().get_post(self.id)
+        dbp = DB_WRAPPER.get_post(self.id)
         if not dbp:
             raise PostDoesNotExist(str(self.id))
 
         return dbp
 
 
-def get_db_config_info():
-    msg = ""
-    allowedForums = [
-        "%s (%s)" % (DbWrapper().get_forum_name(fId), fId)
-        for fId in SITE.ALLOWED_FORUM_IDS]
-    msg += "allowed Forums:\n    %s" % ("\n    ".join(allowedForums))
-    return msg
-
-
 if __name__ == '__main__':
+    def generate_schema(writeToFile="schema.py"):
+        # if you are bored: use https://github.com/google/yapf to format file
+        engine = create_engine(DB.URL)
+        meta = MetaData()
+        meta.reflect(bind=engine)
+        imports = ("from sqlalchemy import Table\n"
+                   "from db_reflection.schema import Base\n\n\n")
+        defs = [imports]
+        for table in meta.tables.values():
+            defs.append("class %s(Base):\n    __table__ = "
+                        "Table(%r, Base.metadata, autoload=True)\n\n\n" %
+                        (table.name, table.name))
+        declText = "".join(defs)
+        if writeToFile:
+            with open(writeToFile, "w") as f:
+                f.write(declText)
+        else:
+            print(declText)
+
+
     generate_schema(writeToFile='')

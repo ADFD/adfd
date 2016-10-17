@@ -6,7 +6,7 @@ import socketserver
 import tempfile
 
 from adfd.cnf import PATH, SITE, TARGET, VIRTENV, INFO
-from adfd.db.lib import get_db_config_info
+from adfd.db.lib import DB_WRAPPER
 from adfd.db.sync import DbSynchronizer
 from adfd.site import fridge
 from adfd.site.controller import app, run_devserver
@@ -191,7 +191,12 @@ class AdfdFixStagingPaths(cli.Application):
 @Adfd.subcommand('info')
 class AdfdInfo(cli.Application):
     def main(self):
-        print(get_db_config_info)
+        msg = ""
+        allowedForums = [
+            "%s (%s)" % (DB_WRAPPER.get_forum(fId).forum_name, fId)
+            for fId in SITE.ALLOWED_FORUM_IDS]
+        msg += "allowed Forums:\n    %s" % ("\n    ".join(allowedForums))
+        print(msg)
 
 
 def main():

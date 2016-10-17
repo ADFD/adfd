@@ -2,7 +2,7 @@ import io
 import logging
 from collections import OrderedDict
 
-from adfd.db.lib import get_main_content_topic_ids
+from adfd.db.lib import DB_WRAPPER
 from boltons.iterutils import remap
 import yaml
 
@@ -16,15 +16,17 @@ log = logging.getLogger(__name__)
 
 class Navigator:
     def __init__(self):
-        self._reset()
+        self.isPopulated = False
 
     def populate(self):
+        log.info("populate navigation")
         self._reset()
         self.structure = self.load_structure()
         remap(self.structure, visit=self.visit)
         self.root = self.yamlKeyNodeMap[next(iter(self.structure))]
         self.menu = self.root.children
-        self.orphanNodes = self.populate_orphan_nodes()
+        self.orphanNodes = self._populate_orphan_nodes()
+        self.isPopulated = True
 
     def _reset(self):
         self.pathNodeMap = {}
@@ -34,6 +36,8 @@ class Navigator:
 
     @cached_property
     def allNodes(self):
+        if not self.isPopulated:
+            self.populate()
         return sorted([n for n in self.pathNodeMap.values()])
 
     @cached_property
@@ -122,10 +126,11 @@ class Navigator:
         yamlContent = extract_from_bbcode(SITE.CODE_TAG, content.bbcode)
         return ordered_yaml_load(stream=io.StringIO(yamlContent))
 
-    def populate_orphan_nodes(self):
+    def _populate_orphan_nodes(self):
         nodes = []
-        for topicId in get_main_content_topic_ids():
-            if topicId not in self.identifierNodeMap.keys():
+        for t in DB_WRAPPER.get_topics(SITE.MAIN_CONTENT_FORUM_ID):
+            topicId = t.topic_id
+            if topicId not in self.identifierNodeMap:
                 node = ArticleNode(topicId, isOrphan=True)
                 self.identifierNodeMap[topicId] = node
                 nodes.append(node)
