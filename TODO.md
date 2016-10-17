@@ -13,6 +13,8 @@
     * list all used meta data keys
     * list all used tags (if and when we start using them)
 
+* Link checks
+    * make sure all links in articles are reachable (200) 
     
 ## Important articles
 
