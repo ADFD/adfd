@@ -56,7 +56,8 @@ class Node:
 
     @cached_property
     def html(self):
-        return self.parser.to_html(self.bbcode)
+        return self.parser.to_html(
+            self.bbcode, context=dict(relPath=self.relPath))
 
     @cached_property
     def bbcode(self):
@@ -102,8 +103,9 @@ class Node:
     @cached_property
     def allAuthors(self):
         md = self._contentContainer.md
+
         aa = [a.strip() for a in md.allAuthors.split(",") if a.strip()]
-        return aa or self._contentContainer.username
+        return aa or [self._contentContainer.username]
 
     @cached_property
     def parser(self):

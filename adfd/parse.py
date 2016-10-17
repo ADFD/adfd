@@ -804,10 +804,6 @@ class AdfdParser(Parser):
     def _add_header_formatters(self):
         for tag in self.HEADER_TAGS:
             self.add_formatter(tag, self._render_header)
-            # self.add_simple(
-            #     tag, '\n<%s>%%(value)s</%s>\n' % (demotedTag, demotedTag))
-
-            # noinspection PyUnusedLocal
 
     @staticmethod
     def _render_header(tag, value, options, parent, context):
