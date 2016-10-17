@@ -8,7 +8,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.styles import get_style_by_name
 
 from adfd.cnf import PATH, SITE, NAME
-from adfd.db.lib import DbPost, get_main_content_topic_ids
+from adfd.db.lib import DbPost
 from adfd.metadata import PageMetadata
 from adfd.parse import AdfdParser
 from adfd.utils import slugify, ContentGrabber, date_from_timestamp
@@ -280,40 +280,6 @@ class CategoryContentContainer(ContentContainer):
     pass
 
 
-class StaticContentContainer(ContentContainer):
-    @cached_property
-    def isImported(self):
-        return True
-
-    @cached_property
-    def creationDate(self):
-        return self._grabber.get_ctime()
-
-    @cached_property
-    def lastUpdate(self):
-        return self._grabber.get_mtime()
-
-    @cached_property
-    def html(self):
-        return self.parser.to_html(self.bbcode)
-
-    @cached_property
-    def bbcode(self):
-        return self.content
-
-    @cached_property
-    def content(self):
-        return self._grabber.grab()
-
-    @cached_property
-    def md(self):
-        return PageMetadata(text=self.content)
-
-    @cached_property
-    def _grabber(self):
-        return ContentGrabber(PATH.STATIC / 'content' / self.identifier)
-
-
 class DbContentContainer(ContentContainer):
     TITLE_PATTERN = '[h1]%s[/h1]\n'
 
@@ -390,6 +356,35 @@ class DbContentContainer(ContentContainer):
         return DbPost.get_post_ids_for_topic(self.identifier)
 
 
-class MainContentForum:
-    def __init__(self):
-        self.allTopicIds = get_main_content_topic_ids()
+class StaticContentContainer(ContentContainer):
+    @cached_property
+    def isImported(self):
+        return True
+
+    @cached_property
+    def creationDate(self):
+        return self._grabber.get_ctime()
+
+    @cached_property
+    def lastUpdate(self):
+        return self._grabber.get_mtime()
+
+    @cached_property
+    def html(self):
+        return self.parser.to_html(self.bbcode)
+
+    @cached_property
+    def bbcode(self):
+        return self.content
+
+    @cached_property
+    def content(self):
+        return self._grabber.grab()
+
+    @cached_property
+    def md(self):
+        return PageMetadata(text=self.content)
+
+    @cached_property
+    def _grabber(self):
+        return ContentGrabber(PATH.STATIC / 'content' / self.identifier)

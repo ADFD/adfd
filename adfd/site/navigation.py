@@ -2,13 +2,13 @@ import io
 import logging
 from collections import OrderedDict
 
+from adfd.db.lib import get_main_content_topic_ids
 from boltons.iterutils import remap
 import yaml
 
 from adfd.cnf import SITE
 from adfd.parse import extract_from_bbcode
-from adfd.model import (
-    CategoryNode, ArticleNode, DbContentContainer, MainContentForum)
+from adfd.model import CategoryNode, ArticleNode, DbContentContainer
 
 log = logging.getLogger(__name__)
 
@@ -124,8 +124,7 @@ class Navigator:
 
     def populate_orphan_nodes(self):
         nodes = []
-        mcf = MainContentForum()
-        for topicId in mcf.allTopicIds:
+        for topicId in get_main_content_topic_ids():
             if topicId not in self.identifierNodeMap.keys():
                 node = ArticleNode(topicId, isOrphan=True)
                 self.identifierNodeMap[topicId] = node
