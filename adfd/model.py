@@ -56,8 +56,7 @@ class Node:
 
     @cached_property
     def html(self):
-        return self.parser.to_html(
-            self.bbcode, context=dict(relPath=self.relPath))
+        return self.parser.to_html(self.bbcode)
 
     @cached_property
     def bbcode(self):
