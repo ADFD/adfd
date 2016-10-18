@@ -41,6 +41,15 @@ class Navigator:
         return sorted([n for n in self.pathNodeMap.values()])
 
     @cached_property
+    def readyForPrimeTime(self):
+        return not len(self.openIssues)
+
+    @cached_property
+    def openIssues(self):
+        return (self.dirtyNodes + self.foreignNodes +
+                self.todoNodes + self.smilieNodes)
+
+    @cached_property
     def dirtyNodes(self):
         return [n for n in self.allNodes if n.isDirty]
 

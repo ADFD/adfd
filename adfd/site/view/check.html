@@ -2,6 +2,17 @@
 
 {% block content -%}
     <div id="main">
+        <div class="ui 16 column stackable grid container">
+            <div class="ui column sixteen wide">
+                <div class="ui huge inverted orange center aligned segment">
+                    {% if NAV.readyForPrimeTime %}
+                        Alles in Ordnung!
+                    {% else %}
+                        {{ NAV.openIssues.__len__() }} offene Tasks
+                    {% endif %}
+                </div>
+            </div>
+        </div>
         <div class="ui two column stackable grid container">
             {% if NAV.orphanNodes -%}
                 <div class="ui column eight wide">
