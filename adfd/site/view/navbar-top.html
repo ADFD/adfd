@@ -12,17 +12,17 @@
                 <i class="dropdown icon"></i>
                 <div class="menu">
                     {% if node -%}
-                        {% if node.sourceLink %}
+                        {% if node.sourceLink -%}
                             <div class="item">
                                 <a href="{{ node.sourceLink }}" target="_blank">[Quelle]</a>
                             </div>
-                        {% endif %}
+                        {% endif -%}
                         <div class="item">
                             <a href="{{ node.contentToggleLink }}">
                                 [{{ node.contentToggleLinkText }}]
                             </a>
                         </div>
-                    {% endif %}
+                    {% endif -%}
                     <div class="item">
                         <a href="{{ url_for('check_route') }}">Übersicht / Checks</a>
                     </div>

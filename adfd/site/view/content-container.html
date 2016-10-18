@@ -1,0 +1,36 @@
+{% extends "base.html" -%}
+
+{% block content -%}
+    <div id="main" class="ui two column doubling stackable grid container">
+        <div class="column three wide">
+            <div class="row">bla bla bla bla bla bla bla bla bla bla bla bla </div>
+        </div>
+        <div class="column thirteen wide main text container">
+            {% with messages = get_flashed_messages() -%}
+                {% if messages -%}
+                    {% for message in messages -%}
+                        <div class="ui big center aligned card">{{ message }}</div>
+                    {% endfor -%}
+                {% endif -%}
+            {% endwith -%}
+            {% if node and node.parents -%}
+                {% with node=node -%}
+                    {% include "breadcrumbs.html" -%}
+                {% endwith -%}
+            {% endif -%}
+            {% if node.hasArticle %}
+                {% with node=node -%}
+                    {% include "article.html" -%}
+                {% endwith -%}
+            {% else %}
+                <h1>Kategorie: {{ node.title }}</h1>
+            {% endif -%}
+            {% if not node.isHome %}
+                {% with nodes=node.children -%}
+                    {% include "articles-list.html" -%}
+                {% endwith -%}
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock content -%}

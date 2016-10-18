@@ -136,15 +136,14 @@ class AdfdFreeze(cli.Application):
 class AdfdServeFrozen(cli.Application):
     """Serve frozen web page locally"""
     def main(self):
-        frozenPath = PATH.RENDERED
-        log.info("'%s' -> http://localhost:%s", frozenPath, SITE.APP_PORT)
-        self.serve(frozenPath)
+        self.serve()
 
     @staticmethod
-    def serve(siteRoot):
-        with local.cwd(siteRoot):
+    def serve():
+        log.info("%s -> http://localhost:%s", PATH.RENDERED, SITE.FROZEN_PORT)
+        with local.cwd(PATH.RENDERED):
             Handler = http.server.SimpleHTTPRequestHandler
-            httpd = socketserver.TCPServer(("", SITE.APP_PORT), Handler)
+            httpd = socketserver.TCPServer(("", SITE.FROZEN_PORT), Handler)
             try:
                 httpd.serve_forever()
             finally:

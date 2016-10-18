@@ -8,7 +8,7 @@ import yaml
 
 from adfd.cnf import SITE
 from adfd.parse import extract_from_bbcode
-from adfd.model import CategoryNode, ArticleNode, DbContentContainer
+from adfd.model import CategoryNode, ArticleNode, DbArticleContainer
 from cached_property import cached_property
 
 log = logging.getLogger(__name__)
@@ -122,7 +122,7 @@ class Navigator:
         if useFile:
             return ordered_yaml_load(stream=open(path, encoding='utf8'))
 
-        content = DbContentContainer(topicId)
+        content = DbArticleContainer(topicId)
         yamlContent = extract_from_bbcode(SITE.CODE_TAG, content.bbcode)
         return ordered_yaml_load(stream=io.StringIO(yamlContent))
 

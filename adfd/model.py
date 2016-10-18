@@ -33,11 +33,14 @@ class Node:
         self.bbcodeIsActive = False
 
     def __repr__(self):
-        return "<%s(%s: %s)>" % (
-            self.SPEC, self.identifier, self.title[:6])
+        return "<%s(%s: %s)>" % (self.SPEC, self.identifier, self.title[:6])
 
     def __gt__(self, other):
         return self.title > other.title
+
+    @cached_property
+    def isHome(self):
+        return not self.parents
 
     @cached_property
     def relPath(self):
@@ -49,36 +52,42 @@ class Node:
 
     def __html__(self):
         """mark as safe html object and show the right content"""
+        if not self.hasArticle:
+            return None
+
         if self.bbcodeIsActive:
-            return self.bbcodeAsHtml
+            return self._bbcodeAsHtml
 
-        return self.html
-
-    @cached_property
-    def html(self):
-        return self._parser.to_html(self.bbcode)
+        return self._html
 
     @cached_property
-    def bbcode(self):
+    def _html(self):
+        return self._parser.to_html(self._bbcode)
+
+    @cached_property
+    def _bbcode(self):
+        if isinstance(self._container, NoContentContainer):
+            return None
+
         return self._container.content
 
     @cached_property
-    def bbcodeAsHtml(self):
+    def _bbcodeAsHtml(self):
         style = get_style_by_name('igor')
         formatter = HtmlFormatter(style=style)
         lexer = get_lexer_by_name("bbcode", stripall=True)
         css = formatter.get_style_defs()
-        txt = highlight(self.bbcode, lexer, HtmlFormatter())
+        txt = highlight(self._bbcode, lexer, HtmlFormatter())
         return "<style>%s</style>\n%s" % (css, txt)
 
     @cached_property
     def sourceLink(self):
-        if isinstance(self._container, StaticContentContainer):
+        if isinstance(self._container, StaticArticleContainer):
             gh = "https://github.com/ADFD/adfd/tree/master/adfd/site"
             return ("%s/%s/%s/%s" %
                     (gh, NAME.STATIC, NAME.CONTENT, self.identifier))
 
-        elif isinstance(self._container, DbContentContainer):
+        elif isinstance(self._container, DbArticleContainer):
             return SITE.VIEWTOPIC_PATTERN % self.identifier
 
     @cached_property
@@ -95,10 +104,6 @@ class Node:
 
         aa = [a.strip() for a in md.allAuthors.split(",") if a.strip()]
         return aa or [self._container.username]
-
-    @cached_property
-    def _parser(self):
-        return AdfdParser()
 
     @cached_property
     def hasOneAuthor(self):
@@ -122,41 +127,34 @@ class Node:
     @cached_property
     def slug(self):
         """:rtype: str"""
-        isRoot = isinstance(self, CategoryNode) and self._title == ''
+        isRoot = self.isCategory and self._title == ''
         return '' if isRoot else slugify(self.title)
 
     @cached_property
-    def hasContent(self):
-        return isinstance(self._container, ContentContainer)
-        # return self.identifier is not None
+    def isCategory(self):
+        return isinstance(self, CategoryNode)
 
     @cached_property
-    def _container(self):
-        if not self.identifier:
-            return NoContentCategory(self._title, self.children)
-
-        if isinstance(self.identifier, int):
-            return DbContentContainer(self.identifier)
-
-        return StaticContentContainer(self.identifier)
+    def hasArticle(self):
+        return isinstance(self._container, ArticleContainer)
 
     @cached_property
     def isForeign(self):
-        if isinstance(self._container, NoContentCategory):
+        if isinstance(self._container, NoContentContainer):
             return False
 
         return self._container.isForeign
 
     @cached_property
     def hasTodos(self):
-        if isinstance(self._container, NoContentCategory):
+        if isinstance(self._container, NoContentContainer):
             return False
 
-        return "todo" in self.bbcode.lower()
+        return "todo" in self._bbcode.lower()
 
     @cached_property
     def isDirty(self):
-        if isinstance(self._container, NoContentCategory):
+        if isinstance(self._container, NoContentContainer):
             return False
 
         return len(self.unknownTags) > 0
@@ -164,7 +162,7 @@ class Node:
     @cached_property
     def unknownTags(self):
         # noinspection PyStatementEffect
-        self.html # make sure it's parsed already
+        self._html # make sure it's parsed already
         unknownTags = []
         for tag in [t for t in self._parser.unknownTags if t.strip()]:
             try:
@@ -180,6 +178,20 @@ class Node:
             unknownTags.append(tag)
 
         return unknownTags
+
+    @cached_property
+    def _container(self):
+        if not self.identifier:
+            return NoContentContainer(self._title, self.children)
+
+        if isinstance(self.identifier, int):
+            return DbArticleContainer(self.identifier)
+
+        return StaticArticleContainer(self.identifier)
+
+    @cached_property
+    def _parser(self):
+        return AdfdParser()
 
 
 class CategoryNode(Node):
@@ -265,7 +277,7 @@ class ArticleNode(Node):
         return identifier, title
 
 
-class ContentContainer:
+class ArticleContainer:
     def __init__(self, identifier):
         self.identifier = identifier
 
@@ -273,13 +285,13 @@ class ContentContainer:
         return "<%s(%s)" % (self.__class__.__name__, self.identifier)
 
 
-class NoContentCategory:
+class NoContentContainer:
     def __init__(self, identifier, children):
         self.identifier = identifier
         self.children = children
 
 
-class DbContentContainer(ContentContainer):
+class DbArticleContainer(ArticleContainer):
     TITLE_PATTERN = '[h1]%s[/h1]\n'
 
     @cached_property
@@ -350,7 +362,7 @@ class DbContentContainer(ContentContainer):
         return self._firstPost.dbp.forum_id == 54
 
 
-class StaticContentContainer(ContentContainer):
+class StaticArticleContainer(ArticleContainer):
     @cached_property
     def title(self):
         return False

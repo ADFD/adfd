@@ -1,35 +1,35 @@
-{% if node.relPath != "/" %}
+{% if node.relPath != "/" -%}
 <h1 class="ui header">{{ node.title }}</h1>
 
 <div class="ui compact horizontal segments">
     <div class="ui segment left aligned">
-        {% if node.isForeign %}
+        {% if node.isForeign -%}
             <i class="minus circle icon" title="Noch nicht importiert"></i>
-        {% else %}
+        {% else -%}
             <i class="check circle icon" title="Bereits importiert"></i>
-        {% endif %}
-        {% if node.isDirty %}
+        {% endif -%}
+        {% if node.isDirty -%}
             <i class="warning circle icon" title="Enthält unbekannte tags {{ node.unknownTags }}"></i>
-        {% endif %}
-        {% if node.hasTodos %}
+        {% endif -%}
+        {% if node.hasTodos -%}
             <i class="hand pointer icon" title="Hat offene Todos"></i>
-        {% endif %}
+        {% endif -%}
     </div>
     <div class="ui segment left aligned">
-        {% if node.hasOneAuthor %}
+        {% if node.hasOneAuthor -%}
         Von {{ node.allAuthors[0] }}
-        {% else %}
+        {% else -%}
         Von {{ ", ".join(node.allAuthors) }}
-        {% endif %}
+        {% endif -%}
     </div>
     <div class="ui segment center aligned"
-        {% if node.creationDate != node.lastUpdate %}
+        {% if node.creationDate != node.lastUpdate -%}
         title="zuletzt aktualisiert: {{ node.lastUpdate }}"
-        {% endif %}>
+        {% endif -%}>
         erstellt am {{ node.creationDate }}
     </div>
 </div>
-{% endif %}
+{% endif -%}
 
 {#see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article#}
 <article class="ui segment">

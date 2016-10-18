@@ -2,23 +2,8 @@
 
 {% block content -%}
     <div id="main" class="ui container">
-        <div class="ui segments">
-            {% for node in nodes or NAV.allNodes -%}
-                <div class="ui horizontal segments">
-                    <div class="ui segment">
-                        <a href="{{ url_for("path_route", path=node.relPath) }}">
-                            {{ node.title }}
-                        </a>
-                    </div>
-                    {% if node.sourceLink %}
-                        <div class="ui compact right aligned segment">
-                            <a href="{{ node.sourceLink }}">
-                                {{ node.identifier}}
-                            </a>
-                        </div>
-                    {% endif %}
-                </div>
-            {% endfor -%}
-        </div>
+    {% with nodes=nodes -%}
+        {% include "articles-list.html"%}
+    {% endwith -%}
     </div>
 {% endblock content -%}

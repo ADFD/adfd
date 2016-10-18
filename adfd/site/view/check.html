@@ -33,7 +33,7 @@
         <div class="ui divider"></div>
 
         <div class="ui two column stackable grid container">
-            {% if NAV.dirtyNodes %}
+            {% if NAV.dirtyNodes -%}
                 <div class="column eight wide">
                     <div class="ui huge inverted orange center aligned segment">
                         {{ NAV.dirtyNodes.__len__() }} Artikel mit unbekannten tags
@@ -44,14 +44,14 @@
                                 <a href="{{ url_for("path_route", path=node.relPath) }}">{{ node.title }}</a>
                             </div>
                             <div class="ui horizontal segments">
-                                {% for tag in node.unknownTags %}
+                                {% for tag in node.unknownTags -%}
                                     <span class="ui compact segment">{{ tag }}</span>
-                                {% endfor %}
+                                {% endfor -%}
                             </div>
                         </div>
                     {% endfor -%}
                 </div>
-            {% endif %}
+            {% endif -%}
 
             {% if NAV.foreignNodes -%}
                 <div class="column eight wide">
