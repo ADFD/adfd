@@ -26,7 +26,7 @@ $monoSpaceFont: "Consolas";
 // ############################# IMPORTS ######################################
 
 // files prefixed with have to be included in that order
-@import '00_colors';
+@import 'foundation-colors';
 @import '01_base';
 @import '02_grid';
 @import '03_typography';
