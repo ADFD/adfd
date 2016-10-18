@@ -1,4 +1,5 @@
 import logging
+import re
 from functools import total_ordering
 
 from cached_property import cached_property
@@ -131,6 +132,14 @@ class Node:
             return False
 
         return "todo" in self._bbcode.lower()
+
+    @cached_property
+    def hasSmilies(self):
+        if isinstance(self._container, NoContentContainer):
+            return False
+
+        # todo show smilies like with unknown tags
+        return re.search(r':\S*?:', self._bbcode) is not None
 
     @cached_property
     def isDirty(self):

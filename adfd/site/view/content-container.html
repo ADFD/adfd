@@ -23,7 +23,7 @@
                     {% include "article.html" -%}
                 {% endwith -%}
             {% else %}
-                <h1>Kategorie: {{ node.title }}</h1>
+                <h1>{{ node.title }}</h1>
             {% endif -%}
             {% if node.isCategory and not node.isHome %}
                 {% with nodes=node.children -%}

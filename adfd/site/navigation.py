@@ -52,12 +52,16 @@ class Navigator:
     def todoNodes(self):
         return [n for n in self.allNodes if n.hasTodos]
 
+    @cached_property
+    def smilieNodes(self):
+        return [n for n in self.allNodes if n.hasSmilies]
+
     @property
     def nav(self):
         return "".join([str(m) for m in self.menu])
 
     def visit(self, path, key, value):
-        # print('visit(%r, %r, %r)' % (path, key, value))
+        print('visit(%r, %r, %r)' % (path, key, value))
         node = None
         if isinstance(key, str):
             node = self.get_cat_node(key=key)
@@ -136,3 +140,7 @@ class Navigator:
                 nodes.append(node)
                 log.warning("orphan: %s (%s)", node.title, topicId)
         return nodes
+
+
+if __name__ == '__main__':
+    Navigator().populate()

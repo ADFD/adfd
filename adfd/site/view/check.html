@@ -66,6 +66,23 @@
                 </div>
             {% endif -%}
         </div>
+
+        <div class="ui divider"></div>
+
+        <div class="ui two column stackable grid container">
+            {% if NAV.smilieNodes -%}
+                <div class="column eight wide">
+                    <div class="ui huge inverted orange center aligned segment">
+                        {{ NAV.smilieNodes.__len__() }} Artikel mit Smilies
+                    </div>
+                    {% for node in NAV.smilieNodes -%}
+                        <div class="ui segment">
+                            <a href="{{ url_for("path_route", path=node.relPath) }}">{{ node.title }}</a>
+                        </div>
+                    {% endfor -%}
+                </div>
+            {% endif -%}
+        </div>
     </div>
 
 {% endblock content -%}
