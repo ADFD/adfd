@@ -30,7 +30,7 @@ NAV = Navigator()
 
 @app.context_processor
 def inject_dict_for_all_templates():
-    return dict(APP=APP, VERSION=LAST_UPDATE, IS_DEV=IS_DEV)
+    return dict(APP=APP, NAV=NAV, VERSION=LAST_UPDATE, IS_DEV=IS_DEV)
 
 
 @app.before_first_request
@@ -61,8 +61,12 @@ def path_route(path=''):
     node.bbcodeIsActive = bbcodeIsActive
     node.requestPath = request.path
     # TODO set active path (can be done on node directly)
-    return render_template(
-        'article-container.html', navigation=NAV.nav, node=node)
+    if node.hasContent:
+        return render_template(
+            'article-container.html', navigation=NAV.nav, node=node)
+    else:
+        return render_template(
+            'articles.html', navigation=NAV.nav, nodes=node.children)
 
 
 @app.route('/bbcode/article/<topicId>/')
@@ -91,7 +95,7 @@ def check_route():
 
 @app.route('/all-articles/')
 def articles_all_route():
-    return render_template('articles-all.html', NAV=NAV)
+    return render_template('articles.html')
 
 
 @app.route('/reset')

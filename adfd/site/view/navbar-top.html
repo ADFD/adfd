@@ -5,23 +5,23 @@
             <img class="logo" alt="ADFD logo"
                  src="{{ url_for('static', filename='img/logo78x81.png') }}">
         </a>
-        {% if navigation -%}
-            {{ navigation | safe }}
-        {% endif -%}
+        {{ NAV.nav | safe }}
         {% if IS_DEV -%}
             <div class="ui simple dropdown item">
                 [Tools]
                 <i class="dropdown icon"></i>
                 <div class="menu">
                     {% if node -%}
-                    <div class="item">
-                        <a href="{{ node.sourceLink }}" target="_blank">[Quelle]</a>
-                    </div>
-                    <div class="item">
-                        <a href="{{ node.contentToggleLink }}">
-                            [{{ node.contentToggleLinkText }}]
-                        </a>
-                    </div>
+                        {% if node.sourceLink %}
+                            <div class="item">
+                                <a href="{{ node.sourceLink }}" target="_blank">[Quelle]</a>
+                            </div>
+                        {% endif %}
+                        <div class="item">
+                            <a href="{{ node.contentToggleLink }}">
+                                [{{ node.contentToggleLinkText }}]
+                            </a>
+                        </div>
                     {% endif %}
                     <div class="item">
                         <a href="{{ url_for('check_route') }}">Übersicht / Checks</a>

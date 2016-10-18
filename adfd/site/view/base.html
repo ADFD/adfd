@@ -9,7 +9,7 @@
 </head>
 <body>
 
-{% with navigation=navigation, node=node -%}
+{% with node=node -%}
     {% include "navbar-top.html" -%}
 {% endwith -%}
 
@@ -17,7 +17,7 @@
 
 <div class="ui hidden divider"></div>
 
-{% with navigation=navigation, node=node -%}
+{% with node=node -%}
     {% include "footer.html" -%}
 {% endwith -%}
 

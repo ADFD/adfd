@@ -45,10 +45,10 @@ class Node:
 
     @cached_property
     def title(self):
-        return self._title or self._contentContainer.title or "Start"
+        return self._title or self._container.title or "Start"
 
     def __html__(self):
-        """mark article as safe html object and show the right content"""
+        """mark as safe html object and show the right content"""
         if self.bbcodeIsActive:
             return self.bbcodeAsHtml
 
@@ -56,11 +56,11 @@ class Node:
 
     @cached_property
     def html(self):
-        return self.parser.to_html(self.bbcode)
+        return self._parser.to_html(self.bbcode)
 
     @cached_property
     def bbcode(self):
-        return self._contentContainer.content
+        return self._container.content
 
     @cached_property
     def bbcodeAsHtml(self):
@@ -73,46 +73,32 @@ class Node:
 
     @cached_property
     def sourceLink(self):
-        if isinstance(self._contentContainer, StaticContentContainer):
+        if isinstance(self._container, StaticContentContainer):
             gh = "https://github.com/ADFD/adfd/tree/master/adfd/site"
             return ("%s/%s/%s/%s" %
                     (gh, NAME.STATIC, NAME.CONTENT, self.identifier))
 
-        elif isinstance(self._contentContainer, DbContentContainer):
+        elif isinstance(self._container, DbContentContainer):
             return SITE.VIEWTOPIC_PATTERN % self.identifier
-
-        raise NotImplementedError(str(type(self._contentContainer)))
 
     @cached_property
     def creationDate(self):
-        return self._contentContainer.creationDate
+        return self._container.creationDate
 
     @cached_property
     def lastUpdate(self):
-        return self._contentContainer.lastUpdate
-
-    @cached_property
-    def isDirty(self):
-        return len(self.unknownTags) > 0
-
-    @cached_property
-    def hasTodos(self):
-        return "todo" in self.bbcode.lower()
+        return self._container.lastUpdate
 
     @cached_property
     def allAuthors(self):
-        md = self._contentContainer.md
+        md = self._container.md
 
         aa = [a.strip() for a in md.allAuthors.split(",") if a.strip()]
-        return aa or [self._contentContainer.username]
+        return aa or [self._container.username]
 
     @cached_property
-    def parser(self):
+    def _parser(self):
         return AdfdParser()
-
-    @cached_property
-    def isForeign(self):
-        return self._contentContainer.isForeign
 
     @cached_property
     def hasOneAuthor(self):
@@ -140,11 +126,47 @@ class Node:
         return '' if isRoot else slugify(self.title)
 
     @cached_property
+    def hasContent(self):
+        return isinstance(self._container, ContentContainer)
+        # return self.identifier is not None
+
+    @cached_property
+    def _container(self):
+        if not self.identifier:
+            return NoContentCategory(self._title, self.children)
+
+        if isinstance(self.identifier, int):
+            return DbContentContainer(self.identifier)
+
+        return StaticContentContainer(self.identifier)
+
+    @cached_property
+    def isForeign(self):
+        if isinstance(self._container, NoContentCategory):
+            return False
+
+        return self._container.isForeign
+
+    @cached_property
+    def hasTodos(self):
+        if isinstance(self._container, NoContentCategory):
+            return False
+
+        return "todo" in self.bbcode.lower()
+
+    @cached_property
+    def isDirty(self):
+        if isinstance(self._container, NoContentCategory):
+            return False
+
+        return len(self.unknownTags) > 0
+
+    @cached_property
     def unknownTags(self):
         # noinspection PyStatementEffect
         self.html # make sure it's parsed already
         unknownTags = []
-        for tag in [t for t in self.parser.unknownTags if t.strip()]:
+        for tag in [t for t in self._parser.unknownTags if t.strip()]:
             try:
                 int(tag)
                 continue
@@ -158,20 +180,6 @@ class Node:
             unknownTags.append(tag)
 
         return unknownTags
-
-    @cached_property
-    def hasContent(self):
-        return self.identifier is not None
-
-    @cached_property
-    def _contentContainer(self):
-        if not self.identifier:
-            return CategoryContentContainer(self._title)
-
-        if isinstance(self.identifier, int):
-            return DbContentContainer(self.identifier)
-
-        return StaticContentContainer(self.identifier)
 
 
 class CategoryNode(Node):
@@ -195,10 +203,7 @@ class CategoryNode(Node):
         tag = pattern % (" ".join(classes))
         if self._isSubMenu:
             tag += '<i class="dropdown icon"></i>'
-        if self.hasContent:
-            tag += '<a href="%s">%s</a>' % (self.relPath, self.title)
-        else:
-            tag += self.title
+        tag += '<a href="%s">%s</a>' % (self.relPath, self.title)
         if not self._isSubMenu:
             tag += '<i class="dropdown icon"></i>'
         tag += '<div class="menu">'
@@ -268,16 +273,14 @@ class ContentContainer:
         return "<%s(%s)" % (self.__class__.__name__, self.identifier)
 
 
-class CategoryContentContainer(ContentContainer):
-    pass
+class NoContentCategory:
+    def __init__(self, identifier, children):
+        self.identifier = identifier
+        self.children = children
 
 
 class DbContentContainer(ContentContainer):
     TITLE_PATTERN = '[h1]%s[/h1]\n'
-
-    @cached_property
-    def isImported(self):
-        return self._firstPost.dbp.forum_id == 54
 
     @cached_property
     def title(self):
@@ -315,10 +318,6 @@ class DbContentContainer(ContentContainer):
         return self._firstPost.md
 
     @cached_property
-    def isForeign(self):
-        return self._firstPost.dbp.forum_id != SITE.MAIN_CONTENT_FORUM_ID
-
-    @cached_property
     def _firstPost(self):
         return self._posts[0]
 
@@ -342,19 +341,19 @@ class DbContentContainer(ContentContainer):
     def _postIds(self):
         return DbPost.get_post_ids_for_topic(self.identifier)
 
+    @cached_property
+    def isForeign(self):
+        return self._firstPost.dbp.forum_id != SITE.MAIN_CONTENT_FORUM_ID
+
+    @cached_property
+    def isImported(self):
+        return self._firstPost.dbp.forum_id == 54
+
 
 class StaticContentContainer(ContentContainer):
     @cached_property
     def title(self):
         return False
-
-    @cached_property
-    def isForeign(self):
-        return False
-
-    @cached_property
-    def isImported(self):
-        return True
 
     @cached_property
     def creationDate(self):
@@ -375,3 +374,12 @@ class StaticContentContainer(ContentContainer):
     @cached_property
     def _grabber(self):
         return ContentGrabber(PATH.STATIC / 'content' / self.identifier)
+
+    @cached_property
+    def isForeign(self):
+        return False
+
+    @cached_property
+    def isImported(self):
+        return True
+
