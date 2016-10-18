@@ -76,10 +76,17 @@
                         {{ NAV.smilieNodes.__len__() }} Artikel mit Smilies
                     </div>
                     {% for node in NAV.smilieNodes -%}
-                        <div class="ui segment">
-                            <a href="{{ url_for("path_route", path=node.relPath) }}">{{ node.title }}</a>
+                        <div class="ui horizontal segments">
+                            <div class="ui segment">
+                                <a href="{{ url_for("path_route", path=node.relPath) }}">{{ node.title }}</a>
+                            </div>
+                            <div class="ui horizontal segments">
+                                {% for smilie in node.smilies -%}
+                                    <span class="ui compact segment">{{ smilie }}</span>
+                                {% endfor -%}
+                            </div>
                         </div>
-                    {% endfor -%}
+                    {% endfor %}
                 </div>
             {% endif -%}
         </div>

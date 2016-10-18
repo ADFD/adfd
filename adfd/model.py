@@ -138,8 +138,12 @@ class Node:
         if isinstance(self._container, NoContentContainer):
             return False
 
-        # todo show smilies like with unknown tags
-        return re.search(r':\S*?:', self._bbcode) is not None
+        return bool(self.smilies)
+
+    @cached_property
+    def smilies(self):
+        match = re.search(r'(:[^\s/\[\]\.@]*?:)', self._bbcode)
+        return match.groups() if match else ()
 
     @cached_property
     def isDirty(self):
