@@ -43,6 +43,12 @@ class Node:
         return not self.parents
 
     @cached_property
+    def slug(self):
+        """:rtype: str"""
+        isRoot = self.isCategory and self._title == ''
+        return '' if isRoot else slugify(self.title)
+
+    @cached_property
     def relPath(self):
         return "/".join([c.slug for c in self.parents + [self]]) or "/"
 
@@ -59,36 +65,6 @@ class Node:
             return self._bbcodeAsHtml
 
         return self._html
-
-    @cached_property
-    def _html(self):
-        return self._parser.to_html(self._bbcode)
-
-    @cached_property
-    def _bbcode(self):
-        if isinstance(self._container, NoContentContainer):
-            return None
-
-        return self._container.content
-
-    @cached_property
-    def _bbcodeAsHtml(self):
-        style = get_style_by_name('igor')
-        formatter = HtmlFormatter(style=style)
-        lexer = get_lexer_by_name("bbcode", stripall=True)
-        css = formatter.get_style_defs()
-        txt = highlight(self._bbcode, lexer, HtmlFormatter())
-        return "<style>%s</style>\n%s" % (css, txt)
-
-    @cached_property
-    def sourceLink(self):
-        if isinstance(self._container, StaticArticleContainer):
-            gh = "https://github.com/ADFD/adfd/tree/master/adfd/site"
-            return ("%s/%s/%s/%s" %
-                    (gh, NAME.STATIC, NAME.CONTENT, self.identifier))
-
-        elif isinstance(self._container, DbArticleContainer):
-            return SITE.VIEWTOPIC_PATTERN % self.identifier
 
     @cached_property
     def creationDate(self):
@@ -109,6 +85,16 @@ class Node:
     def hasOneAuthor(self):
         return len(self.allAuthors) == 1
 
+    @cached_property
+    def sourceLink(self):
+        if isinstance(self._container, StaticArticleContainer):
+            gh = "https://github.com/ADFD/adfd/tree/master/adfd/site"
+            return ("%s/%s/%s/%s" %
+                    (gh, NAME.STATIC, NAME.CONTENT, self.identifier))
+
+        elif isinstance(self._container, DbArticleContainer):
+            return SITE.VIEWTOPIC_PATTERN % self.identifier
+
     @property
     def contentToggleLink(self):
         assert self.requestPath
@@ -123,12 +109,6 @@ class Node:
     @property
     def contentToggleLinkText(self):
         return "HTML zeigen" if self.bbcodeIsActive else "BBCode zeigen"
-
-    @cached_property
-    def slug(self):
-        """:rtype: str"""
-        isRoot = self.isCategory and self._title == ''
-        return '' if isRoot else slugify(self.title)
 
     @cached_property
     def isCategory(self):
@@ -178,6 +158,26 @@ class Node:
             unknownTags.append(tag)
 
         return unknownTags
+
+    @cached_property
+    def _html(self):
+        return self._parser.to_html(self._bbcode)
+
+    @cached_property
+    def _bbcode(self):
+        if isinstance(self._container, NoContentContainer):
+            return None
+
+        return self._container.content
+
+    @cached_property
+    def _bbcodeAsHtml(self):
+        style = get_style_by_name('igor')
+        formatter = HtmlFormatter(style=style)
+        lexer = get_lexer_by_name("bbcode", stripall=True)
+        css = formatter.get_style_defs()
+        txt = highlight(self._bbcode, lexer, HtmlFormatter())
+        return "<style>%s</style>\n%s" % (css, txt)
 
     @cached_property
     def _container(self):

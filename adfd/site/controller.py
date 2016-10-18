@@ -90,7 +90,7 @@ def check_route():
 
 @app.route('/all-articles/')
 def articles_all_route():
-    return render_template('articles.html')
+    return render_template('articles-container.html')
 
 
 @app.route('/reset')
