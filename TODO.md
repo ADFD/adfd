@@ -95,3 +95,15 @@ File does not exist: /home/www/apple-touch-icon.png
 http://www.tipue.com/
 
 http://lunrjs.com/
+
+# Beef up navigation
+
+http://stackoverflow.com/questions/15501518/dynamic-navigation-in-flask
+https://flask-navigation.readthedocs.org/en/latest/
+https://github.com/mbr/flask-nav
+
+# Misc
+
+writing HTML in pure Python: https://github.com/Knio/dominate/
+phpbb -> RSS with Python: http://goo.gl/v7CKuS
+ 
