@@ -70,7 +70,7 @@ class Navigator:
         return "".join([str(m) for m in self.menu])
 
     def visit(self, path, key, value):
-        print('visit(%r, %r, %r)' % (path, key, value))
+        # print('visit(%r, %r, %r)' % (path, key, value))
         node = None
         if isinstance(key, str):
             node = self.get_cat_node(key=key)
@@ -147,7 +147,7 @@ class Navigator:
                 node = ArticleNode(topicId, isOrphan=True)
                 self.identifierNodeMap[topicId] = node
                 nodes.append(node)
-                log.warning("orphan: %s (%s)", node.title, topicId)
+                # log.warning("orphan: %s (%s)", node.title, topicId)
         return nodes
 
 
