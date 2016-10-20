@@ -81,7 +81,12 @@ class DbPost:
         try:
             ids = cls.TOPIC_IDS_POST_IDS_MAP[topicId]
         except KeyError:
+            assert isinstance(topicId, int), (topicId, type(topicId))
             t = DB_WRAPPER.get_topic(topicId)
+            if not t:
+                log.error("%s not found, use placeholder ...", topicId)
+                topicId = SITE.PLACEHOLDER_TOPIC_ID
+                t = DB_WRAPPER.get_topic(topicId)
             if t.forum_id != SITE.MAIN_CONTENT_FORUM_ID:
                 if t.forum_id not in SITE.ALLOWED_FORUM_IDS:
                     raise TopicNotAccessible("%s in %s ", topicId, t.forum_id)

@@ -34,6 +34,18 @@ class Navigator:
         self.yamlKeyNodeMap = {}
         self.orphanNodes = []
 
+    def get_node(self, key):
+        try:
+            return self.pathNodeMap["/" + key]
+
+        except Exception as e:
+            log.error("/%s -> %s(%s)", key, type(e), e.args)
+            return CategoryNode("ERROR")
+
+    @cached_property
+    def readyForPrimeTime(self):
+        return not len(self.openIssues)
+
     @cached_property
     def allNodes(self):
         if not self.isPopulated:
@@ -41,29 +53,37 @@ class Navigator:
         return sorted([n for n in self.pathNodeMap.values()])
 
     @cached_property
-    def readyForPrimeTime(self):
-        return not len(self.openIssues)
+    def saneNodes(self):
+        return sorted([n for n in self.allNodes if n.isSane])
+
+    @cached_property
+    def dirtyNodes(self):
+        return [n for n in self.saneNodes if n.isDirty]
+
+    @cached_property
+    def foreignNodes(self):
+        return [n for n in self.saneNodes if n.isForeign]
+
+    @cached_property
+    def todoNodes(self):
+        return [n for n in self.saneNodes if n.hasTodos]
+
+    @cached_property
+    def smilieNodes(self):
+        return [n for n in self.saneNodes if n.hasSmilies]
+
+    @cached_property
+    def hasBrokenNodes(self):
+        return len(self.allNodes) == len(self.saneNodes)
+
+    @cached_property
+    def brokenBBCodeNodes(self):
+        return [n for n in self.allNodes if n.bbcodeIsBroken]
 
     @cached_property
     def openIssues(self):
         return (self.dirtyNodes + self.foreignNodes +
-                self.todoNodes + self.smilieNodes)
-
-    @cached_property
-    def dirtyNodes(self):
-        return [n for n in self.allNodes if n.isDirty]
-
-    @cached_property
-    def foreignNodes(self):
-        return [n for n in self.allNodes if n.isForeign]
-
-    @cached_property
-    def todoNodes(self):
-        return [n for n in self.allNodes if n.hasTodos]
-
-    @cached_property
-    def smilieNodes(self):
-        return [n for n in self.allNodes if n.hasSmilies]
+                self.todoNodes + self.smilieNodes + self.brokenBBCodeNodes)
 
     @property
     def nav(self):
@@ -136,7 +156,7 @@ class Navigator:
             return ordered_yaml_load(stream=open(path, encoding='utf8'))
 
         content = DbArticleContainer(topicId)
-        yamlContent = extract_from_bbcode(SITE.CODE_TAG, content.bbcode)
+        yamlContent = extract_from_bbcode(SITE.CODE_TAG, content._bbcode)
         return ordered_yaml_load(stream=io.StringIO(yamlContent))
 
     def _populate_orphan_nodes(self):
@@ -152,4 +172,6 @@ class Navigator:
 
 
 if __name__ == '__main__':
-    Navigator().populate()
+    _nav = Navigator()
+    _nav.populate()
+    print(_nav.nav)

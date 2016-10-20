@@ -66,6 +66,7 @@ class SITE:
     ALLOWED_FORUM_IDS = [4, 6, 15, 16, 19, 32, 50, 57, 53, 56, 43]
     # TODO import Lob Topic 9324
     STRUCTURE_TOPIC_ID = _CNF['structureTopicId']
+    PLACEHOLDER_TOPIC_ID = 12265
     STRUCTURE_PATH = PATH.SITE / (_CNF['structurePath'] or 'structure.yml')
     STATIC_ARTICLES_PATH = PATH.STATIC / 'content' / 'articles'
     USE_FILE = _CNF['useFile']

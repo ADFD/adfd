@@ -57,7 +57,7 @@ def path_route(path=''):
     if path.startswith(NAME.BBCODE):
         bbcodeIsActive = True
         path = path.partition("/")[-1]
-    node = NAV.pathNodeMap["/" + path]
+    node = NAV.get_node(path)
     node.bbcodeIsActive = bbcodeIsActive
     node.requestPath = request.path
     # TODO set active path (can be done on node directly)

@@ -8,7 +8,14 @@
                     {% if NAV.readyForPrimeTime %}
                         Alles in Ordnung!
                     {% else %}
-                        {{ NAV.openIssues.__len__() }} offene Tasks
+                        <div class="ui segment">
+                            {{ NAV.openIssues.__len__() }} offene Tasks
+                        </div>
+                    {% endif %}
+                    {% if NAV.hasBrokenNodes %}
+                        <div class="ui segment">
+                            Warnung: kaputte Nodes (check log)
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -101,6 +108,30 @@
                 </div>
             {% endif -%}
         </div>
-    </div>
 
+        <div class="ui two column stackable grid container">
+            {% if NAV.brokenBBCodeNodes -%}
+                <div class="column eight wide">
+                    <div class="ui huge inverted orange center aligned segment">
+                        Ganz doll kaputt: {{ NAV.brokenBBCodeNodes.__len__() }}
+                    </div>
+                    {% for node in NAV.brokenBBCodeNodes -%}
+                        <div class="ui horizontal segments">
+                            <div class="ui segment">
+                                <a href="{{ node.sourceLink}}">
+                                    Quelle: {{ node.identifier }}
+                                </a>
+                            </div>
+                            <div class="ui segment">
+                                <a href="{{ node.relPath }}">
+                                    Fehlermeldung: {{ node.identifier }}
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif -%}
+        </div>
+
+    </div>
 {% endblock content -%}

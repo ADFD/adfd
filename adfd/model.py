@@ -1,5 +1,6 @@
 import logging
 import re
+import traceback
 from functools import total_ordering
 
 from cached_property import cached_property
@@ -20,6 +21,7 @@ log = logging.getLogger(__name__)
 @total_ordering
 class Node:
     SPEC = "N"
+    BBCODE_BROKEN_MARKER = "<h1>BBCODE HAT FEHLER</h1>"
 
     def __init__(self, identifier, title=None, isOrphan=False):
         self.identifier = identifier
@@ -38,6 +40,16 @@ class Node:
 
     def __gt__(self, other):
         return self.title > other.title
+
+    @property
+    def isSane(self):
+        try:
+            return (self.identifier != SITE.PLACEHOLDER_TOPIC_ID and
+                    isinstance(self._bbcode, str) and
+                    isinstance(self.title, str) and
+                    isinstance(self.relPath, str))
+        except:
+            return False
 
     @cached_property
     def isHome(self):
@@ -153,6 +165,10 @@ class Node:
         return len(self.unknownTags) > 0
 
     @cached_property
+    def bbcodeIsBroken(self):
+        return not self.isCategory and self.BBCODE_BROKEN_MARKER in self._html
+
+    @cached_property
     def unknownTags(self):
         # noinspection PyStatementEffect
         self._html # make sure it's parsed already
@@ -174,14 +190,20 @@ class Node:
 
     @cached_property
     def _html(self):
-        return self._parser.to_html(self._bbcode)
+        try:
+
+            return self._parser.to_html(self._bbcode)
+
+        except Exception:
+            return ("%s<div><pre>%s</pre></div>" %
+                    (self.BBCODE_BROKEN_MARKER, traceback.format_exc()))
 
     @cached_property
     def _bbcode(self):
         if isinstance(self._container, NoContentContainer):
-            return None
+            return ""
 
-        return self._container.content
+        return self._container._content
 
     @cached_property
     def _bbcodeAsHtml(self):
@@ -260,11 +282,17 @@ class ArticleNode(Node):
         super().__init__(*self._parse(data), isOrphan=isOrphan)
 
     def __str__(self):
-        pattern = '<a class="%s" href="%s">%s</a>'
+        p = '<a class="%s" href="%s">%s</a>'
         classes = ['item']
         if self.isActive:
             classes.append('active')
-        return pattern % (" ".join(classes), self.relPath, self.title)
+        clStr = " ".join(classes)
+        try:
+            return p % (clStr, self.relPath, self.title)
+
+        except:
+            eStr = "kaputt: %s" % (self.identifier)
+            return p % (clStr, "#", eStr)
 
     @classmethod
     def _parse(cls, data):
@@ -321,15 +349,15 @@ class DbArticleContainer(ArticleContainer):
         return date_from_timestamp(newestDate)
 
     @cached_property
-    def bbcode(self):
-        return self.content
+    def _bbcode(self):
+        return self._content
 
     @cached_property
     def username(self):
         return self._firstPost.username
 
     @cached_property
-    def content(self):
+    def _content(self):
         contents = []
         for post in self._posts:
             assert isinstance(post, DbPost)
@@ -389,12 +417,12 @@ class StaticArticleContainer(ArticleContainer):
         return self._grabber.get_mtime()
 
     @cached_property
-    def content(self):
+    def _content(self):
         return self._grabber.grab()
 
     @cached_property
     def md(self):
-        return PageMetadata(text=self.content)
+        return PageMetadata(text=self._content)
 
     @cached_property
     def _grabber(self):

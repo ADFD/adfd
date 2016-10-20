@@ -1,5 +1,5 @@
 <div class="ui segments">
-    {% for node in nodes or NAV.allNodes -%}
+    {% for node in nodes or NAV.saneNodes -%}
         <div class="ui horizontal segments">
             <div class="ui segment">
                 <a href="{{ url_for("path_route", path=node.relPath) }}">
