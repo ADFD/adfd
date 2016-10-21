@@ -711,6 +711,7 @@ class AdfdParser(Parser):
         self._add_quote_formatter()
         self._add_raw_formatter()
         self._add_removals()
+        self._add_spoil_formatter()
         self._add_section_formatter()
         self._add_url_formatter()
 
@@ -845,10 +846,14 @@ class AdfdParser(Parser):
         for removal in ['meta']:
             self.add_simple(removal, '')
 
-    # # noinspection PyUnusedLocal
-    # @staticmethod
-    # def _render_meta(name, value, options, parent, context):
-    #     return '<div style="display: none;">%s</div>\n' % value
+    def _add_spoil_formatter(self):
+        self.add_formatter('spoil', self._render_spoil,
+                           replaceLinks=False, replaceCosmetic=False)
+
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def _render_spoil(name, value, options, parent, context):
+        return '<div style="display: none;">%s</div>\n' % value
 
     def _add_section_formatter(self):
         self.add_formatter(
@@ -867,17 +872,7 @@ class AdfdParser(Parser):
     # noinspection PyUnusedLocal
     @staticmethod
     def _render_url(name, value, options, parent, context):
-        if options and 'url' in options:
-            # Option values are not escaped for HTML output.
-            href = Replacer.replace(options['url'], Replacer.HTML_ESCAPE)
-        else:
-            href = value
-        # Completely ignore javascript: and data: "links".
-        if (re.sub(r'[^a-z0-9+]', '', href.lower().split(':', 1)[0]) in
-                ('javascript', 'data', 'vbscript')):
-            return ''
-
-        # Only add http:// if it looks like it starts with a domain name.
+        href = options['url'] if options and 'url' in options else value
         if '://' not in href and RE.DOMAIN.match(href):
             href = 'http://' + href
         return '<a href="%s">%s</a>' % (href.replace('"', '%22'), value)
