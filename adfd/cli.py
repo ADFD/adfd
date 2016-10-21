@@ -48,26 +48,47 @@ class AdfdDev(cli.Application):
 
 @Adfd.subcommand('gulp')
 class AdfdGulp(cli.Application):
-    """Run local development server"""
+    """build and watch semantic content"""
     def main(self):
         with local.cwd(PATH.SEMANTIC):
             os.system("gulp build")
             os.system("gulp watch")
 
 
+@Adfd.subcommand('pull-code')
+class AdfdUpdate(cli.Application):
+    def main(self):
+        with local.cwd(PATH.PROJECT):
+            print(local['git']('pull'))
+            print(local['git']('status'))
+
+
+@Adfd.subcommand('push-content')
+class AdfdUpdate(cli.Application):
+    def main(self):
+        with local.cwd(PATH.RENDERED):
+            print(local['git']('add', '.'))
+            try:
+                print(local['git']('commit', '-m', 'new build'))
+            except ProcessExecutionError as e:
+                if "nothing to commit" in e.stdout:
+                    log.warning("no changes -> nothing to commit")
+                    return
+
+                log.warning("commit failed: %s", e)
+                return
+
+            print(local['git']('push'))
+
+
 @Adfd.subcommand('freeze')
 class AdfdFreeze(cli.Application):
     """Freeze website to static files"""
-    noPush = cli.Flag(['--no-push'], default=False)
-    pullCode = cli.Flag(['--pull-code'], default=False)
-
     def main(self):
-        self.freeze(self.pullCode, not self.noPush)
+        self.freeze()
 
     @classmethod
-    def freeze(cls, pullCode, push):
-        if pullCode:
-            cls.pull_code_from_github()
+    def freeze(cls):
         buildPath = tempfile.mkdtemp()
         app.config.update(
             FREEZER_DESTINATION=PATH.RENDERED,
@@ -87,8 +108,6 @@ class AdfdFreeze(cli.Application):
         cls.remove_clutter()
         if not INFO.IS_DEV_BOX:
             AdfdFixStagingPaths.fix_staging_paths()
-        if push:
-            cls.push_to_github()
         print("ADFD site successfully frozen!")
 
     @classmethod
@@ -118,28 +137,6 @@ class AdfdFreeze(cli.Application):
                 if (not os.path.exists(d) or
                         os.stat(s).st_mtime - os.stat(d).st_mtime > 1):
                     shutil.copy2(s, d)
-
-    @classmethod
-    def pull_code_from_github(cls):
-        with local.cwd(PATH.PROJECT):
-            print(local['git']('pull'))
-            print(local['git']('status'))
-
-    @classmethod
-    def push_to_github(cls):
-        with local.cwd(PATH.RENDERED):
-            local['git']('add', '.')
-            try:
-                local['git']('commit', '-m', 'new build')
-            except ProcessExecutionError as e:
-                if "nothing to commit" in e.stdout:
-                    log.warning("no changes -> nothing to commit")
-                    return
-
-                log.warning("commit failed: %s", e)
-                return
-
-            local['git']('push')
 
 
 @Adfd.subcommand('frozen')
