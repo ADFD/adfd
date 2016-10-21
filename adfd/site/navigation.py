@@ -74,7 +74,7 @@ class Navigator:
 
     @cached_property
     def hasBrokenNodes(self):
-        return len(self.allNodes) == len(self.saneNodes)
+        return len(self.allNodes) != len(self.saneNodes)
 
     @cached_property
     def brokenBBCodeNodes(self):
