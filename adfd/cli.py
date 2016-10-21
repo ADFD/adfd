@@ -89,6 +89,7 @@ class AdfdFreeze(cli.Application):
             AdfdFixStagingPaths.fix_staging_paths()
         if push:
             cls.push_to_github()
+        print("ADFD site successfully frozen")
 
     @classmethod
     def deliver_static_root_files(cls):
