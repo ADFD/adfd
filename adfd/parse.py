@@ -414,7 +414,7 @@ class Parser:
         Takes into account if option is enabled globally for this parser.
         """
         text = ''.join([t.text for t in tokens])
-        url_matches = {}
+        urlMatches = {}
         if self.replaceLinks and replaceLinks:
             # If we're replacing links in the text (i.e. not those in [url]
             # tags) then we need to be careful to pull them out before doing
@@ -427,8 +427,8 @@ class Parser:
 
                 # Replace any link with a token that we can substitute back
                 # in after replacements.
-                token = '{{ bbcode-link-%s }}' % len(url_matches)
-                url_matches[token] = self._link_replace(match, **context)
+                token = '{{ bbcode-link-%s }}' % len(urlMatches)
+                urlMatches[token] = self._link_replace(match, **context)
                 # noinspection PyUnresolvedReferences
                 start, end = match.span()
                 text = text[:start] + token + text[end:]
@@ -443,7 +443,7 @@ class Parser:
         if self.hyphenate:
             text = hyphenate(text)
         # Now put the replaced links back in the text.
-        for token, replacement in url_matches.items():
+        for token, replacement in urlMatches.items():
             text = text.replace(token, replacement)
         return text
 
