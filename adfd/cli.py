@@ -56,7 +56,7 @@ class AdfdGulp(cli.Application):
 
 
 @Adfd.subcommand('pull-code')
-class AdfdUpdate(cli.Application):
+class AdfdPullCode(cli.Application):
     def main(self):
         with local.cwd(PATH.PROJECT):
             print(local['git']('pull'))
