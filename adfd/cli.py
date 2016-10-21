@@ -58,10 +58,11 @@ class AdfdGulp(cli.Application):
 @Adfd.subcommand('pull-code')
 class AdfdPullCode(cli.Application):
     def main(self):
+        hostPip = '/home/.pyenv/versions/adfd/bin/pip'
         with local.cwd(PATH.PROJECT):
             print(local['git']('pull'))
             print(local['git']('status'))
-            print(local['pip']('install', '-U', '-e', PATH.PROJECT))
+            print(local[hostPip]('install', '-U', '-e', PATH.PROJECT))
 
 
 @Adfd.subcommand('push-content')
