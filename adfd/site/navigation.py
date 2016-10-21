@@ -174,4 +174,5 @@ class Navigator:
 if __name__ == '__main__':
     _nav = Navigator()
     _nav.populate()
+    print(_nav.structure)
     print(_nav.nav)

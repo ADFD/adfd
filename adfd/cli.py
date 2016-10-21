@@ -59,12 +59,15 @@ class AdfdGulp(cli.Application):
 class AdfdFreeze(cli.Application):
     """Freeze website to static files"""
     noPush = cli.Flag(['--no-push'], default=False)
+    pullCode = cli.Flag(['--pull-code'], default=False)
 
     def main(self):
-        self.freeze(not self.noPush)
+        self.freeze(self.pullCode, not self.noPush)
 
     @classmethod
-    def freeze(cls, push):
+    def freeze(cls, pullCode, push):
+        if pullCode:
+            cls.pull_code_from_github()
         buildPath = tempfile.mkdtemp()
         app.config.update(
             FREEZER_DESTINATION=PATH.RENDERED,
@@ -114,6 +117,12 @@ class AdfdFreeze(cli.Application):
                 if (not os.path.exists(d) or
                         os.stat(s).st_mtime - os.stat(d).st_mtime > 1):
                     shutil.copy2(s, d)
+
+    @classmethod
+    def pull_code_from_github(cls):
+        with local.cwd(PATH.PROJECT):
+            print(local['git']('pull'))
+            print(local['git']('status'))
 
     @classmethod
     def push_to_github(cls):
