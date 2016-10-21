@@ -163,7 +163,8 @@ class Navigator:
         nodes = []
         for t in DB_WRAPPER.get_topics(SITE.MAIN_CONTENT_FORUM_ID):
             topicId = t.topic_id
-            if topicId not in self.identifierNodeMap:
+            if (topicId not in self.identifierNodeMap and
+                    topicId not in SITE.IGNORED_CONTENT_TOPICS):
                 node = ArticleNode(topicId, isOrphan=True)
                 self.identifierNodeMap[topicId] = node
                 nodes.append(node)

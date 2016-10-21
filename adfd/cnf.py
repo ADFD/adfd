@@ -67,6 +67,7 @@ class SITE:
     # TODO import Lob Topic 9324
     STRUCTURE_TOPIC_ID = _CNF['structureTopicId']
     PLACEHOLDER_TOPIC_ID = 12265
+    IGNORED_CONTENT_TOPICS = [PLACEHOLDER_TOPIC_ID, STRUCTURE_TOPIC_ID]
     STRUCTURE_PATH = PATH.SITE / (_CNF['structurePath'] or 'structure.yml')
     STATIC_ARTICLES_PATH = PATH.STATIC / 'content' / 'articles'
     USE_FILE = _CNF['useFile']
