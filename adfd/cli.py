@@ -61,6 +61,7 @@ class AdfdPullCode(cli.Application):
         with local.cwd(PATH.PROJECT):
             print(local['git']('pull'))
             print(local['git']('status'))
+            print(local['pip']('install', '-U', '-e', PATH.PROJECT))
 
 
 @Adfd.subcommand('push-content')
