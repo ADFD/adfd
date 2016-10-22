@@ -1,14 +1,15 @@
 import io
 import logging
+import re
 from collections import OrderedDict
 
-from adfd.db.lib import DB_WRAPPER
-from boltons.iterutils import remap
 import yaml
-
 from adfd.cnf import SITE
-from adfd.process import extract_from_bbcode
+from adfd.db.lib import DB_WRAPPER
 from adfd.model import CategoryNode, ArticleNode, DbArticleContainer
+from adfd.process import extract_from_bbcode
+from boltons.iterutils import remap
+from bs4 import BeautifulSoup
 from cached_property import cached_property
 
 log = logging.getLogger(__name__)
@@ -26,6 +27,7 @@ class Navigator:
         self.root = self.yamlKeyNodeMap[next(iter(self.structure))]
         self.menu = self.root.children
         self.orphanNodes = self._populate_orphan_nodes()
+        self.replace_links()
         self.isPopulated = True
 
     def _reset(self):
@@ -41,6 +43,9 @@ class Navigator:
         except Exception as e:
             log.error("/%s -> %s(%s)", key, type(e), e.args)
             return CategoryNode("ERROR")
+
+    def get_target_node(self, topicId):
+        return self.identifierNodeMap.get(topicId)
 
     @cached_property
     def readyForPrimeTime(self):
@@ -160,6 +165,7 @@ class Navigator:
         return ordered_yaml_load(stream=io.StringIO(yamlContent))
 
     def _populate_orphan_nodes(self):
+        log.info("populate orphan nodes")
         nodes = []
         for t in DB_WRAPPER.get_topics(SITE.MAIN_CONTENT_FORUM_ID):
             topicId = t.topic_id
@@ -171,9 +177,64 @@ class Navigator:
                 # log.warning("orphan: %s (%s)", node.title, topicId)
         return nodes
 
+    def replace_links(self):
+        log.info("replace internal links")
+        for identifier, node in self.identifierNodeMap.items():
+            node.html = node.rawHtml
+            soup = BeautifulSoup(node.html, 'html5lib')
+            for link in soup.findAll('a'):
+                url = link.get('href')
+                ui = UrlInformer(url)
+                if ui.pointsToTopic:
+                    targetNode = self.get_target_node(ui.topicId)
+                    if not targetNode:
+                        continue
+
+                    node.html = node.html.replace(url, targetNode.relPath)
+                    log.warning("'%s' -> '%s'" % (link.text, link.get('href')))
+
+
+class UrlInformer:
+    DOMAINS = ["adfd.org", "adfd.de",
+               "antidepressiva-absetzen.de", "psychopharmaka-absetzen.de"]
+    BOARD_FOLDERS = ['austausch', 'forum']
+    VIEWTOPIC = 'viewtopic.php'
+
+    def __init__(self, url):
+        self.url = url
+
+    @property
+    def topicId(self):
+        topicIdMatch = re.search(r't=(\d*)', self.url)
+        if topicIdMatch:
+            return topicIdMatch.group(1)
+
+        postIdMatch = re.search(r'p=(\d*)', self.url)
+        if postIdMatch:
+            postId = postIdMatch.group(1)
+            return DB_WRAPPER.get_post(postId).topic_id
+
+    @property
+    def pointsToTopic(self):
+        return self.pointsToForum and self.VIEWTOPIC in self.url
+
+    @property
+    def pointsToForum(self):
+        return self.isOneOfUs and any(
+            "/%s/" % f in self.url for f in self.BOARD_FOLDERS)
+
+    @property
+    def isOneOfUs(self):
+        return self.isRelative or any(d in self.url for d in self.DOMAINS)
+
+    @property
+    def isRelative(self):
+        return any(self.url.startswith(prefix) for prefix in ['#', '/'])
+
 
 if __name__ == '__main__':
-    _nav = Navigator()
-    _nav.populate()
-    print(_nav.structure)
-    print(_nav.nav)
+    n = Navigator()
+    n.populate()
+    ui = UrlInformer(
+        "http://www.adfd.org/austausch/viewtopic.php?p=109250#p109250")
+    print(ui.pointsToTopic)

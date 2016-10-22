@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 @total_ordering
 class Node:
     SPEC = "N"
-    BBCODE_BROKEN_MARKER = "<h1>BBCODE HAT FEHLER</h1>"
+    BROKEN_MARKER = "<h1>Konnte nicht geparsed werden</h1>"
 
     def __init__(self, identifier, title=None, isOrphan=False):
         self.identifier = identifier
@@ -33,6 +33,7 @@ class Node:
         self.isOrphan = isOrphan
         self.requestPath = None
         self.bbcodeIsActive = False
+        self.html = None
 
     def __repr__(self):
         return "<%s(%s: %s)>" % (self.SPEC, self.identifier, self.title[:6])
@@ -76,7 +77,7 @@ class Node:
         if self.bbcodeIsActive:
             return self._bbcodeAsHtml
 
-        return self._html
+        return self.html or self.rawHtml
 
     @cached_property
     def creationDate(self):
@@ -105,7 +106,7 @@ class Node:
                     (gh, NAME.STATIC, NAME.CONTENT, self.identifier))
 
         elif isinstance(self._container, DbArticleContainer):
-            return SITE.VIEWTOPIC_PATTERN % self.identifier
+            return SITE.TOPIC_REL_PATH_PATTERN % self.identifier
 
     @property
     def contentToggleLink(self):
@@ -165,12 +166,12 @@ class Node:
 
     @cached_property
     def bbcodeIsBroken(self):
-        return not self.isCategory and self.BBCODE_BROKEN_MARKER in self._html
+        return not self.isCategory and self.BROKEN_MARKER in self.rawHtml
 
     @cached_property
     def unknownTags(self):
         # noinspection PyStatementEffect
-        self._html # make sure it's parsed already
+        self.rawHtml  # ensure parsing has happened
         unknownTags = []
         for tag in [t for t in self._parser.unknownTags if t.strip()]:
             try:
@@ -188,14 +189,14 @@ class Node:
         return unknownTags
 
     @cached_property
-    def _html(self):
+    def rawHtml(self):
         try:
 
             return self._parser.to_html(self._bbcode)
 
         except Exception:
             return ("%s<div><pre>%s</pre></div>" %
-                    (self.BBCODE_BROKEN_MARKER, traceback.format_exc()))
+                    (self.BROKEN_MARKER, traceback.format_exc()))
 
     @cached_property
     def _bbcode(self):
