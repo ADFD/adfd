@@ -10,7 +10,7 @@ from adfd.db.lib import DB_WRAPPER
 from adfd.db.sync import DbSynchronizer
 from adfd.site import fridge
 from adfd.site.controller import app, run_devserver
-from adfd.utils import configure_logging, date_from_timestamp
+from adfd.process import date_from_timestamp
 from flask.ext.frozen import Freezer
 from plumbum import ProcessExecutionError, SshMachine, cli, local
 
@@ -23,7 +23,6 @@ class Adfd(cli.Application):
         ['l', 'log-level'], default='INFO', help="set log level")
 
     def main(self):
-        configure_logging(self.logLevel)
         if not self.nested_command:
             self.nested_command = (AdfdDev, ['adfd dev'])
 

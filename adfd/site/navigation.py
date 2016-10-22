@@ -7,7 +7,7 @@ from boltons.iterutils import remap
 import yaml
 
 from adfd.cnf import SITE
-from adfd.parse import extract_from_bbcode
+from adfd.process import extract_from_bbcode
 from adfd.model import CategoryNode, ArticleNode, DbArticleContainer
 from cached_property import cached_property
 

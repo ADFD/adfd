@@ -2,7 +2,6 @@ import logging
 
 from adfd.cnf import NAME
 from adfd.site.controller import NAV
-from adfd.utils import configure_logging
 
 log = logging.getLogger(__name__)
 
@@ -24,6 +23,5 @@ def path_route():
 
 
 if __name__ == '__main__':
-    configure_logging("INFO")
     for r in path_route():
         print(r)

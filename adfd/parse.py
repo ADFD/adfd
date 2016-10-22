@@ -3,10 +3,8 @@ import itertools
 import logging
 import re
 
-from adfd.utils import slugify
+from adfd.process import RE, slugify
 from cached_property import cached_property
-from pyphen import Pyphen
-from typogrify.filters import typogrify
 
 log = logging.getLogger(__name__)
 
@@ -97,8 +95,6 @@ class Parser:
         self.unknownTags = set()
         self.dropUnrecognized = dropUnrecognized
         self.escapeHtml = escapeHtml
-        self.typogrify = typogrify
-        self.hyphenate = hyphenate
         self.replaceCosmetic = replaceCosmetic
         self.replaceLinks = replaceLinks
         self.linker = linker
@@ -440,8 +436,6 @@ class Parser:
             text = Replacer.replace(text, Replacer.HTML_ESCAPE)
         if self.replaceCosmetic and replaceCosmetic:
             text = Replacer.replace(text, Replacer.COSMETIC)
-        if self.hyphenate:
-            text = hyphenate(text)
         # Now put the replaced links back in the text.
         for token, replacement in urlMatches.items():
             text = text.replace(token, replacement)
@@ -670,10 +664,8 @@ class AdfdParser(Parser):
             assert not tokens, tokens
             tokens = Chunkman(self.tokenize(data)).flattened
         assert tokens
-        html = self._format_tokens(tokens, parent=None, **context).strip()
-        if self.typogrify:
-            html = typogrify(html)
-        return self.cleanup(html)
+        _html = self._format_tokens(tokens, parent=None, **context).strip()
+        return self.cleanup(_html)
 
     def cleanup(self, text):
         out = []
@@ -903,48 +895,3 @@ class Replacer:
         for find, repl in replacements:
             data = data.replace(find, repl)
         return data
-
-
-def hyphenate(text, hyphen='&shy;'):
-    py = Pyphen(lang='de_de')
-    words = text.split(' ')
-    return ' '.join([py.inserted(word, hyphen=hyphen) for word in words])
-
-
-# fixme likely not needed
-def untypogrify(text):
-    def untypogrify_char(c):
-        return '"' if c in ['“', '„'] else c
-
-    return ''.join([untypogrify_char(c) for c in text])
-
-
-class RE:
-    URL = re.compile(
-        r'(?im)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)'
-        r'(?:[^\s()<>]+|\([^\s()<>]+\))'
-        r'+(?:\([^\s()<>]+\)|[^\s`!()\[\]{};:\'".,<>?]))')
-    """
-    from http://daringfireball.net/2010/07/improved_regex_for_matching_urls
-    Only support one level of parentheses - was failing on some URLs.
-    See http://www.regular-expressions.info/catastrophic.html
-    """
-    DOMAIN = re.compile(
-        r'(?im)(?:www\d{0,3}[.]|[a-z0-9.\-]+[.]'
-        r'(?:com|net|org|edu|biz|gov|mil|info|io|name|me|tv|us|uk|mobi))')
-    """
-    For the URL tag, try to be smart about when to append a missing http://.
-    If the given link looks like a domain, add a http:// in front of it,
-    otherwise leave it alone (be a relative path, a filename, etc.).
-    """
-
-
-def extract_from_bbcode(tag, content):
-    rString = r'\[%s\](.*)\[/%s\]' % (tag, tag)
-    regex = re.compile(rString, re.MULTILINE | re.DOTALL)
-    match = regex.search(content)
-    try:
-        return match.group(1)
-    except AttributeError:
-        pass
-        # log.warning("no [%s] in %s[...]" % (tag, content[:50]))

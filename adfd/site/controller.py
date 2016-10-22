@@ -4,7 +4,7 @@ import socket
 
 from adfd.cnf import PATH, SITE, APP, NAME
 from adfd.site.navigation import Navigator
-from adfd.utils import date_from_timestamp
+from adfd.process import date_from_timestamp
 from flask import Flask, render_template, url_for
 from flask import request, flash, redirect
 from plumbum.machines import local

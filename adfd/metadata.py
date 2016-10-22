@@ -20,7 +20,7 @@ from collections import OrderedDict
 
 from adfd.cnf import SITE
 from adfd.exc import NotAnAttribute
-from adfd.parse import extract_from_bbcode
+from adfd.process import extract_from_bbcode
 
 log = logging.getLogger(__name__)
 
