@@ -51,6 +51,7 @@ class PATH:
     VIEW = SITE / 'view'
     _DEV_BOX_RENDERED = _PROJECT / '..' / 'static'
     RENDERED = _DEV_BOX_RENDERED if INFO.IS_DEV_BOX else TARGET.CHECKOUT_PATH
+    BBCODE_BACKUP = RENDERED / 'bbcode-sources'
     LAST_UPDATE = RENDERED / 'last_updated'
 
 

@@ -9,9 +9,10 @@ from adfd.cnf import PATH, SITE, TARGET, VIRTENV, INFO
 from adfd.db.lib import DB_WRAPPER
 from adfd.db.sync import DbSynchronizer
 from adfd.site import fridge
-from adfd.site.controller import app, run_devserver
+from adfd.site.controller import app, run_devserver, NAV
 from adfd.process import date_from_timestamp
 from flask.ext.frozen import Freezer
+from plumbum import LocalPath
 from plumbum import ProcessExecutionError, SshMachine, cli, local
 
 log = logging.getLogger(__name__)
@@ -103,6 +104,7 @@ class AdfdFreeze(cli.Application):
         cls.copytree(buildPath, PATH.RENDERED)
         cls.deliver_static_root_files()
         cls.remove_clutter()
+        cls.write_bbcode_sources()
         if not INFO.IS_DEV_BOX:
             AdfdFixStagingPaths.fix_staging_paths()
         print("ADFD site successfully frozen!")
@@ -134,6 +136,21 @@ class AdfdFreeze(cli.Application):
                 if (not os.path.exists(d) or
                         os.stat(s).st_mtime - os.stat(d).st_mtime > 1):
                     shutil.copy2(s, d)
+
+    @classmethod
+    def write_bbcode_sources(cls):
+        PATH.BBCODE_BACKUP.mkdir()
+        for node in NAV.allNodes:
+            if not node.hasArticle:
+                continue
+
+            if isinstance(node.identifier, str):
+                identifier = LocalPath(node.identifier).name
+            else:
+                identifier = '%s.bbcode' % node.identifier
+            path = PATH.BBCODE_BACKUP / identifier
+            log.info("save sources %s", node.relPath)
+            path.write(node._bbcode, encoding='utf8')
 
 
 @Adfd.subcommand('push-content')
