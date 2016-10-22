@@ -185,6 +185,8 @@ class Navigator:
             for link in soup.findAll('a'):
                 url = link.get('href')
                 ui = UrlInformer(url)
+                if ui.pointsToObsoleteLocation:
+                    log.warning("obsolete url: %s", ui.url)
                 if ui.pointsToTopic:
                     targetNode = self.get_target_node(ui.topicId)
                     if not targetNode:
@@ -197,7 +199,8 @@ class Navigator:
 class UrlInformer:
     DOMAINS = ["adfd.org", "adfd.de",
                "antidepressiva-absetzen.de", "psychopharmaka-absetzen.de"]
-    BOARD_FOLDERS = ['austausch', 'forum']
+    BOARD_FOLDER = 'austausch'
+    OBSOLETE_FOLDERS = ['wiki', 'forum']
     VIEWTOPIC = 'viewtopic.php'
 
     def __init__(self, url):
@@ -219,9 +222,13 @@ class UrlInformer:
         return self.pointsToForum and self.VIEWTOPIC in self.url
 
     @property
-    def pointsToForum(self):
+    def pointsToObsoleteLocation(self):
         return self.isOneOfUs and any(
-            "/%s/" % f in self.url for f in self.BOARD_FOLDERS)
+            "/%s/" % f in self.url for f in self.OBSOLETE_FOLDERS)
+
+    @property
+    def pointsToForum(self):
+        return self.isOneOfUs and self.BOARD_FOLDER in self.url
 
     @property
     def isOneOfUs(self):
@@ -239,6 +246,3 @@ class UrlInformer:
 if __name__ == '__main__':
     n = Navigator()
     n.populate()
-    ui = UrlInformer(
-        "http://www.adfd.org/austausch/viewtopic.php?p=109250#p109250")
-    print(ui.pointsToTopic)
