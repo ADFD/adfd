@@ -231,6 +231,10 @@ class UrlInformer:
     def isRelative(self):
         return any(self.url.startswith(prefix) for prefix in ['#', '/'])
 
+    @property
+    def isMail(self):
+        return self.url.startswith('mailto:')
+
 
 if __name__ == '__main__':
     n = Navigator()

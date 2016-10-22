@@ -60,26 +60,22 @@ class AdfdPullCode(cli.Application):
         hostPip = '/home/.pyenv/versions/adfd/bin/pip'
         with local.cwd(PATH.PROJECT):
             print(local['git']('pull'))
-            print(local['git']('status'))
             print(local[hostPip]('install', '-U', '-e', PATH.PROJECT))
 
 
-@Adfd.subcommand('push-content')
-class AdfdUpdate(cli.Application):
+@Adfd.subcommand('deploy-code')
+class AdfdDeployCode(cli.Application):
     def main(self):
-        with local.cwd(PATH.RENDERED):
-            print(local['git']('add', '.'))
-            try:
-                print(local['git']('commit', '-m', 'new build'))
-            except ProcessExecutionError as e:
-                if "nothing to commit" in e.stdout:
-                    log.warning("no changes -> nothing to commit")
-                    return
+        self.deploy_code()
 
-                log.warning("commit failed: %s", e)
-                return
-
-            print(local['git']('push'))
+    @classmethod
+    def deploy_code(cls):
+        remote = SshMachine(TARGET.DOMAIN)
+        with remote.cwd(TARGET.TOOL_PATH):
+            print(remote['git']('pull'))
+            print(remote[VIRTENV.PIP_BIN]('install', '-U', '-e', '.'))
+            # FIXME likely not needed as we can do without full server
+            # print(remote['cp'](VIRTENV.ACTIVATE_THIS_SRC, VIRTENV.FOLDER))
 
 
 @Adfd.subcommand('freeze')
@@ -140,6 +136,28 @@ class AdfdFreeze(cli.Application):
                     shutil.copy2(s, d)
 
 
+@Adfd.subcommand('push-content')
+class AdfdPushContent(cli.Application):
+    def main(self):
+        self.push_content()
+
+    @classmethod
+    def push_content(cls):
+        with local.cwd(PATH.RENDERED):
+            print(local['git']('add', '.'))
+            try:
+                print(local['git']('commit', '-m', 'new build'))
+            except ProcessExecutionError as e:
+                if "nothing to commit" in e.stdout:
+                    log.warning("no changes -> nothing to commit")
+                    return
+
+                log.warning("commit failed: %s", e)
+                return
+
+            print(local['git']('push'))
+
+
 @Adfd.subcommand('frozen')
 class AdfdServeFrozen(cli.Application):
     """Serve frozen web page locally"""
@@ -162,15 +180,18 @@ class AdfdServeFrozen(cli.Application):
 class AdfdDeploy(cli.Application):
     """Deploy code by pulling it from github"""
     def main(self):
+        AdfdFreeze.freeze()
+        AdfdPushContent.push_content()
+        self.deploy_content()
+
+    @classmethod
+    def deploy_content(cls):
         remote = SshMachine(TARGET.DOMAIN)
         with remote.cwd(TARGET.CHECKOUT_PATH):
             print(remote['git']('reset', '--hard'))
             print(remote['git']('clean', '-f', '-d'))
             print(remote['git']('pull'))
         with remote.cwd(TARGET.TOOL_PATH):
-            print(remote['git']('pull'))
-            print(remote[VIRTENV.PIP_BIN]('install', '-U', '-e', '.'))
-            print(remote['cp'](VIRTENV.ACTIVATE_THIS_SRC, VIRTENV.FOLDER))
             print(remote['adfd']('fix-staging-paths'))
 
 
