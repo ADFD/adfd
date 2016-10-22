@@ -4,7 +4,7 @@ import pytest
 
 from adfd.cnf import PATH
 from adfd.parse import AdfdParser
-from adfd.utils import ContentGrabber
+from adfd.process import ContentGrabber
 
 log = logging.getLogger(__name__)
 
