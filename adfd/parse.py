@@ -867,6 +867,14 @@ class AdfdParser(Parser):
         href = options['url'] if options and 'url' in options else value
         if '://' not in href and RE.DOMAIN.match(href):
             href = 'http://' + href
+        # Completely ignore javascript: and data: "links".
+        if (re.sub(r'[^a-z0-9+]', '', href.lower().split(':', 1)[0]) in
+                ('javascript', 'data', 'vbscript')):
+            return ''
+
+        if '<' in href or '>' in href:
+            return ''
+
         return '<a href="%s">%s</a>' % (href.replace('"', '%22'), value)
 
 
