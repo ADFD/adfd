@@ -272,11 +272,11 @@ class CategoryNode(Node):
             classes.append('active')
         tag = pattern % (" ".join(classes))
         if self._isSubMenu:
-            tag += '<i class="big orange dropdown icon"></i>'
+            tag += '<i class="orange dropdown icon"></i>'
         padding = "&nbsp;" * 3 if self._isSubMenu else ''
         tag += '<a href="%s">%s</a>%s' % (self.relPath, self.title, padding)
         if not self._isSubMenu:
-            tag += '<i class="big orange dropdown icon"></i>'
+            tag += '<i class="orange dropdown icon"></i>'
         tag += '<div class="menu">'
         return "%s%%s</div></div>" % tag
 

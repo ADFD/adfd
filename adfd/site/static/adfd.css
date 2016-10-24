@@ -22,10 +22,6 @@ body {
     background-attachment: fixed;
 }
 
-/*#main {*/
-    /*margin-top: 0.5em;*/
-/*}*/
-
 /* Not supported by Chrome yet, but on the way
    https://bugs.chromium.org/p/chromium/issues/detail?id=605840 */
 @supports ( hyphens: auto ) {
@@ -37,10 +33,6 @@ body {
     }
 }
 
-.quote {
-    background-color: #b3cce2;
-}
-
 pre {
     white-space: pre-wrap;       /* Since CSS 2.1 */
     white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
@@ -49,7 +41,6 @@ pre {
 }
 
 i.big.orange {
-    /*border:solid 1px black;*/
     line-height: 0.5;
     vertical-align: baseline;
 }
