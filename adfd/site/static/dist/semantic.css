@@ -663,72 +663,6 @@ input::selection {
 /*******************************
          Site Overrides
 *******************************/
-
-/*$adfd-dark-red: #d51707;*/
-
-/*$adfd-light-red: #e05347;*/
-
-/*$adfd-dark-blue: #16347b;*/
-
-/*$adfd-light-blue: #b3cce2;*/
-
-/*$fg-color-very-dark: #222222;*/
-
-/*$fg-color-dark: #333333;*/
-
-/*$fg-color-medium: #555555;*/
-
-/*$fg-color-light: #777777;*/
-
-/*$fg-color-very-light: #FAFAFA;*/
-
-html {
-  /* To make use of full height of page*/
-  min-height: 100%;
-  margin: 0;
-}
-
-body {
-  min-height: 100%;
-  margin: 0;
-  background: -webkit-linear-gradient(top, #FFFFFF, #b3cce2 95%, #16347b);
-  background: linear-gradient(to bottom, #FFFFFF, #b3cce2 95%, #16347b);
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-}
-
-/*#main {*/
-
-/*margin-top: 0.5em;*/
-
-/*}*/
-
-/* Not supported by Chrome yet, but on the way
-   https://bugs.chromium.org/p/chromium/issues/detail?id=605840 */
-
-@supports ((-webkit-hyphens: auto) or (-ms-hyphens: auto) or (hyphens: auto)) {
-  p {
-    text-align: justify;
-    -webkit-hyphens: auto;
-    -ms-hyphens: auto;
-    hyphens: auto;
-  }
-}
-
-.quote {
-  background-color: #b3cce2;
-}
-
-pre {
-  white-space: pre-wrap;
-  /* Since CSS 2.1 */
-  white-space: -moz-pre-wrap;
-  /* Mozilla, since 1999 */
-  white-space: -o-pre-wrap;
-  /* Opera 7 */
-  word-wrap: break-word;
-  /* Internet Explorer 5.5+ */
-}
 /*!
  * # Semantic UI 2.2.4 - Button
  * http://github.com/semantic-org/semantic-ui/
@@ -16350,13 +16284,6 @@ ol.ui.horizontal.list li:before,
 /*******************************
          Site Overrides
 *******************************/
-
-/* footer background */
-
-.ui.inverted.segment,
-.ui.primary.inverted.segment {
-  background: #16347b;
-}
 /*!
  * # Semantic UI 2.2.4 - Step
  * http://github.com/semantic-org/semantic-ui/
@@ -20632,7 +20559,7 @@ ol.ui.horizontal.list li:before,
   display: flex;
   margin: 1rem 0em;
   font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
-  background: #EEEEEE;
+  background: #FFFFFF;
   font-weight: normal;
   border: 1px solid rgba(34, 36, 38, 0.15);
   box-shadow: 0px 1px 2px 0 rgba(34, 36, 38, 0.15);

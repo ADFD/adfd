@@ -789,9 +789,3 @@
          Site Overrides
 *******************************/
 
-
-/* footer background */
-.ui.inverted.segment,
-.ui.primary.inverted.segment {
-  background: #16347b;
-}
