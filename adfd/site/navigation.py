@@ -78,10 +78,6 @@ class Navigator:
         return [n for n in self.saneNodes if n.hasSmilies]
 
     @cached_property
-    def brokenMetadataNodes(self):
-        return [n for n in self.saneNodes if n.hasBrokenMetadata]
-
-    @cached_property
     def hasBrokenNodes(self):
         return len(self.allNodes) != len(self.saneNodes)
 
@@ -90,9 +86,14 @@ class Navigator:
         return [n for n in self.allNodes if n.bbcodeIsBroken]
 
     @cached_property
+    def brokenMetadataNodes(self):
+        return [n for n in self.saneNodes if n.hasBrokenMetadata]
+
+    @cached_property
     def openIssues(self):
         return (self.dirtyNodes + self.foreignNodes +
-                self.todoNodes + self.smilieNodes + self.brokenBBCodeNodes)
+                self.todoNodes + self.smilieNodes + self.brokenBBCodeNodes +
+                self.brokenMetadataNodes)
 
     @property
     def nav(self):
@@ -214,12 +215,12 @@ class UrlInformer:
     def topicId(self):
         topicIdMatch = re.search(r't=(\d*)', self.url)
         if topicIdMatch:
-            return topicIdMatch.group(1)
+            return int(topicIdMatch.group(1))
 
         postIdMatch = re.search(r'p=(\d*)', self.url)
         if postIdMatch:
             postId = postIdMatch.group(1)
-            return DB_WRAPPER.get_post(postId).topic_id
+            return int(DB_WRAPPER.get_post(postId).topic_id)
 
     @property
     def pointsToTopic(self):
@@ -248,5 +249,5 @@ class UrlInformer:
 
 
 if __name__ == '__main__':
-    n = Navigator()
-    n.populate()
+    _nav = Navigator()
+    _nav.populate()
