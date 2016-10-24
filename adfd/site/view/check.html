@@ -145,7 +145,7 @@
                                 <a href="{{ node.relPath}}">{{ node.title }}</a>
                             </div>
                             <div class="ui segment">
-                                {{ node._container.md.invalidAttributes }}
+                                {{ ", ".join(node._container.md.invalidAttributes) }}
                             </div>
                         </div>
                     {% endfor %}
