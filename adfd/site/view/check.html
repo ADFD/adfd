@@ -28,7 +28,9 @@
                     </div>
                     {% for node in NAV.orphanNodes -%}
                         <div class="ui segment">
-                            <a href="{{ url_for("article_route", topicId=node.identifier) }}">{{ node.title }}</a>
+                            <a href="{{ url_for("article_route", topicId=node.identifier) }}">
+                                {{ node.title }} ({{ node.identifier }})
+                            </a>
                         </div>
                     {% endfor -%}
                 </div>
@@ -145,7 +147,7 @@
                                 <a href="{{ node.relPath}}">{{ node.title }}</a>
                             </div>
                             <div class="ui segment">
-                                {{ ", ".join(node._container.md.invalidAttributes) }}
+                                {{ node._container.md.invalidAttributes }}
                             </div>
                         </div>
                     {% endfor %}
