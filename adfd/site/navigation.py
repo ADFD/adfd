@@ -198,7 +198,7 @@ class Navigator:
                         continue
 
                     node.html = node.html.replace(url, targetNode.relPath)
-                    log.warning("'%s' -> '%s'" % (link.text, link.get('href')))
+                    log.warning("'%s' -> '%s'" % (url, targetNode.relPath))
 
 
 class UrlInformer:
