@@ -19,7 +19,6 @@ import logging
 from collections import OrderedDict
 
 from adfd.cnf import SITE
-from adfd.exc import NotAnAttribute
 from adfd.process import extract_from_bbcode
 
 log = logging.getLogger(__name__)
@@ -33,6 +32,10 @@ class PageMetadata:
         'oldTopicId',
         'linkText',
         'useTitles',
+        # TODO if published is set it should be the creationDate
+        # (lastUpdate -> empty)
+        # 'published',
+
         # 'tags',
     ]
 
@@ -48,22 +51,27 @@ class PageMetadata:
         self.oldTopicId = None
         """ID of the topic that the article originated from"""
         self.useTitles = True
+        self._isBroken = False
         assert kwargs or text
-        self._populate_from_kwargs(kwargs)
-        self._populate_from_text(text)
+        try:
+            self._populate_from_kwargs(kwargs)
+            self._populate_from_text(text)
+            self._isBroken = bool(self.invalidAttributes)
+        except:
+            self._isBroken = True
 
     def __repr__(self):
         return str(self.asDict)
+
+    def __contains__(self, item):
+        return item in self.asDict
 
     @property
     def asDict(self):
         dict_ = OrderedDict()
         for name in sorted(vars(self)):
-            if name.startswith('_'):
+            if not self.is_metadata(name):
                 continue
-
-            if name not in self.ATTRIBUTES:
-                raise NotAnAttribute(name)
 
             attr = getattr(self, name)
             if not attr:
@@ -74,6 +82,14 @@ class PageMetadata:
 
             dict_[name] = attr
         return dict_
+
+    def is_metadata(self, name):
+        return name in self.ATTRIBUTES and not name.startswith('_')
+
+    @property
+    def invalidAttributes(self):
+        return [name for name in vars(self) if name
+                not in self.ATTRIBUTES and not name.startswith('_')]
 
     def _populate_from_kwargs(self, kwargs):
         if not kwargs:

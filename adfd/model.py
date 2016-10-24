@@ -20,7 +20,9 @@ log = logging.getLogger(__name__)
 @total_ordering
 class Node:
     SPEC = "N"
-    BROKEN_MARKER = "<h1>Konnte nicht geparsed werden</h1>"
+    BROKEN_TEXT = "<h1>Konnte nicht geparsed werden</h1>"
+    BROKEN_METADATA_TEXT = '[mod=Redakteur]Metadaten fehlerhaft[/mod]\n'
+    UNKNOWN_METADATA_PATT = '[mod=Redakteur]unbekannte Metadaten: %s[/mod]\n'
 
     def __init__(self, identifier, title=None, isOrphan=False):
         self.identifier = identifier
@@ -153,6 +155,20 @@ class Node:
         return bool(self.smilies)
 
     @cached_property
+    def hasBrokenMetadata(self):
+        if isinstance(self._container, NoContentContainer):
+            return False
+
+        return self._container.md._isBroken
+
+    @cached_property
+    def unknownMetadata(self):
+        if isinstance(self._container, NoContentContainer):
+            return []
+
+        return self._container.md.invalidAttributes
+
+    @cached_property
     def smilies(self):
         match = re.search(r'(:[^\s/\[\]\.@]*?:)', self._bbcode)
         return match.groups() if match else ()
@@ -166,7 +182,7 @@ class Node:
 
     @cached_property
     def bbcodeIsBroken(self):
-        return not self.isCategory and self.BROKEN_MARKER in self.rawHtml
+        return not self.isCategory and self.BROKEN_TEXT in self.rawHtml
 
     @cached_property
     def unknownTags(self):
@@ -196,14 +212,21 @@ class Node:
 
         except Exception:
             return ("%s<div><pre>%s</pre></div>" %
-                    (self.BROKEN_MARKER, traceback.format_exc()))
+                    (self.BROKEN_TEXT, traceback.format_exc()))
 
     @cached_property
     def _bbcode(self):
         if isinstance(self._container, NoContentContainer):
             return ""
 
-        return self._container._content
+        content = self._container._content
+        if self._container.md._isBroken:
+            content = self.BROKEN_METADATA_TEXT + content
+        if self.unknownMetadata:
+            # noinspection PyTypeChecker
+            content = (self.UNKNOWN_METADATA_PATT %
+                       ", ".join(self.unknownMetadata) + content)
+        return content
 
     @cached_property
     def _bbcodeAsHtml(self):
@@ -249,10 +272,11 @@ class CategoryNode(Node):
             classes.append('active')
         tag = pattern % (" ".join(classes))
         if self._isSubMenu:
-            tag += '<i class="dropdown icon"></i>'
-        tag += '<a href="%s">%s</a>' % (self.relPath, self.title)
+            tag += '<i class="big orange dropdown icon"></i>'
+        padding = "&nbsp;" * 3 if self._isSubMenu else ''
+        tag += '<a href="%s">%s</a>%s' % (self.relPath, self.title, padding)
         if not self._isSubMenu:
-            tag += '<i class="dropdown icon"></i>'
+            tag += '<i class="big orange dropdown icon"></i>'
         tag += '<div class="menu">'
         return "%s%%s</div></div>" % tag
 

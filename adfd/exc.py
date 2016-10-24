@@ -8,7 +8,3 @@ class TopicDoesNotExist(Exception):
 
 class TopicNotAccessible(Exception):
     """A topic is in a private forum and not explicitly whitelisted"""
-
-
-class NotAnAttribute(Exception):
-    """A key is not an attribute"""

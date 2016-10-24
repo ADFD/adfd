@@ -78,6 +78,10 @@ class Navigator:
         return [n for n in self.saneNodes if n.hasSmilies]
 
     @cached_property
+    def brokenMetadataNodes(self):
+        return [n for n in self.saneNodes if n.hasBrokenMetadata]
+
+    @cached_property
     def hasBrokenNodes(self):
         return len(self.allNodes) != len(self.saneNodes)
 

@@ -147,7 +147,7 @@ class AdfdFreeze(cli.Application):
             if isinstance(node.identifier, str):
                 identifier = LocalPath(node.identifier).name
             else:
-                identifier = '%s.bbcode' % node.identifier
+                identifier = '%05d.bbcode' % node.identifier
             path = PATH.BBCODE_BACKUP / identifier
             log.info("save sources %s", node.relPath)
             path.write(node._bbcode, encoding='utf8')

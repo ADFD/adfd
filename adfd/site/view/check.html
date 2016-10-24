@@ -131,5 +131,27 @@
             {% endif -%}
         </div>
 
+        <div class="ui divider"></div>
+
+        <div class="ui two column stackable grid container">
+            {% if NAV.brokenMetadataNodes -%}
+                <div class="column eight wide">
+                    <div class="ui huge inverted orange center aligned segment">
+                        {{ NAV.brokenMetadataNodes.__len__() }} Artikel mit fehlerhaften Metadaten
+                    </div>
+                    {% for node in NAV.brokenMetadataNodes -%}
+                        <div class="ui horizontal segments">
+                            <div class="ui segment">
+                                <a href="{{ node.relPath}}">{{ node.title }}</a>
+                            </div>
+                            <div class="ui segment">
+                                {{ node._container.md.invalidAttributes }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif -%}
+        </div>
+
     </div>
 {% endblock content -%}
