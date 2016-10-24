@@ -17,7 +17,7 @@ html {
 body {
     min-height: 100%;
     margin: 0;
-    background: linear-gradient(to bottom, #FFFFFF, #b3cce2 95%, #16347b);
+    background: linear-gradient(to bottom, #FFFFFF, #b3cce2 42%, #16347b);
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
