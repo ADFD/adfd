@@ -26,9 +26,9 @@ class Navigator:
         remap(self.structure, visit=self.visit)
         self.root = self.yamlKeyNodeMap[next(iter(self.structure))]
         self.menu = self.root.children
+        self.isPopulated = True
         self.orphanNodes = self._populate_orphan_nodes()
         self.replace_links()
-        self.isPopulated = True
 
     def _reset(self):
         self.pathNodeMap = {}
