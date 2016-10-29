@@ -82,8 +82,7 @@ class Token:
 
 class Parser:
     def __init__(
-            self, newline='\n', normalizeNewlines=True,
-            escapeHtml=True, hyphenate=False, typogrify=False,
+            self, newline='\n', normalizeNewlines=True, escapeHtml=True,
             replaceLinks=True, replaceCosmetic=True,
             tagOpener='[', tagCloser=']',
             linker=None, linkerTakesContext=False, dropUnrecognized=False):
