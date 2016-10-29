@@ -1,20 +1,14 @@
 # TODO
 
-* always make a complete bbcode dump of the Inhalt forum on freeze for source control of contents
 * fix quote styling
+* System for footnotes/reference (encapsulate references at end of article)
+* cool way of displaying where you are like in semantic ui
+* aside for infoboxes
 
 ## Implement sanity checks
 
-* Import checks
-    * check if all topics are in Inhalt
-    * check if all topics in Inhalt are used on website (except for "Struktur")
-
-* Meta data checks
-    * list all used meta data keys
-    * list all used tags (if and when we start using them)
-
 * Link checks
-    * make sure all links in articles are reachable (200) 
+    * make sure all links in articles are reachable (started in test_links)
     
 ## Important articles
 
@@ -41,13 +35,6 @@ https://support.google.com/webmasters/answer/139066
 
 Example article for helpers to refer to.
 
-* All headers should be an anchor link to be able to link directly to subsection
-* cool way of displaying where you are like in semantic ui
-
-## Missing tags
-
-* aside for infoboxes
-* System for footnotes/reference
 
 ## robots.txt
 

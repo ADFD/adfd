@@ -80,8 +80,8 @@ class SITE:
     TOPIC_REL_PATH_PATTERN = "http://adfd.org//austausch/viewtopic.php?t=%s"
     IGNORED_TAG_ELEMENTS = [
         'inhalt', 'seroxat', 'ergänzung', 'david', 'anmerkung', 'link',
-        'halbwegs', 'ad', 'wieder',
-        ":", ".", "..."]
+        'halbwegs', 'ad', 'wieder', '11c', ":", ".", "..."]
+    """FIXME these should all not be in square brackets to start with"""
 
 
 class DB:

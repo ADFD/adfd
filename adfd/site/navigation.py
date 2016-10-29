@@ -28,9 +28,9 @@ class Navigator:
         self.menu = self.root.children
         self.isPopulated = True
         self.orphanNodes = self._populate_orphan_nodes()
-        self.replace_links()
 
     def _reset(self):
+        self.isPopulated = False
         self.pathNodeMap = {}
         self.identifierNodeMap = {}
         self.yamlKeyNodeMap = {}
@@ -182,24 +182,21 @@ class Navigator:
                 # log.warning("orphan: %s (%s)", node.title, topicId)
         return nodes
 
-    def replace_links(self):
-        log.info("replace internal links")
-        for identifier, node in self.identifierNodeMap.items():
-            node.html = node.rawHtml
-            soup = BeautifulSoup(node.html, 'html5lib')
-            for link in soup.findAll('a'):
-                url = link.get('href')
-                ui = UrlInformer(url)
-                if ui.pointsToObsoleteLocation:
-                    log.warning("obsolete url: %s", ui.url)
-                if ui.pointsToTopic:
-                    targetNode = self.get_target_node(ui.topicId)
-                    if not targetNode:
-                        continue
+    def replace_links(self, html):
+        assert self.isPopulated
+        soup = BeautifulSoup(html, 'html5lib')
+        for link in soup.findAll('a'):
+            url = link['href']
+            ui = UrlInformer(url)
+            if ui.pointsToObsoleteLocation:
+                log.warning("obsolete url: %s", ui.url)
+            if ui.pointsToTopic:
+                targetNode = self.get_target_node(ui.topicId)
+                if not targetNode:
+                    continue
 
-                    node.html = node.html.replace(url, targetNode.relPath)
-                    log.info("'[%s] %s' -> '/%s'" %
-                                (node.identifier, url, targetNode.relPath))
+                link.attrs['href'] = targetNode.relPath
+        return str(soup)
 
 
 class UrlInformer:

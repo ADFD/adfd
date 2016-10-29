@@ -14,7 +14,6 @@ def test_dead_links():
     nav = Navigator()
     nav.populate()
     for identifier, node in nav.identifierNodeMap.items():
-        node.html = node.rawHtml
         soup = BeautifulSoup(node.html, 'html5lib')
         for link in soup.findAll('a'):
             ui = UrlInformer(link.get('href'))

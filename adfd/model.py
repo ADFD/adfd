@@ -35,7 +35,6 @@ class Node:
         self.isOrphan = isOrphan
         self.requestPath = None
         self.bbcodeIsActive = False
-        self.html = None
 
     def __repr__(self):
         return "<%s(%s: %s)>" % (self.SPEC, self.identifier, self.title[:6])
@@ -79,7 +78,23 @@ class Node:
         if self.bbcodeIsActive:
             return self._bbcodeAsHtml
 
-        return self.html or self.rawHtml
+        return self.html
+
+    # @cached_property
+    @property
+    def html(self):
+        from adfd.site.controller import NAV
+        return NAV.replace_links(self._rawHtml)
+
+    @cached_property
+    def _rawHtml(self):
+        try:
+
+            return self._parser.to_html(self._bbcode)
+
+        except Exception:
+            return ("%s<div><pre>%s</pre></div>" %
+                    (self.BROKEN_TEXT, traceback.format_exc()))
 
     @cached_property
     def creationDate(self):
@@ -182,12 +197,12 @@ class Node:
 
     @cached_property
     def bbcodeIsBroken(self):
-        return not self.isCategory and self.BROKEN_TEXT in self.rawHtml
+        return not self.isCategory and self.BROKEN_TEXT in self._rawHtml
 
     @cached_property
     def unknownTags(self):
         # noinspection PyStatementEffect
-        self.rawHtml  # ensure parsing has happened
+        self._rawHtml  # ensure parsing has happened
         unknownTags = []
         for tag in [t for t in self._parser.unknownTags if t.strip()]:
             try:
@@ -203,16 +218,6 @@ class Node:
             unknownTags.append(tag)
 
         return unknownTags
-
-    @cached_property
-    def rawHtml(self):
-        try:
-
-            return self._parser.to_html(self._bbcode)
-
-        except Exception:
-            return ("%s<div><pre>%s</pre></div>" %
-                    (self.BROKEN_TEXT, traceback.format_exc()))
 
     @cached_property
     def _bbcode(self):

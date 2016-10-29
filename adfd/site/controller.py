@@ -46,7 +46,6 @@ def _before_first_request():
     IS_DEV = True  # 'FREEZER_DESTINATION' not in app.config
     global IS_FREEZING
     IS_FREEZING = "FREEZER_DESTINATION" in app.config
-    global NAV
     NAV.populate()
 
 
