@@ -654,11 +654,7 @@ class AdfdParser(Parser):
         self._add_formatters()
 
     def to_html(self, data=None, tokens=None, **context):
-        """Format input text using any installed renderers.
-
-        Any context keyword arguments given here will be passed along to
-        the render functions as a context dictionary.
-        """
+        """context will be passed along to the render functions"""
         if data:
             assert not tokens, tokens
             tokens = Chunkman(self.tokenize(data)).flattened
@@ -677,24 +673,10 @@ class AdfdParser(Parser):
         return '\n'.join(out)
 
     def _add_formatters(self):
-        self.add_simple('b', '<strong>%(value)s</strong>')
-        self.add_simple('br', '<br>\n', standalone=True)
-        self.add_simple(
-            'center', '<div style="text-align:center;">%(value)s</div>\n')
         self.add_simple(
             'code', '<code>%(value)s</code>\n', renderEmbedded=False,
             transformNewlines=False, swallowTrailingNewline=True)
-        self.add_simple('hr', '<hr>\n', standalone=True)
-        self.add_simple('i', '<em>%(value)s</em>')
-        self.add_simple('p', '<p>%(value)s</p>\n')
-        self.add_simple('s', '<strike>%(value)s</strike>')
-        self.add_simple(
-            'u', '<span style="text-decoration: underline;">%(value)s</span>')
-        self.add_simple('sub', '<sub>%(value)s</sub>')
-        self.add_simple('sup', '<sup>%(value)s</sup>')
-
         self._add_bbvideo_formatter()
-        self._add_color_formatter()
         self._add_header_formatters()
         self._add_img_formatter()
         self._add_list_formatter()
@@ -703,8 +685,26 @@ class AdfdParser(Parser):
         self._add_raw_formatter()
         self._add_removals()
         self._add_spoil_formatter()
-        self._add_section_formatter()
         self._add_url_formatter()
+
+        self.add_simple('p', '<p>%(value)s</p>\n')
+        """intermittent helper for paragraphs"""
+
+        # self._add_unsemantic_formatters()
+
+    # def _add_unsemantic_formatters(self):
+        # self.add_simple('b', '<strong>%(value)s</strong>')
+        # self.add_simple('br', '<br>\n', standalone=True)
+        # self.add_simple(
+        #     'center', '<div style="text-align:center;">%(value)s</div>\n')
+        # self.add_simple('hr', '<hr>\n', standalone=True)
+        # self.add_simple('i', '<em>%(value)s</em>')
+        # self.add_simple('s', '<strike>%(value)s</strike>')
+        # self.add_simple(
+        #     'u', '<span style="text-decoration: underline;">%(value)s</span>')
+        # self.add_simple('sub', '<sub>%(value)s</sub>')
+        # self.add_simple('sup', '<sup>%(value)s</sup>')
+        # self._add_color_formatter()
 
     def _add_bbvideo_formatter(self):
         self.add_formatter('BBvideo', self._render_bbvideo,
@@ -846,16 +846,6 @@ class AdfdParser(Parser):
     def _render_spoil(name, value, options, parent, context):
         return '<div style="display: none;">%s</div>\n' % value
 
-    def _add_section_formatter(self):
-        self.add_formatter(
-            'section', self._render_section, transformNewlines=False,
-            strip=True, swallowTrailingNewline=True)
-
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def _render_section(name, value, options, parent, context):
-        return '<section>%s</section>' % value
-
     def _add_url_formatter(self):
         self.add_formatter('url', self._render_url, replaceLinks=False,
                            replaceCosmetic=False)
@@ -902,3 +892,7 @@ class Replacer:
         for find, repl in replacements:
             data = data.replace(find, repl)
         return data
+
+if __name__ == '__main__':
+    ap = AdfdParser()
+    print(ap)

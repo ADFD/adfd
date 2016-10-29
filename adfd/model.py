@@ -160,7 +160,7 @@ class Node:
         if isinstance(self._container, NoContentContainer):
             return False
 
-        return "todo" in self._bbcode.lower()
+        return "[mod=" in self._bbcode
 
     @cached_property
     def hasSmilies(self):
