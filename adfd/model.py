@@ -94,7 +94,7 @@ class Node:
         md = self._container.md
 
         aa = [a.strip() for a in md.allAuthors.split(",") if a.strip()]
-        return aa or [self._container.username]
+        return aa or [self._container.author]
 
     @cached_property
     def hasOneAuthor(self):
@@ -364,6 +364,10 @@ class DbArticleContainer(ArticleContainer):
         return self._firstPost.subject
 
     @cached_property
+    def author(self):
+        return self._firstPost.username
+
+    @cached_property
     def creationDate(self):
         return date_from_timestamp(self._firstPost.postTime)
 
@@ -373,12 +377,12 @@ class DbArticleContainer(ArticleContainer):
         return date_from_timestamp(newestDate)
 
     @cached_property
-    def _bbcode(self):
-        return self._content
+    def md(self):
+        return self._firstPost.md
 
     @cached_property
-    def username(self):
-        return self._firstPost.username
+    def _bbcode(self):
+        return self._content
 
     @cached_property
     def _content(self):
@@ -389,10 +393,6 @@ class DbArticleContainer(ArticleContainer):
                 contents.append(self.TITLE_PATTERN % post.subject)
             contents.append(post.content)
         return "\n\n".join(contents)
-
-    @cached_property
-    def md(self):
-        return self._firstPost.md
 
     @cached_property
     def _firstPost(self):

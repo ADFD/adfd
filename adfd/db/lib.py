@@ -120,10 +120,10 @@ class DbPost:
         return self.dbp.post_edit_time or self.dbp.post_time
 
     @cached_property
-    def username(self):
-        username = (self.dbp.post_username or
-                    DB_WRAPPER.get_username(self.dbp.poster_id))
-        return html.unescape(username)
+    def author(self):
+        author = (self.dbp.post_username or
+                  DB_WRAPPER.get_username(self.dbp.poster_id))
+        return html.unescape(author)
 
     @cached_property
     def isExcluded(self):
