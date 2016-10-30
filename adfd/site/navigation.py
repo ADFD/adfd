@@ -183,7 +183,6 @@ class Navigator:
         return nodes
 
     def replace_links(self, html):
-        assert self.isPopulated
         soup = BeautifulSoup(html, 'html5lib')
         for link in soup.findAll('a'):
             url = link['href']
