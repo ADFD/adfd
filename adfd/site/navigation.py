@@ -17,6 +17,7 @@ log = logging.getLogger(__name__)
 
 class Navigator:
     def __init__(self):
+        self._identifierNodeMap = {}
         self.isPopulated = False
 
     def populate(self):
@@ -32,9 +33,14 @@ class Navigator:
     def _reset(self):
         self.isPopulated = False
         self.pathNodeMap = {}
-        self.identifierNodeMap = {}
         self.yamlKeyNodeMap = {}
         self.orphanNodes = []
+
+    @cached_property
+    def identifierNodeMap(self):
+        self._reset()
+        self.populate()
+        return self._identifierNodeMap
 
     def get_node(self, key):
         try:
@@ -112,7 +118,7 @@ class Navigator:
             if cat:
                 cat.children.append(node)
             self.pathNodeMap[node.relPath] = node
-            self.identifierNodeMap[node.identifier] = node
+            self._identifierNodeMap[node.identifier] = node
         return key, value
 
     def get_parent_nodes(self, path):
@@ -174,10 +180,10 @@ class Navigator:
         nodes = []
         for t in DB_WRAPPER.get_topics(SITE.MAIN_CONTENT_FORUM_ID):
             topicId = t.topic_id
-            if (topicId not in self.identifierNodeMap and
+            if (topicId not in self._identifierNodeMap and
                     topicId not in SITE.IGNORED_CONTENT_TOPICS):
                 node = ArticleNode(topicId, isOrphan=True)
-                self.identifierNodeMap[topicId] = node
+                self._identifierNodeMap[topicId] = node
                 nodes.append(node)
                 # log.warning("orphan: %s (%s)", node.title, topicId)
         return nodes

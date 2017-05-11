@@ -60,8 +60,11 @@ class DbSynchronizer:
             "FLUSH PRIVILEGES"]
         for cmd in cmds:
             log.info("executing '%s'" % cmd)
-            local['mysql'](
-                '-uroot', '-p%s' % DB.LOCAL_ROOT_PW, '-e', cmd + ";")
+            args = ['-uroot']
+            if DB.LOCAL_ROOT_PW:
+                args.extend(['-p%s' % DB.LOCAL_ROOT_PW])
+            args.extend(['-e', cmd + ';'])
+            local['mysql'](*args)
 
     def load_local_dump(self):
         log.info('load local dump from %s', self.dumpDstPath)
