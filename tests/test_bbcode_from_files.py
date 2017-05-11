@@ -47,7 +47,7 @@ class DataGrabber(ContentGrabber):
 
 
 class PairTester:
-    _parser = AdfdParser(typogrify=False, hyphenate=False)
+    _parser = AdfdParser()
 
     @classmethod
     def test_pairs(cls, fName, src, exp):

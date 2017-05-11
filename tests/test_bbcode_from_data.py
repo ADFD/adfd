@@ -139,7 +139,7 @@ QUOTES = [
 
 
 class TestAdfdParser:
-    parser = AdfdParser(typogrify=False, hyphenate=False)
+    parser = AdfdParser()
 
     @pytest.mark.parametrize(('src', 'expected'), KITCHEN_SINK)
     def test_format(self, src, expected):
@@ -186,9 +186,7 @@ class TestAdfdParser:
         assert result == 'hello world -- '
         # Not sure if I introduced a subtle bug here
         # assert result == 'hello world -- []'
-        parser = AdfdParser(
-            typogrify=False, hyphenate=False,
-            tagOpener='<', tagCloser='>', dropUnrecognized=True)
+        parser = AdfdParser(tagOpener='<', tagCloser='>', dropUnrecognized=True)
         result = parser.strip(
             '<div class="test"><b>hello</b> <i>world</i><img src="test.jpg" '
             '/></div>')
@@ -203,13 +201,12 @@ class TestAdfdParser:
             return _contextual_link(url, {"substitution": url})
 
         # Test noncontextual linker
-        p = AdfdParser(typogrify=False, hyphenate=False, linker=_link)
+        p = AdfdParser(linker=_link)
         s = p._format_tokens(p.tokenize('hello www.apple.com world'), None)
         assert s == ('hello <a href="www.apple.com" '
                      'target="_blank">www.apple.com</a> world')
         # Test contextual linker
-        p = AdfdParser(typogrify=False, hyphenate=False,
-                       linker=_contextual_link, linkerTakesContext=True)
+        p = AdfdParser(linker=_contextual_link, linkerTakesContext=True)
         s = p._format_tokens(p.tokenize(
             'hello www.apple.com world'), None, substitution="oh hai")
         assert s == ('hello <a href="www.apple.com" '
