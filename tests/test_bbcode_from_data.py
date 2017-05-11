@@ -7,21 +7,30 @@ from adfd.process import RE
 log = logging.getLogger(__name__)
 
 
-KITCHEN_SINK = (
-    ('<http://foo.com/bla_bla>',
-     '&lt;<a href="http://foo.com/bla_bla">http://foo.com/bla_bla</a>&gt;'),
-    ('hello :[ world', 'hello :[ world'),
+UNSEMANTIC = [
     ('[B]hello world[/b]', '<strong>hello world</strong>'),
     ('[b][i]test[/i][/b]', '<strong><em>test</em></strong>'),
     ('[b][i]test[/b][/i]', '<strong><em>test</em></strong>'),
     ('[b]hello [i]world[/i]', '<strong>hello <em>world</em></strong>'),
-    ('[tag][soup][/tag]', '[tag][soup][/tag]'),
     ('[b]hello [ world[/b]', '<strong>hello [ world</strong>'),
     ('[b]]he[llo [ w]orld[/b]', '<strong>]he[llo [ w]orld</strong>'),
     ('[b]hello [] world[/b]', '<strong>hello  world</strong>'),
     # ('[b]hello [] world[/b]', '<strong>hello [] world</strong>'),
+    ('[b\n oops [i]i[/i] forgot[/b]', '[b\n oops <em>i</em> forgot'),
+    ('[ b ] hello [u] world [/u] [ /b ]',
+     '<strong> hello <span style="text-decoration: underline;"> '
+     'world </span> </strong>'),
     ('[/asdf][/b]', '[/asdf]'),
+    ('[b]over[i]lap[/b]ped[/i]', '<strong>over<em>lap</em></strong>ped'),
     ('line one[hr]line two', 'line one<hr>\nline two'),
+
+]
+
+KITCHEN_SINK = (
+    ('<http://foo.com/bla_bla>',
+     '&lt;<a href="http://foo.com/bla_bla">http://foo.com/bla_bla</a>&gt;'),
+    ('hello :[ world', 'hello :[ world'),
+    ('[tag][soup][/tag]', '[tag][soup][/tag]'),
     ('[list]\n[*]one\n[*]two\n[/list]', '<ul><li>one</li><li>two</li></ul>'),
     ('[list=1]\n[*]one\n[*]two\n[/list]',
      '<ol style="list-style-type:decimal;"><li>one</li><li>two</li></ol>'),
@@ -31,8 +40,6 @@ KITCHEN_SINK = (
      '<ul><li>item with<code>some\ncode</code>\n and text after</li></ul>'),
     ('[code python]lambda code: [code] + [1, 2][/code]',
      '<code>lambda code: [code] + [1, 2]</code>'),
-    ('[b\n oops [i]i[/i] forgot[/b]', '[b\n oops <em>i</em> forgot'),
-    ('[b]over[i]lap[/b]ped[/i]', '<strong>over<em>lap</em></strong>ped'),
     ('>> hey -- a dash...', '&gt;&gt; hey &ndash; a dash&#8230;'),
     ('[url]http://foo.com/s.php?some--data[/url]',
      '<a href="http://foo.com/s.php?some--data">http://foo.com/s.php'
@@ -44,9 +51,6 @@ KITCHEN_SINK = (
     ('[color=red]hey now [url=apple.com]link[/url][/color]',
      '<span style="color:red;">hey now <a '
      'href="http://apple.com">link</a></span>'),
-    ('[ b ] hello [u] world [/u] [ /b ]',
-     '<strong> hello <span style="text-decoration: underline;"> '
-     'world </span> </strong>'),
     ('[color red]this is red[/color]',
      '<span style="color:red;">this is red</span>'),
     ('[color]nothing[/color]', 'nothing'),
