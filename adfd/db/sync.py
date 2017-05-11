@@ -48,7 +48,8 @@ class DbSynchronizer:
         log.info('fetch %s -> %s', self.dumpName, self.dumpDstPath)
         self.remote.download(self.remote.path(self.dumpName), self.dumpDstPath)
 
-    def prepare_local_db(self):
+    @staticmethod
+    def prepare_local_db():
         log.info('prepare local db privileges')
         cmds = [
             "DROP DATABASE IF EXISTS %s" % DB.NAME,
