@@ -3,7 +3,7 @@ cache: pip
 python:
  - "3.4"
 install:
-  - pip install tox 
+  - pip install --pre -U tox 
 script:
   - tox
 env:
