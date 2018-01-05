@@ -20,7 +20,7 @@ class RE:
     """
     DOMAIN = re.compile(
         r'(?im)(?:www\d{0,3}[.]|[a-z0-9.\-]+[.]'
-        r'(?:com|net|org|edu|biz|gov|mil|info|io|name|me|tv|us|uk|mobi))')
+        r'(?:com|de|ch|at|net|org|edu|info|io|name|me|tv|us|uk|mobi))')
     """
     For the URL tag, try to be smart about when to append a missing http://.
     If the given link looks like a domain, add a http:// in front of it,
