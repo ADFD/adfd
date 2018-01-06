@@ -13,9 +13,11 @@ Vagrant.configure(2) do |config|
   config.vm.network "forwarded_port", guest: 3306, host: 3307
   config.vm.network "forwarded_port", guest: 5000, host: 5000
 
-  config.vm.synced_folder "../adfd-austausch", "/var/www/html/austausch"
+  config.vm.synced_folder "../adfd-austausch", "/austausch"
   config.vm.synced_folder "../adfd-db-tools", "/adfd-db-tools"
 
-  config.vm.provision "shell", path: "vagrant/provision.sh"
+  config.vm.provision "shell", path: "vagrant/provision-basic.sh"
+  config.vm.provision "shell", path: "vagrant/provision-lamp-config.sh"
+  # config.vm.provision "shell", path: "vagrant/provision-adfd.sh"
 end
 
