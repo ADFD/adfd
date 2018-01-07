@@ -3,7 +3,7 @@
 apt-get update
 
 apt-get -y install apache2 mc
-apt-get install -y php php-cli php-gd php-mysql php-zip
+apt-get install -y php php-cli php-gd php-mysql php-zip php-xml
 
 # This is a devbox - we set some password here and don't care about security
 debconf-set-selections <<< 'mysql-server mysql-server/root_password password 123456'
