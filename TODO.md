@@ -1,5 +1,7 @@
 # DB FIXER
 
+https://www.phpbb.de/kb/Umzug - contains post change help
+
 * figure out if the post checksums can cause trouble
 
 * remove domain names from all internal links
@@ -10,7 +12,7 @@
 * replace antidepressiva-absetzen.de links
 
 * remove sid appendages
-
+* remove <hr>
 * create mailing tool to write mails
 
 # TODO
