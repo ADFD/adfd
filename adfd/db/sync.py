@@ -28,23 +28,23 @@ class DbSynchronizer:
 
     def sync(self):
         self.get_dump()
-        self.update_local_db()
+        self.load_dump_into_local_db()
 
     def get_dump(self):
-        self.dump()
-        self.fetch()
+        self.dump_on_remote()
+        self.fetch_from_remote()
 
-    def update_local_db(self):
+    def load_dump_into_local_db(self):
         self.prepare_local_db()
-        self.load_local_dump()
+        self.load_dump_locally()
 
-    def dump(self):
+    def dump_on_remote(self):
         log.info('dump db')
         self.remote['mysqldump'](
             self.argUser, self.argPw,
             DB.NAME, '--result-file=%s' % self.dumpName)
 
-    def fetch(self):
+    def fetch_from_remote(self):
         log.info('fetch %s -> %s', self.dumpName, self.dumpDstPath)
         self.remote.download(self.remote.path(self.dumpName), self.dumpDstPath)
 
@@ -67,7 +67,7 @@ class DbSynchronizer:
             args.extend(['-e', cmd + ';'])
             local['mysql'](*args)
 
-    def load_local_dump(self):
+    def load_dump_locally(self):
         log.info('load local dump from %s', self.dumpDstPath)
         os.system(
             "mysql %s %s %s < %s" %

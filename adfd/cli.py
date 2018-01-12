@@ -28,19 +28,28 @@ class Adfd(cli.Application):
             self.nested_command = (AdfdDev, ['adfd dev'])
 
 
-@Adfd.subcommand('db-sync')
-class AdfdDbSync(cli.Application):
-    noSync = cli.Flag(['--no-sync'], help="only fetch the dump")
-    noRemote = cli.Flag(['--no-remote'], help="only load from dump")
-
+@Adfd.subcommand('db-fetch')
+class AdfdDbFetch(cli.Application):
+    """Fetch db dump from remote"""
     def main(self):
         dbs = DbSynchronizer()
-        if self.noSync:
-            dbs.get_dump()
-        elif self.noRemote:
-            dbs.update_local_db()
-        else:
-            dbs.sync()
+        dbs.get_dump()
+
+
+@Adfd.subcommand('db-load')
+class AdfdDbLoad(cli.Application):
+    """Load db dump into local db"""
+    def main(self):
+        dbs = DbSynchronizer()
+        dbs.load_dump_into_local_db()
+
+
+@Adfd.subcommand('db-sync')
+class AdfdDbSync(cli.Application):
+    """Load db dump into local db"""
+    def main(self):
+        dbs = DbSynchronizer()
+        dbs.sync()
 
 
 @Adfd.subcommand('dev')
