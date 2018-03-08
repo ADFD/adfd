@@ -201,7 +201,11 @@ class Navigator:
                     continue
 
                 link.attrs['href'] = targetNode.relPath
-        return str(soup)
+        # Note remove extra tags - very ugly, but simple and works
+        txt = str(soup)
+        txt = txt.replace('<html><head></head><body>', '')
+        txt = txt.replace('</body></html>', '')
+        return txt
 
 
 class UrlInformer:

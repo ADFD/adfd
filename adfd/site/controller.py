@@ -1,13 +1,13 @@
 import logging
 import os
-import socket
 
-from adfd.cnf import PATH, SITE, APP, NAME
-from adfd.site.navigation import Navigator
-from adfd.process import date_from_timestamp
 from flask import Flask, render_template, url_for
 from flask import request, flash, redirect
 from plumbum.machines import local
+
+from adfd.cnf import PATH, SITE, APP, NAME, INFO
+from adfd.site.navigation import Navigator
+from adfd.process import date_from_timestamp
 
 log = logging.getLogger(__name__)
 
@@ -16,8 +16,7 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = "I only need that for flash()"
 
 LAST_UPDATE = None
-IS_DEV = None
-IS_FREEZING = None
+IS_FREEZING = "FREEZER_DESTINATION" in app.config
 NAV = Navigator()
 
 
@@ -30,7 +29,7 @@ NAV = Navigator()
 
 @app.context_processor
 def inject_dict_for_all_templates():
-    return dict(APP=APP, NAV=NAV, VERSION=LAST_UPDATE, IS_DEV=IS_DEV)
+    return dict(APP=APP, NAV=NAV, VERSION=LAST_UPDATE, IS_DEV=INFO.IS_DEV_BOX)
 
 
 @app.before_first_request
@@ -41,11 +40,7 @@ def _before_first_request():
     except FileNotFoundError:
         LAST_UPDATE = date_from_timestamp()
 
-    global IS_DEV
-    # Todo activate condition when main dev phase is over
-    IS_DEV = True  # 'FREEZER_DESTINATION' not in app.config
     global IS_FREEZING
-    IS_FREEZING = "FREEZER_DESTINATION" in app.config
     NAV.populate()
 
 
@@ -94,7 +89,7 @@ def articles_all_route():
 
 @app.route('/reset')
 def reset_route():
-    if IS_DEV and not IS_FREEZING:
+    if INFO.IS_DEV_BOX and not IS_FREEZING:
         NAV.populate()
         flash("navigator repopulated")
     return redirect(url_for(".path_route", path="/")), 301
@@ -102,7 +97,7 @@ def reset_route():
 
 def run_devserver(projectPath=PATH.PROJECT, port=SITE.APP_PORT):
     app.config.update(DEBUG=True)
-    if socket.gethostname() == '1bo':
+    if INFO.IS_DEV_BOX:
         os.environ['WERKZEUG_DEBUG_PIN'] = 'off'
     with local.cwd(projectPath):
         log.info("serving on http://localhost:%s", port)

@@ -330,6 +330,8 @@ class Parser:
                 break
         if pos < len(data):
             tokens.extend(self._newline_tokenize(data[pos:]))
+        if self.unknownTags:
+            log.warning(f"found unknown tags: {self.unknownTags}")
         return tokens
 
     def _find_closer(self, tag, tokens, pos):
@@ -657,7 +659,8 @@ class AdfdParser(Parser):
         """context will be passed along to the render functions"""
         if data:
             assert not tokens, tokens
-            tokens = Chunkman(self.tokenize(data)).flattened
+            rawTokens = self.tokenize(data)
+            tokens = Chunkman(rawTokens).flattened
         assert tokens
         _html = self._format_tokens(tokens, parent=None, **context).strip()
         return self.cleanup(_html)

@@ -22,7 +22,7 @@ except:
 
 
 class INFO:
-    IS_DEV_BOX = socket.gethostname() == '1bo'
+    IS_DEV_BOX = socket.gethostname() == _CNF['devHost']
     IS_CI = 'CI' in os.environ
 
 
@@ -66,7 +66,6 @@ class APP:
 class SITE:
     MAIN_CONTENT_FORUM_ID = 54
     ALLOWED_FORUM_IDS = [4, 6, 15, 16, 19, 32, 50, 57, 53, 56, 43]
-    # TODO import Lob Topic 9324
     STRUCTURE_TOPIC_ID = _CNF['structureTopicId']
     PLACEHOLDER_TOPIC_ID = 12265
     IGNORED_CONTENT_TOPICS = [PLACEHOLDER_TOPIC_ID, STRUCTURE_TOPIC_ID]

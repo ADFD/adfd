@@ -7,6 +7,7 @@ from adfd.process import RE
 log = logging.getLogger(__name__)
 
 
+# TODO adapt to known tags and re add
 UNSEMANTIC = [
     ('[B]hello world[/b]', '<strong>hello world</strong>'),
     ('[b][i]test[/i][/b]', '<strong><em>test</em></strong>'),
@@ -23,7 +24,21 @@ UNSEMANTIC = [
     ('[/asdf][/b]', '[/asdf]'),
     ('[b]over[i]lap[/b]ped[/i]', '<strong>over<em>lap</em></strong>ped'),
     ('line one[hr]line two', 'line one<hr>\nline two'),
-
+    ('[color=red]hey now [url=apple.com]link[/url][/color]',
+     '<span style="color:red;">hey now <a '
+     'href="http://apple.com">link</a></span>'),
+    ('[color red]this is red[/color]',
+     '<span style="color:red;">this is red</span>'),
+    ('[color]nothing[/color]', 'nothing'),
+    ('[color=<script></script>]xss[/color]',
+     '<span style="color:inherit;">xss</span>'),
+    ('[COLOR=red]hello[/color]', '<span style="color:red;">hello</span>'),
+    ('[color="red; font-size:1000px;"]test[/color]',
+     '<span style="color:red;">test</span>'),
+    ('[color=#f4f4C3 barf]hi[/color]',
+     '<span style="color:#f4f4C3;">hi</span>'),
+    ("[color='red']single[/color]",
+     '<span style="color:red;">single</span>'),
 ]
 
 KITCHEN_SINK = (
@@ -37,9 +52,9 @@ KITCHEN_SINK = (
     ('[list] [*]Entry 1 [*]Entry 2 [*]Entry 3   [/list]',
      '<ul><li>Entry 1</li><li>Entry 2</li><li>Entry 3</li></ul>'),
     ('[list]\n[*]item with[code]some\ncode[/code] and text after[/list]',
-     '<ul><li>item with<code>some\ncode</code>\n and text after</li></ul>'),
+     '<ul><li>item with<pre><code>some\ncode</code></pre>\n and text after</li></ul>'),
     ('[code python]lambda code: [code] + [1, 2][/code]',
-     '<code>lambda code: [code] + [1, 2]</code>'),
+     '<pre><code>lambda code: [code] + [1, 2]</code></pre>'),
     ('>> hey -- a dash...', '&gt;&gt; hey &ndash; a dash&#8230;'),
     ('[url]http://foo.com/s.php?some--data[/url]',
      '<a href="http://foo.com/s.php?some--data">http://foo.com/s.php'
@@ -48,16 +63,7 @@ KITCHEN_SINK = (
     ('www.apple.com blah foo.com/bar',
      '<a href="http://www.apple.com">www.apple.com</a> blah <a '
      'href="http://foo.com/bar">foo.com/bar</a>'),
-    ('[color=red]hey now [url=apple.com]link[/url][/color]',
-     '<span style="color:red;">hey now <a '
-     'href="http://apple.com">link</a></span>'),
-    ('[color red]this is red[/color]',
-     '<span style="color:red;">this is red</span>'),
-    ('[color]nothing[/color]', 'nothing'),
     ('[url="<script>alert(1);</script>"]xss[/url]', ''),
-    ('[color=<script></script>]xss[/color]',
-     '<span style="color:inherit;">xss</span>'),
-    ('[COLOR=red]hello[/color]', '<span style="color:red;">hello</span>'),
     ('[URL=apple.com]link[/URL]', '<a href="http://apple.com">link</a>'),
     ('[url=relative/url.html]link[/url]',
      '<a href="relative/url.html">link</a>'),
@@ -82,12 +88,6 @@ KITCHEN_SINK = (
      '<a href="123&quot; onmouseover=&quot;alert('
      '&#39;Hacked&#39;);">123&quot; onmouseover=&quot;alert('
      '&#39;Hacked&#39;);</a>'),
-    ('[color="red; font-size:1000px;"]test[/color]',
-     '<span style="color:red;">test</span>'),
-    ('[color=#f4f4C3 barf]hi[/color]',
-     '<span style="color:#f4f4C3;">hi</span>'),
-    ('x[sub]test[/sub]y', 'x<sub>test</sub>y'),
-    ('x[sup]3[/sup] + 7', 'x<sup>3</sup> + 7'),
     ('[url]javascript:alert("XSS");[/url]', ''),
     ('[url]\x01javascript:alert(1)[/url]', ''),
     ('[url]javascript\x01:alert(1)[/url]', ''),
@@ -99,8 +99,6 @@ KITCHEN_SINK = (
     ('[url=data:text/html;base64,'
      'PHNjcmlwdD5hbGVydCgiMSIpOzwvc2NyaXB0Pg==]xss[/url]',
      ''),
-    ("[color='red']single[/color]",
-     '<span style="color:red;">single</span>'),
     ('http://github.com/ http://example.org http://github.com/dcwatson/',
      '<a href="http://github.com/">http://github.com/</a> <a '
      'href="http://example.org">http://example.org</a> <a '
@@ -185,15 +183,14 @@ class TestAdfdParser:
         assert opts == {'quote': 'Dan "Darsh" Watson'}
 
     def test_strip(self):
-        result = self.parser.strip('[b]hello \n[i]world[/i][/b] -- []',
-                                   strip_newlines=True)
+        result = self.parser.strip(
+            '[em]hello \n[mod]world[/mod][/em] -- []', strip_newlines=True)
+        # NOTE that empty bracket pairs are also stripped ...
         assert result == 'hello world -- '
-        # Not sure if I introduced a subtle bug here
-        # assert result == 'hello world -- []'
         parser = AdfdParser(tagOpener='<', tagCloser='>', dropUnrecognized=True)
         result = parser.strip(
-            '<div class="test"><b>hello</b> <i>world</i><img src="test.jpg" '
-            '/></div>')
+            '<div class="test"><b>hello</b> <pre>world</pre>'
+            '<img src="test.jpg" /></div>')
         assert result == 'hello world'
 
     def test_linker(self):
@@ -217,8 +214,8 @@ class TestAdfdParser:
                      'target="_blank">oh hai</a> world')
 
     def test_unicode(self):
-        src = '[center]ƒünk¥ • §tüƒƒ[/center]'
-        dst = '<div style="text-align:center;">ƒünk¥ • §tüƒƒ</div>'
+        src = '[em]ƒünk¥ • §tüƒƒ[/em]'
+        dst = '<em>ƒünk¥ • §tüƒƒ</em>'
         tokens = self.parser.tokenize(src)
         result = self.parser._format_tokens(tokens, None)
         assert result.strip() == dst

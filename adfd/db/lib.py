@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import html
 import logging
-import re
 
+from bs4 import BeautifulSoup
 from cached_property import cached_property
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import sessionmaker
@@ -110,9 +110,11 @@ class DbPost:
 
     @cached_property
     def content(self):
-        content = html.unescape(self.dbp.post_text)
-        content = content.replace(':%s' % self.dbp.bbcode_uid, '')
-        content = self._fix_db_storage_patterns(content)
+        """Some reassembly needed due to how phpbb stores the content"""
+        content = self.dbp.post_text
+        content = content.replace('<br/>', '\n')
+        soup = BeautifulSoup(content, 'html5lib')
+        content = ''.join(soup.findAll(text=True))
         return self._fix_whitespace(content)
 
     @cached_property
@@ -136,23 +138,6 @@ class DbPost:
     @cached_property
     def md(self):
         return PageMetadata(text=self.content)
-
-    @classmethod
-    def _fix_db_storage_patterns(cls, text):
-        """restore original bbcode from phpBB db storage scheme"""
-        pairs = [
-            ("<!-- s(\S+) -->(?:.*?)<!-- s(?:\S+) -->", '\g<1>'),
-            ('<!-- e -->.*?href="(.*?)".*?<!-- e -->', '[url=\g<1>]\g<1>[/url]'),
-            ('<!-- m -->.*?href="(.*?)".*?<!-- m -->', '[url]\g<1>[/url]'),
-            ('<!-- l -->.*?href="(.*?)".*?<!-- l -->', '[url]\g<1>[/url]'),
-            ("\[list\](.*?)\[\/list:u\]", '[list]\g<1>[/list]'),
-            ("\[list=1\](.*?)\[\/list:o\]", '[list=1]\g<1>[/list]'),
-            ("\[\*\](.*?)\[\/\*:m\]", '[*] \g<1>')]
-        for pattern, replacement in pairs:
-            log.debug("'%s' -> '%s'\n%s", pattern, replacement, text)
-            text = re.compile(pattern, flags=re.DOTALL).sub(replacement, text)
-            log.debug("applied\n%s\n%s", text, '#' * 120)
-        return text
 
     @classmethod
     def _fix_whitespace(cls, text):
