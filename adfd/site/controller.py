@@ -89,9 +89,11 @@ def articles_all_route():
 
 @app.route('/reset')
 def reset_route():
-    if INFO.IS_DEV_BOX and not IS_FREEZING:
+    try:
         NAV.populate()
         flash("navigator repopulated")
+    except Exception:
+        log.warning(f"reset failed ({e})")
     return redirect(url_for(".path_route", path="/")), 301
 
 
