@@ -2,6 +2,7 @@ import html
 import itertools
 import logging
 import re
+from collections import OrderedDict
 
 from adfd.process import RE, slugify
 from cached_property import cached_property
@@ -176,11 +177,7 @@ class Parser:
                     'url': 'http://test.com/s.php?a=bcd efg', 'popup': ''}
         """
         name = None
-        try:
-            from collections import OrderedDict
-            opts = OrderedDict()
-        except:
-            opts = {}
+        opts = OrderedDict()
         in_value = False
         in_quote = False
         attr = ''
@@ -710,7 +707,6 @@ class AdfdParser(Parser):
     #     self.add_simple('sup', '<sup>%(value)s</sup>')
     #     self._add_color_formatter()
 
-
     def _add_bbvideo_formatter(self):
         self.add_formatter('BBvideo', self._render_bbvideo,
                            replaceLinks=False, replaceCosmetic=False)
@@ -897,6 +893,7 @@ class Replacer:
         for find, repl in replacements:
             data = data.replace(find, repl)
         return data
+
 
 if __name__ == '__main__':
     ap = AdfdParser()

@@ -23,8 +23,9 @@ def obj_attr(obj, hideString='', filterMethods=True, filterPrivate=True,
             obj, hideString, filterMethods, filterPrivate,
             sanitize, excludeAttrs, indent, objName, terminalSize, maxLen)
 
-    except:
+    except Exception as e:
         msg = "problems calling obj_attr"
+        log.warning(f"{msg} of {obj}: {e}")
         log.error(msg, exc_info=True)
         return msg
 
@@ -59,7 +60,7 @@ def _obj_attr(obj, hideString, filterMethods, filterPrivate,
             if attrType in (FunctionType, MethodType):
                 try:
                     value = attr.__doc__.split("\n")[0]
-                except:
+                except Exception:
                     value = "<<func>>"
             else:
                 value = str(attr).replace("\n", "\n|  ")

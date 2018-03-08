@@ -57,8 +57,9 @@ class PageMetadata:
             self._populate_from_kwargs(kwargs)
             self._populate_from_text(text)
             self._isBroken = bool(self.invalidAttributes)
-        except:
+        except Exception as e:
             self._isBroken = True
+            log.warning(f"broken metadata with {kwargs} and {text} ({e})")
 
     def __repr__(self):
         return str(self.asDict)

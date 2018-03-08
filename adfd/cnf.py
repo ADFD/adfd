@@ -5,12 +5,16 @@ import plumbum
 
 import yaml
 
-_PROJECT = plumbum.LocalPath(__file__).dirname.up()
-_PACKAGE = _PROJECT / 'adfd'
+_PROJECT_PATH = plumbum.LocalPath(__file__).dirname.up()
+_PACKAGE_PATH = _PROJECT_PATH / 'adfd'
+_CONFIG_PATH = _PROJECT_PATH / 'cnf.yml'
+_HOSTNAME = socket.gethostname()
+_IS_CI = 'CI' in os.environ
+_IS_DEV_BOX = _HOSTNAME == 'h2g2'
 
-try:
-    _CNF = yaml.safe_load(open(_PROJECT / 'cnf.yml'))
-except:
+if not _CONFIG_PATH.exists():
+    assert _IS_CI or _IS_DEV_BOX, _HOSTNAME
+
     class _CNF:
         def __getitem__(self, item):
             if item == 'useFile':
@@ -19,11 +23,13 @@ except:
             return None
 
     _CNF = _CNF()
+else:
+    _CNF = yaml.safe_load(open(_CONFIG_PATH))
 
 
 class INFO:
-    IS_DEV_BOX = socket.gethostname() == _CNF['devHost']
-    IS_CI = 'CI' in os.environ
+    IS_CI = _IS_CI
+    IS_DEV_BOX = _IS_DEV_BOX
 
 
 class NAME:
@@ -43,13 +49,13 @@ class TARGET:
 
 
 class PATH:
-    PROJECT = _PROJECT
-    SITE = _PACKAGE / 'site'
+    PROJECT = _PROJECT_PATH
+    SITE = _PACKAGE_PATH / 'site'
     SEMANTIC = SITE / 'semantic'
     STATIC = SITE / NAME.STATIC
     ROOT_FILES = STATIC / '_root'
     VIEW = SITE / 'view'
-    _DEV_BOX_RENDERED = _PROJECT / '..' / 'static'
+    _DEV_BOX_RENDERED = _PROJECT_PATH / '..' / 'static'
     RENDERED = _DEV_BOX_RENDERED if INFO.IS_DEV_BOX else TARGET.CHECKOUT_PATH
     BBCODE_BACKUP = RENDERED / 'bbcode-sources'
     LAST_UPDATE = RENDERED / 'last_updated'

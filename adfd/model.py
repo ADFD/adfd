@@ -49,7 +49,8 @@ class Node:
                     isinstance(self._bbcode, str) and
                     isinstance(self.title, str) and
                     isinstance(self.relPath, str))
-        except:
+        except Exception as e:
+            log.warning(f"{self.identifier} is not sane ({e})")
             return False
 
     @cached_property
@@ -315,13 +316,14 @@ class ArticleNode(Node):
         classes = ['item']
         if self.isActive:
             classes.append('active')
-        clStr = " ".join(classes)
+        classesStr = " ".join(classes)
         try:
-            return p % (clStr, self.relPath, self.title)
-
-        except:
-            eStr = "kaputt: %s" % (self.identifier)
-            return p % (clStr, "#", eStr)
+            return p % (classesStr, self.relPath, self.title)
+        except Exception as e:
+            msg = f"broken: {self.identifier} ({e})"
+            html = p % (classesStr, "#", msg)
+            log.warning(msg)
+            return html
 
     @classmethod
     def _parse(cls, data):
@@ -464,4 +466,3 @@ class StaticArticleContainer(ArticleContainer):
     @cached_property
     def isImported(self):
         return True
-

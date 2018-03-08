@@ -38,6 +38,7 @@ def extract_from_bbcode(tag, content):
         pass
         # log.warning("no [%s] in %s[...]" % (tag, content[:50]))
 
+
 # TODO needed?
 def hyphenate(text, hyphen='&shy;'):
     py = Pyphen(lang='de_de')
@@ -63,8 +64,9 @@ class _Slugifier:
     SEP = '-'
 
     def __init__(self):
+        # register new codec for slugification
         # noinspection PyUnresolvedReferences
-        import translitcodec  # register new codec for slugification
+        import translitcodec  # noqa
 
         self.splitter = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
 

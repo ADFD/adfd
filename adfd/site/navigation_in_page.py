@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 
 # FIXME not tested and not integrated yet
 
+
 @total_ordering
 class HeaderTag:
     HIGHEST_LEVEL = 2

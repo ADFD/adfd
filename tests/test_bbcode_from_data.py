@@ -52,7 +52,8 @@ KITCHEN_SINK = (
     ('[list] [*]Entry 1 [*]Entry 2 [*]Entry 3   [/list]',
      '<ul><li>Entry 1</li><li>Entry 2</li><li>Entry 3</li></ul>'),
     ('[list]\n[*]item with[code]some\ncode[/code] and text after[/list]',
-     '<ul><li>item with<pre><code>some\ncode</code></pre>\n and text after</li></ul>'),
+     '<ul><li>item with<pre><code>some\ncode</code></pre>\n '
+     'and text after</li></ul>'),
     ('[code python]lambda code: [code] + [1, 2][/code]',
      '<pre><code>lambda code: [code] + [1, 2]</code></pre>'),
     ('>> hey -- a dash...', '&gt;&gt; hey &ndash; a dash&#8230;'),
@@ -187,7 +188,8 @@ class TestAdfdParser:
             '[em]hello \n[mod]world[/mod][/em] -- []', strip_newlines=True)
         # NOTE that empty bracket pairs are also stripped ...
         assert result == 'hello world -- '
-        parser = AdfdParser(tagOpener='<', tagCloser='>', dropUnrecognized=True)
+        parser = AdfdParser(
+            tagOpener='<', tagCloser='>', dropUnrecognized=True)
         result = parser.strip(
             '<div class="test"><b>hello</b> <pre>world</pre>'
             '<img src="test.jpg" /></div>')
