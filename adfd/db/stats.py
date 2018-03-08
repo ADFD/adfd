@@ -82,7 +82,7 @@ class StatsPlotter:
         # self.series = series
         self.xlabel = xlabel
         self.ylabel = ylabel
-        self.series = series.resample('M', how='sum')
+        self.series = series.resample('M').sum()
         plt.figure()
         self.plt_format()
 
@@ -116,7 +116,7 @@ class StatsPlotter:
 
 def series_stats():
     df = DataFetcher()
-    df.set_time_range(start='2009/01/01', end='2016/02/28')
+    df.set_time_range(start='2005/01/01', end='2018/02/28')
     sp = StatsPlotter(df.get_series())
     sp.save('teststats')
     print("saved to teststats.png")
