@@ -5,7 +5,7 @@ import shutil
 import socketserver
 import tempfile
 
-from adfd.cnf import PATH, SITE, TARGET, VIRTENV, INFO
+from adfd.cnf import PATH, SITE, TARGET, INFO
 from adfd.db.lib import DB_WRAPPER
 from adfd.db.sync import DbSynchronizer
 from adfd.site import fridge
@@ -87,9 +87,7 @@ class AdfdDeployCode(cli.Application):
         remote = SshMachine(TARGET.DOMAIN)
         with remote.cwd(TARGET.TOOL_PATH):
             print(remote['git']('pull'))
-            print(remote[VIRTENV.PIP_BIN]('install', '-U', '-e', '.'))
-            # FIXME likely not needed as we can do without full server
-            # print(remote['cp'](VIRTENV.ACTIVATE_THIS_SRC, VIRTENV.FOLDER))
+            print(remote[PATH.VENV_PIP]('install', '-U', '-e', '.'))
 
 
 @Adfd.subcommand('freeze')

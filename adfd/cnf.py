@@ -59,6 +59,8 @@ class PATH:
     RENDERED = _DEV_BOX_RENDERED if INFO.IS_DEV_BOX else TARGET.CHECKOUT_PATH
     BBCODE_BACKUP = RENDERED / 'bbcode-sources'
     LAST_UPDATE = RENDERED / 'last_updated'
+    VENV_PIP = '/home/.pyenv/versions/adfd/bin/pip'
+
 
 
 class APP:
@@ -98,12 +100,3 @@ class DB:
     _dbHost = REMOTE_HOST if _CNF['useRemoteDb'] else 'localhost'
     URL = "mysql://%s:%s@%s/%s" % (USER, PW, _dbHost, NAME)
     DUMP_PATH = PATH.PROJECT / _CNF['relDumpPath']
-
-
-class VIRTENV:
-    FOLDER = '/home/.pyenv/versions/adfd/bin'
-    ACTIVATE_SCRIPT = 'activate_this.py'
-    ACTIVATE_THIS_SRC = '/home/adfd/adfd/site/' + ACTIVATE_SCRIPT
-    ACTIVATE_THIS_SCRIPT = FOLDER + '/' + ACTIVATE_SCRIPT
-    ADFD_BIN = FOLDER + '/adfd'
-    PIP_BIN = FOLDER + '/pip'
