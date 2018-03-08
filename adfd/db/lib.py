@@ -4,7 +4,7 @@ import logging
 
 from bs4 import BeautifulSoup
 from cached_property import cached_property
-from sqlalchemy import MetaData, create_engine
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from adfd.exc import PostDoesNotExist, TopicNotAccessible, TopicDoesNotExist
