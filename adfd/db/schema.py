@@ -1,3 +1,8 @@
+"""
+If this ever breaks and it is too much fuss to update manually try:
+
+http://docs.sqlalchemy.org/en/latest/orm/extensions/automap.html
+"""
 from sqlalchemy import (BigInteger, Column, Index, Integer, SmallInteger,
                         String, Table, Text, text)
 from sqlalchemy.ext.declarative import declarative_base

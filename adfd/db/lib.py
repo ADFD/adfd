@@ -157,27 +157,3 @@ class DbPost:
             raise PostDoesNotExist(str(self.id))
 
         return dbp
-
-
-def generate_schema(writeToFile="schema.py"):
-    # if you are bored: use https://github.com/google/yapf to format file
-    engine = create_engine(DB.URL)
-    meta = MetaData()
-    meta.reflect(bind=engine)
-    imports = ("from sqlalchemy import Table\n"
-               "from db_reflection.schema import Base\n\n\n")
-    defs = [imports]
-    for table in meta.tables.values():
-        defs.append("class %s(Base):\n    __table__ = "
-                    "Table(%r, Base.metadata, autoload=True)\n\n\n" %
-                    (table.name, table.name))
-    declText = "".join(defs)
-    if writeToFile:
-        with open(writeToFile, "w") as f:
-            f.write(declText)
-    else:
-        print(declText)
-
-
-if __name__ == '__main__':
-    generate_schema(writeToFile='')
