@@ -1,7 +1,5 @@
+adfd.egg-info
 adfd/site/node_modules
 *.bbcode.html
-.frozen/*
 cnf.yml
-.python-version
-adfd.egg-info
-__pycache__
+package-lock.json

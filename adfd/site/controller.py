@@ -92,7 +92,7 @@ def reset_route():
     try:
         NAV.populate()
         flash("navigator repopulated")
-    except Exception:
+    except Exception as e:
         log.warning(f"reset failed ({e})")
     return redirect(url_for(".path_route", path="/")), 301
 

@@ -62,7 +62,6 @@ class PATH:
     VENV_PIP = '/home/.pyenv/versions/adfd/bin/pip'
 
 
-
 class APP:
     SEMANTIC_CSS_PATH = 'dist/semantic.css'
     MY_CSS_FILE_NAME = 'adfd.css'
