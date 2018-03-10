@@ -51,44 +51,13 @@ This will be accessible then as attributes of `ContentContainer` objects. They c
 
 With this mechanism completely arbitrary data can be set, but what is actually used is defined and documented in the `PageMetadata` class.
 
-## [Still in planning phase] Redirection from board to website
+## Redirection from board to website
+
+**NOT IMPLEMENTED YET**
 
 Many articles on the website originate from topics in the ADFD board. When the website is online, those topics should be masked by redirecting requests to the topic on the board to their corresponding static web page.
 
-Articles that should appear on the website often start as copies from the source. Therefore they need to know about there source (topicId of the source topic). For this the meta key `oldTopicId` should be set as part of the meta data. They all reside in [Inhalt (members only)](http://adfd.org/austausch/viewforum.php?f=54). If an article started its life explicitly as website article simply does not contain a link to it's source (all else being the same). (**Development note:** for the time of development this is not necessary, but when the page goes live this should be completed to be able to use the redirect mechanism).
-
-**Rough plan for this:**
-
-* Every article that should end up on the website should be copied from the original
-* The copy has the topicID of the source article as metadata `oldTopicId`
-* That article is the source for the website
-* As soon as the article is online. The original article will redirect to the web site
-
-### Possible redirect implementations
-
-(ordered from most to least favorite)
-
-#### Special redirect tag embedded in post
-
-Javascript solution but easiest to implement.
-
-BBCode tag `redirect` (only usable by members with special permissions) that adds redirect directly in the post. Example:
-
-    [redirect]http://www.google.com/[/redirect]
-
-Renders to:
-
-    <script type="text/javascript">
-        window.location = "http://www.google.com/";
-    </script>
-
-#### phpBB extension
-
-that reads metadata from the source article that contains the redirect path (has to be added later in an invisible tag, if we follow that route).
-
-#### Apache rewrite rules
-
-Most effective(?) but maybe also hardest to develop (lots of different urls can lead to the same thread (e.g. by topicId or postIds)), test and automate.
+Articles that should appear on the website often start as copies from the source. Therefore they need to know about their source (topicId of the source topic). For this the meta key `oldTopicId` should be set as part of the meta data. They all reside in [Inhalt (members only)](http://adfd.org/austausch/viewforum.php?f=54). If an article started its life explicitly as website article simply does not contain a link to it's source (all else being the same). 
 
 ## Development
 
@@ -111,8 +80,9 @@ pip install -e .
 
 ### Development
 
-in one terminal: `adfd gulp` (watches semantic changes and rebuilds)
-in another terminal `adfd` (dev server restarting on app changes)
+in one terminal: `adfd gulp` (watches semantic changes and rebuilds).
+
+in another terminal `adfd` (dev server restarting on app changes).
 
 one shot build:
 
