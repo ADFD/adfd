@@ -80,8 +80,9 @@ pip install -e .
 
 ### Development
 
-in one terminal: `adfd gulp` (watches semantic changes and rebuilds)
-in another terminal `adfd` (dev server restarting on app changes)
+in one terminal: `adfd gulp` (watches semantic changes and rebuilds).
+
+in another terminal `adfd` (dev server restarting on app changes).
 
 one shot build:
 
