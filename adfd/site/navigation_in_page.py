@@ -4,7 +4,7 @@ from functools import total_ordering
 from adfd.model import ArticleNode
 from bs4 import BeautifulSoup
 
-# FIXME not tested and not integrated yet
+# FIXME this might better be done in Javascript?
 
 
 @total_ordering
