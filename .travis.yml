@@ -1,10 +1,8 @@
 language: python
 cache: pip
 python:
- - "3.4"
+  - "3.6"
 install:
-  - pip install --pre -U tox 
+  - pip install --pre -U tox
 script:
   - tox
-env:
-  - TOXENV=py34
