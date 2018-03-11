@@ -73,12 +73,12 @@ DB_WRAPPER = _DbWrapper()
 
 
 class DbPost:
-    TOPIC_IDS_POST_IDS_MAP = {}
+    topicIdsPostIdsMap = {}
 
     @classmethod
     def get_post_ids_for_topic(cls, topicId):
         try:
-            ids = cls.TOPIC_IDS_POST_IDS_MAP[topicId]
+            ids = cls.topicIdsPostIdsMap[topicId]
         except KeyError:
             assert isinstance(topicId, int), (topicId, type(topicId))
             t = DB_WRAPPER.get_topic(topicId)
@@ -94,7 +94,7 @@ class DbPost:
             if not ids:
                 raise TopicDoesNotExist(str(topicId))
 
-            cls.TOPIC_IDS_POST_IDS_MAP[topicId] = ids
+            cls.topicIdsPostIdsMap[topicId] = ids
         return ids
 
     def __init__(self, postId):

@@ -23,6 +23,7 @@ class Node:
     BROKEN_TEXT = "<h1>Konnte nicht geparsed werden</h1>"
     BROKEN_METADATA_TEXT = '[mod=Redakteur]Metadaten fehlerhaft[/mod]\n'
     UNKNOWN_METADATA_PATT = '[mod=Redakteur]unbekannte Metadaten: %s[/mod]\n'
+    REPO_URL = "https://github.com/ADFD/adfd/tree/master/adfd/site"
 
     def __init__(self, identifier, title=None, isOrphan=False):
         self.identifier = identifier
@@ -90,9 +91,7 @@ class Node:
     @cached_property
     def _rawHtml(self):
         try:
-
             return self._parser.to_html(self._bbcode)
-
         except Exception:
             return ("%s<div><pre>%s</pre></div>" %
                     (self.BROKEN_TEXT, traceback.format_exc()))
@@ -108,7 +107,6 @@ class Node:
     @cached_property
     def allAuthors(self):
         md = self._container.md
-
         aa = [a.strip() for a in md.allAuthors.split(",") if a.strip()]
         return aa or [self._container.author]
 
@@ -119,11 +117,9 @@ class Node:
     @cached_property
     def sourceLink(self):
         if isinstance(self._container, StaticArticleContainer):
-            gh = "https://github.com/ADFD/adfd/tree/master/adfd/site"
-            return ("%s/%s/%s/%s" %
-                    (gh, NAME.STATIC, NAME.CONTENT, self.identifier))
-
-        elif isinstance(self._container, DbArticleContainer):
+            parts = self.REPO_URL, NAME.STATIC, NAME.CONTENT, self.identifier
+            return "/".join(parts)
+        if isinstance(self._container, DbArticleContainer):
             return SITE.TOPIC_REL_PATH_PATTERN % self.identifier
 
     @property
@@ -224,7 +220,6 @@ class Node:
     def _bbcode(self):
         if isinstance(self._container, NoContentContainer):
             return ""
-
         content = self._container._content
         if self._container.md._isBroken:
             content = self.BROKEN_METADATA_TEXT + content
