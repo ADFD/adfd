@@ -6,6 +6,7 @@ import socketserver
 import tempfile
 
 from adfd.cnf import PATH, SITE, TARGET, INFO
+from adfd.db.check_urls import check_site_urls
 from adfd.db.lib import DB_WRAPPER
 from adfd.db.sync import DbSynchronizer
 from adfd.site import fridge
@@ -242,6 +243,13 @@ class AdfdFixStagingPaths(cli.Application):
     @classmethod
     def get_all_page_paths(cls):
         return [p for p in PATH.RENDERED.walk() if p.endswith("index.html")]
+
+
+@Adfd.subcommand('check-links')
+class AdfdCheckLinks(cli.Application):
+    """Check if all links from website are healthy"""
+    def main(self):
+        return check_site_urls()
 
 
 @Adfd.subcommand('info')

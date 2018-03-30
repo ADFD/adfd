@@ -29,6 +29,7 @@ class Navigator:
         self.menu = self.root.children
         self.isPopulated = True
         self.orphanNodes = self._populate_orphan_nodes()
+        log.info("navigation populated")
 
     def _reset(self):
         self.isPopulated = False
@@ -39,13 +40,11 @@ class Navigator:
     @cached_property
     def identifierNodeMap(self):
         self._reset()
-        self.populate()
         return self._identifierNodeMap
 
     def get_node(self, key):
         try:
             return self.pathNodeMap["/" + key]
-
         except Exception as e:
             log.error("/%s -> %s(%s)", key, type(e), e.args)
             return CategoryNode("ERROR")
@@ -199,7 +198,6 @@ class Navigator:
                 targetNode = self.get_target_node(ui.topicId)
                 if not targetNode:
                     continue
-
                 link.attrs['href'] = targetNode.relPath
         # Note remove extra tags - very ugly, but simple and works
         txt = str(soup)
