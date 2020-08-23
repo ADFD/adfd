@@ -64,9 +64,7 @@ def path_route(path=''):
 @app.route('/article/<path:path>/')
 def article_route(topicId=None, path=None):
     identifier = topicId or path
-    bbcodeIsActive = False
-    if request.path[1:].startswith(NAME.BBCODE):
-        bbcodeIsActive = True
+    bbcodeIsActive = request.path[1:].startswith(NAME.BBCODE)
     try:
         identifier = int(identifier)
     except ValueError:
