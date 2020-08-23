@@ -78,7 +78,7 @@ class Token:
 
     @property
     def asTuple(self):
-        return (self.type, self.tag, self.options, self.text)
+        return self.type, self.tag, self.options, self.text
 
 
 class Parser:
