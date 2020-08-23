@@ -48,7 +48,7 @@ class HeaderTag:
         return self.level == tag.level + 2
 
     def is_sane(self, tag):
-        return (self.is_child(tag) or self.is_parent_of(tag)
+        return (self.is_child_of(tag) or self.is_ancestor_of(tag)
                 or self.is_sibling_of(tag))
 
 
