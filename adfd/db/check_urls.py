@@ -12,30 +12,14 @@
 """
 import asyncio
 import logging
-import pprint
 
 import async_timeout
-from aiohttp import ClientSession, ClientConnectionError, ClientConnectorError
+from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 
 from adfd.site.navigation import Navigator, UrlInformer
 
 log = logging.getLogger(__name__)
-#
-# import aiohttp
-# import asyncio
-# import async_timeout
-#
-# async def fetch(session, url):
-#     async with async_timeout.timeout(10):
-#         async with session.get(url) as response:
-#             return await response.text()
-#
-# async def main():
-#     async with aiohttp.ClientSession() as session:
-#         html = await fetch(session, 'http://python.org')
-#         print(html)
-
 
 # class Linker:
 #     def __init__(self, link, postUrl=None, postLine=None):
@@ -64,7 +48,7 @@ def get_urls():
 
 
 async def make_request(session, url):
-    async with async_timeout.timeout(40):
+    async with async_timeout.timeout(60):
         try:
             async with session.get(url) as response:
                 return url, response
@@ -92,6 +76,7 @@ async def check_urls(urls):
             print(f"{url} -> {reason}")
     return brokenUrls
 
+
 def run_check_links_loop(urls):
     loop = asyncio.get_event_loop()
     coroutine = check_urls(urls)
@@ -101,6 +86,7 @@ def run_check_links_loop(urls):
 
 def check_site_urls():
     urls = get_urls()
+    log.info(f"checking {len(urls)} urls ...")
     run_check_links_loop(urls)
 
 
