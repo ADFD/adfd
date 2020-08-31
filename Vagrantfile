@@ -7,7 +7,7 @@
 # sudo apt-get install ifupdown
 
 Vagrant.configure(2) do |config|
-  config.vm.box = "ubuntu/artful64"
+  config.vm.box = "ubuntu/bionic64"
   config.vm.provider "virtualbox" do |vb|
     vb.gui = false
     vb.memory = "2048"
@@ -18,12 +18,11 @@ Vagrant.configure(2) do |config|
   config.vm.network "forwarded_port", guest: 3307, host: 3307
   config.vm.network "forwarded_port", guest: 5000, host: 5000
 
-  config.vm.synced_folder "../austausch", "/austausch"
-  config.vm.synced_folder "../adfd-db-tools", "/adfd-db-tools"
+  config.vm.synced_folder "../austausch-3.3.x", "/austausch"
+  config.vm.synced_folder "../db-tools", "/db-tools"
 
-  config.vm.provision "shell", path: "vagrant/provision-basic.sh"
-  config.vm.provision "shell", path: "vagrant/provision-lamp-config.sh"
-  config.vm.provision "shell", path: "vagrant/provision-adfd.sh"
-  config.vm.provision "shell", path: "vagrant/provision-austausch.sh"
+  # config.vm.provision "shell", path: "vagrant/01-provision-basic.sh"
+  # config.vm.provision "shell", path: "vagrant/02-provision-lamp-config.sh"
+  # config.vm.provision "shell", path: "vagrant/03-provision-adfd.sh"
+  # config.vm.provision "shell", path: "vagrant/04-provision-austausch.sh"
 end
-

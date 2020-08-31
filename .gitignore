@@ -1,5 +1,6 @@
-adfd.egg-info
-adfd/site/node_modules
 *.bbcode.html
+*.log
 cnf.yml
 package-lock.json
+adfd.egg-info/
+adfd/site/node_modules/

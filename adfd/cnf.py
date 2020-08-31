@@ -10,7 +10,7 @@ _PACKAGE_PATH = _PROJECT_PATH / 'adfd'
 _CONFIG_PATH = _PROJECT_PATH / 'cnf.yml'
 _HOSTNAME = socket.gethostname()
 _IS_CI = 'CI' in os.environ
-_IS_DEV_BOX = _HOSTNAME == 'h2g2'
+_IS_DEV_BOX = _HOSTNAME in ['h2g2', 'delltmp']
 
 if not _CONFIG_PATH.exists():
     assert _IS_CI or _IS_DEV_BOX, _HOSTNAME
@@ -98,4 +98,4 @@ class DB:
     REMOTE_HOST = _CNF['remoteHost']
     _dbHost = REMOTE_HOST if _CNF['useRemoteDb'] else 'localhost'
     URL = "mysql://%s:%s@%s/%s" % (USER, PW, _dbHost, NAME)
-    DUMP_PATH = PATH.PROJECT / _CNF['relDumpPath']
+    DUMP_PATH = PATH.PROJECT / _CNF['relDumpPath'] / "dumps"
