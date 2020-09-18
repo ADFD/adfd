@@ -9,11 +9,15 @@ _PROJECT_PATH = plumbum.LocalPath(__file__).dirname.up()
 _PACKAGE_PATH = _PROJECT_PATH / 'adfd'
 _CONFIG_PATH = _PROJECT_PATH / 'cnf.yml'
 _HOSTNAME = socket.gethostname()
-_IS_CI = 'CI' in os.environ
-_IS_DEV_BOX = _HOSTNAME in ['h2g2', 'delltmp']
+
+
+class INFO:
+    IS_CI = 'CI' in os.environ
+    IS_DEV_BOX = 'mj13' not in _HOSTNAME
+
 
 if not _CONFIG_PATH.exists():
-    assert _IS_CI or _IS_DEV_BOX, _HOSTNAME
+    assert INFO.IS_CI or INFO.IS_DEV_BOX, _HOSTNAME
 
     class _CNF:
         def __getitem__(self, item):
@@ -25,11 +29,6 @@ if not _CONFIG_PATH.exists():
     _CNF = _CNF()
 else:
     _CNF = yaml.safe_load(open(_CONFIG_PATH))
-
-
-class INFO:
-    IS_CI = _IS_CI
-    IS_DEV_BOX = _IS_DEV_BOX
 
 
 class NAME:
