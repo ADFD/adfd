@@ -12,7 +12,7 @@ from adfd.db.sync import DbSynchronizer
 from adfd.site import fridge
 from adfd.site.controller import app, run_devserver, NAV
 from adfd.process import date_from_timestamp
-from flask.ext.frozen import Freezer
+from flask_frozen import Freezer
 from plumbum import LocalPath
 from plumbum import ProcessExecutionError, SshMachine, cli, local
 

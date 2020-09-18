@@ -3,18 +3,22 @@ aiohttp==3.1.0
 boltons==16.5.0
 beautifulsoup4==4.5.1
 cached-property==1.3.0
-flask==0.10.1
 flexmock==0.10.2
-frozen-flask==0.12
-html5lib==0.999999999
 plumbum==1.6.3
 pygments==2.1.3
 pyyaml==3.12
 pyphen==0.9.4
 pytest==3.0.3
-sqlalchemy==1.0.10
 translitcodec==0.4.0
 typogrify==2.0.7
 
-# this should only be necessary in the container ...
-#mysqlclient==1.3.7
+flask
+frozen-flask
+html5lib==0.999999999
+
+mysqlclient
+sqlalchemy
+
+matplotlib
+numpy
+pandas
