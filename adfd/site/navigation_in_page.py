@@ -1,10 +1,9 @@
 import re
 from functools import total_ordering
 
-from adfd.model import ArticleNode
 from bs4 import BeautifulSoup
 
-# FIXME this might better be done in Javascript?
+from adfd.model import ArticleNode
 
 
 @total_ordering
