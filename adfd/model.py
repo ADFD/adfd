@@ -85,7 +85,7 @@ class Node:
     # @cached_property
     @property
     def html(self):
-        from adfd.site.controller import NAV
+        from adfd.site.wsgi import NAV
         return NAV.replace_links(self._rawHtml)
 
     @cached_property

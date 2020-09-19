@@ -1,7 +1,7 @@
 import logging
 
 from adfd.cnf import NAME
-from adfd.site.controller import NAV
+from adfd.site.wsgi import NAV
 
 log = logging.getLogger(__name__)
 

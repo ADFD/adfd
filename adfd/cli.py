@@ -10,7 +10,7 @@ from adfd.db.check_urls import check_site_urls
 from adfd.db.lib import DB_WRAPPER
 from adfd.db.sync import DbSynchronizer
 from adfd.site import fridge
-from adfd.site.controller import app, run_devserver, NAV
+from adfd.site.wsgi import app, run_devserver, NAV
 from adfd.process import date_from_timestamp
 from flask_frozen import Freezer
 from plumbum import LocalPath
