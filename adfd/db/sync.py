@@ -52,10 +52,12 @@ class DbSynchronizer:
     def prepare_local_db():
         log.info('prepare local db privileges')
         cmds = [
-            "DROP DATABASE IF EXISTS %s" % DB.NAME,
+            f"DROP DATABASE IF EXISTS %s" % DB.NAME,
             "CREATE DATABASE IF NOT EXISTS %s" % DB.NAME,
-            ("GRANT USAGE ON *.* TO %s@localhost IDENTIFIED BY '%s'" %
+            ("CREATE USER %s@localhost IDENTIFIED BY '%s'" %
              (DB.USER, DB.PW)),
+            ("GRANT ALL ON *.* TO %s@localhost" %
+             DB.USER),
             ("GRANT ALL PRIVILEGES ON %s.* TO %s@localhost" %
              (DB.NAME, DB.USER)),
             "FLUSH PRIVILEGES"]
