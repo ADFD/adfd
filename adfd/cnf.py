@@ -32,6 +32,8 @@ else:
 
 
 class NAME:
+    ARTICLES = 'articles'
+    DB_CACHE = 'db-cache'
     STATIC = 'static'
     CONTENT = 'content'
     ROOT = '_root'
@@ -52,9 +54,12 @@ class PATH:
     SITE = _PACKAGE_PATH / 'site'
     SEMANTIC = SITE / 'semantic'
     STATIC = SITE / NAME.STATIC
+    CONTENT = STATIC / NAME.CONTENT
+    ARTICLES = CONTENT / NAME.ARTICLES
+    DB_CACHE = CONTENT / NAME.DB_CACHE
     ROOT_FILES = STATIC / '_root'
     VIEW = SITE / 'view'
-    _DEV_BOX_RENDERED = _PROJECT_PATH / '..' / 'static'
+    _DEV_BOX_RENDERED = _PROJECT_PATH / '..' / NAME.STATIC
     RENDERED = _DEV_BOX_RENDERED if INFO.IS_DEV_BOX else TARGET.CHECKOUT_PATH
     BBCODE_BACKUP = RENDERED / 'bbcode-sources'
     LAST_UPDATE = RENDERED / 'last_updated'
@@ -76,7 +81,7 @@ class SITE:
     PLACEHOLDER_TOPIC_ID = 12265
     IGNORED_CONTENT_TOPICS = [PLACEHOLDER_TOPIC_ID, STRUCTURE_TOPIC_ID]
     STRUCTURE_PATH = PATH.SITE / (_CNF['structurePath'] or 'structure.yml')
-    STATIC_ARTICLES_PATH = PATH.STATIC / 'content' / 'articles'
+    STATIC_ARTICLES_PATH = PATH.STATIC / NAME.CONTENT / NAME.ARTICLES
     USE_FILE = _CNF['useFile']
     APP_PORT = 5000
     FROZEN_PORT = APP_PORT + 1

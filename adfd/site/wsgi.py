@@ -1,3 +1,4 @@
+import logging
 import os
 
 from flask import Flask, render_template, url_for
@@ -15,13 +16,6 @@ app.secret_key = "I only need that for flash()"
 LAST_UPDATE = None
 IS_FREEZING = "FREEZER_DESTINATION" in app.config
 NAV = Navigator()
-
-
-# TODO activate if formatted HTML is wanted
-# def render_template(template_name_or_list, **context):
-#     from bs4 import BeautifulSoup
-#     result = render_template(template_name_or_list, **context)
-#     return BeautifulSoup(result, 'html5lib').prettify()
 
 
 @app.context_processor
@@ -48,6 +42,8 @@ def path_route(path=''):
     if path.startswith(NAME.BBCODE):
         bbcodeIsActive = True
         path = path.partition("/")[-1]
+    app.logger.warning(f"############# {id(NAV)}")
+    assert NAV.pathNodeMap, NAV.pathNodeMap
     node = NAV.get_node(path)
     node.bbcodeIsActive = bbcodeIsActive
     node.requestPath = request.path
@@ -94,11 +90,26 @@ def reset_route():
 
 def run_devserver(projectPath=PATH.PROJECT, port=SITE.APP_PORT):
     app.config.update(DEBUG=True)
+    fmt = logging.Formatter(
+        '%(asctime)s - %(name)s:%(lineno)s [%(process)d|%(thread)d] %(levelname)s: '
+        '%(message)s'
+    )
+    log = logging.getLogger()
+    log.handlers[0].setFormatter(fmt)
     if INFO.IS_DEV_BOX:
+        def pretty_render_template(template_name_or_list, **context):
+            from bs4 import BeautifulSoup
+            import flask
+            result = flask.render_template(template_name_or_list, **context)
+            return BeautifulSoup(result, 'html5lib').prettify()
+
+        global render_template
+        render_template = pretty_render_template
         os.environ['WERKZEUG_DEBUG_PIN'] = 'off'
     with local.cwd(projectPath):
-        app.logger.info("serving on http://localhost:%s", port)
-        app.run(host='0.0.0.0', port=port)
+        host = '0.0.0.0'
+        app.logger.info(f"serving on http://{host}:{port}")
+        app.run(host=host, port=port)
 
 
 if __name__ == '__main__':

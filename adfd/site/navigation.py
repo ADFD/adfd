@@ -18,8 +18,11 @@ log = logging.getLogger(__name__)
 
 class Navigator:
     def __init__(self):
-        self._identifierNodeMap = {}
+        self.identifierNodeMap = {}
         self.isPopulated = False
+        self.pathNodeMap = {}
+        self.yamlKeyNodeMap = {}
+        self.orphanNodes = []
 
     def populate(self):
         log.info("populate navigation")
@@ -33,22 +36,19 @@ class Navigator:
         log.info("navigation populated")
 
     def _reset(self):
+        log.critical(f"RESET NAVIGATOR")
         self.isPopulated = False
         self.pathNodeMap = {}
         self.yamlKeyNodeMap = {}
         self.orphanNodes = []
 
-    @cached_property
-    def identifierNodeMap(self):
-        self._reset()
-        return self._identifierNodeMap
-
     def get_node(self, key):
         try:
             return self.pathNodeMap["/" + key]
         except Exception as e:
-            log.error("/%s -> %s(%s)", key, type(e), e.args)
-            return CategoryNode("ERROR")
+            msg = f"/{key} -> {type(e)}({e.args})"
+            log.error(msg)
+            return CategoryNode(msg)
 
     def get_target_node(self, topicId):
         return self.identifierNodeMap.get(topicId)
@@ -106,7 +106,7 @@ class Navigator:
         return "".join([str(m) for m in self.menu])
 
     def visit(self, path, key, value):
-        # log.debug('visit(%r, %r, %r)' % (path, key, value))
+        log.debug('visit(%r, %r, %r)' % (path, key, value))
         node = None
         if isinstance(key, str):
             node = self.get_cat_node(key=key)
@@ -118,7 +118,7 @@ class Navigator:
             if cat:
                 cat.children.append(node)
             self.pathNodeMap[node.relPath] = node
-            self._identifierNodeMap[node.identifier] = node
+            self.identifierNodeMap[node.identifier] = node
         return key, value
 
     def get_parent_nodes(self, path):
@@ -180,12 +180,12 @@ class Navigator:
         nodes = []
         for t in DB_WRAPPER.get_topics(SITE.MAIN_CONTENT_FORUM_ID):
             topicId = t.topic_id
-            if (topicId not in self._identifierNodeMap and
+            if (topicId not in self.identifierNodeMap and
                     topicId not in SITE.IGNORED_CONTENT_TOPICS):
                 node = ArticleNode(topicId, isOrphan=True)
-                self._identifierNodeMap[topicId] = node
+                self.identifierNodeMap[topicId] = node
                 nodes.append(node)
-                # log.warning("orphan: %s (%s)", node.title, topicId)
+                log.warning("orphan: %s (%s)", node.title, topicId)
         return nodes
 
     def replace_links(self, html):

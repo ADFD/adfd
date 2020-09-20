@@ -452,7 +452,7 @@ class StaticArticleContainer(ArticleContainer):
 
     @cached_property
     def _grabber(self):
-        return ContentGrabber(PATH.STATIC / 'content' / self.identifier)
+        return ContentGrabber(PATH.CONTENT / self.identifier)
 
     @cached_property
     def isForeign(self):
