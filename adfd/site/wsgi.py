@@ -1,4 +1,3 @@
-import logging
 import os
 
 from flask import Flask, render_template, url_for
@@ -8,8 +7,6 @@ from plumbum.machines import local
 from adfd.cnf import PATH, SITE, APP, NAME, INFO
 from adfd.site.navigation import Navigator
 from adfd.process import date_from_timestamp
-
-log = logging.getLogger(__name__)
 
 app = Flask(__name__, template_folder=PATH.VIEW, static_folder=PATH.STATIC)
 app.config['SESSION_TYPE'] = 'filesystem'
@@ -91,7 +88,7 @@ def reset_route():
         NAV.populate()
         flash("navigator repopulated")
     except Exception as e:
-        log.warning(f"reset failed ({e})")
+        app.logger.warning(f"reset failed ({e})")
     return redirect(url_for(".path_route", path="/")), 301
 
 
@@ -100,7 +97,7 @@ def run_devserver(projectPath=PATH.PROJECT, port=SITE.APP_PORT):
     if INFO.IS_DEV_BOX:
         os.environ['WERKZEUG_DEBUG_PIN'] = 'off'
     with local.cwd(projectPath):
-        log.info("serving on http://localhost:%s", port)
+        app.logger.info("serving on http://localhost:%s", port)
         app.run(host='0.0.0.0', port=port)
 
 

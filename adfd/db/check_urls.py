@@ -33,6 +33,7 @@ def get_urls():
     nav.populate()
     seenLinks = set()
     for identifier, node in nav.identifierNodeMap.items():
+        log.info(f"processing {identifier} | {node.relPath}")
         soup = BeautifulSoup(node.html, 'html5lib')
         for link in soup.findAll('a'):
             candidate = link.get('href')

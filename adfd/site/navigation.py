@@ -4,13 +4,14 @@ import re
 from collections import OrderedDict
 
 import yaml
+from boltons.iterutils import remap
+from bs4 import BeautifulSoup
+from cached_property import cached_property
+
 from adfd.cnf import SITE
 from adfd.db.lib import DB_WRAPPER
 from adfd.model import CategoryNode, ArticleNode, DbArticleContainer
 from adfd.process import extract_from_bbcode
-from boltons.iterutils import remap
-from bs4 import BeautifulSoup
-from cached_property import cached_property
 
 log = logging.getLogger(__name__)
 
@@ -105,7 +106,7 @@ class Navigator:
         return "".join([str(m) for m in self.menu])
 
     def visit(self, path, key, value):
-        # print('visit(%r, %r, %r)' % (path, key, value))
+        # log.debug('visit(%r, %r, %r)' % (path, key, value))
         node = None
         if isinstance(key, str):
             node = self.get_cat_node(key=key)
@@ -254,5 +255,8 @@ class UrlInformer:
 
 
 if __name__ == '__main__':
+    # log.setLevel(logging.DEBUG)
     _nav = Navigator()
     _nav.populate()
+    for e in sorted(node.relPath for node in _nav.allNodes):
+        print(e)
