@@ -13,7 +13,6 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = "I only need that for flash()"
 
 LAST_UPDATE = None
-IS_FREEZING = "FREEZER_DESTINATION" in app.config
 NAV = Navigator()
 
 
@@ -30,7 +29,6 @@ def _before_first_request():
     except FileNotFoundError:
         LAST_UPDATE = date_from_timestamp()
 
-    global IS_FREEZING
     NAV.populate()
 
 
