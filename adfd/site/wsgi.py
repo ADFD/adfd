@@ -39,8 +39,6 @@ def path_route(path=''):
     if path.startswith(NAME.BBCODE):
         bbcodeIsActive = True
         path = path.partition("/")[-1]
-    app.logger.warning(f"############# {id(NAV)}")
-    assert NAV.pathNodeMap, NAV.pathNodeMap
     node = NAV.get_node(path)
     node.bbcodeIsActive = bbcodeIsActive
     node.requestPath = flask.request.path
