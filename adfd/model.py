@@ -184,7 +184,7 @@ class Node:
         if isinstance(self._container, NoContentContainer):
             return []
 
-        return self._container.md.invalidAttributes
+        return self._container.md.invalid_keys
 
     @cached_property
     def smilies(self):

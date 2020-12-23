@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 
 
 class PageMetadata:
-    ATTRIBUTES = [
+    KEYS = [
         "allAuthors",
         "isExcluded",
         "firstPostOnly",
@@ -55,19 +55,19 @@ class PageMetadata:
         try:
             self._populate_from_kwargs(kwargs)
             self._populate_from_text(text)
-            self._isBroken = bool(self.invalidAttributes)
+            self._isBroken = bool(self.invalid_keys)
         except Exception as e:
             self._isBroken = True
-            log.warning(f"broken metadata with {kwargs} and {text} ({e})")
+            log.warning(f"broken metadata with {kwargs} and {text}", exc_info=True)
 
     def __repr__(self):
-        return str(self.asDict)
+        return str(self.as_dict)
 
     def __contains__(self, item):
-        return item in self.asDict
+        return item in self.as_dict
 
     @property
-    def asDict(self):
+    def as_dict(self):
         dict_ = OrderedDict()
         for name in sorted(vars(self)):
             if not self.is_metadata(name):
@@ -84,14 +84,14 @@ class PageMetadata:
         return dict_
 
     def is_metadata(self, name):
-        return name in self.ATTRIBUTES and not name.startswith("_")
+        return name in self.KEYS and not name.startswith("_")
 
     @property
-    def invalidAttributes(self):
+    def invalid_keys(self):
         return [
             name
             for name in vars(self)
-            if name not in self.ATTRIBUTES and not name.startswith("_")
+            if name not in self.KEYS and not name.startswith("_")
         ]
 
     def _populate_from_kwargs(self, kwargs):
@@ -105,13 +105,12 @@ class PageMetadata:
         if not text:
             return
 
-        rawMd = extract_from_bbcode(SITE.META_TAG, text)
-        if not rawMd:
+        raw_md = extract_from_bbcode(SITE.META_TAG, text)
+        if not raw_md:
             return
 
-        lines = rawMd.split("\n")
+        lines = raw_md.split("\n")
         for line in lines:
-            assert isinstance(line, str)  # pycharm is strange sometimes
             if not line.strip():
                 continue
 
@@ -125,5 +124,5 @@ class PageMetadata:
             value = True
         elif value.lower() == "false":
             value = False
-        log.debug("%s: %s -> %s", self.__class__.__name__, key, value)
+        log.debug(f"{self.__class__.__name__}: {key} -> {value}")
         setattr(self, key, value)
