@@ -49,7 +49,7 @@ class AdfdDbLoad(cli.Application):
 
 @Adfd.subcommand("db-sync")
 class AdfdDbSync(cli.Application):
-    """Load db dump into local db"""
+    """Dump DB on remote, download the dump and load it to the local DB."""
 
     def main(self):
         dbs = DbSynchronizer()
