@@ -16,11 +16,6 @@ LAST_UPDATE = None
 NAV = Navigator()
 
 
-@app.context_processor
-def inject_dict_for_all_templates():
-    return dict(APP=APP, NAV=NAV, VERSION=LAST_UPDATE, IS_DEV=INFO.IS_DEV_BOX)
-
-
 @app.before_first_request
 def _before_first_request():
     global LAST_UPDATE
@@ -32,15 +27,20 @@ def _before_first_request():
     NAV.populate()
 
 
+@app.context_processor
+def inject_dict_for_all_templates():
+    return dict(APP=APP, NAV=NAV, VERSION=LAST_UPDATE, IS_DEV=INFO.IS_DEV_BOX)
+
+
 @app.route("/")
 @app.route("/<path:path>/")
 def path_route(path=""):
-    bbcodeIsActive = False
+    bbcode_is_active = False
     if path.startswith(NAME.BBCODE):
-        bbcodeIsActive = True
+        bbcode_is_active = True
         path = path.partition("/")[-1]
     node = NAV.get_node(path)
-    node.bbcodeIsActive = bbcodeIsActive
+    node.bbcode_is_active = bbcode_is_active
     node.requestPath = flask.request.path
     # TODO set active path (can be done on node directly)
     return flask.render_template("content-container.html", node=node)
@@ -52,13 +52,13 @@ def path_route(path=""):
 @app.route("/article/<path:path>/")
 def article_route(topicId=None, path=None):
     identifier = topicId or path
-    bbcodeIsActive = flask.request.path[1:].startswith(NAME.BBCODE)
+    bbcode_is_active = flask.request.path[1:].startswith(NAME.BBCODE)
     try:
         identifier = int(identifier)
     except ValueError:
         pass
     node = NAV.identifierNodeMap[identifier]
-    node.bbcodeIsActive = bbcodeIsActive
+    node.bbcode_is_active = bbcode_is_active
     node.requestPath = flask.request.path
     return flask.render_template("content-container.html", node=node)
 
@@ -75,11 +75,8 @@ def articles_all_route():
 
 @app.route("/reset")
 def reset_route():
-    try:
-        NAV.populate()
-        flask.flash("navigator repopulated")
-    except Exception as e:
-        app.logger.warning(f"reset failed ({e})")
+    NAV.populate()
+    flask.flash("navigator repopulated")
     return flask.redirect(flask.url_for(".path_route", path="/")), 301
 
 

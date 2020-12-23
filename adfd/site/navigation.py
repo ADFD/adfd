@@ -10,7 +10,7 @@ from cached_property import cached_property
 
 from adfd.cnf import SITE
 from adfd.db.lib import DB_WRAPPER
-from adfd.model import ArticleNode, CategoryNode, DbArticleContainer
+from adfd.model import ArticleNode, CategoryNode, DbArticleContainer, Node
 from adfd.process import extract_from_bbcode
 
 log = logging.getLogger(__name__)
@@ -42,15 +42,15 @@ class Navigator:
         self.yamlKeyNodeMap = {}
         self.orphanNodes = []
 
-    def get_node(self, key):
+    def get_node(self, key) -> Node:
         try:
-            return self.pathNodeMap["/" + key]
-        except Exception as e:
+            return self.pathNodeMap[f"/{key}"]
+        except Exception:
             msg = f"/{key} -> {type(e)}({e.args})"
-            log.error(msg)
+            log.error(msg, exc_info=True)
             return CategoryNode(msg)
 
-    def get_target_node(self, topicId):
+    def get_target_node(self, topicId) -> Node:
         return self.identifierNodeMap.get(topicId)
 
     @cached_property

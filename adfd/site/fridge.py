@@ -11,14 +11,14 @@ def path_route():
         NAV.populate()
     for path in NAV.pathNodeMap:
         for prefix in ["", NAME.BBCODE]:
-            log.info("yield %s", path)
+            log.info(f"yield {path}")
             yield {"path": path}
 
             if prefix:
-                prefixedPath = "/%s" % NAME.BBCODE
+                prefixedPath = f"/{NAME.BBCODE}"
                 if path != "/":
                     prefixedPath += path
-                log.info("yield %s", prefixedPath)
+                log.info(f"yield {prefixedPath}")
                 yield {"path": prefixedPath}
 
 

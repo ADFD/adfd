@@ -36,7 +36,7 @@ class Node:
         self.isActive = False
         self.isOrphan = isOrphan
         self.requestPath = None
-        self.bbcodeIsActive = False
+        self.bbcode_is_active = False
 
     def __repr__(self):
         return "<{}({}: {})>".format(self.SPEC, self.identifier, self.title[:6])
@@ -80,7 +80,7 @@ class Node:
         if not self.hasArticle:
             return None
 
-        if self.bbcodeIsActive:
+        if self.bbcode_is_active:
             return self._bbcodeAsHtml
 
         return self.html
@@ -131,7 +131,7 @@ class Node:
     @property
     def contentToggleLink(self):
         assert self.requestPath
-        if self.bbcodeIsActive:
+        if self.bbcode_is_active:
             path = self.requestPath.partition(NAME.BBCODE)[-1]
         else:
             path = "/" + NAME.BBCODE
@@ -141,7 +141,7 @@ class Node:
 
     @property
     def contentToggleLinkText(self):
-        return "HTML zeigen" if self.bbcodeIsActive else "BBCode zeigen"
+        return "HTML zeigen" if self.bbcode_is_active else "BBCode zeigen"
 
     @cached_property
     def isCategory(self):
