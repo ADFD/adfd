@@ -4,8 +4,9 @@ import logging
 import re
 from collections import OrderedDict
 
-from adfd.process import RE, slugify
 from cached_property import cached_property
+
+from adfd.process import RE, slugify
 
 log = logging.getLogger(__name__)
 
@@ -51,16 +52,17 @@ class Token:
     text
         The original token text
     """
-    TAG_START = 'start'
-    TAG_END = 'end'
-    NEWLINE = 'newline'
-    DATA = 'data'
+
+    TAG_START = "start"
+    TAG_END = "end"
+    NEWLINE = "newline"
+    DATA = "data"
 
     def __init__(self, *args):
         self.type, self.tag, self.options, self.text = args
         self.isOpener = self.type == Token.TAG_START
         self.isCloser = self.type == Token.TAG_END
-        self.isHeaderStart = self.isOpener and re.match("h\d", self.tag)
+        self.isHeaderStart = self.isOpener and re.match(r"h\d", self.tag)
         self.isQuoteStart = self.isOpener and self.tag == "quote"
         self.isQuoteEnd = self.isCloser and self.tag == "quote"
         self.isListStart = self.isOpener and self.tag == "list"
@@ -72,7 +74,7 @@ class Token:
 
     def __repr__(self):
         if self.tag:
-            return "<%s%s>" % ('/' if self.isCloser else '', self.tag)
+            return "<{}{}>".format("/" if self.isCloser else "", self.tag)
 
         return "<%s>" % self.text
 
@@ -83,10 +85,18 @@ class Token:
 
 class Parser:
     def __init__(
-            self, newline='\n', normalizeNewlines=True, escapeHtml=True,
-            replaceLinks=True, replaceCosmetic=True,
-            tagOpener='[', tagCloser=']',
-            linker=None, linkerTakesContext=False, dropUnrecognized=False):
+        self,
+        newline="\n",
+        normalizeNewlines=True,
+        escapeHtml=True,
+        replaceLinks=True,
+        replaceCosmetic=True,
+        tagOpener="[",
+        tagCloser="]",
+        linker=None,
+        linkerTakesContext=False,
+        dropUnrecognized=False,
+    ):
         self.tagOpener = tagOpener
         self.tagCloser = tagCloser
         self.newline = newline
@@ -101,7 +111,7 @@ class Parser:
         self.linkerTakesContext = linkerTakesContext
 
     def add_formatter(self, tagName, render_func, **kwargs):
-        """ Install render function for specified tag name.
+        """Install render function for specified tag name.
 
         The render function should have the following signature:
 
@@ -137,8 +147,9 @@ class Parser:
             fmt = {}
             if options:
                 fmt.update(options)
-            fmt.update({'value': value})
+            fmt.update({"value": value})
             return format_string % fmt
+
         self.add_formatter(tagName, _render, **kwargs)
 
     def _newline_tokenize(self, data):
@@ -149,14 +160,14 @@ class Parser:
         :type data: str
         :returns: list of Token
         """
-        parts = data.split('\n')
+        parts = data.split("\n")
         tokens = []
         """:type: list of Token"""
         for num, part in enumerate(parts):
             if part:
                 tokens.append(Token(*(Token.DATA, None, None, part)))
             if num < (len(parts) - 1):
-                tokens.append(Token(*(Token.NEWLINE, None, None, '\n')))
+                tokens.append(Token(*(Token.NEWLINE, None, None, "\n")))
         return tokens
 
     def _parse_opts(self, data):
@@ -180,8 +191,8 @@ class Parser:
         opts = OrderedDict()
         in_value = False
         in_quote = False
-        attr = ''
-        value = ''
+        attr = ""
+        value = ""
         attr_done = False
         for pos, ch in enumerate(data.strip()):
             if in_value:
@@ -191,27 +202,27 @@ class Parser:
                         in_value = False
                         if attr:
                             opts[attr.lower()] = value.strip()
-                        attr = ''
-                        value = ''
+                        attr = ""
+                        value = ""
                     else:
                         value += ch
                 else:
                     if ch in ('"', "'"):
                         in_quote = ch
-                    elif ch == ' ' and data.find('=', pos + 1) > 0:
+                    elif ch == " " and data.find("=", pos + 1) > 0:
                         # If there is no = after this, value may accept spaces
                         opts[attr.lower()] = value.strip()
-                        attr = ''
-                        value = ''
+                        attr = ""
+                        value = ""
                         in_value = False
                     else:
                         value += ch
             else:
-                if ch == '=':
+                if ch == "=":
                     in_value = True
                     if name is None:
                         name = attr
-                elif ch == ' ':
+                elif ch == " ":
                     attr_done = True
                 else:
                     if attr_done:
@@ -219,8 +230,8 @@ class Parser:
                             if name is None:
                                 name = attr
                             else:
-                                opts[attr.lower()] = ''
-                        attr = ''
+                                opts[attr.lower()] = ""
+                        attr = ""
                         attr_done = False
                     attr += ch
         if attr:
@@ -235,22 +246,25 @@ class Parser:
         parse any options and return a tuple of the form:
             (valid, tagName, closer, options)
         """
-        if ((not tag.startswith(self.tagOpener)) or
-                (not tag.endswith(self.tagCloser)) or
-                ('\n' in tag) or ('\r' in tag)):
+        if (
+            (not tag.startswith(self.tagOpener))
+            or (not tag.endswith(self.tagCloser))
+            or ("\n" in tag)
+            or ("\r" in tag)
+        ):
             return (False, tag, False, None)
 
-        tagName = tag[len(self.tagOpener):-len(self.tagCloser)].strip()
+        tagName = tag[len(self.tagOpener) : -len(self.tagCloser)].strip()
         if not tagName:
             return (False, tag, False, None)
 
         closer = False
         opts = {}
-        if tagName[0] == '/':
+        if tagName[0] == "/":
             tagName = tagName[1:]
             closer = True
         # Parse options inside the opening tag, if needed.
-        if (('=' in tagName) or (' ' in tagName)) and not closer:
+        if (("=" in tagName) or (" " in tagName)) and not closer:
             tagName, opts = self._parse_opts(tagName)
         return (True, tagName.strip().lower(), closer, opts)
 
@@ -272,11 +286,9 @@ class Parser:
                     in_quote = ch
                 elif in_quote == ch:
                     in_quote = False
-            if (not in_quote and
-                    data[i:i + len(self.tagOpener)] == self.tagOpener):
+            if not in_quote and data[i : i + len(self.tagOpener)] == self.tagOpener:
                 return i, False
-            if (not in_quote and
-                    data[i:i + len(self.tagCloser)] == self.tagCloser):
+            if not in_quote and data[i : i + len(self.tagCloser)] == self.tagCloser:
                 return i + len(self.tagCloser), True
         return len(data), False
 
@@ -285,7 +297,7 @@ class Parser:
         :returns: list of Token
         """
         if self.normalizeNewlines:
-            data = data.replace('\r\n', '\n').replace('\r', '\n')
+            data = data.replace("\r\n", "\n").replace("\r", "\n")
         pos = 0
         tokens = []
         """:type: list of Token"""
@@ -347,8 +359,7 @@ class Parser:
         while pos < len(tokens):
             token = tokens[pos]
             """:type: Token"""
-            if (tag.newlineCloses and token.type in
-                    (Token.TAG_START, Token.TAG_END)):
+            if tag.newlineCloses and token.type in (Token.TAG_START, Token.TAG_END):
                 # If we're finding the closing token for a tag that is
                 # closed by newlines, but there is an embedded tag that
                 # doesn't transform newlines (i.e. a code tag that keeps
@@ -359,8 +370,7 @@ class Parser:
                         blockCount += 1
                     else:
                         blockCount -= 1
-            if (token.type == Token.NEWLINE and tag.newlineCloses and
-                    blockCount == 0):
+            if token.type == Token.NEWLINE and tag.newlineCloses and blockCount == 0:
                 # If for some crazy reason there are embedded tags that
                 # both close on newline, the first newline will automatically
                 # close all those nested tags.
@@ -396,18 +406,17 @@ class Parser:
                 return self.linker(url)
         else:
             href = url
-            if '://' not in href:
-                href = 'http://' + href
+            if "://" not in href:
+                href = "http://" + href
             # Escape quotes to avoid XSS, let the browser escape the rest.
-            return '<a href="%s">%s</a>' % (href.replace('"', '%22'), url)
+            return '<a href="{}">{}</a>'.format(href.replace('"', "%22"), url)
 
-    def _transform(self, tokens, escapeHtml, replaceLinks, replaceCosmetic,
-                   **context):
+    def _transform(self, tokens, escapeHtml, replaceLinks, replaceCosmetic, **context):
         """Transforms the input string based on the options specified.
 
         Takes into account if option is enabled globally for this parser.
         """
-        text = ''.join([t.text for t in tokens])
+        text = "".join([t.text for t in tokens])
         urlMatches = {}
         if self.replaceLinks and replaceLinks:
             # If we're replacing links in the text (i.e. not those in [url]
@@ -421,7 +430,7 @@ class Parser:
 
                 # Replace any link with a token that we can substitute back
                 # in after replacements.
-                token = '{{ bbcode-link-%s }}' % len(urlMatches)
+                token = "{{ bbcode-link-%s }}" % len(urlMatches)
                 urlMatches[token] = self._link_replace(match, **context)
                 # noinspection PyUnresolvedReferences
                 start, end = match.span()
@@ -454,7 +463,7 @@ class Parser:
                     # First, find the extent of this tag's tokens.
                     # noinspection PyTypeChecker
                     end, consume = self._find_closer(tag, tokens, idx + 1)
-                    subtokens = tokens[idx + 1:end]
+                    subtokens = tokens[idx + 1 : end]
                     # If the end tag should not be consumed, back up one
                     # (after grabbing the subtokens).
                     if not consume:
@@ -465,13 +474,17 @@ class Parser:
                     else:
                         # Otherwise, just concatenate all the token text.
                         inner = self._transform(
-                            subtokens, tag.escapeHtml, tag.replaceLinks,
-                            tag.replaceCosmetic, **context)
+                            subtokens,
+                            tag.escapeHtml,
+                            tag.replaceLinks,
+                            tag.replaceCosmetic,
+                            **context,
+                        )
                     # Strip and replace newlines, if necessary.
                     if tag.strip:
                         inner = inner.strip()
                     if tag.transformNewlines:
-                        inner = inner.replace('\n', self.newline)
+                        inner = inner.replace("\n", self.newline)
                     # Append the rendered contents.
                     ret = fn(token.tag, inner, token.options, parent, context)
                     out.append(ret)
@@ -479,8 +492,10 @@ class Parser:
                     # check the token after the closing token.
                     if tag.swallowTrailingNewline:
                         nextPos = end + 1
-                        if (nextPos < len(tokens) and
-                                tokens[nextPos].type == Token.NEWLINE):
+                        if (
+                            nextPos < len(tokens)
+                            and tokens[nextPos].type == Token.NEWLINE
+                        ):
                             end = nextPos
                     # Skip to the end tag.
                     idx = end
@@ -489,17 +504,15 @@ class Parser:
                 # it will be replaced (if necessary) by the code above.
                 out.append(self.newline if parent is None else token.text)
             elif token.type == Token.DATA:
-                escape = (self.escapeHtml if parent is None else
-                          parent.escapeHtml)
-                links = (self.replaceLinks if parent is None
-                         else parent.replaceLinks)
-                cosmetic = (self.replaceCosmetic if parent is None
-                            else parent.replaceCosmetic)
-                ret = self._transform(
-                    [token], escape, links, cosmetic, **context)
+                escape = self.escapeHtml if parent is None else parent.escapeHtml
+                links = self.replaceLinks if parent is None else parent.replaceLinks
+                cosmetic = (
+                    self.replaceCosmetic if parent is None else parent.replaceCosmetic
+                )
+                ret = self._transform([token], escape, links, cosmetic, **context)
                 out.append(ret)
             idx += 1
-        return ''.join(out)
+        return "".join(out)
 
     def strip(self, data, strip_newlines=False):
         """Strip out any tags from the input text.
@@ -512,15 +525,16 @@ class Parser:
                 text.append(token.text)
             elif token.type == Token.NEWLINE and not strip_newlines:
                 text.append(token.text)
-        return ''.join(text)
+        return "".join(text)
 
 
 class Chunk:
     """Forms token groups to fix missing formatting in forum articles"""
-    HEADER = 'header'
-    PARAGRAPH = 'paragraph'
-    QUOTE = 'quote'
-    LIST = 'list'
+
+    HEADER = "header"
+    PARAGRAPH = "paragraph"
+    QUOTE = "quote"
+    LIST = "list"
     TYPES = [HEADER, PARAGRAPH, QUOTE, LIST]
 
     def __init__(self, tokens, chunkType):
@@ -551,8 +565,8 @@ class Chunk:
             return
 
         if self.chunkType == self.PARAGRAPH:
-            startToken = Token(Token.TAG_START, 'p', None, '[p]')
-            endToken = Token(Token.TAG_END, 'p', None, '[/p]')
+            startToken = Token(Token.TAG_START, "p", None, "[p]")
+            endToken = Token(Token.TAG_END, "p", None, "[/p]")
             self.tokens.insert(0, startToken)
             self.tokens.append(endToken)
 
@@ -568,6 +582,7 @@ class Chunk:
 
 class Chunkman:
     """create chunks specific to forum articles for preparation"""
+
     def __init__(self, tokens):
         """
 
@@ -645,11 +660,11 @@ class Chunkman:
 
 
 class AdfdParser(Parser):
-    ORPHAN_MATCHER = re.compile(r'^<p></p>')
-    HEADER_TAGS = ['h%s' % i for i in range(1, 6)]
+    ORPHAN_MATCHER = re.compile(r"^<p></p>")
+    HEADER_TAGS = ["h%s" % i for i in range(1, 6)]
 
     def __init__(self, *args, **kwargs):
-        super(AdfdParser, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._add_formatters()
 
     def to_html(self, data=None, tokens=None, **context):
@@ -664,21 +679,24 @@ class AdfdParser(Parser):
 
     def cleanup(self, text):
         out = []
-        for line in text.split('\n'):
+        for line in text.split("\n"):
             if not line.strip():
                 continue
 
             if not re.match(self.ORPHAN_MATCHER, line):
                 out.append(line)
-        return '\n'.join(out)
+        return "\n".join(out)
 
     def _add_formatters(self):
         self.add_simple(
-            'code', '<pre><code>%(value)s</code></pre>\n',
-            renderEmbedded=False, transformNewlines=False,
-            swallowTrailingNewline=True)
-        self.add_simple('em', '<em>%(value)s</em>')
-        self.add_simple('strong', '<strong>%(value)s</strong>')
+            "code",
+            "<pre><code>%(value)s</code></pre>\n",
+            renderEmbedded=False,
+            transformNewlines=False,
+            swallowTrailingNewline=True,
+        )
+        self.add_simple("em", "<em>%(value)s</em>")
+        self.add_simple("strong", "<strong>%(value)s</strong>")
         self._add_bbvideo_formatter()
         self._add_header_formatters()
         self._add_img_formatter()
@@ -690,7 +708,7 @@ class AdfdParser(Parser):
         self._add_spoil_formatter()
         self._add_url_formatter()
 
-        self.add_simple('p', '<p>%(value)s</p>\n')
+        self.add_simple("p", "<p>%(value)s</p>\n")
         """intermittent helper for paragraphs"""
 
     # def _add_unsemantic_formatters(self):
@@ -708,91 +726,107 @@ class AdfdParser(Parser):
     #     self._add_color_formatter()
 
     def _add_bbvideo_formatter(self):
-        self.add_formatter('BBvideo', self._render_bbvideo,
-                           replaceLinks=False, replaceCosmetic=False)
+        self.add_formatter(
+            "BBvideo", self._render_bbvideo, replaceLinks=False, replaceCosmetic=False
+        )
 
     # noinspection PyUnusedLocal
     @staticmethod
     def _render_bbvideo(name, value, options, parent, context):
-        width, height = options['bbvideo'].strip().split(',')
-        dataMap = {'width': width, 'height': height, 'url': value}
+        width, height = options["bbvideo"].strip().split(",")
+        dataMap = {"width": width, "height": height, "url": value}
         return (
             '<a href="%(url)s" class="bbvideo" '
             'data-bbvideo="%(width)s,%(height)s" '
-            'target="_blank">%(url)s</a>' % dataMap)
+            'target="_blank">%(url)s</a>' % dataMap
+        )
 
     def _add_color_formatter(self):
-        self.add_formatter('color', self._render_color)
+        self.add_formatter("color", self._render_color)
 
     # noinspection PyUnusedLocal
     @staticmethod
     def _render_color(name, value, options, parent, context):
-        if 'color' in options:
-            color = options['color'].strip()
+        if "color" in options:
+            color = options["color"].strip()
         elif options:
             color = list(options.keys())[0].strip()
         else:
             return value
 
-        match = re.match(r'^([a-z]+)|^(#[a-f0-9]{3,6})', color, re.I)
-        color = match.group() if match else 'inherit'
-        return '<span style="color:%s;">%s</span>' % (color, value)
+        match = re.match(r"^([a-z]+)|^(#[a-f0-9]{3,6})", color, re.I)
+        color = match.group() if match else "inherit"
+        return f'<span style="color:{color};">{value}</span>'
 
     def _add_mod_formatter(self):
-        self.add_formatter('mod', self._render_mod)
+        self.add_formatter("mod", self._render_mod)
 
     # noinspection PyUnusedLocal
     @staticmethod
     def _render_mod(name, value, options, parent, context):
-        if 'mod' in options:
-            name = options['mod'].strip()
+        if "mod" in options:
+            name = options["mod"].strip()
         elif options:
             name = list(options.keys())[0].strip()
         else:
             return value
 
-        match = re.match(r'^([a-z]+)|^(#[a-f0-9]{3,6})', name, re.I)
-        name = match.group() if match else 'inherit'
-        return ('<div style="background: orange;">[%s] %s</div>'
-                % (name, value))
+        match = re.match(r"^([a-z]+)|^(#[a-f0-9]{3,6})", name, re.I)
+        name = match.group() if match else "inherit"
+        return f'<div style="background: orange;">[{name}] {value}</div>'
 
     def _add_img_formatter(self):
         self.add_formatter(
-            'img', self._render_img, replaceLinks=False,
-            replaceCosmetic=False)
+            "img", self._render_img, replaceLinks=False, replaceCosmetic=False
+        )
 
     # noinspection PyUnusedLocal
     @staticmethod
     def _render_img(name, value, options, parent, context):
         href = value
         # Only add http:// if it looks like it starts with a domain name.
-        if '://' not in href and RE.DOMAIN.match(href):
-            href = 'http://' + href
-        return '<img src="%s">' % (href.replace('"', '%22'))
+        if "://" not in href and RE.DOMAIN.match(href):
+            href = "http://" + href
+        return '<img src="%s">' % (href.replace('"', "%22"))
 
     def _add_list_formatter(self):
         self.add_formatter(
-            'list', self._render_list, transformNewlines=False,
-            strip=True, swallowTrailingNewline=True)
+            "list",
+            self._render_list,
+            transformNewlines=False,
+            strip=True,
+            swallowTrailingNewline=True,
+        )
         # Make sure transformNewlines = False for [*], so [code]
         # tags can be embedded without transformation.
         self.add_simple(
-            '*', '<li>%(value)s</li>', newlineCloses=True,
-            transformNewlines=False, sameTagCloses=True, strip=True)
+            "*",
+            "<li>%(value)s</li>",
+            newlineCloses=True,
+            transformNewlines=False,
+            sameTagCloses=True,
+            strip=True,
+        )
 
     # noinspection PyUnusedLocal
     @staticmethod
     def _render_list(name, value, options, parent, context):
-        listType = (
-            options['list'] if (options and 'list' in options) else '*')
+        listType = options["list"] if (options and "list" in options) else "*"
         cssOpts = {
-            '1': 'decimal', '01': 'decimal-leading-zero',
-            'a': 'lower-alpha', 'A': 'upper-alpha',
-            'i': 'lower-roman', 'I': 'upper-roman'}
-        tag = 'ol' if listType in cssOpts else 'ul'
-        css = (' style="list-style-type:%s;"' % cssOpts[listType] if
-               listType in cssOpts else '')
-        return '<%s%s>%s</%s>\n' % (tag, css, value, tag)
+            "1": "decimal",
+            "01": "decimal-leading-zero",
+            "a": "lower-alpha",
+            "A": "upper-alpha",
+            "i": "lower-roman",
+            "I": "upper-roman",
+        }
+        tag = "ol" if listType in cssOpts else "ul"
+        css = (
+            ' style="list-style-type:%s;"' % cssOpts[listType]
+            if listType in cssOpts
+            else ""
+        )
+        return f"<{tag}{css}>{value}</{tag}>\n"
 
     def _add_header_formatters(self):
         for tag in self.HEADER_TAGS:
@@ -803,44 +837,52 @@ class AdfdParser(Parser):
         demotionLevel = 1  # number of levels header tags get demoted
         level = int(tag[1]) + demotionLevel
         slug = slugify(value)
-        r = '<h%s id="%s">' % (level, slug)
-        r += '<a class="header" href="#%s">%s' % (slug, value)
+        r = f'<h{level} id="{slug}">'
+        r += f'<a class="header" href="#{slug}">{value}'
         # r += ' <i class="paragraph icon"></i>'
-        r += '</a></h%s>' % level
+        r += "</a></h%s>" % level
         return r
 
     def _add_quote_formatter(self):
         self.add_formatter(
-            'quote', self._render_quote, transformNewlines=False,
-            strip=True, swallowTrailingNewline=True)
+            "quote",
+            self._render_quote,
+            transformNewlines=False,
+            strip=True,
+            swallowTrailingNewline=True,
+        )
 
     # noinspection PyUnusedLocal
     @staticmethod
     def _render_quote(name, value, options, parent, context):
-        author = (options['quote'] if (options and 'quote' in options) else '')
+        author = options["quote"] if (options and "quote" in options) else ""
         if author:
-            cite = ('<div class="ui inverted secondary segment">'
-                    '<i class="comment outline icon"></i>%s</div>' % author)
+            cite = (
+                '<div class="ui inverted secondary segment">'
+                '<i class="comment outline icon"></i>%s</div>' % author
+            )
         else:
-            cite = ''
-        value = value.replace('\n', '<br>')
-        return '<div class="ui raised segment">%s%s</div>\n' % (value, cite)
+            cite = ""
+        value = value.replace("\n", "<br>")
+        return f'<div class="ui raised segment">{value}{cite}</div>\n'
 
     def _add_raw_formatter(self):
         self.add_formatter(
-            'raw', self._render_raw, replaceLinks=False, replaceCosmetic=False)
+            "raw", self._render_raw, replaceLinks=False, replaceCosmetic=False
+        )
 
     # noinspection PyUnusedLocal
     def _render_raw(self, name, value, options, parent, context):
         return html.unescape(value)
 
     def _add_removals(self):
-        for removal in ['meta']:
-            self.add_simple(removal, '')
+        for removal in ["meta"]:
+            self.add_simple(removal, "")
 
     def _add_spoil_formatter(self):
-        self.add_formatter('spoil', self._render_spoil,
-                           replaceLinks=False, replaceCosmetic=False)
+        self.add_formatter(
+            "spoil", self._render_spoil, replaceLinks=False, replaceCosmetic=False
+        )
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -848,41 +890,47 @@ class AdfdParser(Parser):
         return '<div style="display: none;">%s</div>\n' % value
 
     def _add_url_formatter(self):
-        self.add_formatter('url', self._render_url, replaceLinks=False,
-                           replaceCosmetic=False)
+        self.add_formatter(
+            "url", self._render_url, replaceLinks=False, replaceCosmetic=False
+        )
 
     # noinspection PyUnusedLocal
     @staticmethod
     def _render_url(name, value, options, parent, context):
-        href = options['url'] if options and 'url' in options else value
-        if '://' not in href and RE.DOMAIN.match(href):
-            href = 'http://' + href
+        href = options["url"] if options and "url" in options else value
+        if "://" not in href and RE.DOMAIN.match(href):
+            href = "http://" + href
         # Completely ignore javascript: and data: "links".
-        if (re.sub(r'[^a-z0-9+]', '', href.lower().split(':', 1)[0]) in
-                ('javascript', 'data', 'vbscript')):
-            return ''
+        if re.sub(r"[^a-z0-9+]", "", href.lower().split(":", 1)[0]) in (
+            "javascript",
+            "data",
+            "vbscript",
+        ):
+            return ""
 
-        if '<' in href or '>' in href:
-            return ''
+        if "<" in href or ">" in href:
+            return ""
 
-        return '<a href="%s">%s</a>' % (href.replace('"', '%22'), value)
+        return '<a href="{}">{}</a>'.format(href.replace('"', "%22"), value)
 
 
 class Replacer:
     HTML_ESCAPE = (
-        ('&', '&amp;'),
-        ('<', '&lt;'),
-        ('>', '&gt;'),
-        ('"', '&quot;'),
-        ("'", '&#39;'))
+        ("&", "&amp;"),
+        ("<", "&lt;"),
+        (">", "&gt;"),
+        ('"', "&quot;"),
+        ("'", "&#39;"),
+    )
 
     COSMETIC = (
-        ('---', '&mdash;'),
-        ('--', '&ndash;'),
-        ('...', '&#8230;'),
-        ('(c)', '&copy;'),
-        ('(reg)', '&reg;'),
-        ('(tm)', '&trade;'))
+        ("---", "&mdash;"),
+        ("--", "&ndash;"),
+        ("...", "&#8230;"),
+        ("(c)", "&copy;"),
+        ("(reg)", "&reg;"),
+        ("(tm)", "&trade;"),
+    )
 
     @staticmethod
     def replace(data, replacements):
@@ -895,6 +943,6 @@ class Replacer:
         return data
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ap = AdfdParser()
     print(ap)

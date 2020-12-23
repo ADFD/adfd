@@ -7,7 +7,7 @@ Some ideas:
 * development of new users per day/month/year
 * development of new topics per day/month/year
 * development of ratio of moderator/admin posts to posts of normal users
-* development of mentions of sepcific substances (synonyms/fuzzy/star notation)
+* development of mentions of specific substances (synonyms/fuzzy/star notation)
 * Find some module that downloads all awstats to analyze access
 * sum of all thanks
 """
@@ -17,22 +17,29 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from adfd.db.lib import get_db_session
-
+from adfd.db.lib import DB_WRAPPER
 
 log = logging.getLogger(__name__)
 
 
 class DataFetcher:
     def __init__(
-            self, tableName='phpbb_posts',
-            timeColumn='post_time', timeFmt='%Y/%m/%d',
-            columnNames=('post_id', 'topic_id', 'poster_id', 'forum_id',)):
-        self.session = get_db_session()
+        self,
+        tableName="phpbb_posts",
+        timeColumn="post_time",
+        timeFmt="%Y/%m/%d",
+        columnNames=(
+            "post_id",
+            "topic_id",
+            "poster_id",
+            "forum_id",
+        ),
+    ):
+        self.session = DB_WRAPPER.session
         self.table = tableName
         self.timeColumn = timeColumn
         self.timeFmt = timeFmt
-        self.fmt = "from_unixtime(%s, '%s')" % (self.timeColumn, self.timeFmt)
+        self.fmt = f"from_unixtime({self.timeColumn}, '{self.timeFmt}')"
         self.columnNames = columnNames
         self.where = None
         self.data = []
@@ -43,7 +50,7 @@ class DataFetcher:
         for row in self.fech_raw_data():
             indizes.append(row[0])
             data.append(row[1:])
-        datetimeIndex = np.array(indizes).astype('datetime64[s]')
+        datetimeIndex = np.array(indizes).astype("datetime64[s]")
         return pd.Series(index=datetimeIndex, data=1)
 
     def get_compacted(self):
@@ -64,12 +71,15 @@ class DataFetcher:
 
     @property
     def select(self):
-        return ("SELECT %s, %s, %s FROM %s" %
-                (self.timeColumn, self.fmt, self.columList, self.table))
+        return "SELECT {}, {}, {} FROM {}".format(
+            self.timeColumn,
+            self.fmt,
+            self.columList,
+            self.table,
+        )
 
-    def set_time_range(self, start='2003/10/09', end='2003/10/10'):
-        self.where = (
-            "WHERE (%s) BETWEEN '%s' AND '%s'" % (self.fmt, start, end))
+    def set_time_range(self, start="2003/10/09", end="2003/10/10"):
+        self.where = f"WHERE ({self.fmt}) BETWEEN '{start}' AND '{end}'"
 
     @property
     def columList(self):
@@ -77,11 +87,11 @@ class DataFetcher:
 
 
 class StatsPlotter:
-    def __init__(self, series, xlabel=u"Zeit", ylabel=u"Beiträge"):
+    def __init__(self, series, xlabel="Zeit", ylabel="Beiträge"):
         # self.series = series
         self.xlabel = xlabel
         self.ylabel = ylabel
-        self.series = series.resample('M').sum()
+        self.series = series.resample("D").sum()
         plt.figure()
         self.plt_format()
 
@@ -110,18 +120,18 @@ class StatsPlotter:
         dpi = F.get_dpi()
         inches = F.get_size_inches()
         print(dpi * inches)
-        plt.savefig('%s.png' % name)
+        plt.savefig("%s.png" % name)
 
 
 def series_stats():
     df = DataFetcher()
-    df.set_time_range(start='2005/01/01', end='2018/02/28')
+    df.set_time_range(start="2005/01/01", end="2018/02/28")
     sp = StatsPlotter(df.get_series())
-    sp.save('teststats')
+    sp.save("teststats")
     print("saved to teststats.png")
     # print(obj_attr(sp.series))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     series_stats()

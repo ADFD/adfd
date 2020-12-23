@@ -26,7 +26,7 @@ class HeaderTag:
         return curPar
 
     def __repr__(self):
-        return "<%s(%s)>" % (self.__class__.__name__, self.tag.name)
+        return f"<{self.__class__.__name__}({self.tag.name})>"
 
     def __str__(self):
         return "### %s ###" % self.tag
@@ -47,8 +47,9 @@ class HeaderTag:
         return self.level == tag.level + 2
 
     def is_sane(self, tag):
-        return (self.is_child_of(tag) or self.is_ancestor_of(tag)
-                or self.is_sibling_of(tag))
+        return (
+            self.is_child_of(tag) or self.is_ancestor_of(tag) or self.is_sibling_of(tag)
+        )
 
 
 class InPageNav:
@@ -62,7 +63,7 @@ class InPageNav:
 
     def create_in_page_nav(self):
         for tag in self.soup.body:
-            if tag.name and re.match(r'h\d', tag.name):
+            if tag.name and re.match(r"h\d", tag.name):
                 print(tag.name)
                 self.attach(HeaderTag(tag))
 
@@ -96,8 +97,8 @@ class InPageNav:
                 raise Exception("%s %s", self.currentHeader, ht)
 
 
-if __name__ == '__main__':
-    n = ArticleNode('Bbcode structure | articles/structure.bbcode')
+if __name__ == "__main__":
+    n = ArticleNode("Bbcode structure | articles/structure.bbcode")
     ipn = InPageNav(BeautifulSoup(n.html, "html5lib"))
     ipn.create_in_page_nav()
     print(ipn)

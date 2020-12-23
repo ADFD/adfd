@@ -15,5 +15,5 @@ def dump_db_articles_to_db_cache():
         path.write(x._bbcode)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     dump_db_articles_to_db_cache()

@@ -14,7 +14,7 @@ The basic idea is still to grab user edited content from a phpbb forum formatted
 2. fetch all the posts from the db and save them to the file system in a structure that already mirrors the site structure
 3. Render a static website taking the folder with the files as input
 
-### Other activities that are part of dev 
+### Other activities that are part of dev
 
 TODO collect here, what else this tool is doing and separate it out.
 
@@ -27,11 +27,11 @@ provide a vagrantfile to do local dev of the actual forum for upgrades and bug f
 #### adfd db-tools
 
 Split this into its own reposotory and host it in a private repo
- 
+
     * create and fetch db dumps
     * load them into a local db
     * extract posts on request and save them flat as `<post-id.bbcode>`
-    
+
 #### adfd stat-tools
 
 * needs access to an existing adfd db containing only the public information for statistical analysis

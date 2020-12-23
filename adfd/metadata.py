@@ -26,16 +26,15 @@ log = logging.getLogger(__name__)
 
 class PageMetadata:
     ATTRIBUTES = [
-        'allAuthors',
-        'isExcluded',
-        'firstPostOnly',
-        'oldTopicId',
-        'linkText',
-        'useTitles',
+        "allAuthors",
+        "isExcluded",
+        "firstPostOnly",
+        "oldTopicId",
+        "linkText",
+        "useTitles",
         # TODO if published is set it should be the creationDate
         # (lastUpdate -> empty)
         # 'published',
-
         # 'tags',
     ]
 
@@ -78,19 +77,22 @@ class PageMetadata:
             if not attr:
                 continue
 
-            if attr in ['True', 'False']:
-                attr = True if attr == 'True' else False
+            if attr in ["True", "False"]:
+                attr = True if attr == "True" else False
 
             dict_[name] = attr
         return dict_
 
     def is_metadata(self, name):
-        return name in self.ATTRIBUTES and not name.startswith('_')
+        return name in self.ATTRIBUTES and not name.startswith("_")
 
     @property
     def invalidAttributes(self):
-        return [name for name in vars(self) if name
-                not in self.ATTRIBUTES and not name.startswith('_')]
+        return [
+            name
+            for name in vars(self)
+            if name not in self.ATTRIBUTES and not name.startswith("_")
+        ]
 
     def _populate_from_kwargs(self, kwargs):
         if not kwargs:
@@ -107,21 +109,21 @@ class PageMetadata:
         if not rawMd:
             return
 
-        lines = rawMd.split('\n')
+        lines = rawMd.split("\n")
         for line in lines:
             assert isinstance(line, str)  # pycharm is strange sometimes
             if not line.strip():
                 continue
 
-            key, value = line.split(':', maxsplit=1)
+            key, value = line.split(":", maxsplit=1)
             self._update(key, value)
 
     def _update(self, key, value):
         key = key.strip()
         value = str(value).strip()
-        if value.lower() == 'true':
+        if value.lower() == "true":
             value = True
-        elif value.lower() == 'false':
+        elif value.lower() == "false":
             value = False
-        log.debug('%s: %s -> %s', self.__class__.__name__, key, value)
+        log.debug("%s: %s -> %s", self.__class__.__name__, key, value)
         setattr(self, key, value)

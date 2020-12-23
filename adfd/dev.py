@@ -5,23 +5,58 @@ from types import FunctionType, MethodType
 log = logging.getLogger(__name__)
 
 _specialAttrNames = [
-    "str", "repr", "dict", "doc", "class", "delattr", "format",
-    "getattribute", "hash", "init", "module", "new", "reduce", "reduce_ex",
-    "setattr", "sizeof", "subclasshook", "weakref"]
+    "str",
+    "repr",
+    "dict",
+    "doc",
+    "class",
+    "delattr",
+    "format",
+    "getattribute",
+    "hash",
+    "init",
+    "module",
+    "new",
+    "reduce",
+    "reduce_ex",
+    "setattr",
+    "sizeof",
+    "subclasshook",
+    "weakref",
+]
 SIMPLE_OBJECTS = [str, list, tuple, dict, set, int, float]
 
 
-def obj_attr(obj, hideString='', filterMethods=True, filterPrivate=True,
-             sanitize=False, excludeAttrs=None, indent=0, objName="",
-             terminalSize=100, maxLen=250):
+def obj_attr(
+    obj,
+    hideString="",
+    filterMethods=True,
+    filterPrivate=True,
+    sanitize=False,
+    excludeAttrs=None,
+    indent=0,
+    objName="",
+    terminalSize=100,
+    maxLen=250,
+):
     try:
         if any(isinstance(obj, t) for t in SIMPLE_OBJECTS):
-            return ("[%s] %s = %s" %
-                    (type(obj).__name__, objName or "(anon)", str(obj)))
+            return "[{}] {} = {}".format(
+                type(obj).__name__, objName or "(anon)", str(obj)
+            )
 
         return _obj_attr(
-            obj, hideString, filterMethods, filterPrivate,
-            sanitize, excludeAttrs, indent, objName, terminalSize, maxLen)
+            obj,
+            hideString,
+            filterMethods,
+            filterPrivate,
+            sanitize,
+            excludeAttrs,
+            indent,
+            objName,
+            terminalSize,
+            maxLen,
+        )
 
     except Exception as e:
         msg = "problems calling obj_attr"
@@ -30,8 +65,18 @@ def obj_attr(obj, hideString='', filterMethods=True, filterPrivate=True,
         return msg
 
 
-def _obj_attr(obj, hideString, filterMethods, filterPrivate,
-              sanitize, excludeAttrs, indent, objName, terminalSize, maxLen):
+def _obj_attr(
+    obj,
+    hideString,
+    filterMethods,
+    filterPrivate,
+    sanitize,
+    excludeAttrs,
+    indent,
+    objName,
+    terminalSize,
+    maxLen,
+):
     """show attributes of any object - generic representation of objects"""
     excludeAttrs = excludeAttrs or []
     names = dir(obj)
@@ -42,7 +87,7 @@ def _obj_attr(obj, hideString, filterMethods, filterPrivate,
     if hideString:
         names = [n for n in names if hideString not in n]
     if filterPrivate:
-        names = [n for n in names if not n.startswith('_')]
+        names = [n for n in names if not n.startswith("_")]
     out = []
     maxTypeLen = 0
     for name in sorted([d for d in names if d not in excludeAttrs]):
@@ -65,27 +110,27 @@ def _obj_attr(obj, hideString, filterMethods, filterPrivate,
             else:
                 value = str(attr).replace("\n", "\n|  ")
                 if len(value) > maxLen:
-                    value = value[:maxLen] + '[...]'
+                    value = value[:maxLen] + "[...]"
             out.append((name, attrType.__name__, value))
         except AssertionError as e:
             out.append(("[A] %s" % name, e.__class__.__name__, e))
 
         except Exception as e:
-            out.append(
-                ("[E] %s" % name, e.__class__.__name__, e))
+            out.append(("[E] %s" % name, e.__class__.__name__, e))
     out = out or [(objName, str(type(obj)), repr(obj))]
     boundTo = "'%s' " % objName if objName else ""
-    header = "|# %s%s (0x%X) #|" % (boundTo, type(obj).__name__, (id(obj)))
+    header = "|# {}{} (0x{:X}) #|".format(boundTo, type(obj).__name__, (id(obj)))
     numDashes = (terminalSize // 2) - len(header) // 2
     maxNameLen = max([len(name) for name in names])
     out = (
-        ["\n," + "-" * (numDashes - 1) + header + "-" * numDashes] +
-        [_prep_line(content, maxNameLen, maxTypeLen, terminalSize)
-         for content in out] + ["'" + "-" * terminalSize])
+        ["\n," + "-" * (numDashes - 1) + header + "-" * numDashes]
+        + [_prep_line(content, maxNameLen, maxTypeLen, terminalSize) for content in out]
+        + ["'" + "-" * terminalSize]
+    )
     if sanitize:
-        out = [o.replace('<', '(').replace('>', ')') for o in out]
+        out = [o.replace("<", "(").replace(">", ")") for o in out]
     if indent:
-        out = ["%s%s" % (" " * indent, o) for o in out]
+        out = ["{}{}".format(" " * indent, o) for o in out]
     return os.linesep.join(out)
 
 
@@ -93,9 +138,9 @@ def _prep_line(contentTuple, maxNameLen, maxTypeLen, terminalSize):
     """add line breaks within an attribute line"""
     name, typeName, value = contentTuple
     typeName = typeName.rpartition(".")[-1]
-    formattedName = name + ' ' * (maxNameLen - len(name))
-    formattedType = typeName + ' ' * (maxTypeLen - len(typeName))
-    pattern = "| [%s] %s %%s" % (formattedType, formattedName)
+    formattedName = name + " " * (maxNameLen - len(name))
+    formattedType = typeName + " " * (maxTypeLen - len(typeName))
+    pattern = f"| [{formattedType}] {formattedName} %s"
     if not isinstance(value, str):
         value = str(value)
 
@@ -107,7 +152,7 @@ def _prep_line(contentTuple, maxNameLen, maxTypeLen, terminalSize):
     curPos = windowSize - firstLineLength
     lines = [pattern % value[:curPos]]
     while True:
-        curString = value[curPos:curPos + windowSize]
+        curString = value[curPos : curPos + windowSize]
         if not curString:
             break
 
@@ -123,4 +168,4 @@ def get_obj_info(objects):
     out = []
     for name, obj in sorted([(k, v) for k, v in inf.items() if k.isupper()]):
         out.append(obj_attr(obj, objName=name))
-    return '\n'.join(out)
+    return "\n".join(out)

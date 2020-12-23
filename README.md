@@ -57,7 +57,7 @@ With this mechanism completely arbitrary data can be set, but what is actually u
 
 Many articles on the website originate from topics in the ADFD board. When the website is online, those topics should be masked by redirecting requests to the topic on the board to their corresponding static web page.
 
-Articles that should appear on the website often start as copies from the source. Therefore they need to know about their source (topicId of the source topic). For this the meta key `oldTopicId` should be set as part of the meta data. They all reside in [Inhalt (members only)](http://adfd.org/austausch/viewforum.php?f=54). If an article started its life explicitly as website article simply does not contain a link to it's source (all else being the same). 
+Articles that should appear on the website often start as copies from the source. Therefore they need to know about their source (topicId of the source topic). For this the meta key `oldTopicId` should be set as part of the meta data. They all reside in [Inhalt (members only)](http://adfd.org/austausch/viewforum.php?f=54). If an article started its life explicitly as website article simply does not contain a link to it's source (all else being the same).
 
 ## Development
 

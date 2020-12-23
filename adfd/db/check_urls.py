@@ -34,12 +34,12 @@ def get_urls():
     seenLinks = set()
     for identifier, node in nav.identifierNodeMap.items():
         log.info(f"processing {identifier} | {node.relPath}")
-        soup = BeautifulSoup(node.html, 'html5lib')
-        for link in soup.findAll('a'):
-            candidate = link.get('href')
-            if candidate.startswith('#'):
+        soup = BeautifulSoup(node.html, "html5lib")
+        for link in soup.findAll("a"):
+            candidate = link.get("href")
+            if candidate.startswith("#"):
                 continue  # internal anchorlink
-            if not candidate.startswith('http'):
+            if not candidate.startswith("http"):
                 continue  # TODO are these titles of navi links or a bug?
             ui = UrlInformer(candidate)
             if ui.isRelative or ui.isMail or ui.url in seenLinks:
@@ -91,5 +91,5 @@ def check_site_urls():
     run_check_links_loop(urls)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     check_site_urls()

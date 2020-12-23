@@ -3,16 +3,17 @@ import re
 import traceback
 from functools import total_ordering
 
-from adfd.cnf import PATH, SITE, NAME
-from adfd.db.lib import DbPost
-from adfd.metadata import PageMetadata
-from adfd.parse import AdfdParser
-from adfd.process import date_from_timestamp, slugify, ContentGrabber
 from cached_property import cached_property
 from pygments import highlight
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
 from pygments.styles import get_style_by_name
+
+from adfd.cnf import NAME, PATH, SITE
+from adfd.db.lib import DbPost
+from adfd.metadata import PageMetadata
+from adfd.parse import AdfdParser
+from adfd.process import ContentGrabber, date_from_timestamp, slugify
 
 log = logging.getLogger(__name__)
 
@@ -21,8 +22,8 @@ log = logging.getLogger(__name__)
 class Node:
     SPEC = "N"
     BROKEN_TEXT = "<h1>Konnte nicht geparsed werden</h1>"
-    BROKEN_METADATA_TEXT = '[mod=Redakteur]Metadaten fehlerhaft[/mod]\n'
-    UNKNOWN_METADATA_PATT = '[mod=Redakteur]unbekannte Metadaten: %s[/mod]\n'
+    BROKEN_METADATA_TEXT = "[mod=Redakteur]Metadaten fehlerhaft[/mod]\n"
+    UNKNOWN_METADATA_PATT = "[mod=Redakteur]unbekannte Metadaten: %s[/mod]\n"
     REPO_URL = "https://github.com/ADFD/adfd/tree/master/adfd/site"
 
     def __init__(self, identifier, title=None, isOrphan=False):
@@ -38,7 +39,7 @@ class Node:
         self.bbcodeIsActive = False
 
     def __repr__(self):
-        return "<%s(%s: %s)>" % (self.SPEC, self.identifier, self.title[:6])
+        return "<{}({}: {})>".format(self.SPEC, self.identifier, self.title[:6])
 
     def __gt__(self, other):
         return self.title > other.title
@@ -46,10 +47,12 @@ class Node:
     @property
     def isSane(self):
         try:
-            return (self.identifier != SITE.PLACEHOLDER_TOPIC_ID and
-                    isinstance(self._bbcode, str) and
-                    isinstance(self.title, str) and
-                    isinstance(self.relPath, str))
+            return (
+                self.identifier != SITE.PLACEHOLDER_TOPIC_ID
+                and isinstance(self._bbcode, str)
+                and isinstance(self.title, str)
+                and isinstance(self.relPath, str)
+            )
         except Exception as e:
             log.warning(f"{self.identifier} is not sane ({e})")
             return False
@@ -61,8 +64,8 @@ class Node:
     @cached_property
     def slug(self):
         """:rtype: str"""
-        isRoot = self.isCategory and self._title == ''
-        return '' if isRoot else slugify(self.title)
+        isRoot = self.isCategory and self._title == ""
+        return "" if isRoot else slugify(self.title)
 
     @cached_property
     def relPath(self):
@@ -86,6 +89,7 @@ class Node:
     @property
     def html(self):
         from adfd.site.wsgi import NAV
+
         return NAV.replace_links(self._rawHtml)
 
     @cached_property
@@ -93,8 +97,10 @@ class Node:
         try:
             return self._parser.to_html(self._bbcode)
         except Exception:
-            return ("%s<div><pre>%s</pre></div>" %
-                    (self.BROKEN_TEXT, traceback.format_exc()))
+            return "{}<div><pre>{}</pre></div>".format(
+                self.BROKEN_TEXT,
+                traceback.format_exc(),
+            )
 
     @cached_property
     def creationDate(self):
@@ -130,7 +136,7 @@ class Node:
         else:
             path = "/" + NAME.BBCODE
             if self.requestPath != "/":
-                path = "%s%s" % (path, self.requestPath)
+                path = f"{path}{self.requestPath}"
         return path
 
     @property
@@ -182,7 +188,7 @@ class Node:
 
     @cached_property
     def smilies(self):
-        match = re.search(r'(:[^\s/\[\]\.@]*?:)', self._bbcode)
+        match = re.search(r"(:[^\s/\[\]\.@]*?:)", self._bbcode)
         return match.groups() if match else ()
 
     @cached_property
@@ -225,18 +231,19 @@ class Node:
             content = self.BROKEN_METADATA_TEXT + content
         if self.unknownMetadata:
             # noinspection PyTypeChecker
-            content = (self.UNKNOWN_METADATA_PATT %
-                       ", ".join(self.unknownMetadata) + content)
+            content = (
+                self.UNKNOWN_METADATA_PATT % ", ".join(self.unknownMetadata) + content
+            )
         return content
 
     @cached_property
     def _bbcodeAsHtml(self):
-        style = get_style_by_name('igor')
+        style = get_style_by_name("igor")
         formatter = HtmlFormatter(style=style)
         lexer = get_lexer_by_name("bbcode", stripall=True)
         css = formatter.get_style_defs()
         txt = highlight(self._bbcode, lexer, HtmlFormatter())
-        return "<style>%s</style>\n%s" % (css, txt)
+        return f"<style>{css}</style>\n{txt}"
 
     @cached_property
     def _container(self):
@@ -266,16 +273,16 @@ class CategoryNode(Node):
     def _navPattern(self):
         pattern = '<div class="%s">'
         if self._isSubMenu:
-            classes = ['item']
+            classes = ["item"]
         else:
-            classes = ['ui', 'simple', 'dropdown', 'item']
+            classes = ["ui", "simple", "dropdown", "item"]
         if self.isActive:
-            classes.append('active')
+            classes.append("active")
         tag = pattern % (" ".join(classes))
         if self._isSubMenu:
             tag += '<i class="orange dropdown icon"></i>'
-        padding = "&nbsp;" * 3 if self._isSubMenu else ''
-        tag += '<a href="%s">%s</a>%s' % (self.relPath, self.title, padding)
+        padding = "&nbsp;" * 3 if self._isSubMenu else ""
+        tag += f'<a href="{self.relPath}">{self.title}</a>{padding}'
         if not self._isSubMenu:
             tag += '<i class="orange dropdown icon"></i>'
         tag += '<div class="menu">'
@@ -283,15 +290,16 @@ class CategoryNode(Node):
 
     @cached_property
     def _isSubMenu(self):
-        return (isinstance(self, CategoryNode) and
-                any(isinstance(c, CategoryNode) for c in self.parents[1:]))
+        return isinstance(self, CategoryNode) and any(
+            isinstance(c, CategoryNode) for c in self.parents[1:]
+        )
 
     @classmethod
     def _parse(cls, data):
         sep = "|"
         sd = data.split(sep)
         if len(sd) > 2:
-            raise ValueError("Too many '%s' in %s" % (sep, data))
+            raise ValueError(f"Too many '{sep}' in {data}")
 
         title = sd[0].strip()
         title = title if title != "Home" else ""
@@ -308,9 +316,9 @@ class ArticleNode(Node):
 
     def __str__(self):
         p = '<a class="%s" href="%s">%s</a>'
-        classes = ['item']
+        classes = ["item"]
         if self.isActive:
-            classes.append('active')
+            classes.append("active")
         classesStr = " ".join(classes)
         try:
             return p % (classesStr, self.relPath, self.title)
@@ -331,7 +339,7 @@ class ArticleNode(Node):
         sep = "|"
         sd = data.split(sep)
         if len(sd) > 2:
-            raise ValueError("Too many '%s' in %s" % (sep, data))
+            raise ValueError(f"Too many '{sep}' in {data}")
 
         title = sd[0].strip()
         title = title if title != cls.HOME_NODE else ""
@@ -349,7 +357,7 @@ class ArticleContainer:
         self.identifier = identifier
 
     def __repr__(self):
-        return "<%s(%s)" % (self.__class__.__name__, self.identifier)
+        return f"<{self.__class__.__name__}({self.identifier})"
 
 
 class NoContentContainer:
@@ -359,7 +367,7 @@ class NoContentContainer:
 
 
 class DbArticleContainer(ArticleContainer):
-    TITLE_PATTERN = '[h1]%s[/h1]\n'
+    TITLE_PATTERN = "[h1]%s[/h1]\n"
 
     @cached_property
     def title(self):

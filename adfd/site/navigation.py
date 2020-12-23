@@ -10,7 +10,7 @@ from cached_property import cached_property
 
 from adfd.cnf import SITE
 from adfd.db.lib import DB_WRAPPER
-from adfd.model import CategoryNode, ArticleNode, DbArticleContainer
+from adfd.model import ArticleNode, CategoryNode, DbArticleContainer
 from adfd.process import extract_from_bbcode
 
 log = logging.getLogger(__name__)
@@ -97,16 +97,21 @@ class Navigator:
 
     @cached_property
     def openIssues(self):
-        return (self.dirtyNodes + self.foreignNodes +
-                self.todoNodes + self.smilieNodes + self.brokenBBCodeNodes +
-                self.brokenMetadataNodes)
+        return (
+            self.dirtyNodes
+            + self.foreignNodes
+            + self.todoNodes
+            + self.smilieNodes
+            + self.brokenBBCodeNodes
+            + self.brokenMetadataNodes
+        )
 
     @property
     def nav(self):
         return "".join([str(m) for m in self.menu])
 
     def visit(self, path, key, value):
-        log.debug('visit(%r, %r, %r)' % (path, key, value))
+        log.debug(f"visit({path!r}, {key!r}, {value!r})")
         node = None
         if isinstance(key, str):
             node = self.get_cat_node(key=key)
@@ -150,14 +155,18 @@ class Navigator:
 
     @classmethod
     def load_structure(
-            cls, path=SITE.STRUCTURE_PATH, topicId=SITE.STRUCTURE_TOPIC_ID,
-            useFile=SITE.USE_FILE):
+        cls,
+        path=SITE.STRUCTURE_PATH,
+        topicId=SITE.STRUCTURE_TOPIC_ID,
+        useFile=SITE.USE_FILE,
+    ):
         class OrderedLoader(yaml.SafeLoader):
             def __init__(self, stream):
                 # noinspection PyUnresolvedReferences
                 self.add_constructor(
                     yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-                    self.construct_ordered_mapping)
+                    self.construct_ordered_mapping,
+                )
                 super().__init__(stream)
 
             @staticmethod
@@ -169,29 +178,30 @@ class Navigator:
             return yaml.load(stream, OrderedLoader)
 
         if useFile:
-            return ordered_yaml_load(stream=open(path, encoding='utf8'))
+            return ordered_yaml_load(stream=open(path, encoding="utf8"))
 
         content = DbArticleContainer(topicId)
         yamlContent = extract_from_bbcode(SITE.CODE_TAG, content._bbcode)
         return ordered_yaml_load(stream=io.StringIO(yamlContent))
 
     def _populate_orphan_nodes(self):
-        log.info("populate orphan nodes")
+        log.debug("populate orphan nodes")
         nodes = []
-        for t in DB_WRAPPER.get_topics(SITE.MAIN_CONTENT_FORUM_ID):
-            topicId = t.topic_id
-            if (topicId not in self.identifierNodeMap and
-                    topicId not in SITE.IGNORED_CONTENT_TOPICS):
-                node = ArticleNode(topicId, isOrphan=True)
-                self.identifierNodeMap[topicId] = node
+        for topic_id in DB_WRAPPER.get_topic_ids(SITE.MAIN_CONTENT_FORUM_ID):
+            if (
+                topic_id not in self.identifierNodeMap
+                and topic_id not in SITE.IGNORED_CONTENT_TOPICS
+            ):
+                node = ArticleNode(topic_id, isOrphan=True)
+                self.identifierNodeMap[topic_id] = node
                 nodes.append(node)
-                log.warning("orphan: %s (%s)", node.title, topicId)
+                log.warning(f"orphan: {node.title} ({topic_id})")
         return nodes
 
     def replace_links(self, html):
-        soup = BeautifulSoup(html, 'html5lib')
-        for link in soup.findAll('a'):
-            url = link['href']
+        soup = BeautifulSoup(html, "html5lib")
+        for link in soup.findAll("a"):
+            url = link["href"]
             ui = UrlInformer(url)
             if ui.pointsToObsoleteLocation:
                 log.warning("obsolete url: %s", ui.url)
@@ -199,31 +209,35 @@ class Navigator:
                 targetNode = self.get_target_node(ui.topicId)
                 if not targetNode:
                     continue
-                link.attrs['href'] = targetNode.relPath
+                link.attrs["href"] = targetNode.relPath
         # Note remove extra tags - very ugly, but simple and works
         txt = str(soup)
-        txt = txt.replace('<html><head></head><body>', '')
-        txt = txt.replace('</body></html>', '')
+        txt = txt.replace("<html><head></head><body>", "")
+        txt = txt.replace("</body></html>", "")
         return txt
 
 
 class UrlInformer:
-    DOMAINS = ["adfd.org", "adfd.de",
-               "antidepressiva-absetzen.de", "psychopharmaka-absetzen.de"]
-    BOARD_FOLDER = 'austausch'
-    OBSOLETE_FOLDERS = ['wiki', 'forum']
-    VIEWTOPIC = 'viewtopic.php'
+    DOMAINS = [
+        "adfd.org",
+        "adfd.de",
+        "antidepressiva-absetzen.de",
+        "psychopharmaka-absetzen.de",
+    ]
+    BOARD_FOLDER = "austausch"
+    OBSOLETE_FOLDERS = ["wiki", "forum"]
+    VIEWTOPIC = "viewtopic.php"
 
     def __init__(self, url):
         self.url = url
 
     @property
     def topicId(self):
-        topicIdMatch = re.search(r't=(\d*)', self.url)
+        topicIdMatch = re.search(r"t=(\d*)", self.url)
         if topicIdMatch:
             return int(topicIdMatch.group(1))
 
-        postIdMatch = re.search(r'p=(\d*)', self.url)
+        postIdMatch = re.search(r"p=(\d*)", self.url)
         if postIdMatch:
             postId = postIdMatch.group(1)
             return int(DB_WRAPPER.get_post(postId).topic_id)
@@ -235,7 +249,8 @@ class UrlInformer:
     @property
     def pointsToObsoleteLocation(self):
         return self.isOneOfUs and any(
-            "/%s/" % f in self.url for f in self.OBSOLETE_FOLDERS)
+            "/%s/" % f in self.url for f in self.OBSOLETE_FOLDERS
+        )
 
     @property
     def pointsToForum(self):
@@ -247,14 +262,14 @@ class UrlInformer:
 
     @property
     def isRelative(self):
-        return any(self.url.startswith(prefix) for prefix in ['#', '/'])
+        return any(self.url.startswith(prefix) for prefix in ["#", "/"])
 
     @property
     def isMail(self):
-        return self.url.startswith('mailto:')
+        return self.url.startswith("mailto:")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # log.setLevel(logging.DEBUG)
     _nav = Navigator()
     _nav.populate()
