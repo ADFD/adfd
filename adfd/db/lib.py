@@ -62,6 +62,9 @@ DB_WRAPPER = _DbWrapper()
 class DbPost:
     _topic_ids_post_ids_map = {}
 
+    def __init__(self, post_id):
+        self.id = post_id
+
     @classmethod
     def get_post_ids_for_topic(cls, topicId) -> List[int]:
         try:
@@ -83,9 +86,6 @@ class DbPost:
 
             cls._topic_ids_post_ids_map[topicId] = ids
         return ids
-
-    def __init__(self, post_id):
-        self.id = post_id
 
     def __repr__(self):
         return f"<DbPost({self.id}, {self.subject})>"
