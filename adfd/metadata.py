@@ -25,18 +25,22 @@ log = logging.getLogger(__name__)
 
 
 class PageMetadata:
-    KEYS = [
+    KEYS_FIRST_POST_ONLY = [
         "allAuthors",
-        "isExcluded",
         "firstPostOnly",
+        "useTitles",
+    ]
+    KEYS_ALL_POSTS = [
+        "isExcluded",
         "oldTopicId",
         "linkText",
-        "useTitles",
         # TODO if published is set it should be the creationDate
         # (lastUpdate -> empty)
         # 'published',
         # 'tags',
     ]
+    KEYS_FROM_DB_CACHE = ["postTime", "author", "subject", "isVisible"]
+    KEYS = KEYS_FIRST_POST_ONLY + KEYS_ALL_POSTS + KEYS_FROM_DB_CACHE
 
     def __init__(self, kwargs=None, text=None):
         """WARNING: all public attributes are written as meta data"""
@@ -50,6 +54,10 @@ class PageMetadata:
         self.oldTopicId = None
         """ID of the topic that the article originated from"""
         self.useTitles = True
+        self.postTime = None
+        self.isVisible = True
+        self.author = ""
+        self.subject = ""
         self._isBroken = False
         assert kwargs or text
         try:
@@ -68,9 +76,15 @@ class PageMetadata:
 
     @property
     def as_dict(self):
-        dict_ = OrderedDict()
+        return self._make_dict()
+
+    def _make_dict(self, isFirstPost=True):
+        d = {}
         for name in sorted(vars(self)):
             if not self.is_metadata(name):
+                continue
+
+            if not isFirstPost and name in self.KEYS_FIRST_POST_ONLY:
                 continue
 
             attr = getattr(self, name)
@@ -80,8 +94,8 @@ class PageMetadata:
             if attr in ["True", "False"]:
                 attr = True if attr == "True" else False
 
-            dict_[name] = attr
-        return dict_
+            d[name] = attr
+        return d
 
     def is_metadata(self, name):
         return name in self.KEYS and not name.startswith("_")

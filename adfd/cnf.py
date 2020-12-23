@@ -39,6 +39,11 @@ class NAME:
     BBCODE = "bbcode"
 
 
+class EXT:
+    BBCODE = f".{NAME.BBCODE}"
+    MD = ".md.json"
+
+
 class TARGET:
     DOMAIN = _CNF["remoteHost"]
     HOME = plumbum.LocalPath("/home")
@@ -56,6 +61,7 @@ class PATH:
     CONTENT = STATIC / NAME.CONTENT
     ARTICLES = CONTENT / NAME.ARTICLES
     DB_CACHE = CONTENT / NAME.DB_CACHE
+    DB_CACHE_PERMANENT = CONTENT / f"{NAME.DB_CACHE}-permanent"
     ROOT_FILES = STATIC / "_root"
     VIEW = SITE / "view"
     _DEV_BOX_RENDERED = _PROJECT_PATH / ".." / NAME.STATIC

@@ -45,7 +45,7 @@ class Navigator:
     def get_node(self, key) -> Node:
         try:
             return self.pathNodeMap[f"/{key}"]
-        except Exception:
+        except Exception as e:
             msg = f"/{key} -> {type(e)}({e.args})"
             log.error(msg, exc_info=True)
             return CategoryNode(msg)
@@ -53,49 +53,49 @@ class Navigator:
     def get_target_node(self, topicId) -> Node:
         return self.identifierNodeMap.get(topicId)
 
-    @cached_property
+    @property
     def readyForPrimeTime(self):
         return not len(self.openIssues)
 
-    @cached_property
+    @property
     def allNodes(self):
         if not self.isPopulated:
             self.populate()
         return sorted([n for n in self.pathNodeMap.values()])
 
-    @cached_property
+    @property
     def saneNodes(self):
         return sorted([n for n in self.allNodes if n.isSane])
 
-    @cached_property
+    @property
     def dirtyNodes(self):
         return [n for n in self.saneNodes if n.isDirty]
 
-    @cached_property
+    @property
     def foreignNodes(self):
         return [n for n in self.saneNodes if n.isForeign]
 
-    @cached_property
+    @property
     def todoNodes(self):
         return [n for n in self.saneNodes if n.hasTodos]
 
-    @cached_property
+    @property
     def smilieNodes(self):
         return [n for n in self.saneNodes if n.hasSmilies]
 
-    @cached_property
+    @property
     def hasBrokenNodes(self):
         return len(self.allNodes) != len(self.saneNodes)
 
-    @cached_property
+    @property
     def brokenBBCodeNodes(self):
         return [n for n in self.allNodes if n.bbcodeIsBroken]
 
-    @cached_property
+    @property
     def brokenMetadataNodes(self):
         return [n for n in self.saneNodes if n.hasBrokenMetadata]
 
-    @cached_property
+    @property
     def openIssues(self):
         return (
             self.dirtyNodes

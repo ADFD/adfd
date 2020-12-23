@@ -3,6 +3,11 @@
 
 <div class="ui compact horizontal segments">
     <div class="ui segment left aligned">
+        <span class="section">{{ node._container.__class__.__name__ }}</span>
+        -
+        <span class="section">{{ node._container.identifier }}</span>
+    </div>
+    <div class="ui segment left aligned">
         {% if node.isForeign -%}
             <i class="minus circle icon" title="Noch nicht importiert"></i>
         {% else -%}

@@ -19,7 +19,7 @@ logging.getLogger("sqlalchemy").setLevel(logging.WARNING)
 class _DbWrapper:
     """very simple wrapper that can fetch the little that is needed"""
 
-    @cached_property
+    @property
     def session(self) -> Session:
         session = sessionmaker()
         engine = create_engine(DB.URL, echo=False)
@@ -90,11 +90,11 @@ class DbPost:
     def __repr__(self):
         return f"<DbPost({self.id}, {self.subject})>"
 
-    @cached_property
+    @property
     def subject(self) -> str:
         return html.unescape(self.dbp.post_subject)
 
-    @cached_property
+    @property
     def content(self) -> str:
         """Some reassembly needed due to how phpbb stores the content"""
         content = self.dbp.post_text
@@ -103,26 +103,34 @@ class DbPost:
         content = "".join(soup.findAll(text=True))
         return self._fix_whitespace(content)
 
-    @cached_property
+    @property
     def postTime(self) -> int:
         return self.dbp.post_edit_time or self.dbp.post_time
 
-    @cached_property
+    @property
     def author(self) -> str:
         author = self.dbp.post_username or DB_WRAPPER.get_username(self.dbp.poster_id)
         return html.unescape(author)
 
-    @cached_property
+    @property
     def isExcluded(self) -> bool:
         return self.md.isExcluded
 
-    @cached_property
+    @property
     def isVisible(self) -> bool:
         return self.dbp.post_visibility == 1
 
-    @cached_property
+    @property
     def md(self) -> PageMetadata:
         return PageMetadata(text=self.content)
+
+    @property
+    def dbp(self) -> PhpbbPost:
+        dbp = DB_WRAPPER.get_post(self.id)
+        if not dbp:
+            raise PostDoesNotExist(str(self.id))
+
+        return dbp
 
     @classmethod
     def _fix_whitespace(cls, text: str) -> str:
@@ -135,10 +143,19 @@ class DbPost:
             text = text.replace("\n\n\n", "\n\n")
         return text
 
-    @cached_property
-    def dbp(self) -> PhpbbPost:
-        dbp = DB_WRAPPER.get_post(self.id)
-        if not dbp:
-            raise PostDoesNotExist(str(self.id))
+    def _attrs_for_cache(self, isFirstPost=True):
+        d = self.md._make_dict(isFirstPost)
+        for name, attr in sorted(self.__class__.__dict__.items()):
+            if name.startswith("_"):
+                continue
 
-        return dbp
+            if name in ["dbp", "content", "get_post_ids_for_topic", "md"]:
+                continue
+
+            if name.isupper():
+                continue
+
+            attr = getattr(self, name)
+
+            d[name] = attr
+        return d

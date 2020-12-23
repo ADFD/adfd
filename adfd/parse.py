@@ -67,6 +67,8 @@ class Token:
         self.isQuoteEnd = self.isCloser and self.tag == "quote"
         self.isListStart = self.isOpener and self.tag == "list"
         self.isListEnd = self.isCloser and self.tag == "list"
+        self.isMetaStart = self.isOpener and self.tag == "meta"
+        self.isMetaEnd = self.isCloser and self.tag == "meta"
         self.isNewline = self.type == Token.NEWLINE
 
     def __str__(self):
@@ -535,7 +537,8 @@ class Chunk:
     PARAGRAPH = "paragraph"
     QUOTE = "quote"
     LIST = "list"
-    TYPES = [HEADER, PARAGRAPH, QUOTE, LIST]
+    META = "meta"
+    TYPES = [HEADER, PARAGRAPH, QUOTE, LIST, META]
 
     def __init__(self, tokens, chunkType):
         """
@@ -570,7 +573,7 @@ class Chunk:
             self.tokens.insert(0, startToken)
             self.tokens.append(endToken)
 
-    @cached_property
+    @property
     def isEmpty(self):
         if not self.tokens:
             return True
@@ -591,11 +594,11 @@ class Chunkman:
         self.tokens = tokens
         self._chunks = []
 
-    @cached_property
+    @property
     def flattened(self):
         return list(itertools.chain(*[chunk.tokens for chunk in self.chunks]))
 
-    @cached_property
+    @property
     def chunks(self):
         """article chunks which can be converted individually
 
@@ -630,6 +633,16 @@ class Chunkman:
                     token = self.tokens[idx]
                 idx += 1
                 currentTokens = self.flush(self.tokens[sIdx:idx], Chunk.LIST)
+                continue
+
+            if token.isMetaStart:
+                self.flush(currentTokens)
+                sIdx = idx
+                while not token.isMetaEnd:
+                    idx += 1
+                    token = self.tokens[idx]
+                idx += 1
+                currentTokens = self.flush(self.tokens[sIdx:idx], Chunk.META)
                 continue
 
             if self.is_block_change(self.tokens, idx):
@@ -704,26 +717,28 @@ class AdfdParser(Parser):
         self._add_mod_formatter()
         self._add_quote_formatter()
         self._add_raw_formatter()
-        self._add_removals()
-        self._add_spoil_formatter()
+        self._add_meta_formatter()
         self._add_url_formatter()
 
         self.add_simple("p", "<p>%(value)s</p>\n")
         """intermittent helper for paragraphs"""
 
-    # def _add_unsemantic_formatters(self):
-    #     self.add_simple('b', '<strong>%(value)s</strong>')
-    #     self.add_simple('br', '<br>\n', standalone=True)
-    #     self.add_simple(
-    #         'center', '<div style="text-align:center;">%(value)s</div>\n')
-    #     self.add_simple('hr', '<hr>\n', standalone=True)
-    #     self.add_simple('i', '<em>%(value)s</em>')
-    #     self.add_simple('s', '<strike>%(value)s</strike>')
-    #     self.add_simple( 'u',
-    #         '<span style="text-decoration: underline;">%(value)s</span>')
-    #     self.add_simple('sub', '<sub>%(value)s</sub>')
-    #     self.add_simple('sup', '<sup>%(value)s</sup>')
-    #     self._add_color_formatter()
+        # FIXME remove them, when articles are all updated to semantic formatting
+        self._add_unsemantic_formatters()
+
+    def _add_unsemantic_formatters(self):
+        self.add_simple('b', '<strong>%(value)s</strong>')
+        self.add_simple('br', '<br>\n', standalone=True)
+        self.add_simple(
+            'center', '<div style="text-align:center;">%(value)s</div>\n')
+        self.add_simple('hr', '<hr>\n', standalone=True)
+        self.add_simple('i', '<em>%(value)s</em>')
+        self.add_simple('s', '<strike>%(value)s</strike>')
+        self.add_simple( 'u',
+            '<span style="text-decoration: underline;">%(value)s</span>')
+        self.add_simple('sub', '<sub>%(value)s</sub>')
+        self.add_simple('sup', '<sup>%(value)s</sup>')
+        self._add_color_formatter()
 
     def _add_bbvideo_formatter(self):
         self.add_formatter(
@@ -875,19 +890,15 @@ class AdfdParser(Parser):
     def _render_raw(self, name, value, options, parent, context):
         return html.unescape(value)
 
-    def _add_removals(self):
-        for removal in ["meta"]:
-            self.add_simple(removal, "")
-
-    def _add_spoil_formatter(self):
+    def _add_meta_formatter(self):
         self.add_formatter(
-            "spoil", self._render_spoil, replaceLinks=False, replaceCosmetic=False
+            "meta", self._render_meta, replaceLinks=False, replaceCosmetic=False
         )
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def _render_spoil(name, value, options, parent, context):
-        return '<div style="display: none;">%s</div>\n' % value
+    def _render_meta(name, value, options, parent, context):
+        return f'<div style="display: none;">{value}</div>\n'
 
     def _add_url_formatter(self):
         self.add_formatter(

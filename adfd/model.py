@@ -1,15 +1,17 @@
+import json
 import logging
 import re
 import traceback
 from functools import total_ordering
+from typing import List, Union
 
-from cached_property import cached_property
+import plumbum
 from pygments import highlight
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
 from pygments.styles import get_style_by_name
 
-from adfd.cnf import NAME, PATH, SITE
+from adfd.cnf import NAME, PATH, SITE, EXT
 from adfd.db.lib import DbPost
 from adfd.metadata import PageMetadata
 from adfd.parse import AdfdParser
@@ -57,21 +59,21 @@ class Node:
             log.warning(f"{self.identifier} is not sane ({e})")
             return False
 
-    @cached_property
+    @property
     def isHome(self):
         return not self.parents
 
-    @cached_property
+    @property
     def slug(self):
         """:rtype: str"""
         isRoot = self.isCategory and self._title == ""
         return "" if isRoot else slugify(self.title)
 
-    @cached_property
+    @property
     def relPath(self):
         return "/".join([c.slug for c in self.parents + [self]]) or "/"
 
-    @cached_property
+    @property
     def title(self):
         return self._title or self._container.title or "Start"
 
@@ -85,42 +87,40 @@ class Node:
 
         return self.html
 
-    # @cached_property
     @property
     def html(self):
         from adfd.site.wsgi import NAV
 
         return NAV.replace_links(self._rawHtml)
 
-    @cached_property
+    @property
     def _rawHtml(self):
         try:
             return self._parser.to_html(self._bbcode)
         except Exception:
             return "{}<div><pre>{}</pre></div>".format(
-                self.BROKEN_TEXT,
-                traceback.format_exc(),
+                self.BROKEN_TEXT, traceback.format_exc(),
             )
 
-    @cached_property
+    @property
     def creationDate(self):
         return self._container.creationDate
 
-    @cached_property
+    @property
     def lastUpdate(self):
         return self._container.lastUpdate
 
-    @cached_property
+    @property
     def allAuthors(self):
         md = self._container.md
         aa = [a.strip() for a in md.allAuthors.split(",") if a.strip()]
         return aa or [self._container.author]
 
-    @cached_property
+    @property
     def hasOneAuthor(self):
         return len(self.allAuthors) == 1
 
-    @cached_property
+    @property
     def sourceLink(self):
         if isinstance(self._container, StaticArticleContainer):
             parts = self.REPO_URL, NAME.STATIC, NAME.CONTENT, self.identifier
@@ -143,66 +143,66 @@ class Node:
     def contentToggleLinkText(self):
         return "HTML zeigen" if self.bbcode_is_active else "BBCode zeigen"
 
-    @cached_property
+    @property
     def isCategory(self):
         return isinstance(self, CategoryNode)
 
-    @cached_property
+    @property
     def hasArticle(self):
         return isinstance(self._container, ArticleContainer)
 
-    @cached_property
+    @property
     def isForeign(self):
         if isinstance(self._container, NoContentContainer):
             return False
 
         return self._container.isForeign
 
-    @cached_property
+    @property
     def hasTodos(self):
         if isinstance(self._container, NoContentContainer):
             return False
 
         return "[mod=" in self._bbcode
 
-    @cached_property
+    @property
     def hasSmilies(self):
         if isinstance(self._container, NoContentContainer):
             return False
 
         return bool(self.smilies)
 
-    @cached_property
+    @property
     def hasBrokenMetadata(self):
         if isinstance(self._container, NoContentContainer):
             return False
 
         return self._container.md._isBroken
 
-    @cached_property
+    @property
     def unknownMetadata(self):
         if isinstance(self._container, NoContentContainer):
             return []
 
         return self._container.md.invalid_keys
 
-    @cached_property
+    @property
     def smilies(self):
-        match = re.search(r"(:[^\s/\[\]\.@]*?:)", self._bbcode)
+        match = re.search(r"(:[^\s/\[\].@]*?:)", self._bbcode)
         return match.groups() if match else ()
 
-    @cached_property
+    @property
     def isDirty(self):
         if isinstance(self._container, NoContentContainer):
             return False
 
         return len(self.unknownTags) > 0
 
-    @cached_property
+    @property
     def bbcodeIsBroken(self):
         return not self.isCategory and self.BROKEN_TEXT in self._rawHtml
 
-    @cached_property
+    @property
     def unknownTags(self):
         # noinspection PyStatementEffect
         self._rawHtml  # ensure parsing has happened
@@ -222,7 +222,7 @@ class Node:
 
         return unknownTags
 
-    @cached_property
+    @property
     def _bbcode(self):
         if isinstance(self._container, NoContentContainer):
             return ""
@@ -230,13 +230,12 @@ class Node:
         if self._container.md._isBroken:
             content = self.BROKEN_METADATA_TEXT + content
         if self.unknownMetadata:
-            # noinspection PyTypeChecker
             content = (
                 self.UNKNOWN_METADATA_PATT % ", ".join(self.unknownMetadata) + content
             )
         return content
 
-    @cached_property
+    @property
     def _bbcodeAsHtml(self):
         style = get_style_by_name("igor")
         formatter = HtmlFormatter(style=style)
@@ -245,17 +244,24 @@ class Node:
         txt = highlight(self._bbcode, lexer, HtmlFormatter())
         return f"<style>{css}</style>\n{txt}"
 
-    @cached_property
+    @property
     def _container(self):
         if not self.identifier:
             return NoContentContainer(self._title, self.children)
 
         if isinstance(self.identifier, int):
+            for cache_candidate in [
+                PATH.DB_CACHE_PERMANENT / f"{self.identifier}",
+                PATH.DB_CACHE / f"{self.identifier}",
+            ]:
+                if cache_candidate.exists():
+                    return CachedDbArticleContainer(cache_candidate)
+
             return DbArticleContainer(self.identifier)
 
         return StaticArticleContainer(self.identifier)
 
-    @cached_property
+    @property
     def _parser(self):
         return AdfdParser()
 
@@ -269,7 +275,7 @@ class CategoryNode(Node):
     def __str__(self):
         return self._navPattern % "".join([str(c) for c in self.children])
 
-    @cached_property
+    @property
     def _navPattern(self):
         pattern = '<div class="%s">'
         if self._isSubMenu:
@@ -288,7 +294,7 @@ class CategoryNode(Node):
         tag += '<div class="menu">'
         return "%s%%s</div></div>" % tag
 
-    @cached_property
+    @property
     def _isSubMenu(self):
         return isinstance(self, CategoryNode) and any(
             isinstance(c, CategoryNode) for c in self.parents[1:]
@@ -353,48 +359,42 @@ class ArticleNode(Node):
 
 
 class ArticleContainer:
-    def __init__(self, identifier):
+    def __init__(self, identifier: Union[int, str]):
         self.identifier = identifier
 
     def __repr__(self):
         return f"<{self.__class__.__name__}({self.identifier})"
 
 
-class NoContentContainer:
-    def __init__(self, identifier, children):
-        self.identifier = identifier
-        self.children = children
-
-
 class DbArticleContainer(ArticleContainer):
     TITLE_PATTERN = "[h1]%s[/h1]\n"
 
-    @cached_property
+    @property
     def title(self):
         return self._firstPost.subject
 
-    @cached_property
+    @property
     def author(self):
-        return self._firstPost.username
+        return self._firstPost.author
 
-    @cached_property
+    @property
     def creationDate(self):
         return date_from_timestamp(self._firstPost.postTime)
 
-    @cached_property
+    @property
     def lastUpdate(self):
         newestDate = sorted([p.postTime for p in self._posts], reverse=True)[0]
         return date_from_timestamp(newestDate)
 
-    @cached_property
+    @property
     def md(self):
         return self._firstPost.md
 
-    @cached_property
+    @property
     def _bbcode(self):
         return self._content
 
-    @cached_property
+    @property
     def _content(self):
         contents = []
         for post in self._posts:
@@ -404,13 +404,12 @@ class DbArticleContainer(ArticleContainer):
             contents.append(post.content)
         return "\n\n".join(contents)
 
-    @cached_property
+    @property
     def _firstPost(self):
         return self._posts[0]
 
-    @cached_property
-    def _posts(self):
-        """:rtype: list of DbPost"""
+    @property
+    def _posts(self) -> List[DbPost]:
         firstPostId = self._postIds[0]
         firstPost = DbPost(firstPostId)
         posts = [firstPost] if not firstPost.isExcluded else []
@@ -421,51 +420,179 @@ class DbArticleContainer(ArticleContainer):
             post = DbPost(postId)
             if not post.isExcluded and post.isVisible:
                 posts.append(post)
-
         return posts
 
-    @cached_property
-    def _postIds(self):
+    @property
+    def _postIds(self) -> List[int]:
         return DbPost.get_post_ids_for_topic(self.identifier)
 
-    @cached_property
-    def isForeign(self):
+    @property
+    def isForeign(self) -> bool:
         return self._firstPost.dbp.forum_id != SITE.MAIN_CONTENT_FORUM_ID
 
-    @cached_property
+    # FIXME isForeign vs isImported only one is needed
+    @property
+    def isImported(self) -> bool:
+        return self._firstPost.dbp.forum_id == SITE.MAIN_CONTENT_FORUM_ID
+
+    def _attrs_for_md_cache(self):
+        d = {}
+        for name, attr in sorted(self.__class__.__dict__.items()):
+            if name.startswith("_"):
+                continue
+
+            if name in ["md"]:
+                continue
+
+            if name.isupper():
+                continue
+
+            attr = getattr(self, name)
+            d[name] = attr
+        return d
+
+
+class CachedDbArticleContainer(DbArticleContainer):
+    def __init__(self, path):
+        """path to folder where cached db topic files are stored."""
+        assert isinstance(path, plumbum.LocalPath), path
+        assert path.exists()
+        self.path = path
+        super().__init__(path.name)
+        self.container_md = json.loads((self.path / f"{self.identifier}{EXT.MD}").read())
+
+    @property
+    def title(self) -> str:
+        return self.container_md["title"]
+
+    @property
+    def author(self) -> str:
+        return self.container_md["author"]
+
+    @property
+    def creationDate(self) -> str:
+        return self.container_md["creationDate"]
+
+    @property
+    def lastUpdate(self) -> str:
+        return self.container_md["lastUpdate"]
+
+    @property
+    def md(self) -> PageMetadata:
+        return self._firstPost.md
+
+    @property
+    def _bbcode(self) -> str:
+        return self._content
+
+    @property
+    def _content(self):
+        contents = []
+        for post in self._posts:
+            if self.md.useTitles and post != self._posts[0]:
+                contents.append(self.TITLE_PATTERN % post.subject)
+            contents.append(post.content)
+        return "\n\n".join(contents)
+
+    @property
+    def _firstPost(self):
+        return self._posts[0]
+
+    @property
+    def _posts(self):
+        posts = []
+        for path in sorted(self.path.glob("*.bbcode")):
+            post = CachedDbPost(path)
+            if not post.isExcluded and post.isVisible:
+                posts.append(post)
+        return posts
+
+    @property
+    def _postIds(self):
+        raise NotImplementedError  # should not be needed here
+
+    @property
+    def isForeign(self):
+        return self.container_md["isForeign"]
+
+    @property
     def isImported(self):
-        return self._firstPost.dbp.forum_id == 54
+        return self.container_md["isImported"]
+
+
+class CachedDbPost(DbPost):
+    def __init__(self, path):
+        """path to cached db post are stored."""
+        assert isinstance(path, plumbum.LocalPath), path
+        assert path.exists()
+        self.path = path
+        super().__init__(path.stem)
+
+    @property
+    def subject(self) -> str:
+        return self.md.subject
+
+    @property
+    def content(self) -> str:
+        return self.path.read()
+
+    @property
+    def postTime(self) -> int:
+        return self.md.postTime
+
+    @property
+    def author(self) -> str:
+        return self.md.author
+
+    @property
+    def isExcluded(self) -> bool:
+        return self.md.isExcluded
+
+    @property
+    def isVisible(self) -> bool:
+        return self.md.isVisible
+
+    @property
+    def md(self) -> PageMetadata:
+        post_md = json.loads(self.path.with_suffix(EXT.MD).read())
+        return PageMetadata(kwargs=post_md)
 
 
 class StaticArticleContainer(ArticleContainer):
-    @cached_property
+    @property
     def title(self):
         return False
 
-    @cached_property
+    @property
     def creationDate(self):
         return self._grabber.get_ctime()
 
-    @cached_property
+    @property
     def lastUpdate(self):
         return self._grabber.get_mtime()
 
-    @cached_property
+    @property
     def _content(self):
         return self._grabber.grab()
 
-    @cached_property
+    @property
     def md(self):
         return PageMetadata(text=self._content)
 
-    @cached_property
+    @property
     def _grabber(self):
         return ContentGrabber(PATH.CONTENT / self.identifier)
 
-    @cached_property
+    @property
     def isForeign(self):
         return False
 
-    @cached_property
+    @property
     def isImported(self):
         return True
+
+
+class NoContentContainer:
+    def __init__(self, identifier, children):
+        self.identifier = identifier
+        self.children = children

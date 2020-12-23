@@ -3,8 +3,8 @@
     <i class="right angle icon divider"></i>
     {% for parent in node.parents[1:] -%}
         <a class="section" href="{{ parent.relPath }}">{{ parent.title }}</a>
-        <i class="right angle icon divider"></i>
+        {%- if not loop.last %}
+            <i class="right angle icon divider"></i>
+        {% endif %}
     {% endfor -%}
-    <a class="active section"
-       href="{{ node.relPath }}">{{ node.title }}</a>
 </div>
