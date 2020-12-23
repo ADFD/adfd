@@ -2,7 +2,7 @@ import json
 import logging
 import re
 import traceback
-from functools import total_ordering
+from functools import total_ordering, cached_property
 from typing import List, Union
 
 import plumbum
@@ -47,7 +47,7 @@ class Node:
     def __gt__(self, other):
         return self.title > other.title
 
-    @property
+    @cached_property
     def isSane(self):
         try:
             return (
@@ -60,21 +60,21 @@ class Node:
             log.warning(f"{self.identifier} is not sane ({e})")
             return False
 
-    @property
+    @cached_property
     def isHome(self):
         return not self.parents
 
-    @property
+    @cached_property
     def slug(self):
         """:rtype: str"""
         isRoot = self.isCategory and self._title == ""
         return "" if isRoot else slugify(self.title)
 
-    @property
+    @cached_property
     def relPath(self):
         return "/".join([c.slug for c in self.parents + [self]]) or "/"
 
-    @property
+    @cached_property
     def title(self):
         return self._title or self._container.title or "Start"
 
@@ -103,25 +103,25 @@ class Node:
                 self.BROKEN_TEXT, traceback.format_exc(),
             )
 
-    @property
+    @cached_property
     def creationDate(self):
         return self._container.creationDate
 
-    @property
+    @cached_property
     def lastUpdate(self):
         return self._container.lastUpdate
 
-    @property
+    @cached_property
     def allAuthors(self):
         md = self._container.md
         aa = [a.strip() for a in md.allAuthors.split(",") if a.strip()]
         return aa or [self._container.author]
 
-    @property
+    @cached_property
     def hasOneAuthor(self):
         return len(self.allAuthors) == 1
 
-    @property
+    @cached_property
     def sourceLink(self):
         if isinstance(self._container, StaticArticleContainer):
             parts = self.REPO_URL, NAME.STATIC, NAME.CONTENT, self.identifier
@@ -129,7 +129,7 @@ class Node:
         if isinstance(self._container, DbArticleContainer):
             return SITE.TOPIC_REL_PATH_PATTERN % self.identifier
 
-    @property
+    @cached_property
     def contentToggleLink(self):
         assert self.requestPath
         if self.bbcode_is_active:
@@ -140,70 +140,70 @@ class Node:
                 path = f"{path}{self.requestPath}"
         return path
 
-    @property
+    @cached_property
     def contentToggleLinkText(self):
         return "HTML zeigen" if self.bbcode_is_active else "BBCode zeigen"
 
-    @property
+    @cached_property
     def isCategory(self):
         return isinstance(self, CategoryNode)
 
-    @property
+    @cached_property
     def hasArticle(self):
         return isinstance(self._container, ArticleContainer)
 
-    @property
+    @cached_property
     def isForeign(self):
         if isinstance(self._container, NoContentContainer):
             return False
 
         return self._container.isForeign
 
-    @property
+    @cached_property
     def hasTodos(self):
         if isinstance(self._container, NoContentContainer):
             return False
 
         return "[mod=" in self._bbcode
 
-    @property
+    @cached_property
     def hasSmilies(self):
         if isinstance(self._container, NoContentContainer):
             return False
 
         return bool(self.smilies)
 
-    @property
+    @cached_property
     def hasBrokenMetadata(self):
         if isinstance(self._container, NoContentContainer):
             return False
 
         return self._container.md._isBroken
 
-    @property
+    @cached_property
     def unknownMetadata(self):
         if isinstance(self._container, NoContentContainer):
             return []
 
         return self._container.md.invalid_keys
 
-    @property
+    @cached_property
     def smilies(self):
         match = re.search(r"(:[^\s/\[\].@]*?:)", self._bbcode)
         return match.groups() if match else ()
 
-    @property
+    @cached_property
     def isDirty(self):
         if isinstance(self._container, NoContentContainer):
             return False
 
         return len(self.unknownTags) > 0
 
-    @property
+    @cached_property
     def bbcodeIsBroken(self):
         return not self.isCategory and self.BROKEN_TEXT in self._rawHtml
 
-    @property
+    @cached_property
     def unknownTags(self):
         # noinspection PyStatementEffect
         self._rawHtml  # ensure parsing has happened
@@ -277,7 +277,7 @@ class CategoryNode(Node):
     def __str__(self):
         return self._navPattern % "".join([str(c) for c in self.children])
 
-    @property
+    @cached_property
     def _navPattern(self):
         pattern = '<div class="%s">'
         if self._isSubMenu:
@@ -296,7 +296,7 @@ class CategoryNode(Node):
         tag += '<div class="menu">'
         return "%s%%s</div></div>" % tag
 
-    @property
+    @cached_property
     def _isSubMenu(self):
         return isinstance(self, CategoryNode) and any(
             isinstance(c, CategoryNode) for c in self.parents[1:]
