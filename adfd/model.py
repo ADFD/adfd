@@ -6,6 +6,7 @@ from functools import total_ordering
 from typing import List, Union
 
 import plumbum
+from cached_property import cached_property
 from pygments import highlight
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
@@ -258,9 +259,11 @@ class Node:
             if db_cache.exists():
                 return CachedDbArticleContainer(db_cache)
 
+            return DbArticleContainer(self.identifier)
+
         return StaticArticleContainer(self.identifier)
 
-    @property
+    @cached_property
     def _parser(self):
         return AdfdParser()
 
@@ -368,32 +371,32 @@ class ArticleContainer:
 class DbArticleContainer(ArticleContainer):
     TITLE_PATTERN = "[h1]%s[/h1]\n"
 
-    @property
+    @cached_property
     def title(self):
         return self._firstPost.subject
 
-    @property
+    @cached_property
     def author(self):
         return self._firstPost.author
 
-    @property
+    @cached_property
     def creationDate(self):
         return date_from_timestamp(self._firstPost.postTime)
 
-    @property
+    @cached_property
     def lastUpdate(self):
         newestDate = sorted([p.postTime for p in self._posts], reverse=True)[0]
         return date_from_timestamp(newestDate)
 
-    @property
+    @cached_property
     def md(self):
         return self._firstPost.md
 
-    @property
+    @cached_property
     def _bbcode(self):
         return self._content
 
-    @property
+    @cached_property
     def _content(self):
         contents = []
         for post in self._posts:
@@ -403,11 +406,11 @@ class DbArticleContainer(ArticleContainer):
             contents.append(post.content)
         return "\n\n".join(contents)
 
-    @property
+    @cached_property
     def _firstPost(self):
         return self._posts[0]
 
-    @property
+    @cached_property
     def _posts(self) -> List[DbPost]:
         firstPostId = self._postIds[0]
         firstPost = DbPost(firstPostId)
@@ -421,16 +424,16 @@ class DbArticleContainer(ArticleContainer):
                 posts.append(post)
         return posts
 
-    @property
+    @cached_property
     def _postIds(self) -> List[int]:
         return DbPost.get_post_ids_for_topic(self.identifier)
 
-    @property
+    @cached_property
     def isForeign(self) -> bool:
         return self._firstPost.dbp.forum_id != SITE.MAIN_CONTENT_FORUM_ID
 
     # FIXME isForeign vs isImported only one is needed
-    @property
+    @cached_property
     def isImported(self) -> bool:
         return self._firstPost.dbp.forum_id == SITE.MAIN_CONTENT_FORUM_ID
 
@@ -520,6 +523,7 @@ class CachedDbArticleContainer(DbArticleContainer):
         return self.container_md["isImported"]
 
 
+# noinspection PyAbstractClass
 class PermanentlyCachedDbArticleContainer(CachedDbArticleContainer):
     """Same func but different name to show where it's stored.
 

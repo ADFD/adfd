@@ -19,7 +19,7 @@ logging.getLogger("sqlalchemy").setLevel(logging.WARNING)
 class _DbWrapper:
     """very simple wrapper that can fetch the little that is needed"""
 
-    @property
+    @cached_property
     def session(self) -> Session:
         session = sessionmaker()
         engine = create_engine(DB.URL, echo=False)
@@ -90,11 +90,11 @@ class DbPost:
     def __repr__(self):
         return f"<DbPost({self.id}, {self.subject})>"
 
-    @property
+    @cached_property
     def subject(self) -> str:
         return html.unescape(self.dbp.post_subject)
 
-    @property
+    @cached_property
     def content(self) -> str:
         """Some reassembly needed due to how phpbb stores the content"""
         content = self.dbp.post_text
@@ -103,28 +103,28 @@ class DbPost:
         content = "".join(soup.findAll(text=True))
         return self._fix_whitespace(content)
 
-    @property
+    @cached_property
     def postTime(self) -> int:
         return self.dbp.post_edit_time or self.dbp.post_time
 
-    @property
+    @cached_property
     def author(self) -> str:
         author = self.dbp.post_username or DB_WRAPPER.get_username(self.dbp.poster_id)
         return html.unescape(author)
 
-    @property
+    @cached_property
     def isExcluded(self) -> bool:
         return self.md.isExcluded
 
-    @property
+    @cached_property
     def isVisible(self) -> bool:
         return self.dbp.post_visibility == 1
 
-    @property
+    @cached_property
     def md(self) -> PageMetadata:
         return PageMetadata(text=self.content)
 
-    @property
+    @cached_property
     def dbp(self) -> PhpbbPost:
         dbp = DB_WRAPPER.get_post(self.id)
         if not dbp:

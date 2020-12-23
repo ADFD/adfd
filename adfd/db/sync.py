@@ -71,6 +71,6 @@ class DbSynchronizer:
         # local['mysql'](
         #     self.argUser, '-plar', NAME) < self.localDumpPath
 
-    @property
+    @cached_property
     def remote(self):
         return SshMachine(TARGET.DOMAIN)
