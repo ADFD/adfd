@@ -1,71 +1,58 @@
 import html
 import logging
+from typing import List
 
 from bs4 import BeautifulSoup
 from cached_property import cached_property
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
-from adfd.exc import PostDoesNotExist, TopicNotAccessible, TopicDoesNotExist
-from adfd.metadata import PageMetadata
-from adfd.db.schema import PhpbbTopic, PhpbbForum, PhpbbPost, PhpbbUser
 from adfd.cnf import DB, SITE
+from adfd.db.schema import PhpbbForum, PhpbbPost, PhpbbTopic, PhpbbUser
+from adfd.exc import PostDoesNotExist, TopicDoesNotExist, TopicNotAccessible
+from adfd.metadata import PageMetadata
 
 log = logging.getLogger(__name__)
-
-_DB_SESSION = None
-"""":type: sqlalchemy.orm.session.Session"""
-
-
-def get_db_session():
-    global _DB_SESSION
-    if _DB_SESSION:
-        return _DB_SESSION
-
-    logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
-    session = sessionmaker()
-    engine = create_engine(DB.URL, echo=False)
-    session.configure(bind=engine)
-    _DB_SESSION = session()
-    return _DB_SESSION
+logging.getLogger("sqlalchemy").setLevel(logging.WARNING)
 
 
 class _DbWrapper:
     """very simple wrapper that can fetch the little that is needed"""
+
     @cached_property
-    def session(self):
-        return get_db_session()
+    def session(self) -> Session:
+        session = sessionmaker()
+        engine = create_engine(DB.URL, echo=False)
+        session.configure(bind=engine)
+        return session()
 
-    @property
-    def q(self):
-        return self.session.query
+    def get_topic_ids(self, forumId) -> List[int]:
+        query = self.session.query(PhpbbTopic).filter(PhpbbTopic.forum_id == forumId)
+        return [t.topic_id for t in query]
 
-    def get_topics(self, forumId):
-        """:rtype: list of int"""
-        query = self.q(PhpbbTopic).filter(PhpbbTopic.forum_id == forumId)
-        return [t for t in query]
-
-    def get_topic(self, topicId):
-        return self.q(PhpbbTopic).\
-            filter(PhpbbTopic.topic_id == topicId).first()
-
-    def get_posts(self, topicId):
-        """:rtype: list of int"""
-        query = self.q(PhpbbPost).join(
-            PhpbbTopic, PhpbbTopic.topic_id == PhpbbPost.topic_id)\
+    def get_topic(self, topicId) -> PhpbbTopic:
+        return (
+            self.session.query(PhpbbTopic)
             .filter(PhpbbTopic.topic_id == topicId)
+            .first()
+        )
+
+    def get_post_ids(self, topicId) -> List[int]:
+        query = (
+            self.session.query(PhpbbPost)
+            .join(PhpbbTopic, PhpbbTopic.topic_id == PhpbbPost.topic_id)
+            .filter(PhpbbTopic.topic_id == topicId)
+        )
         return [row.post_id for row in query.all()]
 
-    def get_forum(self, id_):
-        return self.q(PhpbbForum).filter(PhpbbForum.forum_id == id_).first()
+    def get_forum(self, id_) -> PhpbbForum:
+        return self.session.query(PhpbbForum).filter(PhpbbForum.forum_id == id_).first()
 
-    def get_post(self, postId):
-        """:rtype: adfd.db.schema.PhpbbPost"""
-        return self.q(PhpbbPost).filter(PhpbbPost.post_id == postId).first()
+    def get_post(self, postId) -> PhpbbPost:
+        return self.session.query(PhpbbPost).filter(PhpbbPost.post_id == postId).first()
 
-    def get_username(self, userId):
-        """:rtype: str"""
-        n = self.q(PhpbbUser).filter(PhpbbUser.user_id == userId).first()
+    def get_username(self, userId) -> str:
+        n = self.session.query(PhpbbUser).filter(PhpbbUser.user_id == userId).first()
         return n.username or "Anonymous"
 
 
@@ -73,84 +60,83 @@ DB_WRAPPER = _DbWrapper()
 
 
 class DbPost:
-    topicIdsPostIdsMap = {}
+    _topic_ids_post_ids_map = {}
 
     @classmethod
-    def get_post_ids_for_topic(cls, topicId):
+    def get_post_ids_for_topic(cls, topicId) -> List[int]:
         try:
-            ids = cls.topicIdsPostIdsMap[topicId]
+            ids = cls._topic_ids_post_ids_map[topicId]
         except KeyError:
             assert isinstance(topicId, int), (topicId, type(topicId))
-            t = DB_WRAPPER.get_topic(topicId)
-            if not t:
-                log.error("%s not found, use placeholder ...", topicId)
+            topic = DB_WRAPPER.get_topic(topicId)
+            if not topic:
+                log.error(f"{topicId} not found, use placeholder ...")
                 topicId = SITE.PLACEHOLDER_TOPIC_ID
-                t = DB_WRAPPER.get_topic(topicId)
-            if t.forum_id != SITE.MAIN_CONTENT_FORUM_ID:
-                if t.forum_id not in SITE.ALLOWED_FORUM_IDS:
-                    raise TopicNotAccessible("%s in %s ", topicId, t.forum_id)
+                topic = DB_WRAPPER.get_topic(topicId)
+            if topic.forum_id != SITE.MAIN_CONTENT_FORUM_ID:
+                if topic.forum_id not in SITE.ALLOWED_FORUM_IDS:
+                    raise TopicNotAccessible(f"{topicId} in {topic.forum_id}")
 
-            ids = DB_WRAPPER.get_posts(topicId)
+            ids = DB_WRAPPER.get_post_ids(topicId)
             if not ids:
                 raise TopicDoesNotExist(str(topicId))
 
-            cls.topicIdsPostIdsMap[topicId] = ids
+            cls._topic_ids_post_ids_map[topicId] = ids
         return ids
 
-    def __init__(self, postId):
-        self.id = postId
+    def __init__(self, post_id):
+        self.id = post_id
 
     def __repr__(self):
-        return "<DbPost(%s, %s)>" % (self.id, self.subject)
+        return f"<DbPost({self.id}, {self.subject})>"
 
     @cached_property
-    def subject(self):
+    def subject(self) -> str:
         return html.unescape(self.dbp.post_subject)
 
     @cached_property
-    def content(self):
+    def content(self) -> str:
         """Some reassembly needed due to how phpbb stores the content"""
         content = self.dbp.post_text
-        content = content.replace('<br/>', '\n')
-        soup = BeautifulSoup(content, 'html5lib')
-        content = ''.join(soup.findAll(text=True))
+        content = content.replace("<br/>", "\n")
+        soup = BeautifulSoup(content, "html5lib")
+        content = "".join(soup.findAll(text=True))
         return self._fix_whitespace(content)
 
     @cached_property
-    def postTime(self):
+    def postTime(self) -> int:
         return self.dbp.post_edit_time or self.dbp.post_time
 
     @cached_property
-    def author(self):
-        author = (self.dbp.post_username or
-                  DB_WRAPPER.get_username(self.dbp.poster_id))
+    def author(self) -> str:
+        author = self.dbp.post_username or DB_WRAPPER.get_username(self.dbp.poster_id)
         return html.unescape(author)
 
     @cached_property
-    def isExcluded(self):
+    def isExcluded(self) -> bool:
         return self.md.isExcluded
 
     @cached_property
-    def isVisible(self):
+    def isVisible(self) -> bool:
         return self.dbp.post_visibility == 1
 
     @cached_property
-    def md(self):
+    def md(self) -> PageMetadata:
         return PageMetadata(text=self.content)
 
     @classmethod
-    def _fix_whitespace(cls, text):
-        text = text.replace('\r\n', '\n').replace('\r', '\n')
+    def _fix_whitespace(cls, text: str) -> str:
+        text = text.replace("\r\n", "\n").replace("\r", "\n")
         lines = []
-        for line in text.split('\n'):
-            lines.append('' if not line.strip() else line)
+        for line in text.split("\n"):
+            lines.append("" if not line.strip() else line)
         text = "\n".join(lines)
         while "\n\n\n" in text:
             text = text.replace("\n\n\n", "\n\n")
         return text
 
     @cached_property
-    def dbp(self):
+    def dbp(self) -> PhpbbPost:
         dbp = DB_WRAPPER.get_post(self.id)
         if not dbp:
             raise PostDoesNotExist(str(self.id))
