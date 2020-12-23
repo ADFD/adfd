@@ -1,9 +1,9 @@
 import html
 import logging
+from functools import cached_property
 from typing import List
 
 from bs4 import BeautifulSoup
-from cached_property import cached_property
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 

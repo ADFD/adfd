@@ -1,7 +1,7 @@
 import logging
 import os
+from functools import cached_property
 
-from cached_property import cached_property
 from plumbum import SshMachine, local
 
 from adfd.cnf import DB, TARGET

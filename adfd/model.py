@@ -6,7 +6,6 @@ from functools import total_ordering, cached_property
 from typing import List, Union
 
 import plumbum
-from cached_property import cached_property
 from pygments import highlight
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexers import get_lexer_by_name

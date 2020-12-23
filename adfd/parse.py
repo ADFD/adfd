@@ -4,8 +4,6 @@ import logging
 import re
 from collections import OrderedDict
 
-from cached_property import cached_property
-
 from adfd.process import RE, slugify
 
 log = logging.getLogger(__name__)
