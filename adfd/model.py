@@ -250,14 +250,13 @@ class Node:
             return NoContentContainer(self._title, self.children)
 
         if isinstance(self.identifier, int):
-            for cache_candidate in [
-                PATH.DB_CACHE_PERMANENT / f"{self.identifier}",
-                PATH.DB_CACHE / f"{self.identifier}",
-            ]:
-                if cache_candidate.exists():
-                    return CachedDbArticleContainer(cache_candidate)
+            permanent_cache = PATH.DB_CACHE_PERMANENT / f"{self.identifier}"
+            if permanent_cache.exists():
+                return PermanentlyCachedDbArticleContainer(permanent_cache)
 
-            return DbArticleContainer(self.identifier)
+            db_cache = PATH.DB_CACHE_PERMANENT / f"{self.identifier}"
+            if db_cache.exists():
+                return CachedDbArticleContainer(db_cache)
 
         return StaticArticleContainer(self.identifier)
 
@@ -453,6 +452,7 @@ class DbArticleContainer(ArticleContainer):
 
 
 class CachedDbArticleContainer(DbArticleContainer):
+    """Cached on filesystem - simulates db objects."""
     def __init__(self, path):
         """path to folder where cached db topic files are stored."""
         assert isinstance(path, plumbum.LocalPath), path
@@ -518,6 +518,13 @@ class CachedDbArticleContainer(DbArticleContainer):
     @property
     def isImported(self):
         return self.container_md["isImported"]
+
+
+class PermanentlyCachedDbArticleContainer(CachedDbArticleContainer):
+    """Same func but different name to show where it's stored.
+
+    This cache won't be overwritten, when articles are dumped from db into normal cache.
+    """
 
 
 class CachedDbPost(DbPost):
