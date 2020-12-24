@@ -5,8 +5,10 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename=APP.SEMANTIC_CSS_PATH) }}"/>
-    <link rel="stylesheet" href="{{ url_for('static', filename=APP.MY_CSS_FILE_NAME) }}"/>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='adfd.css') }}"/>
 </head>
 <body>
 
@@ -22,11 +24,5 @@
     {% include "footer.html" -%}
 {% endwith -%}
 
-<script
-    src="https://code.jquery.com/jquery-3.1.1.min.js"
-    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-    crossorigin="anonymous">
-</script>
-<script src="{{ url_for('static', filename=APP.JS_PATH) }}"></script>
 </body>
 </html>

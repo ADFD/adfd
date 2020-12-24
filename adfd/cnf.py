@@ -72,11 +72,7 @@ class PATH:
 
 
 class APP:
-    SEMANTIC_CSS_PATH = "dist/semantic.css"
     MY_CSS_FILE_NAME = "adfd.css"
-    CSS_MIN_PATH = "dist/semantic.min.css"
-    JS_PATH = "dist/semantic.js"
-    JS_MIN_PATH = "dist/semantic.min.js"
 
 
 class SITE:

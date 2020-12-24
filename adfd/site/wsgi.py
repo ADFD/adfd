@@ -4,7 +4,7 @@ import os
 import flask
 from plumbum.machines import local
 
-from adfd.cnf import APP, INFO, NAME, PATH, SITE
+from adfd.cnf import INFO, NAME, PATH, SITE
 from adfd.process import date_from_timestamp
 from adfd.site.navigation import Navigator
 
@@ -12,7 +12,7 @@ app = flask.Flask(__name__, template_folder=PATH.VIEW, static_folder=PATH.STATIC
 app.config["SESSION_TYPE"] = "filesystem"
 app.secret_key = "I only need that for flash()"
 
-LAST_UPDATE = None
+LAST_UPDATE: str
 NAV = Navigator()
 
 
@@ -29,7 +29,7 @@ def _before_first_request():
 
 @app.context_processor
 def inject_dict_for_all_templates():
-    return dict(APP=APP, NAV=NAV, VERSION=LAST_UPDATE, IS_DEV=INFO.IS_DEV_BOX)
+    return dict(NAV=NAV, LAST_UPDATE=LAST_UPDATE, IS_DEV=INFO.IS_DEV_BOX)
 
 
 @app.route("/")
