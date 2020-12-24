@@ -1,4 +1,3 @@
-# coding: utf-8
 from sqlalchemy import Column, Index, Integer, Table, text
 from sqlalchemy.dialects.mysql import (
     CHAR,

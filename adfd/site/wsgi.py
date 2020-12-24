@@ -92,7 +92,6 @@ def run_devserver():
         original_render_template = flask.render_template
 
         def pretty_render_template(template_name_or_list, **context):
-            import flask
             from bs4 import BeautifulSoup
 
             result = original_render_template(template_name_or_list, **context)

@@ -9,7 +9,6 @@ def write_new_schema():
         f.write(content)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # needs sqlacodegen installed
     write_new_schema()
-

@@ -2,11 +2,11 @@ import io
 import logging
 import re
 from collections import OrderedDict
+from functools import cached_property
 
 import yaml
 from boltons.iterutils import remap
 from bs4 import BeautifulSoup
-from cached_property import cached_property
 
 from adfd.cnf import SITE
 from adfd.db.lib import DB_WRAPPER
@@ -36,7 +36,7 @@ class Navigator:
         log.info("navigation populated")
 
     def _reset(self):
-        log.critical(f"RESET NAVIGATOR")
+        log.critical("RESET NAVIGATOR")
         self.isPopulated = False
         self.pathNodeMap = {}
         self.yamlKeyNodeMap = {}
@@ -53,49 +53,49 @@ class Navigator:
     def get_target_node(self, topicId) -> Node:
         return self.identifierNodeMap.get(topicId)
 
-    @property
+    @cached_property
     def readyForPrimeTime(self):
         return not len(self.openIssues)
 
-    @property
+    @cached_property
     def allNodes(self):
         if not self.isPopulated:
             self.populate()
         return sorted([n for n in self.pathNodeMap.values()])
 
-    @property
+    @cached_property
     def saneNodes(self):
         return sorted([n for n in self.allNodes if n.isSane])
 
-    @property
+    @cached_property
     def dirtyNodes(self):
         return [n for n in self.saneNodes if n.isDirty]
 
-    @property
+    @cached_property
     def foreignNodes(self):
         return [n for n in self.saneNodes if n.isForeign]
 
-    @property
+    @cached_property
     def todoNodes(self):
         return [n for n in self.saneNodes if n.hasTodos]
 
-    @property
+    @cached_property
     def smilieNodes(self):
         return [n for n in self.saneNodes if n.hasSmilies]
 
-    @property
+    @cached_property
     def hasBrokenNodes(self):
         return len(self.allNodes) != len(self.saneNodes)
 
-    @property
+    @cached_property
     def brokenBBCodeNodes(self):
         return [n for n in self.allNodes if n.bbcodeIsBroken]
 
-    @property
+    @cached_property
     def brokenMetadataNodes(self):
         return [n for n in self.saneNodes if n.hasBrokenMetadata]
 
-    @property
+    @cached_property
     def openIssues(self):
         return (
             self.dirtyNodes
@@ -106,7 +106,7 @@ class Navigator:
             + self.brokenMetadataNodes
         )
 
-    @property
+    @cached_property
     def nav(self):
         return "".join([str(m) for m in self.menu])
 
@@ -231,7 +231,7 @@ class UrlInformer:
     def __init__(self, url):
         self.url = url
 
-    @property
+    @cached_property
     def topicId(self):
         topicIdMatch = re.search(r"t=(\d*)", self.url)
         if topicIdMatch:
@@ -242,29 +242,29 @@ class UrlInformer:
             postId = postIdMatch.group(1)
             return int(DB_WRAPPER.get_post(postId).topic_id)
 
-    @property
+    @cached_property
     def pointsToTopic(self):
         return self.pointsToForum and self.VIEWTOPIC in self.url
 
-    @property
+    @cached_property
     def pointsToObsoleteLocation(self):
         return self.isOneOfUs and any(
             "/%s/" % f in self.url for f in self.OBSOLETE_FOLDERS
         )
 
-    @property
+    @cached_property
     def pointsToForum(self):
         return self.isOneOfUs and self.BOARD_FOLDER in self.url
 
-    @property
+    @cached_property
     def isOneOfUs(self):
         return self.isRelative or any(d in self.url for d in self.DOMAINS)
 
-    @property
+    @cached_property
     def isRelative(self):
         return any(self.url.startswith(prefix) for prefix in ["#", "/"])
 
-    @property
+    @cached_property
     def isMail(self):
         return self.url.startswith("mailto:")
 
@@ -273,5 +273,5 @@ if __name__ == "__main__":
     # log.setLevel(logging.DEBUG)
     _nav = Navigator()
     _nav.populate()
-    for e in sorted(node.relPath for node in _nav.allNodes):
-        print(e)
+    for element in sorted(node.relPath for node in _nav.allNodes):
+        print(element)

@@ -16,7 +16,6 @@ Minimal BBCode replacement:
     <div>[meta]{TEXT}[/meta]</div>
 """
 import logging
-from collections import OrderedDict
 
 from adfd.cnf import SITE
 from adfd.process import extract_from_bbcode
@@ -64,7 +63,7 @@ class PageMetadata:
             self._populate_from_kwargs(kwargs)
             self._populate_from_text(text)
             self._isBroken = bool(self.invalid_keys)
-        except Exception as e:
+        except Exception:
             self._isBroken = True
             log.warning(f"broken metadata with {kwargs} and {text}", exc_info=True)
 

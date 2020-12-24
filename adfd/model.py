@@ -99,7 +99,8 @@ class Node:
             return self._parser.to_html(self._bbcode)
         except Exception:
             return "{}<div><pre>{}</pre></div>".format(
-                self.BROKEN_TEXT, traceback.format_exc(),
+                self.BROKEN_TEXT,
+                traceback.format_exc(),
             )
 
     @cached_property
@@ -455,13 +456,16 @@ class DbArticleContainer(ArticleContainer):
 
 class CachedDbArticleContainer(DbArticleContainer):
     """Cached on filesystem - simulates db objects."""
+
     def __init__(self, path):
         """path to folder where cached db topic files are stored."""
         assert isinstance(path, plumbum.LocalPath), path
         assert path.exists()
         self.path = path
         super().__init__(path.name)
-        self.container_md = json.loads((self.path / f"{self.identifier}{EXT.MD}").read())
+        self.container_md = json.loads(
+            (self.path / f"{self.identifier}{EXT.MD}").read()
+        )
 
     @property
     def title(self) -> str:

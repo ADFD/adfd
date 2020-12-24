@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from adfd.cnf import DB, SITE
 from adfd.db.schema import PhpbbForum, PhpbbPost, PhpbbTopic, PhpbbUser
-from adfd.exc import PostDoesNotExist, TopicDoesNotExist, TopicNotAccessible
+from adfd.exc import PostDoesNotExist, TopicDoesNotExist
 from adfd.metadata import PageMetadata
 
 log = logging.getLogger(__name__)
