@@ -1,10 +1,12 @@
 [![Build Status](https://travis-ci.org/ADFD/adfd.svg)](https://travis-ci.org/ADFD/adfd)
 
+**NOTE:** very specific to the needs of the [ADFD](http://adfd.org), but feel free to use the code to adapt this to your own needs if you find it useful.
+
+[ISSUES (only from members](https://trello.com/b/asPQPemL/adfd-webseite)
+
 # Build a static web page from a collection of posts in a phpBB board
 
 Takes a site description (YAML) from a special topic in the board (or a file), fetches topics and meta data from the phpBB database, transforms them to HTML and generates a web site (either dynamic with [Flask](http://flask.pocoo.org/) for development or static for production with [Frozen-Flask](http://pythonhosted.org/Frozen-Flask/)). Uses [Semantic-UI](http://semantic-ui.com).
-
-Very specific to the needs of the [ADFD](http://adfd.org), but feel free to use the code to adapt this to your own needs if you find it useful.
 
 ##  How it works
 
@@ -50,14 +52,6 @@ To add meta data to a post the custom BBCode tag `meta` can be used to pass simp
 This will be accessible then as attributes of `ContentContainer` objects. They can be accessed like `container.md.oldTopicId` or `container.md.allAuthors` (see [model.py](adfd/model.py) and [metadata.py](adfd/metadata.py)).
 
 With this mechanism completely arbitrary data can be set, but what is actually used is defined and documented in the `PageMetadata` class.
-
-## Redirection from board to website
-
-**NOT IMPLEMENTED YET**
-
-Many articles on the website originate from topics in the ADFD board. When the website is online, those topics should be masked by redirecting requests to the topic on the board to their corresponding static web page.
-
-Articles that should appear on the website often start as copies from the source. Therefore they need to know about their source (topicId of the source topic). For this the meta key `oldTopicId` should be set as part of the meta data. They all reside in [Inhalt (members only)](http://adfd.org/austausch/viewforum.php?f=54). If an article started its life explicitly as website article simply does not contain a link to it's source (all else being the same).
 
 ## Development
 
