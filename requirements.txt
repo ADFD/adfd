@@ -4,7 +4,7 @@ boltons==16.5.0
 beautifulsoup4==4.5.1
 flexmock==0.10.2
 plumbum==1.6.3
-pyyaml==3.12
+pyyaml
 pyphen==0.9.4
 pytest==3.0.3
 translitcodec==0.4.0
