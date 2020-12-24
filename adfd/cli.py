@@ -19,6 +19,13 @@ from adfd.site.wsgi import NAV, app, run_devserver
 log = logging.getLogger(__name__)
 
 
+def main():
+    try:
+        Adfd.run()
+    except KeyboardInterrupt:
+        log.info("stopped by user")
+
+
 class Adfd(cli.Application):
     """All functions for the ADFD website"""
 
@@ -29,22 +36,12 @@ class Adfd(cli.Application):
             self.nested_command = (AdfdDev, ["adfd dev"])
 
 
-@Adfd.subcommand("db-fetch")
-class AdfdDbFetch(cli.Application):
-    """Fetch db dump from remote"""
+@Adfd.subcommand("dev")
+class AdfdDev(cli.Application):
+    """Run local development server"""
 
     def main(self):
-        dbs = DbSynchronizer()
-        dbs.get_dump()
-
-
-@Adfd.subcommand("db-load")
-class AdfdDbLoad(cli.Application):
-    """Load db dump into local db"""
-
-    def main(self):
-        dbs = DbSynchronizer()
-        dbs.load_dump_into_local_db()
+        run_devserver()
 
 
 @Adfd.subcommand("db-sync")
@@ -54,46 +51,6 @@ class AdfdDbSync(cli.Application):
     def main(self):
         dbs = DbSynchronizer()
         dbs.sync()
-
-
-@Adfd.subcommand("dev")
-class AdfdDev(cli.Application):
-    """Run local development server"""
-
-    def main(self):
-        run_devserver()
-
-
-@Adfd.subcommand("gulp")
-class AdfdGulp(cli.Application):
-    """build and watch semantic content"""
-
-    def main(self):
-        with local.cwd(PATH.SEMANTIC):
-            os.system("gulp build")
-            os.system("gulp watch")
-
-
-@Adfd.subcommand("pull-code")
-class AdfdPullCode(cli.Application):
-    def main(self):
-        hostPip = "/home/.pyenv/versions/adfd/bin/pip"
-        with local.cwd(PATH.PROJECT):
-            print(local["git"]("pull"))
-            print(local[hostPip]("install", "-U", "-e", PATH.PROJECT))
-
-
-@Adfd.subcommand("deploy-code")
-class AdfdDeployCode(cli.Application):
-    def main(self):
-        self.deploy_code()
-
-    @classmethod
-    def deploy_code(cls):
-        remote = SshMachine(TARGET.DOMAIN)
-        with remote.cwd(TARGET.TOOL_PATH):
-            print(remote["git"]("pull"))
-            print(remote[PATH.VENV_PIP]("install", "-U", "-e", "."))
 
 
 @Adfd.subcommand("freeze")
@@ -174,7 +131,91 @@ class AdfdFreeze(cli.Application):
             path.write(node._bbcode, encoding="utf8")
 
 
-@Adfd.subcommand("push-content")
+@Adfd.subcommand("serve-frozen")
+class AdfdServeFrozen(cli.Application):
+    """Serve frozen web page locally"""
+
+    def main(self):
+        self.serve()
+
+    @staticmethod
+    def serve():
+        log.info("%s -> http://localhost:%s", PATH.RENDERED, SITE.FROZEN_PORT)
+        with local.cwd(PATH.RENDERED):
+            Handler = http.server.SimpleHTTPRequestHandler
+            httpd = socketserver.TCPServer(("", SITE.FROZEN_PORT), Handler)
+            try:
+                httpd.serve_forever()
+            finally:
+                httpd.server_close()
+
+
+@Adfd.subcommand("info")
+class AdfdInfo(cli.Application):
+    def main(self):
+        msg = ""
+        allowedForums = [
+            "{} ({})".format(DB_WRAPPER.get_forum(fId).forum_name, fId)
+            for fId in SITE.ALLOWED_FORUM_IDS
+        ]
+        msg += "allowed Forums:\n    %s" % ("\n    ".join(allowedForums))
+        print(msg)
+
+
+@Adfd.subcommand("check-links")
+class AdfdCheckLinks(cli.Application):
+    """Check if all links from website are healthy"""
+
+    def main(self):
+        return check_site_urls()
+
+
+# #############################################################################
+# ######################### ESOTERIC SECTION ##################################
+# #############################################################################
+
+
+@Adfd.subcommand("xtra-db-fetch")
+class AdfdDbFetch(cli.Application):
+    """Fetch db dump from remote"""
+
+    def main(self):
+        dbs = DbSynchronizer()
+        dbs.get_dump()
+
+
+@Adfd.subcommand("xtra-db-load")
+class AdfdDbLoad(cli.Application):
+    """Load db dump into local db"""
+
+    def main(self):
+        dbs = DbSynchronizer()
+        dbs.load_dump_into_local_db()
+
+
+@Adfd.subcommand("xtra-pull-code")
+class AdfdPullCode(cli.Application):
+    def main(self):
+        hostPip = "/home/.pyenv/versions/adfd/bin/pip"
+        with local.cwd(PATH.PROJECT):
+            print(local["git"]("pull"))
+            print(local[hostPip]("install", "-U", "-e", PATH.PROJECT))
+
+
+@Adfd.subcommand("xtra-deploy-code")
+class AdfdDeployCode(cli.Application):
+    def main(self):
+        self.deploy_code()
+
+    @classmethod
+    def deploy_code(cls):
+        remote = SshMachine(TARGET.DOMAIN)
+        with remote.cwd(TARGET.TOOL_PATH):
+            print(remote["git"]("pull"))
+            print(remote[PATH.VENV_PIP]("install", "-U", "-e", "."))
+
+
+@Adfd.subcommand("xtra-push-content")
 class AdfdPushContent(cli.Application):
     def main(self):
         self.push_content()
@@ -196,26 +237,7 @@ class AdfdPushContent(cli.Application):
             print(local["git"]("push"))
 
 
-@Adfd.subcommand("frozen")
-class AdfdServeFrozen(cli.Application):
-    """Serve frozen web page locally"""
-
-    def main(self):
-        self.serve()
-
-    @staticmethod
-    def serve():
-        log.info("%s -> http://localhost:%s", PATH.RENDERED, SITE.FROZEN_PORT)
-        with local.cwd(PATH.RENDERED):
-            Handler = http.server.SimpleHTTPRequestHandler
-            httpd = socketserver.TCPServer(("", SITE.FROZEN_PORT), Handler)
-            try:
-                httpd.serve_forever()
-            finally:
-                httpd.server_close()
-
-
-@Adfd.subcommand("deploy")
+@Adfd.subcommand("xtra-deploy")
 class AdfdDeploy(cli.Application):
     """Deploy code by pulling it from github"""
 
@@ -235,7 +257,7 @@ class AdfdDeploy(cli.Application):
             print(remote["adfd"]("fix-staging-paths"))
 
 
-@Adfd.subcommand("fix-staging-paths")
+@Adfd.subcommand("xtra-fix-staging-paths")
 class AdfdFixStagingPaths(cli.Application):
     """fix paths for deployed site"""
 
@@ -254,30 +276,3 @@ class AdfdFixStagingPaths(cli.Application):
     @classmethod
     def get_all_page_paths(cls):
         return [p for p in PATH.RENDERED.walk() if p.endswith("index.html")]
-
-
-@Adfd.subcommand("check-links")
-class AdfdCheckLinks(cli.Application):
-    """Check if all links from website are healthy"""
-
-    def main(self):
-        return check_site_urls()
-
-
-@Adfd.subcommand("info")
-class AdfdInfo(cli.Application):
-    def main(self):
-        msg = ""
-        allowedForums = [
-            "{} ({})".format(DB_WRAPPER.get_forum(fId).forum_name, fId)
-            for fId in SITE.ALLOWED_FORUM_IDS
-        ]
-        msg += "allowed Forums:\n    %s" % ("\n    ".join(allowedForums))
-        print(msg)
-
-
-def main():
-    try:
-        Adfd.run()
-    except KeyboardInterrupt:
-        log.info("stopped by user")
