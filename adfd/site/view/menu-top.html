@@ -17,9 +17,11 @@
                             </div>
                         {% endif -%}
                         <div class="item">
-                            <a href="{{ node.contentToggleLink }}">
-                                [{{ node.contentToggleLinkText }}]
-                            </a>
+                            {% if node.bbcode_is_active %}
+                                <a href="{{ node.requestPath.partition(NAME.BBCODE)[-1] }}">[HTML]</a>
+                            {% else %}
+                                <a href="/{{ NAME.BBCODE }}{{ node.requestPath }}">[BBCODE]</a>
+                            {% endif %}
                         </div>
                     {% endif -%}
                     <div class="item">

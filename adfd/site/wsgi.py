@@ -29,7 +29,7 @@ def _before_first_request():
 
 @app.context_processor
 def inject_dict_for_all_templates():
-    return dict(NAV=NAV, LAST_UPDATE=LAST_UPDATE, IS_DEV=INFO.IS_DEV_BOX)
+    return dict(NAV=NAV, NAME=NAME, LAST_UPDATE=LAST_UPDATE, IS_DEV=INFO.IS_DEV_BOX)
 
 
 @app.route("/")

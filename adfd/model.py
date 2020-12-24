@@ -130,21 +130,6 @@ class Node:
             return SITE.TOPIC_REL_PATH_PATTERN % self.identifier
 
     @cached_property
-    def contentToggleLink(self):
-        assert self.requestPath
-        if self.bbcode_is_active:
-            path = self.requestPath.partition(NAME.BBCODE)[-1]
-        else:
-            path = "/" + NAME.BBCODE
-            if self.requestPath != "/":
-                path = f"{path}{self.requestPath}"
-        return path
-
-    @cached_property
-    def contentToggleLinkText(self):
-        return "HTML zeigen" if self.bbcode_is_active else "BBCode zeigen"
-
-    @cached_property
     def isCategory(self):
         return isinstance(self, CategoryNode)
 
