@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ADFD/adfd.svg)](https://travis-ci.org/ADFD/adfd)
+[![Build Status](https://travis-ci.com/ADFD/adfd.svg)](https://travis-ci.com/ADFD/adfd)
 
 **NOTE:** very specific to the needs of the [ADFD](http://adfd.org), but feel free to use the code to adapt this to your own needs if you find it useful.
 
