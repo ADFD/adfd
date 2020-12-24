@@ -65,6 +65,9 @@ class DbPost:
     def __init__(self, post_id):
         self.id = post_id
 
+    def __repr__(self):
+        return f"<DbPost({self.id}, {self.subject})>"
+
     @classmethod
     def get_post_ids_for_topic(cls, topicId) -> List[int]:
         try:
@@ -76,9 +79,10 @@ class DbPost:
                 log.error(f"{topicId} not found, use placeholder ...")
                 topicId = SITE.PLACEHOLDER_TOPIC_ID
                 topic = DB_WRAPPER.get_topic(topicId)
-            if topic.forum_id != SITE.MAIN_CONTENT_FORUM_ID:
-                if topic.forum_id not in SITE.ALLOWED_FORUM_IDS:
-                    raise TopicNotAccessible(f"{topicId} in {topic.forum_id}")
+            # FIXME activate, when transition is done
+            # if topic.forum_id != SITE.MAIN_CONTENT_FORUM_ID:
+            #     if topic.forum_id not in SITE.ALLOWED_FORUM_IDS:
+            #         raise TopicNotAccessible(f"{topicId} in {topic.forum_id}")
 
             ids = DB_WRAPPER.get_post_ids(topicId)
             if not ids:
@@ -86,9 +90,6 @@ class DbPost:
 
             cls._topic_ids_post_ids_map[topicId] = ids
         return ids
-
-    def __repr__(self):
-        return f"<DbPost({self.id}, {self.subject})>"
 
     @cached_property
     def subject(self) -> str:
