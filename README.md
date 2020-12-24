@@ -2,7 +2,7 @@
 
 **NOTE:** very specific to the needs of the [ADFD](http://adfd.org), but feel free to use the code to adapt this to your own needs if you find it useful.
 
-[ISSUES (only accessible to active contributors](https://trello.com/b/asPQPemL/adfd-webseite)
+[ISSUES (only accessible to active contributors)](https://trello.com/b/asPQPemL/adfd-webseite)
 
 # Build a static web page from a collection of posts in a phpBB board
 
