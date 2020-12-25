@@ -123,9 +123,25 @@ class Navigator:
             cat = self.get_cat_node(path=path)
             if cat:
                 cat.children.append(node)
-            self.pathNodeMap[node.relPath] = node
-            self.identifierNodeMap[node.identifier] = node
+            self.add_new_node_to_structure(node)
         return key, value
+
+    def _populate_orphan_nodes(self):
+        log.debug("populating orphan nodes")
+        for topic_id in DB_WRAPPER.get_topic_ids(SITE.MAIN_CONTENT_FORUM_ID):
+            if (
+                topic_id not in self.identifierNodeMap
+                and topic_id not in SITE.IGNORED_CONTENT_TOPICS
+            ):
+                node = ArticleNode(topic_id, isOrphan=True)
+                self.add_new_node_to_structure(node)
+
+    def add_new_node_to_structure(self, node):
+        self.pathNodeMap[node.relPath] = node
+        self.identifierNodeMap[node.identifier] = node
+        log.info(
+            f"{'[ORPHAN] ' if node.isOrphan else ' '}{node.title} ({node.identifier})"
+        )
 
     def get_parent_nodes(self, path):
         parents = []
@@ -184,21 +200,6 @@ class Navigator:
         content = DbArticleContainer(topicId)
         yamlContent = extract_from_bbcode(SITE.CODE_TAG, content._bbcode)
         return ordered_yaml_load(stream=io.StringIO(yamlContent))
-
-    def _populate_orphan_nodes(self):
-        log.debug("SKIP populating orphan nodes")
-        return
-        nodes = []
-        for topic_id in DB_WRAPPER.get_topic_ids(SITE.MAIN_CONTENT_FORUM_ID):
-            if (
-                topic_id not in self.identifierNodeMap
-                and topic_id not in SITE.IGNORED_CONTENT_TOPICS
-            ):
-                node = ArticleNode(topic_id, isOrphan=True)
-                self.identifierNodeMap[topic_id] = node
-                nodes.append(node)
-                log.warning(f"orphan: {node.title} ({topic_id})")
-        return nodes
 
     def replace_links(self, html):
         soup = BeautifulSoup(html, "html5lib")

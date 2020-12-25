@@ -15,7 +15,7 @@ from adfd.cnf import NAME, PATH, SITE, EXT
 from adfd.db.lib import DbPost
 from adfd.metadata import PageMetadata
 from adfd.parse import AdfdParser
-from adfd.process import ContentGrabber, date_from_timestamp, slugify
+from adfd.process import date_from_timestamp, slugify
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +26,6 @@ class Node:
     BROKEN_TEXT = "<h1>Konnte nicht geparsed werden</h1>"
     BROKEN_METADATA_TEXT = "[mod=Redakteur]Metadaten fehlerhaft[/mod]\n"
     UNKNOWN_METADATA_PATT = "[mod=Redakteur]unbekannte Metadaten: %s[/mod]\n"
-    REPO_URL = "https://github.com/ADFD/adfd/tree/master/adfd/site"
 
     def __init__(self, identifier, title=None, isOrphan=False):
         self.identifier = identifier
@@ -123,11 +122,7 @@ class Node:
 
     @cached_property
     def sourceLink(self):
-        if isinstance(self._container, StaticArticleContainer):
-            parts = self.REPO_URL, NAME.STATIC, NAME.CONTENT, self.identifier
-            return "/".join(parts)
-        if isinstance(self._container, DbArticleContainer):
-            return SITE.TOPIC_REL_PATH_PATTERN % self.identifier
+        return self._container.sourceLink
 
     @cached_property
     def isCategory(self):
@@ -208,7 +203,7 @@ class Node:
 
         return unknownTags
 
-    @property
+    @cached_property
     def _bbcode(self):
         if isinstance(self._container, NoContentContainer):
             return ""
@@ -221,7 +216,7 @@ class Node:
             )
         return content
 
-    @property
+    @cached_property
     def _bbcodeAsHtml(self):
         style = get_style_by_name("igor")
         formatter = HtmlFormatter(style=style)
@@ -230,23 +225,20 @@ class Node:
         txt = highlight(self._bbcode, lexer, HtmlFormatter())
         return f"<style>{css}</style>\n{txt}"
 
-    @property
+    @cached_property
     def _container(self):
         if not self.identifier:
             return NoContentContainer(self._title, self.children)
 
-        if isinstance(self.identifier, int):
-            permanent_cache = PATH.DB_CACHE_PERMANENT / f"{self.identifier}"
-            if permanent_cache.exists():
-                return PermanentlyCachedDbArticleContainer(permanent_cache)
+        filesys_article_path = PATH.ARTICLES / f"{self.identifier}"
+        if filesys_article_path.exists():
+            return FilesysArticleContainer(filesys_article_path)
 
-            db_cache = PATH.DB_CACHE_PERMANENT / f"{self.identifier}"
-            if db_cache.exists():
-                return CachedDbArticleContainer(db_cache)
+        db_cache_path = PATH.DB_CACHE / f"{self.identifier}"
+        if db_cache_path.exists():
+            return CachedArticleContainer(db_cache_path)
 
-            return DbArticleContainer(self.identifier)
-
-        return StaticArticleContainer(self.identifier)
+        return DbArticleContainer(self.identifier)
 
     @cached_property
     def _parser(self):
@@ -357,6 +349,10 @@ class DbArticleContainer(ArticleContainer):
     TITLE_PATTERN = "[h1]%s[/h1]\n"
 
     @cached_property
+    def sourceLink(self):
+        return f"{SITE.FORUM_VIEWTOPIC_URL}?t={self.identifier}"
+
+    @cached_property
     def title(self):
         return self._firstPost.subject
 
@@ -439,8 +435,11 @@ class DbArticleContainer(ArticleContainer):
         return d
 
 
-class CachedDbArticleContainer(DbArticleContainer):
-    """Cached on filesystem - simulates db objects."""
+class CachedArticleContainer(DbArticleContainer):
+    """Cached on filesystem - simulates db objects.
+
+    Structure provided by dump_db_articles_to_file_cache
+    """
 
     def __init__(self, path):
         """path to folder where cached db topic files are stored."""
@@ -493,7 +492,7 @@ class CachedDbArticleContainer(DbArticleContainer):
     def _posts(self):
         posts = []
         for path in sorted(self.path.glob("*.bbcode")):
-            post = CachedDbPost(path)
+            post = FilesysPost(path)
             if not post.isExcluded and post.isVisible:
                 posts.append(post)
         return posts
@@ -511,15 +510,18 @@ class CachedDbArticleContainer(DbArticleContainer):
         return self.container_md["isImported"]
 
 
-# noinspection PyAbstractClass
-class PermanentlyCachedDbArticleContainer(CachedDbArticleContainer):
+class FilesysArticleContainer(CachedArticleContainer):
     """Same func but different name to show where it's stored.
 
     This cache won't be overwritten, when articles are dumped from db into normal cache.
     """
 
+    @cached_property
+    def sourceLink(self):
+        return f"{SITE.REPO_URL}/{NAME.ARTICLES}/{self.identifier}/"
 
-class CachedDbPost(DbPost):
+
+class FilesysPost(DbPost):
     def __init__(self, path):
         """path to cached db post are stored."""
         assert isinstance(path, plumbum.LocalPath), path
@@ -555,40 +557,6 @@ class CachedDbPost(DbPost):
     def md(self) -> PageMetadata:
         post_md = json.loads(self.path.with_suffix(EXT.MD).read())
         return PageMetadata(kwargs=post_md)
-
-
-class StaticArticleContainer(ArticleContainer):
-    @property
-    def title(self):
-        return False
-
-    @property
-    def creationDate(self):
-        return self._grabber.get_ctime()
-
-    @property
-    def lastUpdate(self):
-        return self._grabber.get_mtime()
-
-    @property
-    def _content(self):
-        return self._grabber.grab()
-
-    @property
-    def md(self):
-        return PageMetadata(text=self._content)
-
-    @property
-    def _grabber(self):
-        return ContentGrabber(PATH.CONTENT / self.identifier)
-
-    @property
-    def isForeign(self):
-        return False
-
-    @property
-    def isImported(self):
-        return True
 
 
 class NoContentContainer:

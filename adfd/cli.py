@@ -5,11 +5,13 @@ from socketserver import TCPServer
 
 from plumbum import ProcessExecutionError, SshMachine, cli, local
 
+from adfd import configure_logging
 from adfd.cnf import PATH, SITE, TARGET
 from adfd.db.check_urls import check_site_urls
 from adfd.db.lib import DB_WRAPPER
 from adfd.db.sync import DbSynchronizer
 from adfd.site import fridge
+from adfd.site.fridge import dump_db_articles_to_file_cache
 from adfd.site.wsgi import run_devserver
 
 log = logging.getLogger(__name__)
@@ -29,6 +31,7 @@ class Adfd(cli.Application):
     logLevel = cli.SwitchAttr(["l", "log-level"], default="INFO", help="set log level")
 
     def main(self):
+        configure_logging(self.logLevel)
         if not self.nested_command:
             self.nested_command = (AdfdDev, ["adfd dev"])
 
@@ -50,9 +53,17 @@ class AdfdDbSync(cli.Application):
         dbs.sync()
 
 
+@Adfd.subcommand("dump-db-cache")
+class AdfdDumpDbCache(cli.Application):
+    """Dump articles from db to file cache."""
+
+    def main(self):
+        dump_db_articles_to_file_cache()
+
+
 @Adfd.subcommand("freeze")
 class AdfdFreeze(cli.Application):
-    """Freeze website to static files"""
+    """Freeze website to static files."""
 
     def main(self):
         fridge.Fridge().freeze()
@@ -63,7 +74,7 @@ class AdfdServeFrozen(cli.Application):
     """Serve frozen web page locally"""
 
     def main(self):
-        log.info("%s -> http://localhost:%s", PATH.RENDERED, SITE.FROZEN_PORT)
+        log.info(f"{PATH.RENDERED} -> http://localhost:{SITE.FROZEN_PORT}")
         with local.cwd(PATH.RENDERED):
             httpd = TCPServer(("", SITE.FROZEN_PORT), SimpleHTTPRequestHandler)
             try:

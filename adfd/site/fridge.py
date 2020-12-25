@@ -1,10 +1,12 @@
+import json
 import logging
 import shutil
 
 import flask_frozen
-from plumbum import local, LocalPath
+from plumbum import local
 
-from adfd.cnf import PATH, INFO, TARGET
+from adfd.cnf import PATH, INFO, TARGET, EXT
+from adfd.model import DbArticleContainer
 from adfd.site.wsgi import NAV, app
 
 log = logging.getLogger(__name__)
@@ -18,10 +20,10 @@ class Fridge:
         self.freezer.register_generator(path_route)
 
     def freeze(self):
+        dump_db_articles_to_file_cache()
         self.freeze_urls()
         self.deliver_static_root_files()
         self.remove_clutter()
-        self.write_bbcode_sources()
         if not INFO.IS_DEV_BOX:
             self.fix_staging_paths()
         print(f"ADFD site successfully frozen at {PATH.RENDERED}!")
@@ -63,22 +65,6 @@ class Fridge:
             log.info(f"remove clutter: {path}")
             path.delete()
 
-    # FIXME adapt to use db-cache
-    @classmethod
-    def write_bbcode_sources(cls):
-        PATH.BBCODE_BACKUP.mkdir()
-        for node in NAV.allNodes:
-            if not node.hasArticle:
-                continue
-
-            if isinstance(node.identifier, str):
-                identifier = LocalPath(node.identifier).name
-            else:
-                identifier = "%05d.bbcode" % node.identifier
-            path = PATH.BBCODE_BACKUP / identifier
-            log.info("save sources %s", node.relPath)
-            path.write(node._bbcode, encoding="utf8")
-
     @classmethod
     def fix_staging_paths(cls):
         log.warning("prefix %s - changing links", TARGET.PREFIX_STR)
@@ -99,6 +85,36 @@ def path_route():  # same name as route function in wsgi.py
     for path in NAV.pathNodeMap:
         log.info(path)
         yield {"path": path}
+
+
+def dump_db_articles_to_file_cache():
+    """This creates a structure that CachedArticleContainer can read.
+
+    This also serves as a way to see how articles changed over time, as they will
+    be committed to the same repos as the rendered page.
+    """
+    PATH.DB_CACHE.delete()
+    PATH.DB_CACHE.mkdir()
+    NAV.populate()
+    for node in NAV.allNodes:
+        container = node._container
+        if type(container) != DbArticleContainer:  # no subclasses wanted here!
+            log.warning(f"skip {container}")
+            continue
+
+        base_path = PATH.DB_CACHE / node.identifier
+        base_path.mkdir()
+        container_md_path = base_path / f"{node.identifier}{EXT.MD}"
+        container_md_path.write(json.dumps(container._attrs_for_md_cache(), indent=4))
+        for idx, post in enumerate(container._posts):
+            post_path = base_path / post.id
+            post_path = post_path.with_suffix(EXT.BBCODE)
+            post_path.write(post.content)
+            post_md_path = post_path.with_suffix(EXT.MD)
+            post_md_path.write(
+                json.dumps(post._attrs_for_cache(isFirstPost=idx == 0), indent=4)
+            )
+        log.info(f"dumped {container} to {base_path}")
 
 
 if __name__ == "__main__":

@@ -1,4 +1,3 @@
-import logging
 import os
 
 import flask
@@ -6,6 +5,7 @@ from flask import send_from_directory
 from plumbum.machines import local
 
 from adfd.cnf import INFO, NAME, PATH, SITE
+from adfd.model import ArticleContainer
 from adfd.site.navigation import Navigator
 
 app = flask.Flask(__name__, template_folder=PATH.VIEW, static_folder=PATH.STATIC)
@@ -53,15 +53,24 @@ def favicon():
 
 
 def run_devserver():
+    """All routes defined in here won't be seen by the freezer."""
     app.config.update(DEBUG=True, TESTING=True)
 
     @app.route("/check/")
     def check_route():
         return flask.render_template("check.html", NAV=NAV)
 
+    @app.route("/dump-db-cache/")
+    def dump_db_cache_route():
+        from adfd.site.fridge import dump_db_articles_to_file_cache
+
+        dump_db_articles_to_file_cache()
+        return flask.redirect(flask.url_for(".path_route", path="/"))
+
     @app.route("/all-articles/")
     def articles_all_route():
-        return flask.render_template("articles-container.html")
+        nodes = [n for n in NAV.allNodes if isinstance(n._container, ArticleContainer)]
+        return flask.render_template("all-articles-container.html", nodes=nodes)
 
     @app.route("/bbcode/article/<topicId>/")
     @app.route("/bbcode/article/<path:path>/")
@@ -79,13 +88,6 @@ def run_devserver():
         node.requestPath = flask.request.path
         return flask.render_template("content-container.html", node=node)
 
-    fmt = logging.Formatter(
-        "%(asctime)s - %(name)s:%(lineno)s [%(process)d|%(thread)d] %(levelname)s: "
-        "%(message)s"
-    )
-    log = logging.getLogger()
-    for handler in log.handlers:
-        handler.setFormatter(fmt)
     if INFO.IS_DEV_BOX:
         original_render_template = flask.render_template
 
@@ -97,6 +99,7 @@ def run_devserver():
 
         flask.render_template = pretty_render_template
         os.environ["WERKZEUG_DEBUG_PIN"] = "off"
+
     with local.cwd(PATH.PROJECT):
         host = "localhost"
         app.logger.info(f"serving on http://{host}:{SITE.APP_PORT}")

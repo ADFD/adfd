@@ -32,11 +32,12 @@ else:
 
 class NAME:
     ARTICLES = "articles"
-    DB_CACHE = "db-cache"
-    STATIC = "static"
-    CONTENT = "content"
-    ROOT = "_root"
     BBCODE = "bbcode"
+    DB_CACHE = "db-cache"
+    RENDERED = "rendered"
+    ROOT = "_root"
+    STATIC = "static"
+    SITE = "site"
 
 
 class EXT:
@@ -55,18 +56,16 @@ class TARGET:
 
 class PATH:
     PROJECT = _PROJECT_PATH
-    SITE = _PACKAGE_PATH / "site"
+    SITE = _PACKAGE_PATH / NAME.SITE
     SEMANTIC = SITE / "semantic"
     STATIC = SITE / NAME.STATIC
-    CONTENT = STATIC / NAME.CONTENT
-    ARTICLES = CONTENT / NAME.ARTICLES
-    DB_CACHE = CONTENT / NAME.DB_CACHE
-    DB_CACHE_PERMANENT = CONTENT / f"{NAME.DB_CACHE}-permanent"
     ROOT_FILES = STATIC / "_root"
     VIEW = SITE / "view"
-    _DEV_BOX_RENDERED = _PROJECT_PATH / ".." / NAME.STATIC
-    RENDERED = _DEV_BOX_RENDERED if INFO.IS_DEV_BOX else TARGET.CHECKOUT_PATH
-    BBCODE_BACKUP = RENDERED / "bbcode-sources"
+    _DEV_BOX_RENDERED = _PROJECT_PATH.up() / NAME.SITE
+    SITE_REPO = _DEV_BOX_RENDERED if INFO.IS_DEV_BOX else TARGET.CHECKOUT_PATH
+    ARTICLES = SITE_REPO / NAME.ARTICLES
+    DB_CACHE = SITE_REPO / NAME.DB_CACHE
+    RENDERED = SITE_REPO / NAME.RENDERED
     VENV_PIP = "/home/.pyenv/versions/adfd/bin/pip"
 
 
@@ -81,13 +80,13 @@ class SITE:
     PLACEHOLDER_TOPIC_ID = 12265
     IGNORED_CONTENT_TOPICS = [PLACEHOLDER_TOPIC_ID, STRUCTURE_TOPIC_ID]
     STRUCTURE_PATH = PATH.SITE / (_CNF["structurePath"] or "structure.yml")
-    STATIC_ARTICLES_PATH = PATH.STATIC / NAME.CONTENT / NAME.ARTICLES
     USE_FILE = _CNF["useFile"]
     APP_PORT = 5000
     FROZEN_PORT = APP_PORT + 1
     META_TAG = "meta"
     CODE_TAG = "code"
-    TOPIC_REL_PATH_PATTERN = "http://adfd.org//austausch/viewtopic.php?t=%s"
+    REPO_URL = "https://github.com/ADFD/site/tree/master"
+    FORUM_VIEWTOPIC_URL = "https://adfd.org/austausch/viewtopic.php"
     IGNORED_TAG_ELEMENTS = [
         "inhalt",
         "seroxat",

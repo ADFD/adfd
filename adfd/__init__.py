@@ -7,6 +7,6 @@ def configure_logging(level=logging.DEBUG):
         format="%(asctime)s %(filename)s %(funcName)s:%(lineno)d "
         "%(levelname)s: %(message)s",
     )
-
-
-configure_logging("INFO")
+    logging.getLogger().log(
+        logging.getLevelName(level), f"logging initialized with level {level}"
+    )
