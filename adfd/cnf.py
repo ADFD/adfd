@@ -67,7 +67,6 @@ class PATH:
     _DEV_BOX_RENDERED = _PROJECT_PATH / ".." / NAME.STATIC
     RENDERED = _DEV_BOX_RENDERED if INFO.IS_DEV_BOX else TARGET.CHECKOUT_PATH
     BBCODE_BACKUP = RENDERED / "bbcode-sources"
-    LAST_UPDATE = RENDERED / "last_updated"
     VENV_PIP = "/home/.pyenv/versions/adfd/bin/pip"
 
 

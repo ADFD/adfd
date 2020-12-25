@@ -1,6 +1,7 @@
-import http.server
+import os
 import logging
-import socketserver
+from http.server import SimpleHTTPRequestHandler
+from socketserver import TCPServer
 
 from plumbum import ProcessExecutionError, SshMachine, cli, local
 
@@ -15,6 +16,7 @@ log = logging.getLogger(__name__)
 
 
 def main():
+    os.environ["FLASK_ENV"] = "development"
     try:
         Adfd.run()
     except KeyboardInterrupt:
@@ -53,7 +55,7 @@ class AdfdFreeze(cli.Application):
     """Freeze website to static files"""
 
     def main(self):
-        fridge.AdfdFreezer.freeze()
+        fridge.Fridge().freeze()
 
 
 @Adfd.subcommand("serve-frozen")
@@ -61,18 +63,17 @@ class AdfdServeFrozen(cli.Application):
     """Serve frozen web page locally"""
 
     def main(self):
-        self.serve()
-
-    @staticmethod
-    def serve():
         log.info("%s -> http://localhost:%s", PATH.RENDERED, SITE.FROZEN_PORT)
         with local.cwd(PATH.RENDERED):
-            Handler = http.server.SimpleHTTPRequestHandler
-            httpd = socketserver.TCPServer(("", SITE.FROZEN_PORT), Handler)
+            httpd = TCPServer(("", SITE.FROZEN_PORT), SimpleHTTPRequestHandler)
             try:
                 httpd.serve_forever()
             finally:
                 httpd.server_close()
+
+    # this should do the same, but does not work (index.hml necessary)
+    # def main(self):
+    #     fridge.Fridge().freezer.run(debug=True)
 
 
 @Adfd.subcommand("info")
@@ -187,4 +188,4 @@ class AdfdFixStagingPaths(cli.Application):
     """fix paths for deployed site - only during dev - get rid of this later"""
 
     def main(self):
-        fridge.AdfdFreezer.fix_staging_paths()
+        fridge.Fridge.fix_staging_paths()

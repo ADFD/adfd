@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 from adfd.cnf import SITE
 from adfd.db.lib import DB_WRAPPER
 from adfd.model import ArticleNode, CategoryNode, DbArticleContainer, Node
-from adfd.process import extract_from_bbcode
+from adfd.process import extract_from_bbcode, date_from_timestamp
 
 log = logging.getLogger(__name__)
 
@@ -33,10 +33,11 @@ class Navigator:
         self.menu = self.root.children
         self.isPopulated = True
         self.orphanNodes = self._populate_orphan_nodes()
+        self.last_update = date_from_timestamp()
         log.info("navigation populated")
 
     def _reset(self):
-        log.critical("RESET NAVIGATOR")
+        log.info("RESET NAVIGATOR")
         self.isPopulated = False
         self.pathNodeMap = {}
         self.yamlKeyNodeMap = {}
@@ -185,7 +186,8 @@ class Navigator:
         return ordered_yaml_load(stream=io.StringIO(yamlContent))
 
     def _populate_orphan_nodes(self):
-        log.debug("populate orphan nodes")
+        log.debug("SKIP populating orphan nodes")
+        return
         nodes = []
         for topic_id in DB_WRAPPER.get_topic_ids(SITE.MAIN_CONTENT_FORUM_ID):
             if (
