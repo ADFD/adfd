@@ -5,33 +5,5 @@
                  src="{{ url_for('static', filename='img/spiral-in-circle.png') }}">
         </a>
         {{ NAV.nav | safe }}
-        {% if IS_DEV -%}
-            <div class="ui simple dropdown item">
-                [Tools]
-                <i class="dropdown icon"></i>
-                <div class="menu">
-                    {% if node -%}
-                        {% if node.sourceLink -%}
-                            <div class="item">
-                                <a href="{{ node.sourceLink }}" target="_blank">[Quelle]</a>
-                            </div>
-                        {% endif -%}
-                        <div class="item">
-                            {% if node.bbcode_is_active %}
-                                <a href="{{ node.requestPath.partition(NAME.BBCODE)[-1] }}">[HTML]</a>
-                            {% else %}
-                                <a href="/{{ NAME.BBCODE }}{{ node.requestPath }}">[BBCODE]</a>
-                            {% endif %}
-                        </div>
-                    {% endif -%}
-                    <div class="item">
-                        <a href="{{ url_for('check_route') }}">Übersicht / Checks</a>
-                    </div>
-                    <div class="item">
-                        <a href="{{ url_for('articles_all_route') }}">Alle Artikel</a>
-                    </div>
-                </div>
-            </div>
-        {% endif -%}
     </div>
 </div>

@@ -10,7 +10,10 @@
             {% with messages = get_flashed_messages() -%}
                 {% if messages -%}
                     {% for message in messages -%}
-                        <div class="ui big center aligned card">{{ message }}</div>
+                        <div class="ui segment">
+                            <i class="massive exclamation triangle icon"></i>
+                            {{ message }}
+                        </div>
                     {% endfor -%}
                 {% endif -%}
             {% endwith -%}
