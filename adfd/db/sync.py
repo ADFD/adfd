@@ -1,6 +1,5 @@
 import logging
 import os
-from functools import cached_property
 
 from plumbum import SshMachine, local
 
@@ -15,12 +14,6 @@ class DbSynchronizer:
         self.dst_path = DB.DUMP_PATH / self.name
         self.arg_pwd = f"-p{DB.PW}"
         self.arg_user = f"-u{DB.USER}"
-
-    def __del__(self):
-        try:
-            self.remote.close()
-        except Exception:
-            pass
 
     def sync(self):
         log.warning("doing the dance: takes ~10 minutes ...")
@@ -37,13 +30,15 @@ class DbSynchronizer:
 
     def _dump_on_remote(self):
         log.info("dump db")
-        self.remote["mysqldump"](
-            self.arg_user, self.arg_pwd, DB.NAME, f"--result-file={self.name}"
-        )
+        with SshMachine(TARGET.DOMAIN) as remote:
+            remote["mysqldump"](
+                self.arg_user, self.arg_pwd, DB.NAME, f"--result-file={self.name}"
+            )
 
     def _fetch_from_remote(self):
         log.info(f"fetch {self.name} -> {self.dst_path}")
-        self.remote.download(self.remote.path(self.name), self.dst_path)
+        with SshMachine(TARGET.DOMAIN) as remote:
+            remote.download(remote.path(self.name), self.dst_path)
 
     @staticmethod
     def _prepare_local_db():
@@ -70,7 +65,3 @@ class DbSynchronizer:
         # piping does not work!?
         # local['mysql'](
         #     self.argUser, '-plar', NAME) < self.localDumpPath
-
-    @cached_property
-    def remote(self):
-        return SshMachine(TARGET.DOMAIN)

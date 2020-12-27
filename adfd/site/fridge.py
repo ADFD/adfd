@@ -1,11 +1,14 @@
 import json
 import logging
 import shutil
+from typing import List
 
 import flask_frozen
-from plumbum import local
+from plumbum import local, SshMachine, LocalPath, ProcessExecutionError
 
-from adfd.cnf import PATH, INFO, TARGET, EXT
+from adfd import configure_logging
+from adfd.cnf import PATH, INFO, TARGET, EXT, NAME
+from adfd.db.schema import PhpbbAttachment
 from adfd.model import DbArticleContainer
 from adfd.site.wsgi import NAV, app
 
@@ -23,7 +26,7 @@ class Fridge:
         dump_db_articles_to_file_cache()
         self.freeze_urls()
         self.deliver_static_root_files()
-        self.remove_clutter()
+        self.deliver_cached_attachments()
         if not INFO.IS_DEV_BOX:
             self.fix_staging_paths()
         print(f"ADFD site successfully frozen at {PATH.RENDERED}!")
@@ -54,29 +57,43 @@ class Fridge:
             path.copy(PATH.RENDERED)
 
     @classmethod
-    def remove_clutter(cls):
-        for rel_path in [
-            "static/_root",
-            "static/content",
-        ]:
-            assert not rel_path.startswith("/"), rel_path
-            path = PATH.RENDERED / rel_path
-            assert path.exists(), path
-            log.info(f"remove clutter: {path}")
-            path.delete()
+    def deliver_cached_attachments(cls):
+        """copy all attachments to static attachments folder.
+
+        This has a pretty ugly restriction, but currently this is the easiest
+        way to implement it: all attachment filenames need to be globally unique.
+
+        The reason why it is this way, is that the bbcode parser only has access to
+        the filename and renders this with the attachment path. Anything else would mean
+        that the renderer would need to know which post the file is attached to, this
+        would be a big change, so the globally uniqueness requirement seems less bad.
+        """
+        PATH.RENDERED_ATTACHMENTS.delete()
+        PATH.RENDERED_ATTACHMENTS.mkdir()
+        paths: List[LocalPath] = PATH.DB_CACHE // "**/attachments/*"
+        for attachment in paths:
+            dst = PATH.RENDERED_ATTACHMENTS / attachment.name
+            try:
+                attachment.copy(dst, overwrite=False)
+            except TypeError as e:
+                if "File exists" not in e.args[0]:
+                    raise
+
+                log.warning(f"[IGNORE] duplicate {attachment}")
+                duplicates = PATH.DB_CACHE // f"**/{NAME.ATTACHMENTS}/{attachment.name}"
+                raise Exception(f"duplicate filename: {duplicates}")
+
+        # TODO when this is in production: fail if any *.missing.txt attachment present
 
     @classmethod
     def fix_staging_paths(cls):
         log.warning("prefix %s - changing links", TARGET.PREFIX_STR)
-        for path in cls.get_all_page_paths():
+        all_page_paths = [p for p in PATH.RENDERED.walk() if p.endswith("index.html")]
+        for path in all_page_paths:
             cnt = path.read(encoding="utf8")
             cnt = cnt.replace('href="/', 'href="/%s/' % TARGET.PREFIX_STR)
             with open(path, "w", encoding="utf8") as f:
                 f.write(cnt)
-
-    @classmethod
-    def get_all_page_paths(cls):
-        return [p for p in PATH.RENDERED.walk() if p.endswith("index.html")]
 
 
 def path_route():  # same name as route function in wsgi.py
@@ -99,24 +116,44 @@ def dump_db_articles_to_file_cache():
     for node in NAV.allNodes:
         container = node._container
         if type(container) != DbArticleContainer:  # no subclasses wanted here!
-            log.warning(f"skip {container}")
+            log.info(f"skip {container}")
             continue
 
-        base_path = PATH.DB_CACHE / node.identifier
-        base_path.mkdir()
-        container_md_path = base_path / f"{node.identifier}{EXT.MD}"
+        post_base_path = PATH.DB_CACHE / node.identifier
+        post_base_path.mkdir()
+        container_md_path = post_base_path / f"{node.identifier}{EXT.MD}"
         container_md_path.write(json.dumps(container._attrs_for_md_cache(), indent=4))
         for idx, post in enumerate(container._posts):
-            post_path = base_path / post.id
+            post_path = post_base_path / post.id
             post_path = post_path.with_suffix(EXT.BBCODE)
             post_path.write(post.content)
             post_md_path = post_path.with_suffix(EXT.MD)
             post_md_path.write(
                 json.dumps(post._attrs_for_cache(isFirstPost=idx == 0), indent=4)
             )
-        log.info(f"dumped {container} to {base_path}")
+            if post.attachments:
+                fetch_attachments(post.attachments, post_base_path)
+        log.info(f"dumped {container} to {post_base_path}")
+
+
+def fetch_attachments(attachments: List[PhpbbAttachment], base_path: LocalPath):
+    attachments_path = base_path / "attachments"
+    attachments_path.mkdir()
+    with SshMachine(TARGET.DOMAIN) as remote:
+        remote_files_path = remote.path("~", "www", "austausch", "files")
+        for attachment in attachments:
+            src = remote_files_path / attachment.physical_filename
+            dst = attachments_path / attachment.real_filename
+            log.info(f"{src} -> {dst}")
+            try:
+                remote.download(src, dst)
+            except ProcessExecutionError as e:
+                if "No such file or directory" not in e.stderr:
+                    raise
+                log.warning(f"[IGNORE] image not found: {src}")
+                dst.with_suffix(".missing.txt").write(attachment.physical_filename)
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    configure_logging("WARNING")
     Fridge().freeze()

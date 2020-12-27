@@ -1,14 +1,14 @@
 import html
 import logging
 from functools import cached_property
-from typing import List
+from typing import List, Optional
 
 from bs4 import BeautifulSoup
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from adfd.cnf import DB, SITE
-from adfd.db.schema import PhpbbForum, PhpbbPost, PhpbbTopic, PhpbbUser
+from adfd.db.schema import PhpbbForum, PhpbbPost, PhpbbTopic, PhpbbUser, PhpbbAttachment
 from adfd.exc import PostDoesNotExist, TopicDoesNotExist
 from adfd.metadata import PageMetadata
 
@@ -50,6 +50,13 @@ class _DbWrapper:
 
     def get_post(self, postId) -> PhpbbPost:
         return self.session.query(PhpbbPost).filter(PhpbbPost.post_id == postId).first()
+
+    def get_post_attachments(self, postId) -> Optional[List[PhpbbAttachment]]:
+        return (
+            self.session.query(PhpbbAttachment)
+            .filter(PhpbbAttachment.post_msg_id == postId)
+            .all()
+        )
 
     def get_username(self, userId) -> str:
         n = self.session.query(PhpbbUser).filter(PhpbbUser.user_id == userId).first()
@@ -96,6 +103,23 @@ class DbPost:
         return html.unescape(self.dbp.post_subject)
 
     @cached_property
+    def author(self) -> str:
+        author = self.dbp.post_username or DB_WRAPPER.get_username(self.dbp.poster_id)
+        return html.unescape(author)
+
+    @cached_property
+    def postTime(self) -> int:
+        return self.dbp.post_edit_time or self.dbp.post_time
+
+    @cached_property
+    def isExcluded(self) -> bool:
+        return self.md.isExcluded
+
+    @cached_property
+    def isVisible(self) -> bool:
+        return self.dbp.post_visibility == 1
+
+    @cached_property
     def content(self) -> str:
         """Some reassembly needed due to how phpbb stores the content"""
         content = self.dbp.post_text
@@ -105,21 +129,8 @@ class DbPost:
         return self._fix_whitespace(content)
 
     @cached_property
-    def postTime(self) -> int:
-        return self.dbp.post_edit_time or self.dbp.post_time
-
-    @cached_property
-    def author(self) -> str:
-        author = self.dbp.post_username or DB_WRAPPER.get_username(self.dbp.poster_id)
-        return html.unescape(author)
-
-    @cached_property
-    def isExcluded(self) -> bool:
-        return self.md.isExcluded
-
-    @cached_property
-    def isVisible(self) -> bool:
-        return self.dbp.post_visibility == 1
+    def attachments(self) -> Optional[List[PhpbbAttachment]]:
+        return DB_WRAPPER.get_post_attachments(self.id)
 
     @cached_property
     def md(self) -> PageMetadata:
@@ -150,7 +161,13 @@ class DbPost:
             if name.startswith("_"):
                 continue
 
-            if name in ["dbp", "content", "get_post_ids_for_topic", "md"]:
+            if name in [
+                "dbp",
+                "content",
+                "get_post_ids_for_topic",
+                "md",
+                "attachments",
+            ]:
                 continue
 
             if name.isupper():

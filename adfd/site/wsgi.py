@@ -8,7 +8,7 @@ from adfd.cnf import INFO, NAME, PATH, SITE
 from adfd.model import ArticleContainer
 from adfd.site.navigation import Navigator
 
-app = flask.Flask(__name__, template_folder=PATH.VIEW, static_folder=PATH.STATIC)
+app = flask.Flask(__name__, template_folder=PATH.VIEW, static_folder=PATH.STATIC_FILES)
 app.config["SESSION_TYPE"] = "filesystem"
 app.secret_key = "I only need that for flash()"
 NAV = Navigator()
@@ -21,7 +21,12 @@ def _before_first_request():
 
 @app.context_processor
 def inject_dict_for_all_templates():
-    return dict(NAV=NAV, NAME=NAME, IS_DEV=INFO.IS_DEV_BOX)
+    return dict(
+        NAV=NAV,
+        NAME=NAME,
+        IS_DEV=INFO.IS_DEV_BOX,
+        IS_FREEZING="FREEZER_DESTINATION" in app.config,
+    )
 
 
 @app.route("/")
@@ -45,8 +50,10 @@ def path_route(path=""):
 
 @app.route("/favicon.ico")
 def favicon():
+    # FIXME replace with in-template rel links.
+    #  https://www.w3.org/2005/10/howto-favicon
     return send_from_directory(
-        directory=PATH.ROOT_FILES,
+        directory=PATH.STATIC_FILES,
         filename="favicon.ico",
         mimetype="image/vnd.microsoft.icon",
     )

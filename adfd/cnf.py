@@ -32,12 +32,13 @@ else:
 
 class NAME:
     ARTICLES = "articles"
+    ATTACHMENTS = "attachments"
     BBCODE = "bbcode"
     DB_CACHE = "db-cache"
     RENDERED = "rendered"
-    ROOT = "_root"
-    STATIC = "static"
+    IMG = "img"
     SITE = "site"
+    STATIC = "_static"
 
 
 class EXT:
@@ -57,15 +58,16 @@ class TARGET:
 class PATH:
     PROJECT = _PROJECT_PATH
     SITE = _PACKAGE_PATH / NAME.SITE
-    SEMANTIC = SITE / "semantic"
-    STATIC = SITE / NAME.STATIC
-    ROOT_FILES = STATIC / "_root"
     VIEW = SITE / "view"
     _DEV_BOX_RENDERED = _PROJECT_PATH.up() / NAME.SITE
     SITE_REPO = _DEV_BOX_RENDERED if INFO.IS_DEV_BOX else TARGET.CHECKOUT_PATH
     ARTICLES = SITE_REPO / NAME.ARTICLES
     DB_CACHE = SITE_REPO / NAME.DB_CACHE
+    IMG = SITE_REPO / NAME.IMG
     RENDERED = SITE_REPO / NAME.RENDERED
+    STATIC_FILES = SITE_REPO / "_static"
+    ROOT_FILES = SITE_REPO / "_root"
+    RENDERED_ATTACHMENTS = STATIC_FILES / NAME.ATTACHMENTS
     VENV_PIP = "/home/.pyenv/versions/adfd/bin/pip"
 
 

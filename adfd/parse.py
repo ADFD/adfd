@@ -4,6 +4,7 @@ import logging
 import re
 from collections import OrderedDict
 
+from adfd.cnf import NAME
 from adfd.process import RE, slugify
 
 log = logging.getLogger(__name__)
@@ -713,6 +714,7 @@ class AdfdParser(Parser):
         self._add_img_formatter()
         self._add_list_formatter()
         self._add_mod_formatter()
+        self._add_attachment_formatter()
         self._add_quote_formatter()
         self._add_raw_formatter()
         self._add_meta_formatter()
@@ -801,6 +803,27 @@ class AdfdParser(Parser):
         if "://" not in href and RE.DOMAIN.match(href):
             href = "http://" + href
         return '<img src="%s">' % (href.replace('"', "%22"))
+
+    def _add_attachment_formatter(self):
+        self.add_formatter(
+            "attachment",
+            self._render_attachment,
+            replaceLinks=False,
+            replaceCosmetic=False,
+        )
+
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def _render_attachment(name, value, options, parent, context):
+        """Assumes that the file names are unique across complete website.
+
+        Anything else would mean completely different handling for this.
+        Possibilities would be putting the images in topic folders or
+        pre-processing bbcode and replace real_filename with physical_filename.
+
+        Currently also only images are supported.
+        """
+        return f'<img src="/{NAME.STATIC}/{NAME.ATTACHMENTS}/{value}">'
 
     def _add_list_formatter(self):
         self.add_formatter(

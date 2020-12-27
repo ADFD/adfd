@@ -3,6 +3,7 @@ import logging
 import re
 from collections import OrderedDict
 from functools import cached_property
+from typing import List
 
 import yaml
 from boltons.iterutils import remap
@@ -59,7 +60,7 @@ class Navigator:
         return not len(self.openIssues)
 
     @cached_property
-    def allNodes(self):
+    def allNodes(self) -> List[Node]:
         if not self.isPopulated:
             self.populate()
         return sorted([n for n in self.pathNodeMap.values()])
