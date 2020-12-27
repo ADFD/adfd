@@ -53,7 +53,7 @@ class Fridge:
 
     @classmethod
     def deliver_static_root_files(cls):
-        for path in [p for p in PATH.ROOT_FILES.walk() if p.is_file()]:
+        for path in [p for p in PATH.SITE_REPO.list() if p.is_file()]:
             path.copy(PATH.RENDERED)
 
     @classmethod

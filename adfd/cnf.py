@@ -66,7 +66,6 @@ class PATH:
     IMG = SITE_REPO / NAME.IMG
     RENDERED = SITE_REPO / NAME.RENDERED
     STATIC_FILES = SITE_REPO / "_static"
-    ROOT_FILES = SITE_REPO / "_root"
     RENDERED_ATTACHMENTS = STATIC_FILES / NAME.ATTACHMENTS
     VENV_PIP = "/home/.pyenv/versions/adfd/bin/pip"
 
