@@ -43,7 +43,7 @@ class Node:
         return "<{}({}: {})>".format(self.SPEC, self.identifier, self.title[:6])
 
     def __gt__(self, other):
-        return self.title > other.title
+        return self.relPath > other.relPath
 
     @cached_property
     def isSane(self):
