@@ -277,5 +277,5 @@ if __name__ == "__main__":
     # log.setLevel(logging.DEBUG)
     _nav = Navigator()
     _nav.populate()
-    for element in sorted(node.relPath for node in _nav.allNodes):
-        print(element)
+    for idx, node in enumerate(sorted(node for node in _nav.allNodes)):
+        print(idx, node.relPath)
