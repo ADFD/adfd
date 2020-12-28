@@ -1,0 +1,18 @@
+<div>
+    {% for node in nodes -%}
+        <div>
+            <div>
+                <a href="{{ url_for("path_route", path=node.relPath) }}">
+                    {{ node.title }}
+                </a>
+            </div>
+            {% if node.sourceLink -%}
+                <div>
+                    <a href="{{ node.sourceLink }}">
+                        {{ node.identifier }}
+                    </a>
+                </div>
+            {% endif -%}
+        </div>
+    {% endfor -%}
+</div>

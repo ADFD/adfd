@@ -8,7 +8,9 @@ from adfd.cnf import INFO, NAME, PATH, SITE
 from adfd.model import ArticleContainer
 from adfd.site.navigation import Navigator
 
-app = flask.Flask(__name__, template_folder=PATH.VIEW, static_folder=PATH.STATIC_FILES)
+app = flask.Flask(
+    __name__, template_folder=PATH.VIEW_VANILLA, static_folder=PATH.STATIC_FILES
+)
 app.config["SESSION_TYPE"] = "filesystem"
 app.secret_key = "I only need that for flash()"
 NAV = Navigator()

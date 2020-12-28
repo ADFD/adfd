@@ -1,0 +1,9 @@
+{% extends "__base__.html" -%}
+
+{% block content -%}
+    <div id="main">
+    {% with nodes=nodes -%}
+        {% include "articles-list.html"%}
+    {% endwith -%}
+    </div>
+{% endblock content -%}
