@@ -1,7 +1,5 @@
-import io
 import logging
 import re
-from collections import OrderedDict
 from functools import cached_property
 from typing import List
 
@@ -9,6 +7,7 @@ import yaml
 from boltons.iterutils import remap
 from bs4 import BeautifulSoup
 
+from adfd import configure_logging
 from adfd.cnf import SITE
 from adfd.db.lib import DB_WRAPPER
 from adfd.model import ArticleNode, CategoryNode, DbArticleContainer, Node
@@ -19,11 +18,17 @@ log = logging.getLogger(__name__)
 
 class Navigator:
     def __init__(self):
-        self.identifierNodeMap = {}
+        self._reset()
+
+    def _reset(self):
+        log.info("RESET NAVIGATOR")
         self.isPopulated = False
+        self.identifierNodeMap = {}
         self.pathNodeMap = {}
         self.yamlKeyNodeMap = {}
+        self.last_update = "never"
         self.orphanNodes = []
+        self.activeNode = None
 
     def populate(self):
         log.info("populate navigation")
@@ -33,16 +38,9 @@ class Navigator:
         self.root = self.yamlKeyNodeMap[next(iter(self.structure))]
         self.menu = self.root.children
         self.isPopulated = True
-        self.orphanNodes = self._populate_orphan_nodes()
+        self._populate_orphan_nodes()
         self.last_update = date_from_timestamp()
         log.info("navigation populated")
-
-    def _reset(self):
-        log.info("RESET NAVIGATOR")
-        self.isPopulated = False
-        self.pathNodeMap = {}
-        self.yamlKeyNodeMap = {}
-        self.orphanNodes = []
 
     def get_node(self, key) -> Node:
         try:
@@ -124,7 +122,9 @@ class Navigator:
             cat = self.get_cat_node(path=path)
             if cat:
                 cat.children.append(node)
-            self.add_new_node_to_structure(node)
+            self.pathNodeMap[node.relPath] = node
+            self.identifierNodeMap[node.identifier] = node
+            log.info(f"{node.relPath} ({node.identifier})")
         return key, value
 
     def _populate_orphan_nodes(self):
@@ -135,14 +135,8 @@ class Navigator:
                 and topic_id not in SITE.IGNORED_CONTENT_TOPICS
             ):
                 node = ArticleNode(topic_id, isOrphan=True)
-                self.add_new_node_to_structure(node)
-
-    def add_new_node_to_structure(self, node):
-        self.pathNodeMap[node.relPath] = node
-        self.identifierNodeMap[node.identifier] = node
-        log.info(
-            f"{'[ORPHAN] ' if node.isOrphan else ' '}{node.title} ({node.identifier})"
-        )
+                log.info(f"{node.relPath} ({node.identifier})")
+                self.orphanNodes.append(node)
 
     def get_parent_nodes(self, path):
         parents = []
@@ -171,36 +165,14 @@ class Navigator:
                 self.yamlKeyNodeMap[key] = cat
                 return cat
 
-    @classmethod
-    def load_structure(
-        cls,
-        path=SITE.STRUCTURE_PATH,
-        topicId=SITE.STRUCTURE_TOPIC_ID,
-        useFile=SITE.USE_FILE,
-    ):
-        class OrderedLoader(yaml.SafeLoader):
-            def __init__(self, stream):
-                # noinspection PyUnresolvedReferences
-                self.add_constructor(
-                    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-                    self.construct_ordered_mapping,
-                )
-                super().__init__(stream)
-
-            @staticmethod
-            def construct_ordered_mapping(loader, node):
-                loader.flatten_mapping(node)
-                return OrderedDict(loader.construct_pairs(node))
-
-        def ordered_yaml_load(stream):
-            return yaml.load(stream, OrderedLoader)
-
-        if useFile:
-            return ordered_yaml_load(stream=open(path, encoding="utf8"))
-
-        content = DbArticleContainer(topicId)
-        yamlContent = extract_from_bbcode(SITE.CODE_TAG, content._bbcode)
-        return ordered_yaml_load(stream=io.StringIO(yamlContent))
+    @staticmethod
+    def load_structure():
+        if SITE.USE_FILE:
+            structure = SITE.STRUCTURE_PATH.read()
+        else:
+            content = DbArticleContainer(SITE.STRUCTURE_TOPIC_ID)
+            structure = extract_from_bbcode(SITE.CODE_TAG, content._bbcode)
+        return yaml.load(structure)
 
     def replace_links(self, html):
         soup = BeautifulSoup(html, "html5lib")
@@ -274,8 +246,8 @@ class UrlInformer:
 
 
 if __name__ == "__main__":
-    # log.setLevel(logging.DEBUG)
+    configure_logging("INFO")
     _nav = Navigator()
     _nav.populate()
-    for idx, node in enumerate(sorted(node for node in _nav.allNodes)):
-        print(idx, node.relPath)
+    for idx, this in enumerate(sorted(node for node in _nav.allNodes)):
+        print(idx, this.relPath, this.isOrphan)

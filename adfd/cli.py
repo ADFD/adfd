@@ -12,7 +12,7 @@ from adfd.db.lib import DB_WRAPPER
 from adfd.db.sync import DbSynchronizer
 from adfd.site import fridge
 from adfd.site.fridge import dump_db_articles_to_file_cache
-from adfd.site.wsgi import run_devserver
+from adfd.site.wsgi import run_flask_server
 
 log = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class AdfdDev(cli.Application):
     """Run local development server"""
 
     def main(self):
-        run_devserver()
+        run_flask_server()
 
 
 @Adfd.subcommand("db-sync")
@@ -74,17 +74,13 @@ class AdfdServeFrozen(cli.Application):
     """Serve frozen web page locally"""
 
     def main(self):
-        log.info(f"{PATH.RENDERED} -> http://localhost:{SITE.FROZEN_PORT}")
-        with local.cwd(PATH.RENDERED):
+        log.info(f"{PATH.FROZEN} -> http://localhost:{SITE.FROZEN_PORT}")
+        with local.cwd(PATH.FROZEN):
             httpd = TCPServer(("", SITE.FROZEN_PORT), SimpleHTTPRequestHandler)
             try:
                 httpd.serve_forever()
             finally:
                 httpd.server_close()
-
-    # this should do the same, but does not work (index.hml necessary)
-    # def main(self):
-    #     fridge.Fridge().freezer.run(debug=True)
 
 
 @Adfd.subcommand("info")
@@ -159,7 +155,7 @@ class AdfdPushContent(cli.Application):
 
     @classmethod
     def push_content(cls):
-        with local.cwd(PATH.RENDERED):
+        with local.cwd(PATH.FROZEN):
             print(local["git"]("add", "."))
             try:
                 print(local["git"]("commit", "-m", "new build"))

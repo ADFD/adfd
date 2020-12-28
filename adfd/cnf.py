@@ -35,7 +35,7 @@ class NAME:
     ATTACHMENTS = "attachments"
     BBCODE = "bbcode"
     DB_CACHE = "db-cache"
-    RENDERED = "rendered"
+    FROZEN = "frozen"
     IMG = "img"
     SITE = "site"
     STATIC = "_static"
@@ -64,7 +64,7 @@ class PATH:
     ARTICLES = SITE_REPO / NAME.ARTICLES
     DB_CACHE = SITE_REPO / NAME.DB_CACHE
     IMG = SITE_REPO / NAME.IMG
-    RENDERED = SITE_REPO / NAME.RENDERED
+    FROZEN = SITE_REPO / NAME.FROZEN
     STATIC_FILES = SITE_REPO / "_static"
     RENDERED_ATTACHMENTS = STATIC_FILES / NAME.ATTACHMENTS
     VENV_PIP = "/home/.pyenv/versions/adfd/bin/pip"

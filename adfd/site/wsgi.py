@@ -20,7 +20,7 @@ def _before_first_request():
 
 
 @app.context_processor
-def inject_dict_for_all_templates():
+def inject_templates_namespace():
     return dict(
         NAV=NAV,
         NAME=NAME,
@@ -44,7 +44,7 @@ def path_route(path=""):
     node = NAV.get_node(path)
     node.bbcode_is_active = bbcode_is_active
     node.requestPath = flask.request.path
-    # TODO set active path (can be done on node directly)
+    NAV.activeNode = node
     return flask.render_template("content-container.html", node=node)
 
 
@@ -59,10 +59,7 @@ def favicon():
     )
 
 
-def run_devserver():
-    """All routes defined in here won't be seen by the freezer."""
-    app.config.update(DEBUG=True, TESTING=True)
-
+def add_dev_routes():
     @app.route("/check/")
     def check_route():
         return flask.render_template("check.html", NAV=NAV)
@@ -77,7 +74,18 @@ def run_devserver():
     @app.route("/all-articles/")
     def articles_all_route():
         nodes = [n for n in NAV.allNodes if isinstance(n._container, ArticleContainer)]
-        return flask.render_template("all-articles-container.html", nodes=nodes)
+        return flask.render_template("article-collection-container.html", nodes=nodes)
+
+    @app.route("/orphans/")
+    @app.route("/orphans/<path:path>/")
+    def articles_orphans_route(path=None):
+        if path:
+            node = [n for n in NAV.orphanNodes if path in n.relPath][0]
+            return flask.render_template("content-container.html", node=node)
+
+        return flask.render_template(
+            "article-collection-container.html", nodes=NAV.orphanNodes
+        )
 
     @app.route("/bbcode/article/<topicId>/")
     @app.route("/bbcode/article/<path:path>/")
@@ -91,27 +99,36 @@ def run_devserver():
         except ValueError:
             pass
         node = NAV.identifierNodeMap[identifier]
+        NAV.activeNode = node
         node.bbcode_is_active = bbcode_is_active
         node.requestPath = flask.request.path
         return flask.render_template("content-container.html", node=node)
 
+
+def run_flask_server():
+    """All routes defined in here won't be seen by the freezer."""
+    app.config.update(DEBUG=True, TESTING=True)
+    add_dev_routes()
+    replace_render_template()
     if INFO.IS_DEV_BOX:
-        original_render_template = flask.render_template
-
-        def pretty_render_template(template_name_or_list, **context):
-            from bs4 import BeautifulSoup
-
-            result = original_render_template(template_name_or_list, **context)
-            return BeautifulSoup(result, "html5lib").prettify()
-
-        flask.render_template = pretty_render_template
         os.environ["WERKZEUG_DEBUG_PIN"] = "off"
-
+    host = "localhost"
+    app.logger.info(f"serving on http://{host}:{SITE.APP_PORT}")
     with local.cwd(PATH.PROJECT):
-        host = "localhost"
-        app.logger.info(f"serving on http://{host}:{SITE.APP_PORT}")
         app.run(host=host, port=SITE.APP_PORT, debug=True)
 
 
+def replace_render_template():
+    from bs4 import BeautifulSoup
+
+    def pretty_render_template(template_name_or_list, **context):
+
+        result = original_render_template(template_name_or_list, **context)
+        return BeautifulSoup(result, "html5lib").prettify()
+
+    original_render_template = flask.render_template
+    flask.render_template = pretty_render_template
+
+
 if __name__ == "__main__":
-    run_devserver()
+    run_flask_server()

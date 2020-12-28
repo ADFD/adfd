@@ -29,17 +29,17 @@ class Fridge:
         self.deliver_cached_attachments()
         if not INFO.IS_DEV_BOX:
             self.fix_staging_paths()
-        print(f"ADFD site successfully frozen at {PATH.RENDERED}!")
+        print(f"ADFD site successfully frozen at {PATH.FROZEN}!")
 
     @staticmethod
     def clean():
-        shutil.rmtree(PATH.RENDERED, ignore_errors=True)
-        PATH.RENDERED.mkdir()
+        shutil.rmtree(PATH.FROZEN, ignore_errors=True)
+        PATH.FROZEN.mkdir()
 
     @classmethod
     def configure_app_for_freezing(cls):
         app.config.update(
-            FREEZER_DESTINATION=PATH.RENDERED,
+            FREEZER_DESTINATION=PATH.FROZEN,
             FREEZER_RELATIVE_URLS=True,
             FREEZER_REMOVE_EXTRA_FILES=True,
             FREEZER_DESTINATION_IGNORE=[".git*", "*.idea"],
@@ -54,7 +54,7 @@ class Fridge:
     @classmethod
     def deliver_static_root_files(cls):
         for path in [p for p in PATH.SITE_REPO.list() if p.is_file()]:
-            path.copy(PATH.RENDERED)
+            path.copy(PATH.FROZEN)
 
     @classmethod
     def deliver_cached_attachments(cls):
@@ -88,7 +88,7 @@ class Fridge:
     @classmethod
     def fix_staging_paths(cls):
         log.warning("prefix %s - changing links", TARGET.PREFIX_STR)
-        all_page_paths = [p for p in PATH.RENDERED.walk() if p.endswith("index.html")]
+        all_page_paths = [p for p in PATH.FROZEN.walk() if p.endswith("index.html")]
         for path in all_page_paths:
             cnt = path.read(encoding="utf8")
             cnt = cnt.replace('href="/', 'href="/%s/' % TARGET.PREFIX_STR)

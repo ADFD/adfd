@@ -1,15 +1,15 @@
 <div class="ui segments">
-    {% for node in nodes or NAV.saneNodes -%}
+    {% for node in nodes -%}
         <div class="ui horizontal segments">
             <div class="ui segment">
-                <a href="{{ url_for("path_route", path=node.relPath) }}">
+                <a href="/orphans{{ url_for("path_route", path=node.relPath) }}">
                     {{ node.title }}
                 </a>
             </div>
             {% if node.sourceLink -%}
                 <div class="ui compact right aligned segment">
                     <a href="{{ node.sourceLink }}">
-                        {{ node.identifier}}
+                        {{ node.identifier }}
                     </a>
                 </div>
             {% endif -%}
