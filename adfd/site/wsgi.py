@@ -76,17 +76,6 @@ def add_dev_routes():
         nodes = [n for n in NAV.allNodes if isinstance(n._container, ArticleContainer)]
         return flask.render_template("article-collection-container.html", nodes=nodes)
 
-    @app.route("/orphans/")
-    @app.route("/orphans/<path:path>/")
-    def articles_orphans_route(path=None):
-        if path:
-            node = [n for n in NAV.orphanNodes if path in n.relPath][0]
-            return flask.render_template("content-container.html", node=node)
-
-        return flask.render_template(
-            "article-collection-container.html", nodes=NAV.orphanNodes
-        )
-
     @app.route("/bbcode/article/<topicId>/")
     @app.route("/bbcode/article/<path:path>/")
     @app.route("/article/<topicId>/")

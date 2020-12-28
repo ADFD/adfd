@@ -2,7 +2,7 @@
     {% for node in nodes -%}
         <div class="ui horizontal segments">
             <div class="ui segment">
-                <a href="/orphans{{ url_for("path_route", path=node.relPath) }}">
+                <a href="{{ url_for("path_route", path=node.relPath) }}">
                     {{ node.title }}
                 </a>
             </div>

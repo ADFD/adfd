@@ -136,6 +136,7 @@ class Navigator:
             ):
                 node = ArticleNode(topic_id, isOrphan=True)
                 log.info(f"{node.relPath} ({node.identifier})")
+                self.identifierNodeMap[node.identifier] = node
                 self.orphanNodes.append(node)
 
     def get_parent_nodes(self, path):
