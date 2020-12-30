@@ -7,7 +7,7 @@ import flask_frozen
 from plumbum import local, SshMachine, LocalPath, ProcessExecutionError
 
 from adfd import configure_logging
-from adfd.cnf import PATH, INFO, TARGET, EXT, NAME
+from adfd.cnf import PATH, RUNS_ON, TARGET, EXT, NAME
 from adfd.db.schema import PhpbbAttachment
 from adfd.model import DbArticleContainer
 from adfd.web.wsgi import NAV, app
@@ -27,7 +27,7 @@ class Fridge:
         self.freeze_urls()
         self.deliver_static_root_files()
         self.deliver_cached_attachments()
-        if not INFO.IS_DEV_BOX:
+        if not RUNS_ON.DEVBOX:
             self.fix_staging_paths()
         print(f"ADFD site successfully frozen at {PATH.FROZEN}!")
 

@@ -8,9 +8,9 @@ _HERE = plumbum.LocalPath(__file__).dirname
 _PROJECT_PATH = _HERE.up()
 
 
-class INFO:
-    IS_CI = "CI" in os.environ
-    IS_DEV_BOX = not IS_CI and "mj13" not in socket.gethostname()
+class RUNS_ON:
+    CI = bool(os.getenv("CI"))
+    DEVBOX = not CI and "mj13" not in socket.gethostname()
 
 
 _CONFIG_PATH = _PROJECT_PATH / "cnf.yml"

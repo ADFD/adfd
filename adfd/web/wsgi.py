@@ -4,7 +4,7 @@ import flask
 from flask import send_from_directory
 from plumbum.machines import local
 
-from adfd.cnf import INFO, NAME, PATH, ADFD
+from adfd.cnf import RUNS_ON, NAME, PATH, ADFD
 from adfd.model import ArticleContainer
 from adfd.web.navigation import Navigator
 
@@ -26,7 +26,7 @@ def inject_templates_namespace():
     return dict(
         NAV=NAV,
         NAME=NAME,
-        IS_DEV=INFO.IS_DEV_BOX,
+        IS_DEV=RUNS_ON.DEVBOX,
         IS_FREEZING="FREEZER_DESTINATION" in app.config,
     )
 
@@ -101,7 +101,7 @@ def run_flask_server():
     app.config.update(DEBUG=True, TESTING=True)
     add_dev_routes()
     replace_render_template()
-    if INFO.IS_DEV_BOX:
+    if RUNS_ON.DEVBOX:
         os.environ["WERKZEUG_DEBUG_PIN"] = "off"
     host = "localhost"
     app.logger.info(f"serving on http://{host}:{ADFD.APP_PORT}")

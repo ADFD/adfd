@@ -8,7 +8,7 @@ from boltons.iterutils import remap
 from bs4 import BeautifulSoup
 
 from adfd import configure_logging
-from adfd.cnf import ADFD, INFO
+from adfd.cnf import ADFD, RUNS_ON
 from adfd.model import ArticleNode, CategoryNode, DbArticleContainer, Node
 from adfd.process import extract_from_bbcode, date_from_timestamp
 
@@ -127,7 +127,7 @@ class Navigator:
         return key, value
 
     def _populate_orphan_nodes(self):
-        if not INFO.IS_DEV_BOX:
+        if not RUNS_ON.DEVBOX:
             log.warning("not on dev box: not populating orphan nodes")
             return
 
@@ -225,7 +225,7 @@ class UrlInformer:
 
         postIdMatch = re.search(r"p=(\d*)", self.url)
         if postIdMatch:
-            if not INFO.IS_DEV_BOX:
+            if not RUNS_ON.DEVBOX:
                 raise NotImplementedError("cache needs a higher level wraper for this")
 
             from adfd.db.lib import DB_WRAPPER
