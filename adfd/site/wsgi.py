@@ -41,7 +41,7 @@ def path_route(path=""):
     if path == "nav-populate":
         NAV.populate()
         flask.flash("navigation re-populated")
-        return flask.render_template("content-container.html", node=None)
+        return flask.redirect("/")
 
     node = NAV.get_node(path)
     node.bbcode_is_active = bbcode_is_active
