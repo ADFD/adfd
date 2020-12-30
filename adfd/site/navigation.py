@@ -186,12 +186,16 @@ class Navigator:
                 targetNode = self.get_target_node(ui.topicId)
                 if not targetNode:
                     continue
-                link.attrs["href"] = targetNode.relPath
-        # Note remove extra tags - very ugly, but simple and works
-        txt = str(soup)
-        txt = txt.replace("<html><head></head><body>", "")
-        txt = txt.replace("</body></html>", "")
-        return txt
+                if targetNode.relPath in self.pathNodeMap:
+                    link.attrs["href"] = targetNode.relPath
+                else:
+                    log.warning(f"link to topic not on web page: {url}")
+        # remove extra tags - very ugly, but simple and works
+        return (
+            str(soup)
+            .replace("<html><head></head><body>", "")
+            .replace("</body></html>", "")
+        )
 
 
 class UrlInformer:
