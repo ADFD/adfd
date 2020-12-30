@@ -3,7 +3,7 @@ import logging
 import re
 import traceback
 from functools import total_ordering, cached_property
-from typing import List, Union
+from typing import List, Union, Tuple, Optional
 
 import plumbum
 from pygments import highlight
@@ -37,8 +37,11 @@ class Node:
         self.requestPath = None
         self.bbcode_is_active = False
 
+    def __str__(self):
+        return f"{self.SPEC}({self.identifier}|{self.relPath}|{self.title})"
+
     def __repr__(self):
-        return f"<{self.SPEC}({self.identifier}: {self.title[:6]})>"
+        return f"<{self.SPEC}({self.identifier}: {self.title[:10]})>"
 
     def __gt__(self, other):
         return self.relPath > other.relPath
@@ -247,30 +250,8 @@ class CategoryNode(Node):
     def __init__(self, data):
         super().__init__(*self._parse(data))
 
-    def __str__(self):
-        return self._navPattern % "".join([str(c) for c in self.children])
-
     @cached_property
-    def _navPattern(self):
-        pattern = '<div class="%s">'
-        if self._isSubMenu:
-            classes = ["item"]
-        else:
-            classes = ["ui", "simple", "dropdown", "item"]
-        if self.isActive:
-            classes.append("active")
-        tag = pattern % (" ".join(classes))
-        if self._isSubMenu:
-            tag += '<i class="orange dropdown icon"></i>'
-        padding = "&nbsp;" * 3 if self._isSubMenu else ""
-        tag += f'<a href="{self.relPath}">{self.title}</a>{padding}'
-        if not self._isSubMenu:
-            tag += '<i class="orange dropdown icon"></i>'
-        tag += '<div class="menu">'
-        return "%s%%s</div></div>" % tag
-
-    @cached_property
-    def _isSubMenu(self):
+    def is_sub_menu(self):
         return isinstance(self, CategoryNode) and any(
             isinstance(c, CategoryNode) for c in self.parents[1:]
         )
@@ -278,14 +259,14 @@ class CategoryNode(Node):
     @classmethod
     def _parse(cls, data):
         sep = "|"
-        sd = data.split(sep)
-        if len(sd) > 2:
+        parts = data.split(sep)
+        if len(parts) > 2:
             raise ValueError(f"Too many '{sep}' in {data}")
 
-        title = sd[0].strip()
+        title = parts[0].strip()
         title = title if title != "Home" else ""
-        mainTopicId = int(sd[1].strip()) if len(sd) == 2 else None
-        return mainTopicId, title
+        category_topic_id = int(parts[1].strip()) if len(parts) == 2 else None
+        return category_topic_id, title
 
 
 class ArticleNode(Node):
@@ -295,23 +276,8 @@ class ArticleNode(Node):
     def __init__(self, data, isOrphan=False):
         super().__init__(*self._parse(data), isOrphan=isOrphan)
 
-    def __str__(self):
-        p = '<a class="%s" href="%s">%s</a>'
-        classes = ["item"]
-        if self.isActive:
-            classes.append("active")
-        classesStr = " ".join(classes)
-        try:
-            return p % (classesStr, self.relPath, self.title)
-        except Exception as e:
-            msg = f"broken: {self.identifier} ({e})"
-            html = p % (classesStr, "#", msg)
-            log.warning(msg)
-            return html
-
     @classmethod
-    def _parse(cls, data):
-        """returns: (identifier, title)"""
+    def _parse(cls, data) -> Tuple[int, Optional[str]]:
         if isinstance(data, int):
             return data, None
 

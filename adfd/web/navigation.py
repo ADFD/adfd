@@ -105,10 +105,6 @@ class Navigator:
             + self.brokenMetadataNodes
         )
 
-    @cached_property
-    def nav(self):
-        return "".join([str(m) for m in self.menu])
-
     def visit(self, path, key, value):
         log.debug(f"visit({path!r}, {key!r}, {value!r})")
         node = None

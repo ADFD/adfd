@@ -4,20 +4,22 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='adfd.css') }}"/>
-    <title>ADFD {% if node -%} - {{ node.title }}{% endif %}</title>
+    <title>ADFD {% if node -%} - {{ node.title }}{% endif -%}</title>
 </head>
 <body>
 
 {% with node=node -%}
-    {% include "menu-top.html" -%}
+    {% include "__header__.html" -%}
 {% endwith -%}
+
+<hr>
 
 {% block content -%}{% endblock content -%}
 
-<div class="ui hidden divider"></div>
+<hr>
 
 {% with node=node -%}
-    {% include "footer.html" -%}
+    {% include "__footer__.html" -%}
 {% endwith -%}
 
 </body>

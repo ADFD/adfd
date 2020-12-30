@@ -1,0 +1,13 @@
+<div id="top">
+    <div>
+        <a href="/">
+            <img alt="ADFD logo" src="{{ url_for('static', filename='img/spiral-in-circle.svg') }}">
+        </a>
+    </div>
+    <nav>
+        {% for item in NAV.menu -%}
+            <a href="{{ item.relPath }}">{{ item.title }}</a>
+            {# fixme remove when styled #} <span>|</span>
+        {% endfor -%}
+    </nav>
+</div>

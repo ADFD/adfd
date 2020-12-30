@@ -57,9 +57,7 @@ class TARGET:
 class PATH:
     PROJECT = _PROJECT_PATH
     WEB = _HERE / NAME.WEB
-    VIEW_VANILLA = WEB / "view-vanilla"
-    VIEW_SEMANTIC = WEB / "view-semantic"
-    VIEW_TAILWIND = WEB / "view-tailwind"
+    VIEW = WEB / "view"
     SITE_REPO = PROJECT.up() / "site"
     ARTICLES = SITE_REPO / NAME.ARTICLES
     DB_CACHE = SITE_REPO / NAME.DB_CACHE

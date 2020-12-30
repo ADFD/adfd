@@ -8,9 +8,7 @@ from adfd.cnf import RUNS_ON, NAME, PATH, ADFD
 from adfd.model import ArticleContainer
 from adfd.web.navigation import Navigator
 
-app = flask.Flask(
-    __name__, template_folder=PATH.VIEW_VANILLA, static_folder=PATH.STATIC_FILES
-)
+app = flask.Flask(__name__, template_folder=PATH.VIEW, static_folder=PATH.STATIC_FILES)
 app.config["SESSION_TYPE"] = "filesystem"
 app.secret_key = "I only need that for flash()"
 NAV = Navigator()
@@ -38,7 +36,7 @@ def path_route(path=""):
     if path.startswith(NAME.BBCODE):
         bbcode_is_active = True
         path = path.partition("/")[-1]
-    if path == "nav-populate":
+    if path == "refresh-content":
         NAV.populate()
         flask.flash("navigation re-populated")
         return flask.redirect("/")

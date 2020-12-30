@@ -1,0 +1,27 @@
+<div>
+    <div>
+        {% if not IS_FREEZING -%}
+            {% if node -%}
+                {% if node.sourceLink -%}
+                    <div>
+                        <a href="{{ node.sourceLink }}" target="_blank">[TOPIC]</a>
+                    </div>
+                {% endif -%}
+                {% if node.bbcode_is_active -%}
+                    <a href="{{ node.requestPath.partition(NAME.BBCODE)[-1] }}">[HTML]</a>
+                {% else -%}
+                    <a href="/{{ NAME.BBCODE }}{{ node.requestPath }}">[BBCODE]</a>
+                {% endif -%}
+            {% endif -%}
+            <a href="/check/">[check pages]</a>
+            <a href="/all-articles/">[all articles]</a>
+            <a href="/refresh-content/">[refresh content]</a>
+            <a href="/dump-db-cache/">[dump db cache]</a>
+        {%  else -%}
+            <a href="/">Home</a>
+        {% endif -%}
+    </div>
+    {% if not IS_FREEZING -%}
+        <div>Letztes Update: {{ NAV.last_update }}</div>
+    {% endif -%}
+</div>

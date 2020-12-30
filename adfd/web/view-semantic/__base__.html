@@ -13,7 +13,7 @@
 <body>
 
 {% with node=node -%}
-    {% include "menu-top.html" -%}
+    {% include "__header__.html" -%}
 {% endwith -%}
 
 {% block content -%}{% endblock content -%}
@@ -21,7 +21,7 @@
 <div class="ui hidden divider"></div>
 
 {% with node=node -%}
-    {% include "footer.html" -%}
+    {% include "__footer__.html" -%}
 {% endwith -%}
 
 </body>

@@ -22,18 +22,18 @@
                     {% include "breadcrumbs.html" -%}
                 {% endwith -%}
             {% endif -%}
-            {% if node.hasArticle %}
+            {% if node.hasArticle -%}
                 {% with node=node -%}
                     {% include "article.html" -%}
                 {% endwith -%}
-            {% else %}
+            {% else -%}
                 <h1>{{ node.title }}</h1>
             {% endif -%}
-            {% if node.isCategory and not node.isRoot %}
+            {% if node.isCategory and not node.isRoot -%}
                 {% with nodes=node.children -%}
                     {% include "articles-list.html" -%}
                 {% endwith -%}
-            {% endif %}
+            {% endif -%}
         </div>
     </div>
 

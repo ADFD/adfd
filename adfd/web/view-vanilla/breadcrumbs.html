@@ -3,8 +3,8 @@
     <i></i>
     {% for parent in node.parents[1:] -%}
         <a href="{{ parent.relPath }}">{{ parent.title }}</a>
-        {%- if not loop.last %}
+        {%- if not loop.last -%}
             <i></i>
-        {% endif %}
+        {% endif -%}
     {% endfor -%}
 </div>

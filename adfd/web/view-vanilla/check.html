@@ -5,18 +5,18 @@
         <div>
             <div>
                 <div>
-                    {% if NAV.readyForPrimeTime %}
+                    {% if NAV.readyForPrimeTime -%}
                         Alles in Ordnung!
-                    {% else %}
+                    {% else -%}
                         <div>
                             {{ NAV.openIssues.__len__() }} offene Tasks
                         </div>
-                    {% endif %}
-                    {% if NAV.hasBrokenNodes %}
+                    {% endif -%}
+                    {% if NAV.hasBrokenNodes -%}
                         <div>
                             Warnung: kaputte Nodes (check log)
                         </div>
-                    {% endif %}
+                    {% endif -%}
                 </div>
             </div>
         </div>
@@ -106,7 +106,7 @@
                                 {% endfor -%}
                             </div>
                         </div>
-                    {% endfor %}
+                    {% endfor -%}
                 </div>
             {% endif -%}
 
@@ -128,7 +128,7 @@
                                 </a>
                             </div>
                         </div>
-                    {% endfor %}
+                    {% endfor -%}
                 </div>
             {% endif -%}
         </div>
@@ -150,7 +150,7 @@
                                 {{ node._container.md.invalidAttributes }}
                             </div>
                         </div>
-                    {% endfor %}
+                    {% endfor -%}
                 </div>
             {% endif -%}
         </div>
