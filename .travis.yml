@@ -3,7 +3,7 @@ cache: pip
 python:
   - "3.8"
 install:
-  - git clone --depth=1 --branch=master https://github.com/ADFD/site.git ../ADFD/site
+  - git clone --depth=1 --branch=master https://github.com/ADFD/site.git ../site
   - pip install --pre -U tox
 script:
   - tox
