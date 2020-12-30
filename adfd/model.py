@@ -11,7 +11,7 @@ from pygments.formatters.html import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
 from pygments.styles import get_style_by_name
 
-from adfd.cnf import NAME, PATH, SITE, EXT
+from adfd.cnf import NAME, PATH, ADFD, EXT
 from adfd.db.lib import DbPost
 from adfd.metadata import PageMetadata
 from adfd.parse import AdfdParser
@@ -47,7 +47,7 @@ class Node:
     def isSane(self):
         try:
             return (
-                self.identifier != SITE.PLACEHOLDER_TOPIC_ID
+                self.identifier != ADFD.PLACEHOLDER_TOPIC_ID
                 and isinstance(self._bbcode, str)
                 and isinstance(self.title, str)
                 and isinstance(self.relPath, str)
@@ -87,7 +87,7 @@ class Node:
 
     @property
     def html(self):
-        from adfd.site.wsgi import NAV
+        from adfd.web.wsgi import NAV
 
         return NAV.replace_links(self._rawHtml)
 
@@ -192,7 +192,7 @@ class Node:
             except ValueError:
                 pass
 
-            if any(e in tag for e in SITE.IGNORED_TAG_ELEMENTS):
+            if any(e in tag for e in ADFD.IGNORED_TAG_ELEMENTS):
                 continue
 
             unknownTags.append(tag)
@@ -346,7 +346,7 @@ class DbArticleContainer(ArticleContainer):
 
     @cached_property
     def sourceLink(self):
-        return f"{SITE.FORUM_VIEWTOPIC_URL}?t={self.identifier}"
+        return f"{ADFD.FORUM_VIEWTOPIC_URL}?t={self.identifier}"
 
     @cached_property
     def title(self):
@@ -407,12 +407,12 @@ class DbArticleContainer(ArticleContainer):
 
     @cached_property
     def isForeign(self) -> bool:
-        return self._firstPost.dbp.forum_id != SITE.MAIN_CONTENT_FORUM_ID
+        return self._firstPost.dbp.forum_id != ADFD.MAIN_CONTENT_FORUM_ID
 
     # FIXME isForeign vs isImported only one is needed
     @cached_property
     def isImported(self) -> bool:
-        return self._firstPost.dbp.forum_id == SITE.MAIN_CONTENT_FORUM_ID
+        return self._firstPost.dbp.forum_id == ADFD.MAIN_CONTENT_FORUM_ID
 
     def _attrs_for_md_cache(self):
         d = {}
@@ -514,7 +514,7 @@ class FilesysArticleContainer(CachedArticleContainer):
 
     @cached_property
     def sourceLink(self):
-        return f"{SITE.REPO_URL}/{NAME.ARTICLES}/{self.identifier}/"
+        return f"{ADFD.REPO_URL}/{NAME.ARTICLES}/{self.identifier}/"
 
 
 class FilesysPost(DbPost):

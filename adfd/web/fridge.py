@@ -10,7 +10,7 @@ from adfd import configure_logging
 from adfd.cnf import PATH, INFO, TARGET, EXT, NAME
 from adfd.db.schema import PhpbbAttachment
 from adfd.model import DbArticleContainer
-from adfd.site.wsgi import NAV, app
+from adfd.web.wsgi import NAV, app
 
 log = logging.getLogger(__name__)
 
@@ -53,6 +53,7 @@ class Fridge:
 
     @classmethod
     def deliver_static_root_files(cls):
+        """All files in root of site repo are considered static site files."""
         for path in [p for p in PATH.SITE_REPO.list() if p.is_file()]:
             path.copy(PATH.FROZEN)
 

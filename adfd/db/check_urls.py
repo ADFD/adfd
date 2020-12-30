@@ -17,7 +17,7 @@ import async_timeout
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 
-from adfd.site.navigation import Navigator, UrlInformer
+from adfd.web.navigation import Navigator, UrlInformer
 
 log = logging.getLogger(__name__)
 

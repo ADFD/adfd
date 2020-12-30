@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from adfd.cnf import DB, SITE
+from adfd.cnf import DB, ADFD
 from adfd.db.schema import PhpbbForum, PhpbbPost, PhpbbTopic, PhpbbUser, PhpbbAttachment
 from adfd.exc import PostDoesNotExist, TopicDoesNotExist
 from adfd.metadata import PageMetadata
@@ -84,11 +84,11 @@ class DbPost:
             topic = DB_WRAPPER.get_topic(topicId)
             if not topic:
                 log.error(f"{topicId} not found, use placeholder ...")
-                topicId = SITE.PLACEHOLDER_TOPIC_ID
+                topicId = ADFD.PLACEHOLDER_TOPIC_ID
                 topic = DB_WRAPPER.get_topic(topicId)
             # FIXME activate, when transition is done
-            # if topic.forum_id != SITE.MAIN_CONTENT_FORUM_ID:
-            #     if topic.forum_id not in SITE.ALLOWED_FORUM_IDS:
+            # if topic.forum_id != ADFD.MAIN_CONTENT_FORUM_ID:
+            #     if topic.forum_id not in ADFD.ALLOWED_FORUM_IDS:
             #         raise TopicNotAccessible(f"{topicId} in {topic.forum_id}")
 
             ids = DB_WRAPPER.get_post_ids(topicId)

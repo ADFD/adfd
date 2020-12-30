@@ -4,19 +4,17 @@ import socket
 import plumbum
 import yaml
 
-_PROJECT_PATH = plumbum.LocalPath(__file__).dirname.up()
-_PACKAGE_PATH = _PROJECT_PATH / "adfd"
-_CONFIG_PATH = _PROJECT_PATH / "cnf.yml"
-_HOSTNAME = socket.gethostname()
+_HERE = plumbum.LocalPath(__file__).dirname
+_PROJECT_PATH = _HERE.up()
 
 
 class INFO:
     IS_CI = "CI" in os.environ
-    IS_DEV_BOX = "mj13" not in _HOSTNAME
+    IS_DEV_BOX = "mj13" not in socket.gethostname()
 
 
+_CONFIG_PATH = _PROJECT_PATH / "cnf.yml"
 if not _CONFIG_PATH.exists():
-    assert INFO.IS_CI or INFO.IS_DEV_BOX, _HOSTNAME
 
     class _CNF:
         def __getitem__(self, item):
@@ -27,7 +25,7 @@ if not _CONFIG_PATH.exists():
 
     _CNF = _CNF()
 else:
-    _CNF = yaml.safe_load(open(_CONFIG_PATH))
+    _CNF = yaml.safe_load(_CONFIG_PATH.read())
 
 
 class NAME:
@@ -37,7 +35,7 @@ class NAME:
     DB_CACHE = "db-cache"
     FROZEN = "frozen"
     IMG = "img"
-    SITE = "site"
+    WEB = "web"
     STATIC = "_static"
 
 
@@ -52,37 +50,36 @@ class TARGET:
     TOOL_PATH = HOME / "adfd"
     PREFIX_STR = "privat/neu"
     WWW = HOME / "www"
-    CHECKOUT_PATH = WWW / PREFIX_STR
+    CHECKOUT_PATH = WWW / PREFIX_STR  # FIXME html is now at PATH.FROZEN
+    VENV_PIP_PATH = "/home/.pyenv/versions/adfd/bin/pip"
 
 
 class PATH:
     PROJECT = _PROJECT_PATH
-    SITE = _PACKAGE_PATH / NAME.SITE
-    VIEW_VANILLA = SITE / "view-vanilla"
-    VIEW_SEMANTIC = SITE / "view-semantic"
-    VIEW_TAILWIND = SITE / "view-tailwind"
-    _DEV_BOX_RENDERED = _PROJECT_PATH.up() / NAME.SITE
-    SITE_REPO = _DEV_BOX_RENDERED if INFO.IS_DEV_BOX else TARGET.CHECKOUT_PATH
+    WEB = _HERE / NAME.WEB
+    VIEW_VANILLA = WEB / "view-vanilla"
+    VIEW_SEMANTIC = WEB / "view-semantic"
+    VIEW_TAILWIND = WEB / "view-tailwind"
+    SITE_REPO = PROJECT.up() / "site"
     ARTICLES = SITE_REPO / NAME.ARTICLES
     DB_CACHE = SITE_REPO / NAME.DB_CACHE
     IMG = SITE_REPO / NAME.IMG
     FROZEN = SITE_REPO / NAME.FROZEN
     STATIC_FILES = SITE_REPO / "_static"
     RENDERED_ATTACHMENTS = STATIC_FILES / NAME.ATTACHMENTS
-    VENV_PIP = "/home/.pyenv/versions/adfd/bin/pip"
 
 
 class APP:
     MY_CSS_FILE_NAME = "adfd.css"
 
 
-class SITE:
+class ADFD:
     MAIN_CONTENT_FORUM_ID = 54
     ALLOWED_FORUM_IDS = [4, 6, 15, 16, 19, 32, 50, 57, 53, 56, 43]
-    STRUCTURE_TOPIC_ID = _CNF["structureTopicId"]
+    STRUCTURE_TOPIC_ID = 12109
     PLACEHOLDER_TOPIC_ID = 12265
     IGNORED_CONTENT_TOPICS = [PLACEHOLDER_TOPIC_ID, STRUCTURE_TOPIC_ID]
-    STRUCTURE_PATH = PATH.SITE / (_CNF["structurePath"] or "structure.yml")
+    STRUCTURE_PATH = PATH.WEB / "structure.yml"
     USE_FILE = _CNF["useFile"]
     APP_PORT = 5000
     FROZEN_PORT = APP_PORT + 1

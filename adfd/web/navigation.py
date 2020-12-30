@@ -8,7 +8,7 @@ from boltons.iterutils import remap
 from bs4 import BeautifulSoup
 
 from adfd import configure_logging
-from adfd.cnf import SITE
+from adfd.cnf import ADFD
 from adfd.db.lib import DB_WRAPPER
 from adfd.model import ArticleNode, CategoryNode, DbArticleContainer, Node
 from adfd.process import extract_from_bbcode, date_from_timestamp
@@ -129,10 +129,10 @@ class Navigator:
 
     def _populate_orphan_nodes(self):
         log.debug("populating orphan nodes")
-        for topic_id in DB_WRAPPER.get_topic_ids(SITE.MAIN_CONTENT_FORUM_ID):
+        for topic_id in DB_WRAPPER.get_topic_ids(ADFD.MAIN_CONTENT_FORUM_ID):
             if (
                 topic_id not in self.identifierNodeMap
-                and topic_id not in SITE.IGNORED_CONTENT_TOPICS
+                and topic_id not in ADFD.IGNORED_CONTENT_TOPICS
             ):
                 node = ArticleNode(topic_id, isOrphan=True)
                 log.info(f"{node.relPath} ({node.identifier})")
@@ -168,11 +168,11 @@ class Navigator:
 
     @staticmethod
     def load_structure():
-        if SITE.USE_FILE:
-            structure = SITE.STRUCTURE_PATH.read()
+        if ADFD.USE_FILE:
+            structure = ADFD.STRUCTURE_PATH.read()
         else:
-            content = DbArticleContainer(SITE.STRUCTURE_TOPIC_ID)
-            structure = extract_from_bbcode(SITE.CODE_TAG, content._bbcode)
+            content = DbArticleContainer(ADFD.STRUCTURE_TOPIC_ID)
+            structure = extract_from_bbcode(ADFD.CODE_TAG, content._bbcode)
         return yaml.load(structure)
 
     def replace_links(self, html):

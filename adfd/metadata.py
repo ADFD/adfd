@@ -17,7 +17,7 @@ Minimal BBCode replacement:
 """
 import logging
 
-from adfd.cnf import SITE
+from adfd.cnf import ADFD
 from adfd.process import extract_from_bbcode
 
 log = logging.getLogger(__name__)
@@ -118,7 +118,7 @@ class PageMetadata:
         if not text:
             return
 
-        raw_md = extract_from_bbcode(SITE.META_TAG, text)
+        raw_md = extract_from_bbcode(ADFD.META_TAG, text)
         if not raw_md:
             return
 

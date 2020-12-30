@@ -15,11 +15,11 @@ All information necessary for building the web site is contained in form of edit
 
 ## Defining the site structure
 
-The structure of the web site is defined in [this file](adfd/site/structure.yml) for development/testing and later [here (members only)](http://adfd.org/austausch/viewtopic.php?f=54&t=12109) for production.
+The structure of the web site is defined in [this file](adfd/web/structure.yml) for development/testing and later [here (members only)](http://adfd.org/austausch/viewtopic.php?f=54&t=12109) for production.
 
 Every article should be referenced exactly once (**Development Note:** not necessary for development, but that should be the end result).
 
-The page structure is a sorted hierarchical tree of categories and articles (see [model.py](adfd/model.py)). The [navigation](adfd/site/navigation.py). Categories **can but not must** have their own start page that can be visited (results in clickable link in menu and breadcrumbs). Here is an example of YAML used to define a simple site structure:
+The page structure is a sorted hierarchical tree of categories and articles (see [model.py](adfd/model.py)). The [navigation](adfd/web/navigation.py). Categories **can but not must** have their own start page that can be visited (results in clickable link in menu and breadcrumbs). Here is an example of YAML used to define a simple site structure:
 
     Home | 3:
       - Main Category 1 | 13:
@@ -55,34 +55,12 @@ With this mechanism completely arbitrary data can be set, but what is actually u
 
 ## Development
 
-### Installation for development
+All dev/test/build/deploy activities are automated via tox and/or the adfd cli.
 
-#### Semantic UI
-
-e.g. on arch with aurman as AUR helper:
-
-    aurman -S nodejs npm
-    npm install -g gulp
-    cd adfd/site
-    npm install semantic-ui --save
-
-#### Generator
-
-```
-pip install -e .
-```
-
-### Development
-
-in one terminal: `adfd gulp` (watches semantic changes and rebuilds).
-
-in another terminal `adfd` (dev server restarting on app changes).
-
-one shot build:
-
-    cd afd/site/semantic
-    gulp build   # builds semantic
-    adfd freeze  # updates static site in ../static
+    $ tox -av  # check what tox can do for you
+    $ tox -e dev
+    $ source .tox/dev/bin/activate
+    $ adfd --help  # check what the adfd cli can do for you
 
 # Acknowledgements
 

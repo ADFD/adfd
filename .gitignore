@@ -3,4 +3,4 @@
 cnf.yml
 package-lock.json
 adfd.egg-info/
-adfd/site/node_modules/
+adfd/web/node_modules/

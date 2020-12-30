@@ -6,13 +6,13 @@ from socketserver import TCPServer
 from plumbum import ProcessExecutionError, SshMachine, cli, local
 
 from adfd import configure_logging
-from adfd.cnf import PATH, SITE, TARGET
+from adfd.cnf import PATH, ADFD, TARGET
 from adfd.db.check_urls import check_site_urls
 from adfd.db.lib import DB_WRAPPER
 from adfd.db.sync import DbSynchronizer
-from adfd.site import fridge
-from adfd.site.fridge import dump_db_articles_to_file_cache
-from adfd.site.wsgi import run_flask_server
+from adfd.web import fridge
+from adfd.web.fridge import dump_db_articles_to_file_cache
+from adfd.web.wsgi import run_flask_server
 
 log = logging.getLogger(__name__)
 
@@ -74,9 +74,9 @@ class AdfdServeFrozen(cli.Application):
     """Serve frozen web page locally"""
 
     def main(self):
-        log.info(f"{PATH.FROZEN} -> http://localhost:{SITE.FROZEN_PORT}")
+        log.info(f"{PATH.FROZEN} -> http://localhost:{ADFD.FROZEN_PORT}")
         with local.cwd(PATH.FROZEN):
-            httpd = TCPServer(("", SITE.FROZEN_PORT), SimpleHTTPRequestHandler)
+            httpd = TCPServer(("", ADFD.FROZEN_PORT), SimpleHTTPRequestHandler)
             try:
                 httpd.serve_forever()
             finally:
@@ -89,7 +89,7 @@ class AdfdInfo(cli.Application):
         msg = ""
         allowedForums = [
             "{} ({})".format(DB_WRAPPER.get_forum(fId).forum_name, fId)
-            for fId in SITE.ALLOWED_FORUM_IDS
+            for fId in ADFD.ALLOWED_FORUM_IDS
         ]
         msg += "allowed Forums:\n    %s" % ("\n    ".join(allowedForums))
         print(msg)
@@ -145,7 +145,7 @@ class AdfdDeployCode(cli.Application):
         remote = SshMachine(TARGET.DOMAIN)
         with remote.cwd(TARGET.TOOL_PATH):
             print(remote["git"]("pull"))
-            print(remote[PATH.VENV_PIP]("install", "-U", "-e", "."))
+            print(remote[TARGET.VENV_PIP_PATH]("install", "-U", "-e", "."))
 
 
 @Adfd.subcommand("xtra-push-content")

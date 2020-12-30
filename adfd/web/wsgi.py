@@ -4,9 +4,9 @@ import flask
 from flask import send_from_directory
 from plumbum.machines import local
 
-from adfd.cnf import INFO, NAME, PATH, SITE
+from adfd.cnf import INFO, NAME, PATH, ADFD
 from adfd.model import ArticleContainer
-from adfd.site.navigation import Navigator
+from adfd.web.navigation import Navigator
 
 app = flask.Flask(
     __name__, template_folder=PATH.VIEW_VANILLA, static_folder=PATH.STATIC_FILES
@@ -68,7 +68,7 @@ def add_dev_routes():
 
     @app.route("/dump-db-cache/")
     def dump_db_cache_route():
-        from adfd.site.fridge import dump_db_articles_to_file_cache
+        from adfd.web.fridge import dump_db_articles_to_file_cache
 
         dump_db_articles_to_file_cache()
         return flask.redirect(flask.url_for(".path_route", path="/"))
@@ -104,9 +104,9 @@ def run_flask_server():
     if INFO.IS_DEV_BOX:
         os.environ["WERKZEUG_DEBUG_PIN"] = "off"
     host = "localhost"
-    app.logger.info(f"serving on http://{host}:{SITE.APP_PORT}")
+    app.logger.info(f"serving on http://{host}:{ADFD.APP_PORT}")
     with local.cwd(PATH.PROJECT):
-        app.run(host=host, port=SITE.APP_PORT, debug=True)
+        app.run(host=host, port=ADFD.APP_PORT, debug=True)
 
 
 def replace_render_template():
