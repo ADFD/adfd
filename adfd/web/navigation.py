@@ -173,7 +173,7 @@ class Navigator:
         else:
             content = DbArticleContainer(ADFD.STRUCTURE_TOPIC_ID)
             structure = extract_from_bbcode(ADFD.CODE_TAG, content._bbcode)
-        return yaml.load(structure)
+        return yaml.safe_load(structure)
 
     def replace_links(self, html):
         soup = BeautifulSoup(html, "html5lib")
