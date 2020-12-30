@@ -1,10 +1,6 @@
 import re
 from functools import total_ordering
 
-from bs4 import BeautifulSoup
-
-from adfd.model import ArticleNode
-
 
 @total_ordering
 class HeaderTag:
@@ -67,8 +63,7 @@ class InPageNav:
                 print(tag.name)
                 self.attach(HeaderTag(tag))
 
-    def attach(self, ht):
-        """:type ht: HeaderTag"""
+    def attach(self, ht: HeaderTag):
         if not self.topHeaders:
             self.topHeaders.append(ht)
             self.currentHeader = ht
@@ -95,10 +90,3 @@ class InPageNav:
                     self.topHeaders.append(ht)
             else:
                 raise Exception("%s %s", self.currentHeader, ht)
-
-
-if __name__ == "__main__":
-    n = ArticleNode("Bbcode structure | articles/structure.bbcode")
-    ipn = InPageNav(BeautifulSoup(n.html, "html5lib"))
-    ipn.create_in_page_nav()
-    print(ipn)
