@@ -5,14 +5,14 @@
                 <a href="{{ url_for("path_route", path=node.relPath) }}">
                     {{ node.title }}
                 </a>
+                {% if node.sourceLink -%}
+                    <span>
+                        <a href="{{ node.sourceLink }}">
+                            {{ node.identifier }}
+                        </a>
+                    </span>
+                {% endif -%}
             </div>
-            {% if node.sourceLink -%}
-                <div>
-                    <a href="{{ node.sourceLink }}">
-                        {{ node.identifier }}
-                    </a>
-                </div>
-            {% endif -%}
         </div>
     {% endfor -%}
 </div>

@@ -29,7 +29,7 @@
             {% else %}
                 <h1>{{ node.title }}</h1>
             {% endif -%}
-            {% if node.isCategory and not node.isHome %}
+            {% if node.isCategory and not node.isRoot %}
                 {% with nodes=node.children -%}
                     {% include "articles-list.html" -%}
                 {% endwith -%}
