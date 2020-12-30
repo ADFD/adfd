@@ -1,5 +1,7 @@
 language: python
 cache: pip
+env:
+  - CI=1
 python:
   - "3.8"
 install:
