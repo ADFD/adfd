@@ -23,24 +23,22 @@ log = logging.getLogger(__name__)
 @total_ordering
 class Node:
     SPEC = "N"
-    BROKEN_TEXT = "<h1>Konnte nicht geparsed werden</h1>"
-    BROKEN_METADATA_TEXT = "[mod=Redakteur]Metadaten fehlerhaft[/mod]\n"
-    UNKNOWN_METADATA_PATT = "[mod=Redakteur]unbekannte Metadaten: %s[/mod]\n"
+    _BROKEN_TEXT = "<h1>Konnte nicht geparsed werden</h1>"
+    _BROKEN_METADATA_TEXT = "[mod=Redakteur]Metadaten fehlerhaft[/mod]\n"
+    _UNKNOWN_METADATA_PATT = "[mod=Redakteur]unbekannte Metadaten: %s[/mod]\n"
 
     def __init__(self, identifier, title=None, isOrphan=False):
         self.identifier = identifier
         self._title = title
-        self.parents = []
-        """:type: list of Node"""
-        self.children = []
-        """:type: list of Node"""
+        self.parents: List[Node] = []
+        self.children: List[Node] = []
         self.isActive = False
         self.isOrphan = isOrphan
         self.requestPath = None
         self.bbcode_is_active = False
 
     def __repr__(self):
-        return "<{}({}: {})>".format(self.SPEC, self.identifier, self.title[:6])
+        return f"<{self.SPEC}({self.identifier}: {self.title[:6]})>"
 
     def __gt__(self, other):
         return self.relPath > other.relPath
@@ -59,18 +57,19 @@ class Node:
             return False
 
     @cached_property
-    def isHome(self):
-        return not self.parents
+    def slug(self) -> str:
+        return "" if self.isRoot else slugify(self.title)
 
     @cached_property
-    def slug(self):
-        """:rtype: str"""
-        isRoot = self.isCategory and self._title == ""
-        return "" if isRoot else slugify(self.title)
+    def isRoot(self):
+        return self.isCategory and self._title == ""
 
     @cached_property
     def relPath(self):
-        return "/".join([c.slug for c in self.parents + [self]]) or "/"
+        if self.isRoot:
+            return "/"
+
+        return "/".join([c.slug for c in self.parents + [self]])
 
     @cached_property
     def title(self):
@@ -97,10 +96,7 @@ class Node:
         try:
             return self._parser.to_html(self._bbcode)
         except Exception:
-            return "{}<div><pre>{}</pre></div>".format(
-                self.BROKEN_TEXT,
-                traceback.format_exc(),
-            )
+            return f"{self._BROKEN_TEXT}<div><pre>{traceback.format_exc()}</pre></div>"
 
     @cached_property
     def creationDate(self):
@@ -181,7 +177,7 @@ class Node:
 
     @cached_property
     def bbcodeIsBroken(self):
-        return not self.isCategory and self.BROKEN_TEXT in self._rawHtml
+        return not self.isCategory and self._BROKEN_TEXT in self._rawHtml
 
     @cached_property
     def unknownTags(self):
@@ -209,10 +205,10 @@ class Node:
             return ""
         content = self._container._content
         if self._container.md._isBroken:
-            content = self.BROKEN_METADATA_TEXT + content
+            content = self._BROKEN_METADATA_TEXT + content
         if self.unknownMetadata:
             content = (
-                self.UNKNOWN_METADATA_PATT % ", ".join(self.unknownMetadata) + content
+                self._UNKNOWN_METADATA_PATT % ", ".join(self.unknownMetadata) + content
             )
         return content
 
