@@ -6,17 +6,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='adfd.css') }}"/>
     <title>ADFD {% if node -%} - {{ node.title }}{% endif -%}</title>
 </head>
-<body>
+<body class="p-4">
+{#<body class="bg-green-300 sm:bg-blue-300 md:bg-red-300 lg:bg-yellow-300 xl:bg-pink-300">#}
 
 {% with node=node -%}
     {% include "__header__.html" -%}
 {% endwith -%}
 
-<hr>
-
 {% block content -%}{% endblock content -%}
-
-<hr>
 
 {% with node=node -%}
     {% include "__footer__.html" -%}

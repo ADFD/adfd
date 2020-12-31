@@ -1,4 +1,4 @@
-{% if node.relPath != "/" -%}
+{% if not node.isRoot -%}
 <h1>{{ node.title }}</h1>
 
 <div>

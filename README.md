@@ -6,7 +6,7 @@
 
 # Build a static web page from a collection of posts in a phpBB board
 
-Takes a site description (YAML) from a special topic in the board (or a file), fetches topics and meta data from the phpBB database, transforms them to HTML and generates a web site (either dynamic with [Flask](http://flask.pocoo.org/) for development or static for production with [Frozen-Flask](http://pythonhosted.org/Frozen-Flask/)). Uses [Semantic-UI](http://semantic-ui.com).
+Takes a site description (YAML) from a special topic in the board (or a file), fetches topics and meta data from the phpBB database, transforms them to HTML and generates a web site (either dynamic with [Flask](http://flask.pocoo.org/) for development or static for production with [Frozen-Flask](http://pythonhosted.org/Frozen-Flask/)).
 
 ##  How it works
 
@@ -61,6 +61,13 @@ All dev/test/build/deploy activities are automated via tox and/or the adfd cli.
     $ tox -e dev
     $ source .tox/dev/bin/activate
     $ adfd --help  # check what the adfd cli can do for you
+
+I am experimenting with different web frameworks, current one is tailwindcss, so not really integrated in the build yet:
+
+    $ cd adfd/adfd/tailwind
+    $ npm run build  # build full css
+    $ NODE_ENV=production npm run build  # build minified css
+    $ npm run watch  # build on changes
 
 # Acknowledgements
 
