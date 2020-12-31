@@ -1,6 +1,4 @@
-*.bbcode.html
-*.log
 cnf.yml
-package-lock.json
-adfd.egg-info/
-adfd/web/node_modules/
+*.egg-info/
+adfd/tailwind/node_modules
+adfd/tailwind/package-lock.json
