@@ -1,5 +1,6 @@
+<hr class="mt-4 border-blue-800">
 <div>
-    <div>
+    <div class="mt-4">
         {% if not IS_FREEZING -%}
             {% if node -%}
                 {% if node.sourceLink -%}
@@ -22,6 +23,6 @@
         {% endif -%}
     </div>
     {% if not IS_FREEZING -%}
-        <div>Letztes Update: {{ NAV.last_update }}</div>
+        <div class="mt-4">{{ NAV.last_update }}</div>
     {% endif -%}
 </div>

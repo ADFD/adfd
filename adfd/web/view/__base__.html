@@ -1,23 +1,25 @@
 <!doctype html>
 <html lang="de">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='adfd.css') }}"/>
-    <title>ADFD {% if node -%} - {{ node.title }}{% endif -%}</title>
-</head>
-<body class="p-4">
-{#<body class="bg-green-300 sm:bg-blue-300 md:bg-red-300 lg:bg-yellow-300 xl:bg-pink-300">#}
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='adfd.css') }}"/>
+        <title>ADFD {% if node -%} - {{ node.title }}{% endif -%}</title>
+    </head>
+    <body class="sm:p-8 bg-gradient-to-t from-blue-600 to-blue-50">
+    {#<body class="bg-green-300 sm:bg-blue-300 md:bg-red-300 lg:bg-yellow-300 xl:bg-pink-300">#}
 
-{% with node=node -%}
-    {% include "__header__.html" -%}
-{% endwith -%}
+        <div id="outermost-container" class="bg-gray-100 container mx-auto max-w-4xl">
+            {% with node=node -%}
+                {% include "__header__.html" -%}
+            {% endwith -%}
 
-{% block content -%}{% endblock content -%}
+            {% block content -%}{% endblock content -%}
 
-{% with node=node -%}
-    {% include "__footer__.html" -%}
-{% endwith -%}
+            {% with node=node -%}
+                {% include "__footer__.html" -%}
+            {% endwith -%}
+        </div>
 
-</body>
+    </body>
 </html>
