@@ -392,7 +392,7 @@ class FilesysPost(DbPost):
     @property
     def md(self) -> PageMetadata:
         post_md = json.loads(self.path.with_suffix(EXT.MD).read())
-        return PageMetadata(kwargs=post_md)
+        return PageMetadata(mapping=post_md)
 
 
 class NoContentContainer:

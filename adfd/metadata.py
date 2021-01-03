@@ -41,7 +41,7 @@ class PageMetadata:
     KEYS_FROM_DB_CACHE = ["postTime", "author", "subject", "isVisible"]
     KEYS = KEYS_FIRST_POST_ONLY + KEYS_ALL_POSTS + KEYS_FROM_DB_CACHE
 
-    def __init__(self, kwargs=None, text=None):
+    def __init__(self, mapping=None, text=None):
         """WARNING: all public attributes are written as meta data"""
         self.allAuthors = ""
         self.isExcluded = False
@@ -57,8 +57,8 @@ class PageMetadata:
         self.isVisible = True
         self.author = ""
         self.subject = ""
-        assert kwargs or text
-        self._populate_from_kwargs(kwargs)
+        assert mapping or text
+        self._populate_from_kwargs(mapping)
         self._populate_from_text(text)
 
     def __repr__(self):
