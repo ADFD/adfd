@@ -1,9 +1,8 @@
-import codecs
 import re
 import time
 from datetime import datetime
 
-from pyphen import Pyphen
+from boltons import strutils
 
 
 class RE:
@@ -30,6 +29,8 @@ class RE:
 
 # TODO needed?
 def hyphenate(text, hyphen="&shy;"):
+    from pyphen import Pyphen  # FIXME move out if ever really used
+
     py = Pyphen(lang="de_de")
     words = text.split(" ")
     return " ".join([py.inserted(word, hyphen=hyphen) for word in words])
@@ -48,25 +49,5 @@ def date_from_timestamp(timestamp=None) -> str:
     return datetime.fromtimestamp(timestamp).strftime("%d.%m.%Y (%H:%M Uhr)")
 
 
-class _Slugifier:
-    """Turn sentences into slugs to be used in names and URLs"""
-
-    SEP = "-"
-
-    def __init__(self):
-        # register new codec for slugification
-        # noinspection PyUnresolvedReferences
-        import translitcodec  # noqa
-
-        self.splitter = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.:]+')
-
-    def __call__(self, text):
-        words = []
-        for word in self.splitter.split(text.lower()):
-            word = codecs.encode(word, "translit/long")
-            if word:
-                words.append(word)
-        return self.SEP.join(words)
-
-
-slugify = _Slugifier()
+def slugify(text: str) -> str:
+    return strutils.slugify(text, delim="-", lower=True, ascii=True).decode()

@@ -95,7 +95,7 @@ class AdfdInfo(cli.Application):
         print(msg)
 
 
-@Adfd.subcommand("check-links")
+@Adfd.subcommand("check-urls")
 class AdfdCheckLinks(cli.Application):
     """Check if all links from website are healthy"""
 

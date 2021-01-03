@@ -172,7 +172,6 @@ QUOTES = [
 ]
 
 
-@pytest.mark.usefixtures("adfd_not_strict")
 class TestAdfdParser:
     parser = ADFD_PARSER
 
