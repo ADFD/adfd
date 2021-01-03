@@ -19,7 +19,7 @@ The structure of the web site is defined in [this file](adfd/web/structure.yml) 
 
 Every article should be referenced exactly once (**Development Note:** not necessary for development, but that should be the end result).
 
-The page structure is a sorted hierarchical tree of categories and articles (see [model.py](adfd/model.py)). The [navigation](adfd/web/navigation.py). Categories **can but not must** have their own start page that can be visited (results in clickable link in menu and breadcrumbs). Here is an example of YAML used to define a simple site structure:
+The page structure is a sorted hierarchical tree of categories and articles (see [model.py](adfd/model.py)). The [navigation](adfd/navigation.py). Categories **can but not must** have their own start page that can be visited (results in clickable link in menu and breadcrumbs). Here is an example of YAML used to define a simple site structure:
 
     Home | 3:
       - Main Category 1 | 13:

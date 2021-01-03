@@ -6,7 +6,8 @@ from plumbum.machines import local
 
 from adfd.cnf import RUNS_ON, NAME, PATH, ADFD
 from adfd.model import ArticleContainer
-from adfd.web.navigation import Navigator
+from adfd.navigation import Navigator
+from adfd.scripts.check_readiness import ReadinessChecker
 
 app = flask.Flask(__name__, template_folder=PATH.VIEW, static_folder=PATH.STATIC_FILES)
 app.config["SESSION_TYPE"] = "filesystem"
@@ -62,7 +63,9 @@ def favicon():
 def add_dev_routes():
     @app.route("/check/")
     def check_route():
-        return flask.render_template("check.html", NAV=NAV)
+        rc = ReadinessChecker(Navigator())
+        rc.check_readiness()
+        return flask.render_template("check.html", report=rc.report)
 
     @app.route("/dump-db-cache/")
     def dump_db_cache_route():
@@ -73,7 +76,7 @@ def add_dev_routes():
 
     @app.route("/all-articles/")
     def articles_all_route():
-        nodes = [n for n in NAV.allNodes if isinstance(n._container, ArticleContainer)]
+        nodes = [n for n in NAV.allNodes if isinstance(n.contcon, ArticleContainer)]
         return flask.render_template("article-collection-container.html", nodes=nodes)
 
     @app.route("/bbcode/article/<topicId>/")

@@ -2,8 +2,8 @@ import pytest
 from bs4 import BeautifulSoup
 
 from adfd.model import Node
-from adfd.web.navigation import Navigator
-from adfd.web.navigation_in_page import InPageNav
+from adfd.navigation import Navigator
+from adfd.web.article_navigation import InPageNav
 
 
 @pytest.fixture(name="nav", scope="session")
