@@ -5,6 +5,8 @@ from datetime import datetime
 from boltons import strutils
 
 
+# TODO consider using
+#  https://boltons.readthedocs.io/en/latest/urlutils.html#related-functions
 class RE:
     URL = re.compile(
         r"(?im)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)"
@@ -27,8 +29,17 @@ class RE:
     """
 
 
-# TODO needed?
-def hyphenate(text, hyphen="&shy;"):
+# TODO decide if and how to use
+def hyphenate(text, hyphen="&#173;"):
+    """As of 2020 chromium still does not support hyphens: auto :(
+
+    &shy; seems more problematic than the unicode character
+
+    see https://stackoverflow.com/questions/226464/soft-hyphen-in-html-wbr-vs-shy
+
+    Question is also how to use this to not mutilate things that should not be
+    hyphenated - maybe just grep all paragraphs and only hyphenate them?
+    """
     from pyphen import Pyphen  # FIXME move out if ever really used
 
     py = Pyphen(lang="de_de")
