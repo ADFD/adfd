@@ -3,7 +3,7 @@ import logging
 import pytest
 
 from adfd.cnf import PATH
-from adfd.parse import AdfdParser
+from adfd.parse import ADFD_PARSER
 from adfd.process import ContentGrabber
 
 log = logging.getLogger(__name__)
@@ -46,40 +46,34 @@ class DataGrabber(ContentGrabber):
         return contents
 
 
-class PairTester:
-    _parser = AdfdParser()
-
-    @classmethod
-    def test_pairs(cls, fName, src, exp):
-        exp = exp.strip()
-        if not exp:
-            pytest.xfail(reason="no expectation for %s" % fName)
-        log.info("file under test is %s", fName)
-        html = cls._parser.to_html(src)
-        print("\n## RESULT ##")
-        print(html)
-        print("\n## EXPECTED ##")
-        print(exp)
-        refPath = DataGrabber.DATA_PATH / ("%s.html" % (fName[:-7]))
-        try:
-            assert html == exp
-            refPath.delete()
-        except AssertionError:
-            with open(str(refPath), "w") as f:
-                f.write(html)
-            raise
+@pytest.mark.parametrize("fName,src,exp", DataGrabber("transform").get_pairs())
+def test_transform_pairs(fName, src, exp):
+    compare_results(fName, src, exp)
 
 
-class TestFromDataAcceptance:
-    ACCEPTANCE_PAIRS = DataGrabber("acceptance").get_pairs()
-    TRANSFORM_PAIRS = DataGrabber("transform").get_pairs()
+@pytest.mark.parametrize("fName,src,exp", DataGrabber("acceptance").get_pairs())
+def test_acceptance_pairs(fName, src, exp):
+    if fName in ["nested-quotes.bbcode"]:
+        pytest.xfail("nested quotes is tricky and of questionable use")
+    compare_results(fName, src, exp)
 
-    @pytest.mark.parametrize("fName,src,exp", TRANSFORM_PAIRS)
-    def test_transform_pairs(self, fName, src, exp):
-        PairTester.test_pairs(fName, src, exp)
 
-    @pytest.mark.parametrize("fName,src,exp", ACCEPTANCE_PAIRS)
-    def test_acceptance_pairs(self, fName, src, exp):
-        if fName in ["nested-quotes.bbcode"]:
-            pytest.xfail("nested quotes is tricky and of questionable use")
-        PairTester.test_pairs(fName, src, exp)
+def compare_results(fName, src, exp):
+    exp = exp.strip()
+    if not exp:
+        pytest.xfail(reason=f"no expectation for {fName}")
+
+    log.info("file under test is %s", fName)
+    html = ADFD_PARSER.to_html(src)
+    print("\n## RESULT ##")
+    print(html)
+    print("\n## EXPECTED ##")
+    print(exp)
+    refPath = DataGrabber.DATA_PATH / ("%s.html" % (fName[:-7]))
+    try:
+        assert html == exp
+        refPath.delete()
+    except AssertionError:
+        with open(str(refPath), "w") as f:
+            f.write(html)
+        raise

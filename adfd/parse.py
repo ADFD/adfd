@@ -3,6 +3,7 @@ import itertools
 import logging
 import re
 from collections import OrderedDict
+from typing import Set, List
 
 from adfd.cnf import NAME
 from adfd.process import RE, slugify
@@ -103,7 +104,6 @@ class Parser:
         self.newline = newline
         self.normalizeNewlines = normalizeNewlines
         self.recognizedTags = {}
-        self.unknownTags = set()
         self.dropUnrecognized = dropUnrecognized
         self.escapeHtml = escapeHtml
         self.replaceCosmetic = replaceCosmetic
@@ -293,15 +293,15 @@ class Parser:
                 return i + len(self.tagCloser), True
         return len(data), False
 
-    def tokenize(self, data):
+    def tokenize(self, data, get_unknowns=False):
         """Create list of tokens from original data
         :returns: list of Token
         """
         if self.normalizeNewlines:
             data = data.replace("\r\n", "\n").replace("\r", "\n")
         pos = 0
-        tokens = []
-        """:type: list of Token"""
+        tokens: List[Token] = []
+        unknown_tags: Set[str] = set()
         while pos < len(data):
             start = data.find(self.tagOpener, pos)
             if start >= pos:
@@ -328,7 +328,7 @@ class Parser:
                     elif valid and tagName not in self.recognizedTags:
                         # If we found a valid (but unrecognized) tag and
                         # self.dropUnrecognized is True, just drop it
-                        self.unknownTags.add(tagName)
+                        unknown_tags.add(tagName)
                         if not self.dropUnrecognized:
                             tokens.extend(self._newline_tokenize(tag))
                 else:
@@ -340,8 +340,9 @@ class Parser:
                 break
         if pos < len(data):
             tokens.extend(self._newline_tokenize(data[pos:]))
-        if self.unknownTags:
-            log.warning(f"found unknown tags: {self.unknownTags}")
+        if get_unknowns:
+            return unknown_tags
+
         return tokens
 
     def _find_closer(self, tag, tokens, pos):
@@ -975,6 +976,7 @@ class Replacer:
         return data
 
 
+ADFD_PARSER = AdfdParser()
+
 if __name__ == "__main__":
-    ap = AdfdParser()
-    print(ap)
+    print(ADFD_PARSER)

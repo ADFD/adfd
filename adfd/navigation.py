@@ -45,65 +45,13 @@ class Navigator:
         try:
             return self.pathNodeMap[f"/{key}"]
         except Exception as e:
-            msg = f"/{key} -> {type(e)}({e.args})"
-            log.error(msg, exc_info=True)
-            return CategoryNode(msg)
-
-    def get_target_node(self, topicId) -> Node:
-        return self.identifierNodeMap.get(topicId)
-
-    @cached_property
-    def readyForPrimeTime(self):
-        return not len(self.openIssues)
+            return CategoryNode(f"/{key} -> {type(e)}({e.args})")
 
     @cached_property
     def allNodes(self) -> List[Node]:
         if not self.isPopulated:
             self.populate()
         return sorted([n for n in self.pathNodeMap.values()])
-
-    @cached_property
-    def saneNodes(self):
-        return sorted([n for n in self.allNodes if n.isSane])
-
-    @cached_property
-    def dirtyNodes(self):
-        return [n for n in self.saneNodes if n.isDirty]
-
-    @cached_property
-    def foreignNodes(self):
-        return [n for n in self.saneNodes if n.isForeign]
-
-    @cached_property
-    def todoNodes(self):
-        return [n for n in self.saneNodes if n.hasTodos]
-
-    @cached_property
-    def smilieNodes(self):
-        return [n for n in self.saneNodes if n.hasSmilies]
-
-    @cached_property
-    def hasBrokenNodes(self):
-        return len(self.allNodes) != len(self.saneNodes)
-
-    @cached_property
-    def brokenBBCodeNodes(self):
-        return [n for n in self.allNodes if n.bbcodeIsBroken]
-
-    @cached_property
-    def brokenMetadataNodes(self):
-        return [n for n in self.saneNodes if n.hasBrokenMetadata]
-
-    @cached_property
-    def openIssues(self):
-        return (
-            self.dirtyNodes
-            + self.foreignNodes
-            + self.todoNodes
-            + self.smilieNodes
-            + self.brokenBBCodeNodes
-            + self.brokenMetadataNodes
-        )
 
     def visit(self, path, key, value):
         log.debug(f"visit({path!r}, {key!r}, {value!r})")
@@ -173,7 +121,7 @@ class Navigator:
             structure = ADFD.STRUCTURE_PATH.read()
         else:
             content = DbArticleContainer(ADFD.STRUCTURE_TOPIC_ID)
-            structure = extract_from_bbcode(ADFD.CODE_TAG, content._bbcode)
+            structure = extract_from_bbcode(ADFD.CODE_TAG, content.raw_bbcode)
         return yaml.safe_load(structure)
 
     def replace_links(self, html):
@@ -184,7 +132,7 @@ class Navigator:
             if ui.pointsToObsoleteLocation:
                 log.warning("obsolete url: %s", ui.url)
             if ui.pointsToTopic:
-                targetNode = self.get_target_node(ui.topicId)
+                targetNode = self.identifierNodeMap.get(ui.topicId)
                 if not targetNode:
                     continue
                 if targetNode.relPath in self.pathNodeMap:

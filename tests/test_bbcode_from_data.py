@@ -2,7 +2,7 @@ import logging
 
 import pytest
 
-from adfd.parse import AdfdParser
+from adfd.parse import AdfdParser, ADFD_PARSER
 from adfd.process import RE
 
 log = logging.getLogger(__name__)
@@ -172,8 +172,9 @@ QUOTES = [
 ]
 
 
+@pytest.mark.usefixtures("adfd_not_strict")
 class TestAdfdParser:
-    parser = AdfdParser()
+    parser = ADFD_PARSER
 
     @pytest.mark.parametrize(("src", "expected"), KITCHEN_SINK)
     def test_format(self, src, expected):

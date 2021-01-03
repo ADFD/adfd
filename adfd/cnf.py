@@ -81,22 +81,6 @@ class ADFD:
     CODE_TAG = "code"
     REPO_URL = "https://github.com/ADFD/site/tree/master"
     FORUM_VIEWTOPIC_URL = "https://adfd.org/austausch/viewtopic.php"
-    IGNORED_TAG_ELEMENTS = [
-        "inhalt",
-        "seroxat",
-        "ergänzung",
-        "david",
-        "anmerkung",
-        "link",
-        "halbwegs",
-        "ad",
-        "wieder",
-        "11c",
-        ":",
-        ".",
-        "...",
-    ]
-    """FIXME these should all not be in square brackets to start with"""
 
 
 class DB:

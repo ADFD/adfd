@@ -1,7 +1,5 @@
 import json
 import logging
-import re
-import traceback
 from functools import total_ordering, cached_property
 from typing import List, Union, Tuple, Optional
 
@@ -14,7 +12,7 @@ from pygments.styles import get_style_by_name
 from adfd.cnf import NAME, PATH, ADFD, EXT
 from adfd.db.lib import DbPost
 from adfd.metadata import PageMetadata
-from adfd.parse import AdfdParser
+from adfd.parse import ADFD_PARSER
 from adfd.process import date_from_timestamp, slugify
 
 log = logging.getLogger(__name__)
@@ -23,9 +21,6 @@ log = logging.getLogger(__name__)
 @total_ordering
 class Node:
     SPEC = "N"
-    _BROKEN_TEXT = "<h1>Konnte nicht geparsed werden</h1>"
-    _BROKEN_METADATA_TEXT = "[mod=Redakteur]Metadaten fehlerhaft[/mod]\n"
-    _UNKNOWN_METADATA_PATT = "[mod=Redakteur]unbekannte Metadaten: %s[/mod]\n"
 
     def __init__(self, identifier, title=None, isOrphan=False):
         self.identifier = identifier
@@ -47,19 +42,6 @@ class Node:
         return self.relPath > other.relPath
 
     @cached_property
-    def isSane(self):
-        try:
-            return (
-                self.identifier != ADFD.PLACEHOLDER_TOPIC_ID
-                and isinstance(self._bbcode, str)
-                and isinstance(self.title, str)
-                and isinstance(self.relPath, str)
-            )
-        except Exception as e:
-            log.warning(f"{self.identifier} is not sane ({e})")
-            return False
-
-    @cached_property
     def slug(self) -> str:
         return "" if self.isRoot else slugify(self.title)
 
@@ -76,7 +58,7 @@ class Node:
 
     @cached_property
     def title(self):
-        return self._title or self._container.title or "Start"
+        return self._title or self.contcon.title or "Start"
 
     def __html__(self):
         """mark as safe html object and show the right content"""
@@ -96,24 +78,21 @@ class Node:
 
     @property
     def _rawHtml(self):
-        try:
-            return self._parser.to_html(self._bbcode)
-        except Exception:
-            return f"{self._BROKEN_TEXT}<div><pre>{traceback.format_exc()}</pre></div>"
+        return ADFD_PARSER.to_html(self.raw_bbcode)
 
     @cached_property
     def creationDate(self):
-        return self._container.creationDate
+        return self.contcon.creationDate
 
     @cached_property
     def lastUpdate(self):
-        return self._container.lastUpdate
+        return self.contcon.lastUpdate
 
     @cached_property
     def allAuthors(self):
-        md = self._container.md
+        md = self.contcon.md
         aa = [a.strip() for a in md.allAuthors.split(",") if a.strip()]
-        return aa or [self._container.author]
+        return aa or [self.contcon.author]
 
     @cached_property
     def hasOneAuthor(self):
@@ -121,7 +100,7 @@ class Node:
 
     @cached_property
     def sourceLink(self):
-        return self._container.sourceLink
+        return self.contcon.sourceLink
 
     @cached_property
     def isCategory(self):
@@ -129,91 +108,13 @@ class Node:
 
     @cached_property
     def hasArticle(self):
-        return isinstance(self._container, ArticleContainer)
+        return isinstance(self.contcon, ArticleContainer)
 
     @cached_property
-    def isForeign(self):
-        if isinstance(self._container, NoContentContainer):
-            return False
-
-        return self._container.isForeign
-
-    @cached_property
-    def hasTodos(self):
-        if isinstance(self._container, NoContentContainer):
-            return False
-
-        return "[mod=" in self._bbcode
-
-    @cached_property
-    def hasSmilies(self):
-        if isinstance(self._container, NoContentContainer):
-            return False
-
-        return bool(self.smilies)
-
-    @cached_property
-    def hasBrokenMetadata(self):
-        if isinstance(self._container, NoContentContainer):
-            return False
-
-        return self._container.md._isBroken
-
-    @cached_property
-    def unknownMetadata(self):
-        if isinstance(self._container, NoContentContainer):
-            return []
-
-        return self._container.md.invalid_keys
-
-    @cached_property
-    def smilies(self):
-        match = re.search(r"(:[^\s/\[\].@]*?:)", self._bbcode)
-        return match.groups() if match else ()
-
-    @cached_property
-    def isDirty(self):
-        if isinstance(self._container, NoContentContainer):
-            return False
-
-        return len(self.unknownTags) > 0
-
-    @cached_property
-    def bbcodeIsBroken(self):
-        return not self.isCategory and self._BROKEN_TEXT in self._rawHtml
-
-    @cached_property
-    def unknownTags(self):
-        # noinspection PyStatementEffect
-        self._rawHtml  # ensure parsing has happened
-        unknownTags = []
-        for tag in [t for t in self._parser.unknownTags if t.strip()]:
-            try:
-                int(tag)
-                continue
-
-            except ValueError:
-                pass
-
-            if any(e in tag for e in ADFD.IGNORED_TAG_ELEMENTS):
-                continue
-
-            unknownTags.append(tag)
-
-        return unknownTags
-
-    @cached_property
-    def _bbcode(self):
-        if isinstance(self._container, NoContentContainer):
+    def raw_bbcode(self):
+        if isinstance(self.contcon, NoContentContainer):
             return ""
-        content = self._container._content
-        if self._container.md._isBroken:
-            content = self._BROKEN_METADATA_TEXT + content
-        if self.unknownMetadata:
-            content = (
-                self._UNKNOWN_METADATA_PATT % ", ".join(self.unknownMetadata) + content
-            )
-        return content
+        return self.contcon.raw_bbcode
 
     @cached_property
     def _bbcodeAsHtml(self):
@@ -221,11 +122,11 @@ class Node:
         formatter = HtmlFormatter(style=style)
         lexer = get_lexer_by_name("bbcode", stripall=True)
         css = formatter.get_style_defs()
-        txt = highlight(self._bbcode, lexer, HtmlFormatter())
+        txt = highlight(self.raw_bbcode, lexer, HtmlFormatter())
         return f"<style>{css}</style>\n{txt}"
 
     @cached_property
-    def _container(self):
+    def contcon(self):
         if not self.identifier:
             return NoContentContainer(self._title, self.children)
 
@@ -238,10 +139,6 @@ class Node:
             return CachedArticleContainer(db_cache_path)
 
         return DbArticleContainer(self.identifier)
-
-    @cached_property
-    def _parser(self):
-        return AdfdParser()
 
 
 class CategoryNode(Node):
@@ -336,11 +233,7 @@ class DbArticleContainer(ArticleContainer):
         return self._firstPost.md
 
     @cached_property
-    def _bbcode(self):
-        return self._content
-
-    @cached_property
-    def _content(self):
+    def raw_bbcode(self):
         contents = []
         for post in self._posts:
             assert isinstance(post, DbPost)
@@ -371,15 +264,6 @@ class DbArticleContainer(ArticleContainer):
     def _postIds(self) -> List[int]:
         return DbPost.get_post_ids_for_topic(self.identifier)
 
-    @cached_property
-    def isForeign(self) -> bool:
-        return self._firstPost.dbp.forum_id != ADFD.MAIN_CONTENT_FORUM_ID
-
-    # FIXME isForeign vs isImported only one is needed
-    @cached_property
-    def isImported(self) -> bool:
-        return self._firstPost.dbp.forum_id == ADFD.MAIN_CONTENT_FORUM_ID
-
     def _attrs_for_md_cache(self):
         d = {}
         for name, attr in sorted(self.__class__.__dict__.items()):
@@ -394,6 +278,8 @@ class DbArticleContainer(ArticleContainer):
 
             attr = getattr(self, name)
             d[name] = attr
+        # TODO extra metadata only for qa purposes
+
         return d
 
 
@@ -434,11 +320,7 @@ class CachedArticleContainer(DbArticleContainer):
         return self._firstPost.md
 
     @property
-    def _bbcode(self) -> str:
-        return self._content
-
-    @property
-    def _content(self):
+    def raw_bbcode(self):
         contents = []
         for post in self._posts:
             if self.md.useTitles and post != self._posts[0]:
@@ -462,14 +344,6 @@ class CachedArticleContainer(DbArticleContainer):
     @property
     def _postIds(self):
         raise NotImplementedError  # should not be needed here
-
-    @property
-    def isForeign(self):
-        return self.container_md["isForeign"]
-
-    @property
-    def isImported(self):
-        return self.container_md["isImported"]
 
 
 class FilesysArticleContainer(CachedArticleContainer):

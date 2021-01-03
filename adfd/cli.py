@@ -7,7 +7,7 @@ from plumbum import ProcessExecutionError, SshMachine, cli, local
 
 from adfd import configure_logging
 from adfd.cnf import PATH, ADFD, TARGET
-from adfd.qa.check_urls import check_site_urls
+from adfd.scripts.check_urls import check_site_urls
 from adfd.db.lib import DB_WRAPPER
 from adfd.db.sync import DbSynchronizer
 from adfd.web import fridge

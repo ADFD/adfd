@@ -57,15 +57,9 @@ class PageMetadata:
         self.isVisible = True
         self.author = ""
         self.subject = ""
-        self._isBroken = False
         assert kwargs or text
-        try:
-            self._populate_from_kwargs(kwargs)
-            self._populate_from_text(text)
-            self._isBroken = bool(self.invalid_keys)
-        except Exception:
-            self._isBroken = True
-            log.warning(f"broken metadata with {kwargs} and {text}", exc_info=True)
+        self._populate_from_kwargs(kwargs)
+        self._populate_from_text(text)
 
     def __repr__(self):
         return str(self.as_dict)
@@ -100,7 +94,7 @@ class PageMetadata:
         return name in self.KEYS and not name.startswith("_")
 
     @property
-    def invalid_keys(self):
+    def _invalid_keys(self):
         return [
             name
             for name in vars(self)

@@ -24,7 +24,7 @@ class Fridge:
 
     def freeze(self):
         dump_db_articles_to_file_cache()
-        self.freeze_urls()
+        self.freeze_all_pages()
         self.deliver_static_root_files()
         self.deliver_cached_attachments()
         if not RUNS_ON.DEVBOX:
@@ -45,7 +45,7 @@ class Fridge:
             FREEZER_DESTINATION_IGNORE=[".git*", "*.idea"],
         )
 
-    def freeze_urls(self):
+    def freeze_all_pages(self):
         with local.cwd(PATH.PROJECT):
             log.info(f"freezing {app.config}")
             frozenURLs = self.freezer.freeze()
@@ -115,7 +115,7 @@ def dump_db_articles_to_file_cache():
     PATH.DB_CACHE.mkdir()
     NAV.populate()
     for node in NAV.allNodes:
-        container = node._container
+        container = node.contcon
         if type(container) != DbArticleContainer:  # no subclasses wanted here!
             log.info(f"skip {container}")
             continue
