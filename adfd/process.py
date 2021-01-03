@@ -35,7 +35,10 @@ def hyphenate(text, hyphen="&#173;"):
 
     &shy; seems more problematic than the unicode character
 
-    see https://stackoverflow.com/questions/226464/soft-hyphen-in-html-wbr-vs-shy
+    see
+        * https://stackoverflow.com/questions/226464/soft-hyphen-in-html-wbr-vs-shy
+        * https://css-tricks.com/snippets/css/\
+            prevent-long-urls-from-breaking-out-of-container/
 
     Question is also how to use this to not mutilate things that should not be
     hyphenated - maybe just grep all paragraphs and only hyphenate them?
