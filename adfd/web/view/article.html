@@ -1,14 +1,14 @@
-{% if not node.isRoot -%}
-<h1>{{ node.title }}</h1>
-
 {#see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article#}
-<article class="max-w-3xl prose prose-sm lg:prose-lg xl:prose-xl 2xl:prose-2xl">
+<article class="prose sm:prose-lg">
+    <h1>{{ node.title }}</h1>
+
     {{ node }}
 </article>
 
-<div class="mt-8 flex flex-auto px-8 border">
+{#{% if not node.isRoot -%}#}
+<div class="mt-8 p-4 mx-4 flex flex-auto gap-8 border rounded-lg border-gray-600 content-evenly">
     <div>
-        {{ node.contcon.__class__.__name__ }}({{ node.contcon.identifier }})
+        {{ node.contcon.__class__.__name__ }} / {{ node.contcon.identifier }}
     </div>
     <div>
         {% if node.hasOneAuthor -%}
@@ -24,4 +24,4 @@
         erstellt am {{ node.creationDate }}
     </div>
 </div>
-{% endif -%}
+{#{% endif -%}#}

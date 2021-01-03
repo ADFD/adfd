@@ -2,39 +2,18 @@
 
 {% block content -%}
     <div id="main">
-        <div>
-           {# TODO This is where in page nav might end up ...#}
-            <div>&nbsp;</div>
-        </div>
-        <div>
-            {% with messages = get_flashed_messages() -%}
-                {% if messages -%}
-                    {% for message in messages -%}
-                        <div>
-                            <i class="massive exclamation triangle icon"></i>
-                            {{ message }}
-                        </div>
-                    {% endfor -%}
-                {% endif -%}
+        {% if node.hasArticle -%}
+            {% with node=node -%}
+                {% include "article.html" -%}
             {% endwith -%}
-            {% if node and node.parents -%}
-                {% with node=node -%}
-                    {% include "breadcrumbs.html" -%}
-                {% endwith -%}
-            {% endif -%}
-            {% if node.hasArticle -%}
-                {% with node=node -%}
-                    {% include "article.html" -%}
-                {% endwith -%}
-            {% else -%}
-                <h1>{{ node.title }}</h1>
-            {% endif -%}
-            {% if node.isCategory and not node.isRoot -%}
-                {% with nodes=node.children -%}
-                    {% include "articles-list.html" -%}
-                {% endwith -%}
-            {% endif -%}
-        </div>
+        {% else -%}
+            <h1>{{ node.title }}</h1>
+        {% endif -%}
+        {% if node.isCategory and not node.isRoot -%}
+            {% with nodes=node.children -%}
+                {% include "articles-list.html" -%}
+            {% endwith -%}
+        {% endif -%}
     </div>
 
 {% endblock content -%}

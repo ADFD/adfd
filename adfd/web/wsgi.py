@@ -45,7 +45,7 @@ def path_route(path=""):
     node = NAV.get_node(path)
     node.bbcode_is_active = bbcode_is_active
     node.requestPath = flask.request.path
-    NAV.activeNode = node
+    NAV.activeNode = node  # TODO use in html to emphasize active link
     return flask.render_template("content-container.html", node=node)
 
 

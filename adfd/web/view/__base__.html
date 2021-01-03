@@ -4,22 +4,44 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="{{ url_for('static', filename='adfd.css') }}"/>
+        <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.min.js" defer></script>
         <title>ADFD {% if node -%} - {{ node.title }}{% endif -%}</title>
     </head>
-    <body class="sm:p-8 bg-gradient-to-t from-blue-600 to-blue-50">
+    <body class="min-h-screen sm:p-4 bg-gradient-to-t from-yellow-600 to-yellow-200">
     {#<body class="bg-green-300 sm:bg-blue-300 md:bg-red-300 lg:bg-yellow-300 xl:bg-pink-300">#}
 
-        <div id="outermost-container" class="bg-gray-100 container mx-auto max-w-4xl">
-            {% with node=node -%}
-                {% include "__header__.html" -%}
-            {% endwith -%}
+    {% with node=node -%}
+        {% include "__header__.html" -%}
+    {% endwith -%}
 
+    {% with messages = get_flashed_messages() -%}
+        {% if messages -%}
+            <div>
+            {% for message in messages -%}
+                <div class="text-xl flex-row flex-shrink-0 mt-2 p-4 font-bold bg-green-300 border border-green-700 rounded-lg shadow-md">
+                    <i class="massive exclamation triangle icon"></i>
+                    {{ message }}
+                </div>
+            {% endfor -%}
+            </div>
+        {% endif -%}
+    {% endwith -%}
+
+    <div class="relative">
+        {% if node and not node.isRoot and node.parents -%}
+            {% with node=node -%}
+                {% include "breadcrumbs.html" -%}
+            {% endwith -%}
+        {% endif -%}
+
+        <div id="content-container" class="mt-8 p-4 border border-gray-600 sm:rounded-lg shadow-lg bg-yellow-50 mx-auto max-w-2xl">
             {% block content -%}{% endblock content -%}
-
-            {% with node=node -%}
-                {% include "__footer__.html" -%}
-            {% endwith -%}
         </div>
+    </div>
+
+    {% with node=node -%}
+        {% include "__footer__.html" -%}
+    {% endwith -%}
 
     </body>
 </html>

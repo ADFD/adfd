@@ -1,10 +1,21 @@
-<div class="flex items-center mt-4">
-    <a href="/"><i class="home icon"></i></a>
-    <i></i>
+<div class="relative flex flex-shrink items-center mx-8 mt-4 p-2 border border-gray-400 bg-gray-200 rounded-lg max-w-full">
+    <a class="text-md font-semibold uppercase text-gray-700" href="/">
+        <svg class="h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+    </a>
+
     {% for parent in node.parents[1:] -%}
-        <a href="{{ parent.relPath }}">{{ parent.title }}</a>
-        {%- if not loop.last -%}
-            <i></i>
-        {% endif -%}
+        <svg class="h-6 mx-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+        </svg>
+        <a class="text-md font-semibold uppercase text-gray-700" href="{{ parent.relPath }}">{{ parent.title }}</a>
     {% endfor -%}
+
+    {% if not node.isRoot and node.SPEC == "C" -%}
+        <svg class="h-6 mx-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+        </svg>
+        <a class="text-md font-semibold uppercase text-gray-700" href="{{ node.relPath }}">{{ node.title }}</a>
+    {% endif -%}
 </div>
