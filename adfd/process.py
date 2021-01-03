@@ -1,10 +1,8 @@
 import codecs
-import os
 import re
 import time
 from datetime import datetime
 
-from plumbum import LocalPath
 from pyphen import Pyphen
 
 
@@ -30,17 +28,6 @@ class RE:
     """
 
 
-def extract_from_bbcode(tag, content):
-    rString = fr"\[{tag}\](.*)\[/{tag}\]"
-    regex = re.compile(rString, re.MULTILINE | re.DOTALL)
-    match = regex.search(content)
-    try:
-        return match.group(1)
-    except AttributeError:
-        pass
-        # log.warning("no [%s] in %s[...]" % (tag, content[:50]))
-
-
 # TODO needed?
 def hyphenate(text, hyphen="&shy;"):
     py = Pyphen(lang="de_de")
@@ -56,7 +43,7 @@ def untypogrify(text):
     return "".join([untypogrify_char(c) for c in text])
 
 
-def date_from_timestamp(timestamp=None):
+def date_from_timestamp(timestamp=None) -> str:
     timestamp = timestamp or time.time()
     return datetime.fromtimestamp(timestamp).strftime("%d.%m.%Y (%H:%M Uhr)")
 
@@ -83,31 +70,3 @@ class _Slugifier:
 
 
 slugify = _Slugifier()
-
-
-class ContentGrabber:
-    def __init__(self, path):
-        self.path = LocalPath(path)
-
-    def get_lines(self, fName=None):
-        """get lines as list from file (without empty element at end)"""
-        path = self.path / (fName + ".bb") if fName else self.path
-        return self.strip_whitespace(self.grab(path))
-
-    def grab(self, path=None):
-        path = path or self.path
-        return path.read("utf-8")
-
-    def get_ctime(self):
-        return date_from_timestamp(os.path.getctime(self.path))
-
-    def get_mtime(self):
-        return date_from_timestamp(os.path.getmtime(self.path))
-
-    @staticmethod
-    def strip_whitespace(content):
-        """lines stripped of surrounding whitespace and last empty line"""
-        lines = [t.strip() for t in content.split("\n")]
-        if not lines[-1]:
-            lines.pop()
-        return lines

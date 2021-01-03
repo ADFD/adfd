@@ -7,10 +7,9 @@ import yaml
 from boltons.iterutils import remap
 from bs4 import BeautifulSoup
 
-from adfd import configure_logging
+from adfd import configure_logging, metadata, process
 from adfd.cnf import ADFD, RUNS_ON
 from adfd.model import ArticleNode, CategoryNode, DbArticleContainer, Node
-from adfd.process import extract_from_bbcode, date_from_timestamp
 
 log = logging.getLogger(__name__)
 
@@ -38,7 +37,7 @@ class Navigator:
         self.menu = self.root.children
         self.isPopulated = True
         self._populate_orphan_nodes()
-        self.last_update = date_from_timestamp()
+        self.last_update = process.date_from_timestamp()
         log.info("navigation populated")
 
     def get_node(self, key) -> Node:
@@ -121,7 +120,8 @@ class Navigator:
             structure = ADFD.STRUCTURE_PATH.read()
         else:
             content = DbArticleContainer(ADFD.STRUCTURE_TOPIC_ID)
-            structure = extract_from_bbcode(ADFD.CODE_TAG, content.raw_bbcode)
+            structure = metadata.extract_from_bbcode(ADFD.CODE_TAG, content.raw_bbcode)
+        assert structure, f"empty structure ({ADFD.USE_FILE})"
         return yaml.safe_load(structure)
 
     def replace_links(self, html):

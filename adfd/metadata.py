@@ -16,9 +16,9 @@ Minimal BBCode replacement:
     <div>[meta]{TEXT}[/meta]</div>
 """
 import logging
+import re
 
 from adfd.cnf import ADFD
-from adfd.process import extract_from_bbcode
 
 log = logging.getLogger(__name__)
 
@@ -133,3 +133,14 @@ class PageMetadata:
             value = False
         log.debug(f"{self.__class__.__name__}: {key} -> {value}")
         setattr(self, key, value)
+
+
+def extract_from_bbcode(tag: str, content: str) -> str:
+    rString = fr"\[{tag}\](.*)\[/{tag}\]"
+    regex = re.compile(rString, re.MULTILINE | re.DOTALL)
+    match = regex.search(content)
+    try:
+        return match.group(1)
+    except AttributeError:
+        log.debug("[IGNORE] no [{}] in {}[...]".format(tag, content[:50]))
+        return ""
